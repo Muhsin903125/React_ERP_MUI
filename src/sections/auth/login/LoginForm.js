@@ -1,13 +1,13 @@
 import { useContext, useEffect, useRef, useState } from 'react';
-import { AuthContext } from 'src/App';
 import { useNavigate } from 'react-router-dom';
 // @mui
 import { Link, Stack, IconButton, InputAdornment, TextField, Checkbox } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import ToastAlert from 'src/components/ToastAlert';
-import { post } from 'src/hooks/axios';
+import ToastAlert from '../../../components/ToastAlert';
+import { post } from '../../../hooks/axios';
 // components
 import Iconify from '../../../components/iconify';
+import { AuthContext } from '../../../App';
 
 // ----------------------------------------------------------------------
 const LOGIN_URL = '/Account/login';
@@ -48,7 +48,7 @@ export default function LoginForm() {
       else {
         // setLoadingFull(false);
 
-        let errResp = response?.Data.response?.data
+        const errResp = response?.Data.response?.data
         if (errResp.statusCode === 400 || errResp.statusCode === 401) {
           setErrMsg(errResp.message);
           ToastAlert(errResp.message, "error")
@@ -59,7 +59,7 @@ export default function LoginForm() {
         errRef.current.focus();
       }
     } catch (err) {
-      //setLoadingFull(false);
+      // setLoadingFull(false);
       if (!err?.response) {
         setErrMsg("Server no response");
         ToastAlert('Server no response', "error")

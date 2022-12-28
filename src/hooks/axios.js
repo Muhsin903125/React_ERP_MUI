@@ -1,14 +1,14 @@
 import axios from 'axios'; 
 import { useContext } from 'react';
-import ToastAlert from 'src/components/ToastAlert';
-//import { AuthContext } from '../App'; 
+import ToastAlert from '../components/ToastAlert';
+// import { AuthContext } from '../App'; 
 //
-//const BASEURL = 'https://localhost:7134/api/';
+// const BASEURL = 'https://localhost:7134/api/';
 const BASEURL = 'https://muhsinerpapi.azurewebsites.net/api/';
 
 export const post = async (URL, payload, token) => {
 
-  let axiosInstancePost = axios.create({
+  const axiosInstancePost = axios.create({
     baseURL: BASEURL,
     headers: {
       "Content-type": "application/json",
