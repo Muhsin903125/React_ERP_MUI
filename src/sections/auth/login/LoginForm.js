@@ -6,9 +6,7 @@ import { Link, Stack, IconButton, InputAdornment, TextField, Checkbox } from '@m
 import { LoadingButton } from '@mui/lab';
 import ToastAlert from '../../../components/ToastAlert';
 import { post } from '../../../hooks/axios';
-// components
-import { AuthContext } from '../../../App';
-import ToastAlert from '../../../components/ToastAlert';
+// components 
 import Iconify from '../../../components/iconify';
 import { AuthContext } from '../../../App';
 
