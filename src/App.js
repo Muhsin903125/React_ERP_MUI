@@ -16,7 +16,7 @@ function App() {
   const [username, setUsername] = useState();
 
   const login = (user, token, roles) => {
-    console.log("adas " + user, "tt " + token + " rr  " + roles);
+   // console.log("adas " + user, "tt " + token + " rr  " + roles);
     setUsername(user);
     setToken(token);
   }

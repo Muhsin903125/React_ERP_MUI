@@ -1,12 +1,13 @@
-import { AuthContext } from 'src/App';
+ 
 import { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 // @mui
 import { Link, Stack, IconButton, InputAdornment, TextField, Checkbox } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
-import ToastAlert from 'src/components/ToastAlert';
-import { post } from 'src/hooks/axios';
+import { LoadingButton } from '@mui/lab'; 
+import {post} from '../../../hooks/axios'
 // components
+import { AuthContext } from '../../../App';
+import ToastAlert from '../../../components/ToastAlert';
 import Iconify from '../../../components/iconify';
 
 // ----------------------------------------------------------------------
@@ -24,7 +25,7 @@ export default function LoginForm() {
   const [pwd, setPwd] = useState('123456');
   const [errMsg, setErrMsg] = useState('');
   useEffect(() => {
-    userRef.current.focus();
+     userRef.current.focus();
   }, [])
 
   useEffect(() => {
@@ -48,7 +49,7 @@ export default function LoginForm() {
       else {
         // setLoadingFull(false);
 
-        let errResp = response?.Data.response?.data
+        const  errResp = response?.Data.response?.data
         if (errResp.statusCode === 400 || errResp.statusCode === 401) {
           setErrMsg(errResp.message);
           ToastAlert(errResp.message, "error")
@@ -56,10 +57,10 @@ export default function LoginForm() {
           setErrMsg('Login Failed');
           ToastAlert('Login Failed', "error")
         }
-        errRef.current.focus();
+       // errRef.current.focus();
       }
     } catch (err) {
-      //setLoadingFull(false);
+      // setLoadingFull(false);
       if (!err?.response) {
         setErrMsg("Server no response");
         ToastAlert('Server no response', "error")
@@ -69,7 +70,7 @@ export default function LoginForm() {
       } else {
         setErrMsg('Login Failed');
       }
-      errRef.current.focus();
+      // errRef.current.focus();
     }
     navigate('/dashboard', { replace: true });
   };
@@ -90,6 +91,7 @@ export default function LoginForm() {
           label="Password"
           onChange={(e) => setPwd(e.target.value)}
           value={pwd}
+          ref={userRef}
           required
           type={showPassword ? 'text' : 'password'}
           InputProps={{
