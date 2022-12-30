@@ -18,8 +18,8 @@ const navConfig = [
     childern: [
      
       {
-        title: 'Test 2',
-        path: '/dashboard/products3',
+        title: 'Change Password',
+        path: '/dashboard/changepassword',
         icon: icon('ic_cart'),
       },
       {
