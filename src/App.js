@@ -2,7 +2,6 @@
 import { createContext, useState } from 'react';
 import Router from './routes';
 // theme
-
 import ThemeProvider from './theme';
 // components
 import ScrollToTop from './components/scroll-to-top';
@@ -16,7 +15,8 @@ function App() {
   const [username, setUsername] = useState();
 
   const login = (user, token, roles) => {
-   // console.log("adas " + user, "tt " + token + " rr  " + roles);
+    // console.log("adas " + user, "tt " + token + " rr  " + roles);
+      console.log(`adas ${user}`)
     setUsername(user);
     setToken(token);
   }

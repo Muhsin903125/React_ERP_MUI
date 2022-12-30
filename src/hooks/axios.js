@@ -4,8 +4,8 @@ import axios from 'axios';
 const BASEURL = 'https://muhsinerpapi.azurewebsites.net/api/';
 
 export const post = async (URL, payload, token) => {
- 
-  const axiosInstancePost = axios.create({
+
+  let axiosInstancePost = axios.create({
     baseURL: BASEURL,
     headers: {
       "Content-type": "application/json",
