@@ -7,6 +7,7 @@ import ThemeProvider from './theme';
 import ScrollToTop from './components/scroll-to-top';
 import { StyledChart } from './components/chart';
 import Loader from './components/Loader';
+import ToastAlert from './components/ToastAlert';
 // ----------------------------------------------------------------------
 
 export const AuthContext = createContext();
@@ -37,6 +38,7 @@ function App() {
         <Router />
       </AuthContext.Provider>
       {loadingFull && <Loader  />}
+      <ToastAlert type="success" message="123 test dd"/>
     </ThemeProvider>
   );
 }
