@@ -1,6 +1,7 @@
 // component
 import SvgColor from '../../../components/svg-color';
 
+
 // ----------------------------------------------------------------------
 
 const icon = (name) => <SvgColor src={`/assets/icons/navbar/${name}.svg`} sx={{ width: 1, height: 1 }} />;
@@ -23,9 +24,9 @@ const navConfig = [
         icon: icon('ic_cart'),
       },
       {
-        title: 'test 3',
-        path: '/dashboard/blog3',
-        icon: icon('ic_blog'),
+        title: 'Sales invoice',
+        path: '/salesinvoice',
+        icon: icon('ic_cart'),
       },
     ]
   },

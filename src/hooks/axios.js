@@ -5,7 +5,7 @@ const BASEURL = 'https://muhsinerpapi.azurewebsites.net/api/';
 
 export const post = async (URL, payload, token) => {
 
-  let axiosInstancePost = axios.create({
+  const axiosInstancePost = axios.create({
     baseURL: BASEURL,
     headers: {
       "Content-type": "application/json",
