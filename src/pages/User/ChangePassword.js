@@ -4,11 +4,8 @@ import { faker } from '@faker-js/faker';
 // @mui
 import { useTheme } from '@mui/material/styles';
 import { Grid, Container, Typography, Stack, TextField } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
-import Dropdownlist from '../../theme/overrides/DropdownList';
-import DateSelector from '../../theme/overrides/DateSelector';
-// components
-import Iconify from '../../components/iconify';
+import { LoadingButton } from '@mui/lab'; 
+// components 
 
 // ----------------------------------------------------------------------
 
@@ -28,7 +25,7 @@ export default function ChangePassword() {
 
                 <Grid container spacing={3}>
                     <Grid item xs={12} sm={6} md={6}>
-                        <Stack spacing={5}>
+                        <Stack spacing={2}>
                             <TextField name="Current password"
                                 autoComplete="off"
                                 // onChange={(e) => setUser(e.target.value)}

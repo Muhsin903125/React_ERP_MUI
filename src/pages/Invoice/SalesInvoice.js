@@ -20,20 +20,26 @@ import {
   Typography,
   IconButton,
   TableContainer,
-  TablePagination,
+  TablePagination, Grid,
   TextField,
   FormControl,
+  ListItemSecondaryAction,
+  ListItem,
+  List,
+  Divider,
+  Input,
 } from '@mui/material';
 // components
-import Label from '../components/label';
-import Iconify from '../components/iconify';
-import Scrollbar from '../components/scrollbar';
-import DateSelector from '../theme/overrides/DateSelector';
-import Dropdownlist from '../theme/overrides/DropdownList';
+import Label from '../../components/label';
+import Iconify from '../../components/iconify';
+import Scrollbar from '../../components/scrollbar';
+import DateSelector from '../../components/DateSelector';
+import Dropdownlist from '../../components/DropdownList';
 // sections
-import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
+import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user';
 // mock
-import INVOICEITEMLIST from '../_mock/invoiceitems';
+import INVOICEITEMLIST from '../../_mock/invoiceitems';
+import InvoiceItem from './InvoiceItem';
 
 // ----------------------------------------------------------------------
 
@@ -95,19 +101,12 @@ export default function SalesInvoice() {
   };
 
   const [open, setOpen] = useState(null);
-
   const [page, setPage] = useState(0);
-
   const [order, setOrder] = useState('asc');
-
   const [selected, setSelected] = useState([]);
-
   const [orderBy, setOrderBy] = useState('name');
-
   const [filterName, setFilterName] = useState('');
-
   const [rowsPerPage, setRowsPerPage] = useState(5);
-
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
   };
@@ -161,10 +160,30 @@ export default function SalesInvoice() {
   };
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - INVOICEITEMLIST.length) : 0;
-
   const filteredUsers = applySortFilter(INVOICEITEMLIST, getComparator(order, orderBy), filterName);
-
   const isNotFound = !filteredUsers.length && !!filterName;
+
+
+  const [items, setItems] = useState([]);
+
+  const addItem = (event) => {
+    event.preventDefault();
+    setItems([...items, { name: event.target.itemName.value, price: event.target.itemPrice.value }]);
+  };
+
+  const editItem = (index, event) => {
+    event.preventDefault();
+    const newItems = [...items];
+    console.log({ name: event.target.itemName.value, price: event.target.itemPrice.value });
+    newItems[index] = { name: event.target.itemName.value, price: event.target.itemPrice.value };
+    setItems(newItems);
+  };
+
+  const removeItem = (index) => {
+    const newItems = [...items];
+    newItems.splice(index, 1);
+    setItems(newItems);
+  };
 
   return (
     <>
@@ -182,44 +201,86 @@ export default function SalesInvoice() {
           </Button>
         </Stack>
         <Card>
-          <Stack direction="row" alignItems="flex-start" justifyContent="space-between" m={3}>
-            <FormControl sx={{ minWidth: 120 }}  >
-              <TextField
-                id="invoice-no"
-                label="Invoice#"
-                defaultValue="1001"
-                inputProps={{
-                  readOnly: true
-                }}
-              />
-            </FormControl>
-            <FormControl sx={{ minWidth: 120 }}  >
-              <Dropdownlist options={InvoiceStatusOptions}
-                value={status}
-                label={"Status"}
-                onChange={handleStatusChange}
-              />
-            </FormControl>
-            <FormControl sx={{ minWidth: 120 }}  >
-              <DateSelector
-                label="Date"
-                disableFuture={disableFutureDate}
-                value={selectedDate}
-                onChange={setSelectedDate}
-              />
-            </FormControl>
-  <FormControl sx={{ minWidth: 120 }}  >
-              <DateSelector
-                label="Due Date"
-                disableFuture={!disableFutureDate}
-                value={selectedDate}
-                onChange={setSelectedDate}
-              />
-            </FormControl>
+          <Stack m={2.5} >
+            <Grid container spacing={2} mt={1}>
+              <Grid item xs={6} md={3}  >
+                <FormControl fullWidth>
+                  <TextField
+                    id="invoice-no"
+                    label="Invoice#"
+                    defaultValue="1001"
+                    inputProps={{
+                      readOnly: true
+                    }}
+                  />
+                </FormControl>
+              </Grid>
+              <Grid item xs={6} md={3} >
+                <FormControl fullWidth>
+                  <Dropdownlist options={InvoiceStatusOptions}
+                    value={status}
+                    label={"Status"}
+                    onChange={handleStatusChange}
+                  />
+                </FormControl>
+              </Grid>
+              <Grid item xs={6} md={3} >
+                <FormControl fullWidth>
+                  <DateSelector
+                    label="Date"
+                    disableFuture={disableFutureDate}
+                    value={selectedDate}
+                    onChange={setSelectedDate}
+                  />
+                </FormControl>
+              </Grid>
+              <Grid item xs={6} md={3} >
+                <FormControl fullWidth>
+                  <DateSelector
+                    label="Due Date"
+                    disableFuture={!disableFutureDate}
+                    value={selectedDate}
+                    onChange={setSelectedDate}
+                  />
+                </FormControl>
+              </Grid>
+            </Grid>
           </Stack>
+          <Stack m={2.5} >
 
+            <Typography variant="h6" mb={2} >
+              Invoice Items
+            </Typography>
+            <InvoiceItem />
+            <InvoiceItem />
+            <InvoiceItem />
+            <InvoiceItem />
+            <InvoiceItem />
+            <>
+              <form onSubmit={addItem}>
+                <Stack direction="row" alignItems="flex-start" justifyContent="space-between"  >
+                  <TextField label="Name" name="itemName" sx={{ minWidth: 300 }} />
+                  <TextField label="Price" name="itemPrice" />
+                  <TextField label="Quantity" name="itemQty" />
+                  <TextField label="Total" name="itemTotal" />
+                </Stack>
+                <Button type="submit">Add Item</Button>
+              </form>
+              <List>
+                {items.map((item, index) => (
+                  <ListItem key={index}>
+                    {item.name}: {item.price}
+                    <ListItemSecondaryAction>
+                      <Button onClick={() => removeItem(index)}>Remove</Button>
+                      <Button onClick={(event) => editItem(index, event)}>Edit</Button>
+                    </ListItemSecondaryAction>
+                  </ListItem>
+                ))}
+              </List>
+            </>
+          </Stack>
         </Card>
-        <Stack mb={3} />
+        {/* <Stack mb={3} /> */}
         <Card>
           <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
 

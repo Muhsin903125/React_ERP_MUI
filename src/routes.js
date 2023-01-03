@@ -10,7 +10,7 @@ import Page404 from './pages/Page404';
 import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
 import ChangePassword from './pages/User/ChangePassword';
-import SalesInvoice from './pages/SalesInvoice';
+import SalesInvoice from './pages/Invoice/SalesInvoice';
 
 // ----------------------------------------------------------------------
 
