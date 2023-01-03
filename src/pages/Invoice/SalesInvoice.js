@@ -165,6 +165,7 @@ export default function SalesInvoice() {
 
 
   const [items, setItems] = useState([]);
+  const [count, setCount] = useState(1);
 
   const addItem = (event) => {
     event.preventDefault();
@@ -251,14 +252,18 @@ export default function SalesInvoice() {
             <Typography variant="h6" mb={2} >
               Invoice Items
             </Typography>
-            <InvoiceItem />
-            <InvoiceItem />
-            <InvoiceItem />
-            <InvoiceItem />
-            <InvoiceItem />
+
+
+            {[...Array(count)].map(() => (
+              <InvoiceItem   />
+            ))}
+            <Button onClick={() => setCount(count + 1)}>Add Item</Button>
+
+
+
             <>
               <form onSubmit={addItem}>
-                <Stack direction="row" alignItems="flex-start" justifyContent="space-between"  >
+                <Stack mt={5} direction="row" alignItems="flex-start" justifyContent="space-between"  >
                   <TextField label="Name" name="itemName" sx={{ minWidth: 300 }} />
                   <TextField label="Price" name="itemPrice" />
                   <TextField label="Quantity" name="itemQty" />
