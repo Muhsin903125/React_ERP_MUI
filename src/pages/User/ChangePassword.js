@@ -5,15 +5,16 @@ import { faker } from '@faker-js/faker';
 import { useTheme } from '@mui/material/styles';
 import { Grid, Container, Typography, Stack, TextField } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import DateSelector from '../theme/overrides/DateSelector';
+import Dropdownlist from '../../theme/overrides/DropdownList';
+import DateSelector from '../../theme/overrides/DateSelector';
 // components
-import Iconify from '../components/iconify';
+import Iconify from '../../components/iconify';
 
 // ----------------------------------------------------------------------
 
 export default function ChangePassword() {
     const theme = useTheme();
-
+  
     return (
         <>
             <Helmet>
@@ -27,7 +28,7 @@ export default function ChangePassword() {
 
                 <Grid container spacing={3}>
                     <Grid item xs={12} sm={6} md={6}>
-                        <Stack spacing={4}>
+                        <Stack spacing={5}>
                             <TextField name="Current password"
                                 autoComplete="off"
                                 // onChange={(e) => setUser(e.target.value)}

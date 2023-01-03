@@ -22,12 +22,14 @@ import {
   TableContainer,
   TablePagination,
   TextField,
+  FormControl,
 } from '@mui/material';
 // components
 import Label from '../components/label';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
 import DateSelector from '../theme/overrides/DateSelector';
+import Dropdownlist from '../theme/overrides/DropdownList';
 // sections
 import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 // mock
@@ -75,10 +77,22 @@ function applySortFilter(array, comparator, query) {
   }
   return stabilizedThis.map((el) => el[0]);
 }
+const InvoiceStatusOptions = [
+  { value: 'paid', label: 'Paid' },
+  { value: 'unpaid', label: 'Unpaid' },
+  { value: 'overdue', label: 'Overdue' },
+  { value: 'draft', label: 'Draft' },
+];
 
 export default function SalesInvoice() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [disableFutureDate] = useState(true);
+
+  const [status, setStatus] = useState('paid');
+
+  const handleStatusChange = event => {
+    setStatus(event.target.value);
+  };
 
   const [open, setOpen] = useState(null);
 
@@ -168,21 +182,40 @@ export default function SalesInvoice() {
           </Button>
         </Stack>
         <Card>
-          <Stack direction="row" alignItems="center" justifyContent="space-between" m={3}>
-            <TextField
-              id="invoice-no"
-              label="Invoice#"
-              defaultValue="1001"
-              inputProps={{
-                readOnly: true
-              }}
-            />
-            <DateSelector
-              label="Date"
-              disableFuture={disableFutureDate}
-              value={selectedDate}
-              onChange={setSelectedDate}
-            />
+          <Stack direction="row" alignItems="flex-start" justifyContent="space-between" m={3}>
+            <FormControl sx={{ minWidth: 120 }}  >
+              <TextField
+                id="invoice-no"
+                label="Invoice#"
+                defaultValue="1001"
+                inputProps={{
+                  readOnly: true
+                }}
+              />
+            </FormControl>
+            <FormControl sx={{ minWidth: 120 }}  >
+              <Dropdownlist options={InvoiceStatusOptions}
+                value={status}
+                label={"Status"}
+                onChange={handleStatusChange}
+              />
+            </FormControl>
+            <FormControl sx={{ minWidth: 120 }}  >
+              <DateSelector
+                label="Date"
+                disableFuture={disableFutureDate}
+                value={selectedDate}
+                onChange={setSelectedDate}
+              />
+            </FormControl>
+  <FormControl sx={{ minWidth: 120 }}  >
+              <DateSelector
+                label="Due Date"
+                disableFuture={!disableFutureDate}
+                value={selectedDate}
+                onChange={setSelectedDate}
+              />
+            </FormControl>
           </Stack>
 
         </Card>
