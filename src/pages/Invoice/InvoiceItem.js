@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import Iconify from '../../components/iconify';
 
-export default function InvoiceItem() {
+export default function InvoiceItem({removeItem}) {
 
 
     return (
@@ -35,7 +35,9 @@ export default function InvoiceItem() {
                 </Grid>
                 <Grid item xs={6} sm={3} md={2} >
                     <FormControl fullWidth>
-                        <Button variant="outlined" color='error' endIcon={<Iconify icon="ic:round-delete-forever" size="large" />} >
+                        <Button variant="outlined" color='error' 
+                        onClick={removeItem}
+                        endIcon={<Iconify icon="ic:round-delete-forever" size="large" />} >
                             Remove
                         </Button>
                     </FormControl>

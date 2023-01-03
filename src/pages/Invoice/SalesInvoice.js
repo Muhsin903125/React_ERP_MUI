@@ -184,6 +184,8 @@ export default function SalesInvoice() {
     const newItems = [...items];
     newItems.splice(index, 1);
     setItems(newItems);
+
+    setCount(count - 1)
   };
 
   return (
@@ -255,7 +257,7 @@ export default function SalesInvoice() {
 
 
             {[...Array(count)].map(() => (
-              <InvoiceItem   />
+              <InvoiceItem removeItem={removeItem} />
             ))}
             <Button onClick={() => setCount(count + 1)}>Add Item</Button>
 
