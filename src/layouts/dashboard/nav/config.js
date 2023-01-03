@@ -12,28 +12,29 @@ const navConfig = [
     path: '/dashboard/app',
     icon: icon('ic_analytics'),
   },
+   
   {
-    title: 'dashboard Seubb',
+    title: 'Invoice',
     path: '',
-    icon: icon('ic_analytics'),
-    childern: [
-     
+    icon: icon('ic_user'),
+    childern: [     
       {
-        title: 'Change Password',
-        path: '/dashboard/changepassword',
-        icon: icon('ic_cart'),
-      },
-      {
-        title: 'Sales invoice',
-        path: '/salesinvoice',
-        icon: icon('ic_cart'),
-      },
+        title: 'Create Invoice',
+        path: '/dashboard/salesinvoice',
+        icon: icon('ic_radio_button'),
+      } 
     ]
-  },
-  {
+  },  {
     title: 'user',
     path: '/dashboard/user',
     icon: icon('ic_user'),
+    childern: [     
+      {
+        title: 'Change Password',
+        path: '/dashboard/changepassword',
+        icon: icon('ic_radio_button'),
+      } 
+    ]
   },
   {
     title: 'product',

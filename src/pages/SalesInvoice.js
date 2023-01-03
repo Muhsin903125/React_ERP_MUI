@@ -27,6 +27,7 @@ import {
 import Label from '../components/label';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
+import DateSelector from '../theme/overrides/DateSelector';
 // sections
 import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 // mock
@@ -40,7 +41,7 @@ const TABLE_HEAD = [
   { id: 'qty', label: 'Quantity', alignRight: true },
   { id: 'isVerified', label: 'Verified', alignRight: false },
   { id: 'rate', label: 'Rate', alignRight: true },
-  { id: 'amount', label: 'Amount', alignRight: true},
+  { id: 'amount', label: 'Amount', alignRight: true },
   { id: '' },
 ];
 
@@ -76,6 +77,9 @@ function applySortFilter(array, comparator, query) {
 }
 
 export default function SalesInvoice() {
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [disableFutureDate] = useState(true);
+
   const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -163,17 +167,24 @@ export default function SalesInvoice() {
             New Invoice
           </Button>
         </Stack>
-        <Card>          
-            <Stack direction="row" alignItems="center" justifyContent="space-between" m={3}>
-                <TextField 
-                    id="invoice-no"
-                    label="Invoice#"
-                    defaultValue="1001"
-                    inputProps={{
-                        readOnly: true
-                    }} 
-                />
-            </Stack>
+        <Card>
+          <Stack direction="row" alignItems="center" justifyContent="space-between" m={3}>
+            <TextField
+              id="invoice-no"
+              label="Invoice#"
+              defaultValue="1001"
+              inputProps={{
+                readOnly: true
+              }}
+            />
+            <DateSelector
+              label="Date"
+              disableFuture={disableFutureDate}
+              value={selectedDate}
+              onChange={setSelectedDate}
+            />
+          </Stack>
+
         </Card>
         <Stack mb={3} />
         <Card>
@@ -204,7 +215,7 @@ export default function SalesInvoice() {
 
                         <TableCell component="th" scope="row" padding="none">
                           <Stack direction="row" alignItems="center" spacing={2}>
-                            
+
                             <Typography variant="subtitle2" noWrap>
                               {name}
                             </Typography>

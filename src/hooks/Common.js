@@ -8,7 +8,8 @@ export function useToast() {
     const key = enqueueSnackbar(message, { 
       variant,
       anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
-      autoHideDuration: 5000,
+      autoHideDuration: 4000,
+      // TransitionComponent: "Fade",
       onClick: () => {
         closeSnackbar(key);
       },
