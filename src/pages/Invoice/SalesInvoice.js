@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 // @mui
 import {
   Card,
@@ -164,18 +164,25 @@ export default function SalesInvoice() {
   const isNotFound = !filteredUsers.length && !!filterName;
 
 
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState([{
+    name: "",
+    price: 0,
+    quantity: 0
+  }]);
   const [count, setCount] = useState(1);
 
   const addItem = (event) => {
     event.preventDefault();
-    setItems([...items, { name: event.target.itemName.value, price: event.target.itemPrice.value }]);
+    setItems([...items, {
+      name: "",
+      price: 0,
+      quantity: 0
+    }]);
   };
 
   const editItem = (index, event) => {
     event.preventDefault();
     const newItems = [...items];
-    console.log({ name: event.target.itemName.value, price: event.target.itemPrice.value });
     newItems[index] = { name: event.target.itemName.value, price: event.target.itemPrice.value };
     setItems(newItems);
   };
@@ -184,10 +191,32 @@ export default function SalesInvoice() {
     const newItems = [...items];
     newItems.splice(index, 1);
     setItems(newItems);
-
-    setCount(count - 1)
+ 
   };
 
+
+  const [fields, setFields] = useState([{ value: '' }]);
+  const nameRef = useRef({});
+  const priceRef= useRef({});
+  const qtyRef = useRef({});
+  const handleChange = (index, event) => {
+    console.log(index);
+    const values = [...items];
+    values[index].value = event.target.value;
+    setFields(values);
+  };
+
+  const handleAddField = () => {
+    const values = [...fields];
+    values.push({ value: '' });
+    setFields(values);
+  };
+
+  const handleRemoveField = index => {
+    const values = [...fields];
+    values.splice(index, 1);
+    setFields(values);
+  };
   return (
     <>
       <Helmet>
@@ -256,13 +285,24 @@ export default function SalesInvoice() {
             </Typography>
 
 
-            {[...Array(count)].map(() => (
+            {/* {[...Array(count)].map(() => (
               <InvoiceItem removeItem={removeItem} />
-            ))}
-            <Button onClick={() => setCount(count + 1)}>Add Item</Button>
+            ))} */}
 
-
-
+            <List>
+              {items.map((field, index) => (                 
+                  <InvoiceItem key={index}
+                  nameRef={nameRef[index]}
+                    priceRef={priceRef[index]}
+                     qtyRef={qtyRef[index]} 
+                     removeItem={() => handleRemoveField(index)} />            
+              ))}
+           </List>
+            <Grid container spacing={2}  >
+              <Grid item xs={12} md={3} >
+                <Button variant="outlined" fullWidth onClick={addItem}>Add Item</Button>
+              </Grid>
+            </Grid>
             <>
               <form onSubmit={addItem}>
                 <Stack mt={5} direction="row" alignItems="flex-start" justifyContent="space-between"  >

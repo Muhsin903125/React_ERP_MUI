@@ -1,3 +1,4 @@
+import { useState } from 'react';
 
 import {
     Button,
@@ -5,21 +6,31 @@ import {
     TextField,
     FormControl,
     Box,
+    ListItem,
 } from '@mui/material';
 import Iconify from '../../components/iconify';
 
-export default function InvoiceItem({removeItem}) {
+export default function InvoiceItem({key,nameRef, priceRef,qtyRef,onChange, removeItem}) {
 
+    // const [itemName, setName] = useState(name);
+    // const [itemPrice, setPrice] = useState(price);
+    // const [itemQty, setQty] = useState(quantity); 
 
     return (
-        <Box  mb={2}  >
+        <ListItem key={key} mb={2}  >
             <Grid container spacing={2} >
                 <Grid item xs={12} md={4} >
-                    <TextField size="small" fullWidth label="Name" name="itemName" />
+                    <TextField size="small" 
+                   // value={itemName} 
+inputRef={nameRef}
+                    onChange={onChange}
+                    fullWidth label="Name" name="itemName" />
                 </Grid>
                 <Grid item xs={6} sm={3} md={2} >
                     <TextField
                         fullWidth
+                        inputRef={priceRef}
+                      //  value={itemPrice} 
                         type={'number'}
                         inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                         size="small" label="Price" name="itemPrice" />
@@ -28,6 +39,8 @@ export default function InvoiceItem({removeItem}) {
                     <TextField
                         type={'number'}
                         fullWidth
+                        inputRef={qtyRef}
+                     //   value={itemQty} 
                         inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} size="small" label="Quantity" name="itemQty" />
                 </Grid>
                 <Grid item xs={6} sm={3} md={2} >
@@ -43,6 +56,6 @@ export default function InvoiceItem({removeItem}) {
                     </FormControl>
                 </Grid>
             </Grid>
-        </Box>
+        </ListItem>
     );
 }
