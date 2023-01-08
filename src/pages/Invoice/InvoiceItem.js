@@ -22,7 +22,7 @@ export default function InvoiceItem({key,nameRef, priceRef,qtyRef,onChange, remo
                 <Grid item xs={12} md={4} >
                     <TextField size="small" 
                    // value={itemName} 
-inputRef={nameRef}
+                    inputRef={nameRef}
                     onChange={onChange}
                     fullWidth label="Name" name="itemName" />
                 </Grid>
