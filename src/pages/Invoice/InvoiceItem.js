@@ -66,10 +66,10 @@ export default function InvoiceItem({ key, codeRef, descRef, unitRef, priceRef, 
             <Grid item xs={6} sm={3} md={1} >
                 <FormControl fullWidth>
                 <Stack direction="row" spacing={1}>
-                    <IconButton aria-label="delete">
+                    {/* <IconButton aria-label="delete">
                         <CheckCircle color="primary"/>
-                    </IconButton> 
-                    <IconButton aria-label="delete">
+                    </IconButton>  */}
+                    <IconButton aria-label="delete" onClick={removeItem}>
                         <Delete color="error"/>
                     </IconButton>
                     </Stack>
