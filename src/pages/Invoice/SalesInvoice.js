@@ -78,13 +78,15 @@ export default function SalesInvoice() {
     const newItems = [...items];
     newItems.splice(index, 1);
     setItems(newItems);
- 
+
   };
 
 
   const [fields, setFields] = useState([{ value: '' }]);
-  const nameRef = useRef({});
-  const priceRef= useRef({});
+  const codeRef = useRef({});
+  const descRef = useRef({});
+  const unitRef = useRef({});
+  const priceRef = useRef({});
   const qtyRef = useRef({});
   const handleChange = (index, event) => {
     console.log(index);
@@ -169,18 +171,19 @@ export default function SalesInvoice() {
 
             <Typography variant="h6" mb={2} >
               Item Details
-            </Typography>
-
-            <List>
-              {items.map((field, index) => (                 
-                  <InvoiceItem key={index}
-                  nameRef={nameRef[index]}
-                    priceRef={priceRef[index]}
-                     qtyRef={qtyRef[index]} 
-                     removeItem={() => removeItem(index)} />            
+            </Typography> 
+              {items.map((field, index) => (
+                <InvoiceItem key={index}
+                  codeRef={codeRef[index]}
+                  descRef={descRef[index]}
+                  unitRef={unitRef[index]}               
+                  priceRef={priceRef[index]}
+                  qtyRef={qtyRef[index]}
+                  removeItem={() => removeItem(index)} />
               ))}
-           </List>
-            <Grid container spacing={2}  >
+         
+        
+            <Grid container spacing={3.5}  >
               <Grid item xs={12} md={3} >
                 <Button variant="outlined" fullWidth onClick={addItem}>Add Item</Button>
               </Grid>
