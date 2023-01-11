@@ -19,7 +19,7 @@ export default function InvoiceItem({ key, codeRef, descRef, unitRef, priceRef, 
     // const [itemQty, setQty] = useState(quantity); 
 
     return (
-        <Grid container spacing={2} mb={2}>
+        <Grid key={key} container spacing={2} mb={2}>
             <Grid item xs={12} md={2}>
                 <TextField size="small"
                     inputRef={codeRef}
