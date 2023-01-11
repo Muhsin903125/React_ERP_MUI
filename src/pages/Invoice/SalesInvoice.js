@@ -31,6 +31,7 @@ import Iconify from '../../components/iconify';
 import DateSelector from '../../components/DateSelector';
 import Dropdownlist from '../../components/DropdownList';
 import InvoiceItem from './InvoiceItem';
+import SubTotalSec from './SubTotalSec';
 
 // ----------------------------------------------------------------------
 
@@ -171,23 +172,25 @@ export default function SalesInvoice() {
 
             <Typography variant="h6" mb={2} >
               Item Details
-            </Typography> 
-              {items.map((field, index) => (
-                <InvoiceItem key={index}
-                  codeRef={codeRef[index]}
-                  descRef={descRef[index]}
-                  unitRef={unitRef[index]}               
-                  priceRef={priceRef[index]}
-                  qtyRef={qtyRef[index]}
-                  removeItem={() => removeItem(index)} />
-              ))}
-         
-        
-            <Grid container spacing={3.5}  >
-              <Grid item xs={12} md={3} >
-                <Button variant="outlined" fullWidth onClick={addItem}>Add Item</Button>
-              </Grid>
-            </Grid>
+            </Typography>
+            {items.map((field, index) => (
+              <InvoiceItem key={index}
+                codeRef={codeRef[index]}
+                descRef={descRef[index]}
+                unitRef={unitRef[index]}
+                priceRef={priceRef[index]}
+                qtyRef={qtyRef[index]}
+                removeItem={() => removeItem(index)} />
+            ))}
+
+
+
+            <SubTotalSec addItem={addItem} />
+            <Stack direction="row"  justifyContent="flex-end" mb={2} mt={2}>
+              <Button variant="contained" color='success' size='large'>
+                Create Invoice
+              </Button>
+            </Stack>
           </Stack>
         </Card>
       </Container>
