@@ -5,7 +5,7 @@ import {
     Grid,
     TextField,
     FormControl,
-    Box,Stack,
+    Box, Stack,
     ListItem,
     IconButton,
 } from '@mui/material';
@@ -19,68 +19,61 @@ export default function InvoiceItem({ key, codeRef, descRef, unitRef, priceRef, 
     // const [itemQty, setQty] = useState(quantity); 
 
     return (
-
-        <Grid container spacing={2} mb={2} >
-            <Grid item xs={12} md={2} >
+        <Grid key={key} container spacing={2} mb={2}>
+            <Grid item xs={12} md={2}>
                 <TextField size="small"
-                    // value={itemName} 
                     inputRef={codeRef}
+                    fullWidth label="Code" name="ItemCode"
                     onChange={onChange}
-                    fullWidth label="Code" name="ItemCode" />
+                />
             </Grid>
-            <Grid item xs={12} md={3} >
+            <Grid item xs={12} md={3}>
                 <TextField size="small"
-                    // value={itemName} 
                     inputRef={descRef}
+                    fullWidth label="Description" name="ItemDesc"
                     onChange={onChange}
-                    fullWidth label="Description" name="ItemDesc" />
+                />
             </Grid>
-            <Grid item xs={6} sm={3} md={2} >
+            <Grid item xs={6} sm={3} md={2}>
                 <TextField
                     fullWidth
                     inputRef={priceRef}
-                    //  value={itemPrice} 
                     type={'number'}
-                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                    size="small" label="Price" name="itemPrice" />
+                    inputProps={{ min: "0" }}
+                    size="small" label="Price" name="itemPrice"
+                    onChange={onChange}
+                />
             </Grid>
-            <Grid item xs={6} sm={3} md={1} >
+            <Grid item xs={6} sm={3} md={1}>
                 <TextField
                     type={'number'}
                     fullWidth
                     inputRef={unitRef}
-                    //   value={itemQty} 
-                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} size="small" label="Unit" name="ItemUnit" />
+                    inputProps={{ min: "0" }}
+                    size="small" label="Unit" name="ItemUnit"
+                    onChange={onChange}
+                />
             </Grid>
-            <Grid item xs={6} sm={3} md={1} >
+            <Grid item xs={6} sm={3} md={1}>
                 <TextField
                     type={'number'}
                     fullWidth
                     inputRef={qtyRef}
-                    //   value={itemQty} 
-                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} size="small" label="Quantity" name="itemQty" />
+                    inputProps={{ min: "0" }}
+                    size="small" label="Quantity" name="itemQty"
+                    onChange={onChange}
+                />
             </Grid>
-            <Grid item xs={6} sm={3} md={2} >
+            <Grid item xs={6} sm={3} md={2}>
                 <TextField disabled fullWidth value={0.00} size="small" label="Total" name="itemTotal" />
             </Grid>
-            <Grid item xs={6} sm={3} md={1} >
-                <FormControl fullWidth>
-                <Stack direction="row" spacing={1}>
-                    {/* <IconButton aria-label="delete">
-                        <CheckCircle color="primary"/>
-                    </IconButton>  */}
-                    <IconButton aria-label="delete" onClick={removeItem}>
-                        <Delete color="error"/>
-                    </IconButton>
-                    </Stack>
-                    {/* <Button variant="outlined" color='error'                         onClick={removeItem}
-                       
-                        endIcon={<Iconify icon="ic:round-delete-forever" size="large" />} >
-                            
-                        </Button> */}
-                </FormControl>
+            <Grid item xs={6} sm={3} md={1}>
+                <IconButton aria-label="delete" onClick={removeItem}>
+                    <Delete color="error" />
+                </IconButton>
             </Grid>
         </Grid>
+
 
     );
 }

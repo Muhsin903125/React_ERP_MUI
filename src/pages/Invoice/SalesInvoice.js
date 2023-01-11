@@ -31,6 +31,7 @@ import Iconify from '../../components/iconify';
 import DateSelector from '../../components/DateSelector';
 import Dropdownlist from '../../components/DropdownList';
 import InvoiceItem from './InvoiceItem';
+import SubTotalSec from './SubTotalSec';
 
 // ----------------------------------------------------------------------
 
@@ -53,17 +54,21 @@ export default function SalesInvoice() {
   };
 
   const [items, setItems] = useState([{
+   
     name: "",
     price: 0,
-    quantity: 0
+    quantity: 0,
+    unit:1
   }]);
 
   const addItem = (event) => {
-    event.preventDefault();
-    setItems([...items, {
+    event.preventDefault(); 
+   // console.log(ItemNewLength);
+    setItems([...items, {      
       name: "",
       price: 0,
-      quantity: 0
+      quantity: 0,
+      unit:1
     }]);
   };
 
@@ -75,10 +80,10 @@ export default function SalesInvoice() {
   };
 
   const removeItem = (index) => {
-    const newItems = [...items];
-    newItems.splice(index, 1);
+    const newItems = [...items]; 
+    console.log(index);
+    newItems.splice(index,1);
     setItems(newItems);
-
   };
 
 
@@ -94,18 +99,7 @@ export default function SalesInvoice() {
     values[index].value = event.target.value;
     setFields(values);
   };
-
-  const handleAddField = () => {
-    const values = [...fields];
-    values.push({ value: '' });
-    setFields(values);
-  };
-
-  const handleRemoveField = index => {
-    const values = [...fields];
-    values.splice(index, 1);
-    setFields(values);
-  };
+ 
   return (
     <>
       <Helmet>
@@ -171,23 +165,26 @@ export default function SalesInvoice() {
 
             <Typography variant="h6" mb={2} >
               Item Details
-            </Typography> 
-              {items.map((field, index) => (
-                <InvoiceItem key={index}
-                  codeRef={codeRef[index]}
-                  descRef={descRef[index]}
-                  unitRef={unitRef[index]}               
-                  priceRef={priceRef[index]}
-                  qtyRef={qtyRef[index]}
-                  removeItem={() => removeItem(index)} />
-              ))}
-         
-        
-            <Grid container spacing={3.5}  >
-              <Grid item xs={12} md={3} >
-                <Button variant="outlined" fullWidth onClick={addItem}>Add Item</Button>
-              </Grid>
-            </Grid>
+            </Typography>
+            {items.map((field, index) => (
+              <InvoiceItem key={index}
+                codeRef={codeRef[index]}
+                descRef={descRef[index]}
+                unitRef={unitRef[index]}
+                priceRef={priceRef[index]}
+                qtyRef={qtyRef[index]}
+                // onChange=
+                removeItem={() => removeItem(index)} />
+            ))}
+
+
+
+            <SubTotalSec addItem={addItem} />
+            <Stack direction="row" justifyContent="flex-end" mb={2} mt={2}>
+              <Button variant="contained" color='success' size='large'>
+                Create Invoice
+              </Button>
+            </Stack>
           </Stack>
         </Card>
       </Container>
