@@ -14,6 +14,18 @@ const navConfig = [
   },
    
   {
+    title: 'Masters',
+    path: '',
+    icon: icon('ic_user'),
+    childern: [     
+      {
+        title: 'Customer Master',
+        path: '/dashboard/customermaster',
+        icon: icon('ic_user'),
+      } 
+    ]
+  },  
+  {
     title: 'Invoice',
     path: '',
     icon: icon('ic_user'),
@@ -24,7 +36,8 @@ const navConfig = [
         icon: icon('ic_radio_button'),
       } 
     ]
-  },  {
+  },  
+  {
     title: 'user',
     path: '/dashboard/user',
     icon: icon('ic_user'),

@@ -11,6 +11,7 @@ import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
 import ChangePassword from './pages/User/ChangePassword';
 import SalesInvoice from './pages/Invoice/SalesInvoice';
+import CustomerMaster from './pages/Masters/CustomerMaster';
 
 // ----------------------------------------------------------------------
 
@@ -27,6 +28,7 @@ export default function Router() {
         { path: 'user', element: <UserPage /> },
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
+        { path: 'customermaster', element: <CustomerMaster /> },
       ],
     },
     {
