@@ -30,11 +30,11 @@ export default function InvoiceItem({ key, codeRef, descRef, unitRef, priceRef, 
         { label: 'Peach', price: 150,unit:"kg",desc:"Peach from Himachal Pradesh" },
         { label: 'Plum', price: 180,unit:"kg",desc:"Plum from Maharashtra"}
       ]
-      const [selectedOption, setSelectedOption] = useState(null);
-      const handleSelect = (option) => {
-          console.log(option);
-        setSelectedOption(option);
-    }
+      const [ItemDesc, setItemDesc] = useState({});
+      
+      const handleItemCodeChange = (event, newValue) => {
+        setItemDesc(newValue);
+      };
     
     return (
         <Grid key={key} container spacing={2} mb={2}>
@@ -42,27 +42,19 @@ export default function InvoiceItem({ key, codeRef, descRef, unitRef, priceRef, 
                 <Autocomplete
                     disablePortal                   
                     options={products}
-                  // onChange={(value)=>{handleSelect(value.label)}}
-                 getOptionLabel={(option) => option.label} 
+                    onChange={handleItemCodeChange}
+                    getOptionLabel={(option) => option.label} 
                     renderInput={(params) => <TextField {...params} size="small"   inputRef={codeRef} label="Code" name="ItemCode" />}
                 />
                
             </Grid>
             <Grid item xs={12} md={3}>
-            <Autocomplete
-                    disablePortal                   
-                    options={products}
-                  // onChange={(value)=>{handleSelect(value.label)}}
-                 getOptionLabel={(option) => option.desc} 
-                    renderInput={(params) => <TextField {...params} size="small"   
-                    inputRef={descRef}
-                    fullWidth label="Description" name="ItemDesc"/>}
-                />
-                {/* <TextField size="small"
+                <TextField 
+                    size="small"
+                    value={ItemDesc ? ItemDesc.desc : ''}
                     inputRef={descRef}
                     fullWidth label="Description" name="ItemDesc"
-                    onChange={onChange}
-                /> */}
+                />
             </Grid>
             <Grid item xs={6} sm={3} md={2}>
                 <TextField
