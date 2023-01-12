@@ -8,6 +8,7 @@ import {
     Box, Stack,
     ListItem,
     IconButton,
+    Autocomplete,
 } from '@mui/material';
 import { CheckCircle, Delete, Save } from '@mui/icons-material';
 import Iconify from '../../components/iconify';
@@ -16,23 +17,52 @@ export default function InvoiceItem({ key, codeRef, descRef, unitRef, priceRef, 
 
     // const [itemName, setName] = useState(name);
     // const [itemPrice, setPrice] = useState(price);
-    // const [itemQty, setQty] = useState(quantity); 
-
+     const [itemQty, setQty] = useState(null); 
+    const products = [
+        { label: 'Mango', price: 194,unit:"kg",desc:"Kerala mango" },
+        { label: 'Apple', price: 250,unit:"kg",desc:"Kashmir Apple" },
+        { label: 'Banana', price: 80,unit:"kg",desc:"Banana from Tamil Nadu" },
+        { label: 'Pineapple', price: 150,unit:"kg",desc:"Pineapple from Himachal Pradesh" },
+        { label: 'Guava', price: 60,unit:"kg",desc:"Guava from Uttar Pradesh" },
+        { label: 'Grapes', price: 200,unit:"kg",desc:"Grapes from Maharashtra" },
+        { label: 'Lemon', price: 80,unit:"kg",desc:"Lemon from Andhra Pradesh" },
+        { label: 'Watermelon', price: 40,unit:"kg",desc:"Watermelon from Rajasthan" },
+        { label: 'Peach', price: 150,unit:"kg",desc:"Peach from Himachal Pradesh" },
+        { label: 'Plum', price: 180,unit:"kg",desc:"Plum from Maharashtra"}
+      ]
+      const [selectedOption, setSelectedOption] = useState(null);
+      const handleSelect = (option) => {
+          console.log(option);
+        setSelectedOption(option);
+    }
+    
     return (
         <Grid key={key} container spacing={2} mb={2}>
             <Grid item xs={12} md={2}>
-                <TextField size="small"
-                    inputRef={codeRef}
-                    fullWidth label="Code" name="ItemCode"
-                    onChange={onChange}
+                <Autocomplete
+                    disablePortal                   
+                    options={products}
+                  // onChange={(value)=>{handleSelect(value.label)}}
+                 getOptionLabel={(option) => option.label} 
+                    renderInput={(params) => <TextField {...params} size="small"   inputRef={codeRef} label="Code" name="ItemCode" />}
                 />
+               
             </Grid>
             <Grid item xs={12} md={3}>
-                <TextField size="small"
+            <Autocomplete
+                    disablePortal                   
+                    options={products}
+                  // onChange={(value)=>{handleSelect(value.label)}}
+                 getOptionLabel={(option) => option.desc} 
+                    renderInput={(params) => <TextField {...params} size="small"   
+                    inputRef={descRef}
+                    fullWidth label="Description" name="ItemDesc"/>}
+                />
+                {/* <TextField size="small"
                     inputRef={descRef}
                     fullWidth label="Description" name="ItemDesc"
                     onChange={onChange}
-                />
+                /> */}
             </Grid>
             <Grid item xs={6} sm={3} md={2}>
                 <TextField
