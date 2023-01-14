@@ -1,13 +1,14 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 // @mui
-import { Link, Stack, IconButton, InputAdornment, TextField, Checkbox, CircularProgress } from '@mui/material';
+import { Link, Stack, IconButton,Typography, InputAdornment,Card, TextField, Checkbox, CircularProgress } from '@mui/material';
 import { LoadingButton } from '@mui/lab';  
 import   { useToast }  from '../../../hooks/Common';
 import { post } from '../../../hooks/axios';
 // components 
 import Iconify from '../../../components/iconify';
-import { AuthContext } from '../../../App';  
+import { AuthContext } from '../../../App';   
+import Logo from '../../../components/logo/Logo';
 
 // ----------------------------------------------------------------------
 const LOGIN_URL = '/Account/login';
@@ -74,8 +75,12 @@ export default function LoginForm() {
   };
 
   return (
-    <>
-      <Stack spacing={3}>
+    <Card  >
+        <Stack m={2.5}>
+      <Stack spacing={3} >
+      <Typography variant="h3" sx={{ px:1,mt: 2, mb: 2 }}>
+             Login 
+            </Typography>
         <TextField name="email"
           id="email"
           autoComplete="off"
@@ -106,7 +111,7 @@ export default function LoginForm() {
 
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 2 }}>
         {/* <Checkbox name="remember" label="Remember me" /> */}
-        <Link variant="subtitle2" underline="hover">
+        <Link to='/forgotpassword' variant="subtitle2" underline="hover">
           Forgot password?
         </Link>
       </Stack>
@@ -114,6 +119,8 @@ export default function LoginForm() {
       <LoadingButton fullWidth size="large" type="submit" variant="contained" onClick={handleClick}>
         Login
       </LoadingButton>
-    </>
+      </Stack>
+       
+    </Card>
   );
 }

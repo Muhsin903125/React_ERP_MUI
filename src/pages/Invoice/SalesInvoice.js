@@ -53,8 +53,7 @@ export default function SalesInvoice() {
     setStatus(event.target.value);
   };
 
-  const [items, setItems] = useState([{
-   
+  const [items, setItems] = useState([{   
     name: "",
     price: 0,
     quantity: 0,

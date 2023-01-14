@@ -12,6 +12,8 @@ import DashboardAppPage from './pages/DashboardAppPage';
 import ChangePassword from './pages/User/ChangePassword';
 import SalesInvoice from './pages/Invoice/SalesInvoice';
 import CustomerMaster from './pages/Masters/CustomerMaster';
+import { LoginForm } from './sections/auth/login';
+import ForgotPassword from './pages/User/ForgotPassword';
 
 // ----------------------------------------------------------------------
 
@@ -33,7 +35,11 @@ export default function Router() {
     },
     {
       path: 'login',
-      element: <LoginPage />,
+      element: <LoginPage Children={LoginForm} title="Login"/>,
+    },
+     {
+      path: 'forgotpassword',
+      element: <LoginPage Children={ForgotPassword} title="Forgot Password"/>,
     },
     {
       element: <SimpleLayout />,

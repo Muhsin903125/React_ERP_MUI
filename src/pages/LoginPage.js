@@ -16,6 +16,10 @@ const StyledRoot = styled('div')(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
     display: 'flex',
   },
+  backgroundImage: `url('/assets/illustrations/LoginBG.svg')`,
+    backgroundSize: "cover",
+    backgroundRepeat: "no-repeat",
+    backgroundPosition: "center"
 }));
 
 const StyledSection = styled('div')(({ theme }) => ({
@@ -24,8 +28,8 @@ const StyledSection = styled('div')(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'center',
-  boxShadow: theme.customShadows.card,
-  backgroundColor: theme.palette.background.default,
+  // boxShadow: theme.customShadows.card,
+ // backgroundColor: theme.palette.background.default,
 }));
 
 const StyledContent = styled('div')(({ theme }) => ({
@@ -40,18 +44,18 @@ const StyledContent = styled('div')(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-export default function LoginPage() {
+export default function LoginPage({Children,title}) {
   const mdUp = useResponsive('up', 'md');
 
   return (
     <>
       <Helmet>
-        <title> Login | Minimal UI </title>
+        <title> {title} </title>
       </Helmet>
 
       <StyledRoot>
        
-
+{/* 
         {mdUp && (
           <StyledSection>
             <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
@@ -59,7 +63,7 @@ export default function LoginPage() {
             </Typography>
             <img src="/assets/illustrations/illustration_login.png" alt="login" />
           </StyledSection>
-        )}
+        )} */}
 
         <Container maxWidth="sm">
           <StyledContent>
@@ -70,18 +74,9 @@ export default function LoginPage() {
             left: { xs: 16, sm: 24, md: 40 },
           }}
         />
-            {/* <Typography variant="h4" gutterBottom>
-              Sign in to Minimal
-            </Typography> */}
+        
 
-            {/* <Typography variant="body2" sx={{ mb: 5 }}>
-              Don’t have an account? {''}
-              <Link variant="subtitle2">Get started</Link>
-            </Typography> */}
- 
-              
-
-            <LoginForm />
+            <Children/>
           </StyledContent>
         </Container>
       </StyledRoot>
