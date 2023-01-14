@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 // @mui
 import { Link, Stack, IconButton, Typography, Card, TextField } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { useToast, GenerateRandomKey } from '../../hooks/Common';
+import { useToast } from '../../hooks/Common';
 // components 
 import CountDownTimer from '../../components/CountDownTimer';
 import Iconify from '../../components/iconify';
@@ -15,11 +15,21 @@ const FORGOTPASSWORD_APIURL = '/Account/forgotpassword';
 const OTPVERIFY_APIURL = '/Account/verifyotp';
 
 export default function ForgotPassword() {
+    function GenerateRandomKey (length){
+        // let result = '';
+        // const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        // const charactersLength = characters.length;
+        // for (let i = 0; i < length; i+1) {
+        //    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        // }
+        return "ofbdkjsasdbasdasm"; 
+    }
+
     const { showToast } = useToast();
     const navigate = useNavigate()
     const { setLoadingFull } = useContext(AuthContext)
     // const GenerateRandomKey = GenerateRandomKey(12);
-    const [OTPKey, setOTPKey] = useState( "GenerateRandomKey(12)")
+    const [OTPKey, setOTPKey] = useState(GenerateRandomKey(12))
     const [username, setUsername] = useState('');
     const [otp, setOtp] = useState('');
     const [resetTimer, setResetTimer] = useState(-1);

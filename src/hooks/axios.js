@@ -1,11 +1,11 @@
- 
+
 import axios from 'axios';
- 
+
 // const BASEURL = 'https://muhsinerpapi.azurewebsites.net/api/';
 const BASEURL = 'https://localhost:7134/api/';
 
 export const post = async (URL, payload, token) => {
- 
+
   const axiosInstancePost = axios.create({
     baseURL: BASEURL,
     headers: {
@@ -119,7 +119,7 @@ export const post = async (URL, payload, token) => {
 //   }
 // };
 // export const ErrrHandler = (e, URL, PAYLOAD = {}) => {
- 
+
 //   console.log(
 //     `REQUEST TO: ${URL} with PAYLOAD: ${JSON.stringify(PAYLOAD)} failed!,`
 //   );
@@ -132,7 +132,7 @@ export const post = async (URL, payload, token) => {
 //   } else {
 //     ToastAlert(e.response?.data.message, "error")
 //     // const { status, data } = e.response;
-//     // console.warn(`API ERROR STATUS: ${status}\n`); 
+//     // console.warn(`API ERROR STATUS: ${status}\n`);
 //     const { Message } = data;
 //     if (status === 401) {
 //       const {logout}=useContext(AuthContext)
