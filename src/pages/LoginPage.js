@@ -44,13 +44,13 @@ const StyledContent = styled('div')(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-export default function LoginPage({Children,title}) {
+export default function LoginPage({Page}) {
   const mdUp = useResponsive('up', 'md');
 
   return (
     <>
       <Helmet>
-        <title> {title} </title>
+        <title> ERP </title>
       </Helmet>
 
       <StyledRoot>
@@ -76,7 +76,7 @@ export default function LoginPage({Children,title}) {
         />
         
 
-            <Children/>
+            {<Page/>}
           </StyledContent>
         </Container>
       </StyledRoot>

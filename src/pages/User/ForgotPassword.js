@@ -1,13 +1,13 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 // @mui
-import { Link, Stack, IconButton, Typography, InputAdornment, Card, TextField, Checkbox, CircularProgress } from '@mui/material';
+import { Link, Stack, IconButton, Typography, Card, TextField } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { useToast, GenerateRandamKey } from '../../hooks/Common';
-import { post } from '../../hooks/axios';
+import { useToast, GenerateRandomKey } from '../../hooks/Common';
 // components 
 import CountDownTimer from '../../components/CountDownTimer';
 import Iconify from '../../components/iconify';
+import { post } from '../../hooks/axios';
 import { AuthContext } from '../../App';
 
 
@@ -18,8 +18,8 @@ export default function ForgotPassword() {
     const { showToast } = useToast();
     const navigate = useNavigate()
     const { setLoadingFull } = useContext(AuthContext)
-
-    const [OTPKey, setOTPKey] = useState(GenerateRandamKey(15));
+    // const GenerateRandomKey = GenerateRandomKey(12);
+    const [OTPKey, setOTPKey] = useState( "GenerateRandomKey(12)")
     const [username, setUsername] = useState('');
     const [otp, setOtp] = useState('');
     const [resetTimer, setResetTimer] = useState(-1);
@@ -27,7 +27,7 @@ export default function ForgotPassword() {
     const [isOtpSend, setIsOtpSend] = useState(false);
     const [isTimerEnable, setIsTimerEnable] = useState(false);
     const [isResendEnable, setIsResendEnable] = useState(false);
-    const [hoursMinSecs, sethoursMinSecs] = useState({ minutes: 0, seconds: 60, withHour: false, resetTimer: 0 });
+    const [hoursMinSecs, sethoursMinSecs] = useState({});
 
 
     const usernameRef = useRef();
@@ -63,13 +63,13 @@ export default function ForgotPassword() {
                 if (response?.Success) {
 
                     setResetTimer(resetTimer + 1);
-                   
+
                     const minutes = 0;
                     const seconds = 5;
                     const resetTimer = 0;
                     const withHour = false;
                     sethoursMinSecs({ minutes, seconds, withHour, resetTimer });
-                    
+
                     setIsOtpSend(true);// for enable timer
                     setIsResendEnable(false)
                     setIsTimerEnable(true);
@@ -95,7 +95,7 @@ export default function ForgotPassword() {
                         showToast("Server no response", "error")
                     }
                     usernameRef.current.focus();
-                    setOTPKey(GenerateRandamKey(15));
+                    setOTPKey(GenerateRandomKey(15));
                 }
             }
 
@@ -104,7 +104,7 @@ export default function ForgotPassword() {
             if (!err?.response) {
                 setErrMsg("Server no response");
             }
-            setOTPKey(GenerateRandamKey(15));
+            setOTPKey(GenerateRandomKey(15));
             usernameRef.current.focus();
         }
     }
@@ -149,8 +149,8 @@ export default function ForgotPassword() {
 
     return (
         <Card  >
-            <Stack m={2.5}>
-                <Stack spacing={3} >
+            <Stack m={3} spacing={2.5} >
+                <Stack spacing={2}>
                     <Typography variant="h3" sx={{ px: 1, mt: 2, mb: 2 }}>
                         Forgot Password
                     </Typography>
@@ -183,11 +183,12 @@ export default function ForgotPassword() {
                     </LoadingButton>
 
                 )}
-                {isResendEnable && (
-                    <Link variant="subtitle2" underline="hover" onClick={SendOtp}>Resend OTP</Link>
-                )}
-                {isTimerEnable && (<CountDownTimer hoursMinSecs={hoursMinSecs} />)}
-
+                <Stack alignItems="center">
+                    {isResendEnable && (
+                        <Link variant="subtitle2" underline="hover" onClick={SendOtp}>Resend OTP</Link>
+                    )}
+                    {isTimerEnable && (<CountDownTimer hoursMinSecs={hoursMinSecs} />)}
+                </Stack>
             </Stack>
 
         </Card>

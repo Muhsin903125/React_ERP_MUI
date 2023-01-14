@@ -5,7 +5,7 @@ import axios from 'axios';
 const BASEURL = 'https://localhost:7134/api/';
 
 export const post = async (URL, payload, token) => {
-console.log()
+ 
   const axiosInstancePost = axios.create({
     baseURL: BASEURL,
     headers: {
