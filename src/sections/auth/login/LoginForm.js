@@ -1,19 +1,19 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 // @mui
-import { Stack, IconButton,Typography, InputAdornment,Card, TextField, Checkbox, CircularProgress } from '@mui/material';
-import { LoadingButton } from '@mui/lab';  
-import   { useToast }  from '../../../hooks/Common';
+import { Link as Alink, Stack, IconButton, Typography, InputAdornment, Card, TextField, Checkbox, CircularProgress } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
+import { useToast } from '../../../hooks/Common';
 import { post } from '../../../hooks/axios';
 // components 
 import Iconify from '../../../components/iconify';
-import { AuthContext } from '../../../App';   
+import { AuthContext } from '../../../App';
 import Logo from '../../../components/logo/Logo';
 
 // ----------------------------------------------------------------------
 const LOGIN_URL = '/Account/login';
 export default function LoginForm() {
-  const { showToast } = useToast(); 
+  const { showToast } = useToast();
   const { login, setLoadingFull } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -35,7 +35,7 @@ export default function LoginForm() {
 
   const handleClick = async (e) => {
     setLoadingFull(true);
-   
+
     try {
       const response = await post(LOGIN_URL,
         JSON.stringify({ "Username": user, "Password": pwd })
@@ -43,8 +43,8 @@ export default function LoginForm() {
       if (response?.Success) {
         const accessToken = response?.Data?.access_token;
         login(user, accessToken);
-        setLoadingFull(false); 
-        
+        setLoadingFull(false);
+
         showToast('Successfully Logined !!', 'success');
         navigate("/dashboard", { replace: true })
       }
@@ -53,16 +53,16 @@ export default function LoginForm() {
         const errResp = response?.Data.response?.data
         if (errResp.statusCode === 400 || errResp.statusCode === 401) {
           setErrMsg(errResp.message);    //
-          showToast(errResp.message,  "error" );
+          showToast(errResp.message, "error");
         } else {
           setErrMsg('Login Failed');
-          showToast("Login Failed !!",  "error" );
+          showToast("Login Failed !!", "error");
         }
       }
-    } catch (err) { 
+    } catch (err) {
       if (!err?.response) {
         setErrMsg("Server no response");
-        showToast("Server no response",  "error" );
+        showToast("Server no response", "error");
       } else if (err.response?.status === 400) {
         setErrMsg('Missing Username or Password');
       } else {
@@ -76,51 +76,53 @@ export default function LoginForm() {
 
   return (
     <Card  >
-        <Stack m={2.5}>
-      <Stack spacing={3} >
-      <Typography variant="h3" sx={{ px:1,mt: 2, mb: 2 }}>
-             Login 
-            </Typography>
-        <TextField name="email"
-          id="email"
-          autoComplete="off"
-          onChange={(e) => setUser(e.target.value)}
-          value={user}
-          required
-          label="Email address" />
+      <Stack m={2.5}>
+        <Stack spacing={3} >
+          <Typography variant="h3" sx={{ px: 1, mt: 2, mb: 2 }}>
+            Login
+          </Typography>
+          <TextField name="email"
+            id="email"
+            autoComplete="off"
+            onChange={(e) => setUser(e.target.value)}
+            value={user}
+            required
+            label="Email address" />
 
-        <TextField
-          name="password"
-          label="Password"
-          onChange={(e) => setPwd(e.target.value)}
-          value={pwd}
-          ref={userRef}
-          required
-          type={showPassword ? 'text' : 'password'}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                  <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
+          <TextField
+            name="password"
+            label="Password"
+            onChange={(e) => setPwd(e.target.value)}
+            value={pwd}
+            ref={userRef}
+            required
+            type={showPassword ? 'text' : 'password'}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                    <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Stack>
+
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 2 }}>
+          {/* <Checkbox name="remember" label="Remember me" /> */}
+          <Alink variant="subtitle2" underline="hover">
+            <Link to='/forgotpassword' >
+              Forgot password?
+            </Link>
+          </Alink>
+        </Stack>
+
+        <LoadingButton fullWidth size="large" type="submit" variant="contained" onClick={handleClick}>
+          Login
+        </LoadingButton>
       </Stack>
 
-      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 2 }}>
-        {/* <Checkbox name="remember" label="Remember me" /> */}
-        <Link to='/forgotpassword' variant="subtitle2" underline="hover">
-          Forgot password?
-        </Link>
-      </Stack>
-
-      <LoadingButton fullWidth size="large" type="submit" variant="contained" onClick={handleClick}>
-        Login
-      </LoadingButton>
-      </Stack>
-       
     </Card>
   );
 }
