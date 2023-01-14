@@ -32,6 +32,7 @@ import DateSelector from '../../components/DateSelector';
 import Dropdownlist from '../../components/DropdownList';
 import InvoiceItem from './InvoiceItem';
 import SubTotalSec from './SubTotalSec';
+import AlertDialog from '../../components/AlertDialog';
 
 // ----------------------------------------------------------------------
 
@@ -45,6 +46,7 @@ const InvoiceStatusOptions = [
 export default function SalesInvoice() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedDueDate, setselectedDueDate] = useState(new Date());
+  const [IsAlertDialog, setAlertDialog] = useState(false);
   const [disableFutureDate] = useState(true);
 
   const [status, setStatus] = useState('paid');
@@ -53,21 +55,21 @@ export default function SalesInvoice() {
     setStatus(event.target.value);
   };
 
-  const [items, setItems] = useState([{   
+  const [items, setItems] = useState([{
     name: "",
     price: 0,
     quantity: 0,
-    unit:1
+    unit: 1
   }]);
 
   const addItem = (event) => {
-    event.preventDefault(); 
-   // console.log(ItemNewLength);
-    setItems([...items, {      
+    event.preventDefault();
+    // console.log(ItemNewLength);
+    setItems([...items, {
       name: "",
       price: 0,
       quantity: 0,
-      unit:1
+      unit: 1
     }]);
   };
 
@@ -79,9 +81,9 @@ export default function SalesInvoice() {
   };
 
   const removeItem = (index) => {
-    const newItems = [...items]; 
+    const newItems = [...items];
     console.log(index);
-    newItems.splice(index,1);
+    newItems.splice(index, 1);
     setItems(newItems);
   };
 
@@ -98,7 +100,10 @@ export default function SalesInvoice() {
     values[index].value = event.target.value;
     setFields(values);
   };
- 
+  const CreateInvoice = () => {
+    setAlertDialog(true)
+
+  };
   return (
     <>
       <Helmet>
@@ -180,12 +185,16 @@ export default function SalesInvoice() {
 
             <SubTotalSec addItem={addItem} />
             <Stack direction="row" justifyContent="flex-end" mb={2} mt={2}>
-              <Button variant="contained" color='success' size='large'>
+              <Button variant="contained" color='success' size='large' onClick={CreateInvoice}>
                 Create Invoice
               </Button>
             </Stack>
           </Stack>
         </Card>
+        {IsAlertDialog && (<AlertDialog
+          Message="Are you sure you want to proceed?"
+          OnSuccess={setAlertDialog}
+        />)}
       </Container>
 
     </>

@@ -50,10 +50,11 @@ export default function InvoiceItem({ key, codeRef, descRef, unitRef, priceRef, 
             </Grid>
             <Grid item xs={12} md={3}>
                 <TextField 
+                name="ItemDesc"
                     size="small"
-                    value={ItemDesc ? ItemDesc.desc : ''}
+                    value={ ItemDesc?.desc}
                     inputRef={descRef}
-                    fullWidth label="Description" name="ItemDesc"
+                    fullWidth label="Description" 
                 />
             </Grid>
             <Grid item xs={6} sm={3} md={2}>
