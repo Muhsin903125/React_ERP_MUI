@@ -58,8 +58,9 @@ export default function SalesInvoice() {
   const [items, setItems] = useState([{
     name: "",
     price: 0,
-    quantity: 0,
-    unit: 1
+    desc:"",
+    qty: 0,
+    unit: "kg"
   }]);
 
   const addItem = (event) => {
@@ -68,8 +69,9 @@ export default function SalesInvoice() {
     setItems([...items, {
       name: "",
       price: 0,
-      quantity: 0,
-      unit: 1
+      desc:"",
+      qty: 0,
+      unit: "kg"
     }]);
   };
 
@@ -172,12 +174,19 @@ export default function SalesInvoice() {
               Item Details
             </Typography>
             {items.map((field, index) => (
-              <InvoiceItem key={index}
-                codeRef={codeRef[index]}
-                descRef={descRef[index]}
-                unitRef={unitRef[index]}
-                priceRef={priceRef[index]}
-                qtyRef={qtyRef[index]}
+              <InvoiceItem Propkey={index}
+              code={items[index].name}
+              desc={items[index].desc}
+              qty={items[index].qty}
+              price={items[index].price} 
+              unit={items[index].unit} 
+              items={items}
+              setItems={setItems}
+                // codeRef={codeRef[index]}
+                // descRef={descRef[index]}
+                // unitRef={unitRef[index]}
+                // priceRef={priceRef[index]}
+                // qtyRef={qtyRef[index]}
                 // onChange=
                 removeItem={() => removeItem(index)} />
             ))}
