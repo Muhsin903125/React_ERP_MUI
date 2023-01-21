@@ -30,11 +30,12 @@ export default function InvoiceItem({ key, codeRef, descRef, unitRef, priceRef, 
         { label: 'Peach', price: 150,unit:"kg",desc:"Peach from Himachal Pradesh" },
         { label: 'Plum', price: 180,unit:"kg",desc:"Plum from Maharashtra"}
       ]
-      const [ItemDesc, setItemDesc] = useState({});
+      const [ItemDesc, setItemDesc] = useState('');
       
       const handleItemCodeChange = (event, newValue) => {
-        setItemDesc(newValue);
+        setItemDesc(newValue.desc);
       };
+    
     
     return (
         <Grid key={key} container spacing={2} mb={2}>
@@ -44,6 +45,12 @@ export default function InvoiceItem({ key, codeRef, descRef, unitRef, priceRef, 
                     options={products}
                     onChange={handleItemCodeChange}
                     getOptionLabel={(option) => option.label} 
+                    renderOption={(option) => (
+                        <div>
+                          <span>{option.label}</span>
+                          <span>{option.desc}</span>
+                        </div>
+                      )}
                     renderInput={(params) => <TextField {...params} size="small"   inputRef={codeRef} label="Code" name="ItemCode" />}
                 />
                
@@ -52,7 +59,7 @@ export default function InvoiceItem({ key, codeRef, descRef, unitRef, priceRef, 
                 <TextField 
                 name="ItemDesc"
                     size="small"
-                    value={ ItemDesc?.desc}
+                    value={ItemDesc}
                     inputRef={descRef}
                     fullWidth label="Description" 
                 />

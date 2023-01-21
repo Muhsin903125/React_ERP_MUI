@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 // @mui
 import { Link, Stack, IconButton, Typography, Card, TextField } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { useToast, GenerateRandomKey } from '../../hooks/Common';
+import { useToast } from '../../hooks/Common'; // GenerateRandomKey
 // components 
 import CountDownTimer from '../../components/CountDownTimer';
 import Iconify from '../../components/iconify';
