@@ -85,6 +85,7 @@ export default function SalesInvoice() {
     console.log(index);
     newItems.splice(index, 1);
     setItems(newItems);
+    console.log(newItems);
   };
 
 
