@@ -21,7 +21,7 @@ export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, rem
  
     const [itemTotal, setItemtotal] = useState(qty*price);
     const products = [
-        { label: 'Mango', price: 194, unit: "kg", desc: "Kerala mango" },
+        { label: "Mango", price: 194, unit: "kg", desc: "Kerala mango" },
         { label: 'Apple', price: 250, unit: "kg", desc: "Kashmir Apple" },
         { label: 'Banana', price: 80, unit: "kg", desc: "Banana from Tamil Nadu" },
         { label: 'Pineapple', price: 150, unit: "kg", desc: "Pineapple from Himachal Pradesh" },
@@ -73,11 +73,9 @@ export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, rem
         <Grid key={Propkey} container spacing={2} mb={2}>
             <Grid item xs={12} md={2}>
                 <Autocomplete
-                    // disablePortal={false}
+                    disablePortal
                     options={products}
-                    id={`ItemCodeID_${Propkey}`}
                     filterOptions={filterOptions}
-
                     onChange={handleItemCodeChange}
                     getOptionLabel={() => code}
                     renderOption={(props, option) => (
@@ -93,7 +91,7 @@ export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, rem
                         </Box>
                     )}
                     renderInput={(params) => <TextField {...params} size="small"
-                        onChange={handleChange} name={`ItemCode_${Propkey}`} label="Code" />}
+                        onChange={handleItemCodeChange} name={`ItemCode_${Propkey}`} label="Code" />}
                 />
 
             </Grid>
