@@ -59,12 +59,12 @@ export default function SubTotalSec({addItem}) {
             <Grid container md={6} spacing={1} mt={1} align='right' justifyContent="flex-end"  >
                 <Grid item md={8}>
                     <Typography variant="subtitle2"  >
-                        SubTotal:
+                        Gross Amount:
                     </Typography>
                 </Grid>
                 <Grid item md={4}>
                     <Typography variant="subtitle2"   >
-                        $ 1.36
+                    $ 1.36
                     </Typography>
                 </Grid>
                 <Grid item md={8}>

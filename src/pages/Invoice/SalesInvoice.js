@@ -193,7 +193,8 @@ export default function SalesInvoice() {
 
 
 
-            <SubTotalSec addItem={addItem} />
+            <SubTotalSec addItem={addItem}
+             />
             <Stack direction="row" justifyContent="flex-end" mb={2} mt={2}>
               <Button variant="contained" color='success' size='large' onClick={CreateInvoice}>
                 Create Invoice
