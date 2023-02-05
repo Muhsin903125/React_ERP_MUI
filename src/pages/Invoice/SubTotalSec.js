@@ -1,32 +1,33 @@
 
 import {
-    Card,
-    Table,
-    Stack,
-    Paper,
-    Avatar,
     Button,
-    Popover,
-    Checkbox,
-    TableRow,
-    MenuItem,
-    TableBody,
-    TableCell,
-    Container,
     Typography,
-    IconButton,
-    TableContainer,
-    TablePagination, Grid,
+    Grid,
     TextField,
-    FormControl,
-    ListItemSecondaryAction,
-    ListItem,
-    List,
-    Divider,
-    Input,
 } from '@mui/material';
+import {  useState } from 'react';
 
-export default function SubTotalSec({addItem}) {
+export default function SubTotalSec({addItem,calculateTotal}) {
+
+  const [discount, setDiscount] = useState(0);
+
+  const handleDiscountChange = event => {
+    setDiscount(event.target.value);
+  };
+
+  const [tax, setTax] = useState(0);
+
+  const handleTaxChange = event => {
+    setTax(event.target.value);
+  };
+
+  function FormattedNumber(value) {
+    return new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(value)
+}
+
     return (<>
         <Grid container spacing={3.5} direction="row">
             <Grid item xs={12} md={4}>
@@ -42,6 +43,8 @@ export default function SubTotalSec({addItem}) {
                         size="small"
                         label="Discount"
                         name="Discount"
+                        value={discount}
+                        onChange={handleDiscountChange}
                     />
                 </Grid>
                 <Grid item xs={6} md={4}>
@@ -50,8 +53,10 @@ export default function SubTotalSec({addItem}) {
                         type="number"
                         inputProps={{ min: "0" }}
                         size="small"
-                        label="Tax"
+                        label="Tax %"
                         name="Tax"
+                        value={tax}
+                        onChange={handleTaxChange}
                     />
                 </Grid>
            
@@ -64,7 +69,7 @@ export default function SubTotalSec({addItem}) {
                 </Grid>
                 <Grid item md={4}>
                     <Typography variant="subtitle2"   >
-                    $ 1.36
+                    {FormattedNumber(calculateTotal)}
                     </Typography>
                 </Grid>
                 <Grid item md={8}>
@@ -73,8 +78,8 @@ export default function SubTotalSec({addItem}) {
                     </Typography>
                 </Grid>
                 <Grid item md={4}>
-                    <Typography variant="subtitle2"   >
-                        $ 1.36
+                    <Typography variant="subtitle2" style={ {color:"#FF5630"}}  >
+                        {FormattedNumber(discount * -1)}
                     </Typography>
                 </Grid>
                 <Grid item md={8}>
@@ -84,7 +89,7 @@ export default function SubTotalSec({addItem}) {
                 </Grid>
                 <Grid item md={4}>
                     <Typography variant="subtitle2"  >
-                        $ 1.36
+                    {FormattedNumber((calculateTotal - discount) * tax/100.00)}
                     </Typography>
                 </Grid>
                 <Grid item md={8}>
@@ -94,7 +99,7 @@ export default function SubTotalSec({addItem}) {
                 </Grid>
                 <Grid item md={4}>
                     <Typography variant="h6"  >
-                        $ 143.36
+                    {FormattedNumber((calculateTotal - discount) *(1+ tax/100.00))}
                     </Typography>
                 </Grid>
 

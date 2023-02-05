@@ -3,29 +3,13 @@ import { useRef, useState } from 'react';
 // @mui
 import {
   Card,
-  Table,
   Stack,
-  Paper,
-  Avatar,
   Button,
-  Popover,
-  Checkbox,
-  TableRow,
-  MenuItem,
-  TableBody,
-  TableCell,
   Container,
-  Typography,
-  IconButton,
-  TableContainer,
-  TablePagination, Grid,
+  Typography, 
+  Grid,
   TextField,
   FormControl,
-  ListItemSecondaryAction,
-  ListItem,
-  List,
-  Divider,
-  Input,
 } from '@mui/material';
 import Iconify from '../../components/iconify';
 import DateSelector from '../../components/DateSelector';
@@ -75,6 +59,7 @@ export default function SalesInvoice() {
     }]);
   };
 
+
   const editItem = (index, event) => {
     event.preventDefault();
     const newItems = [...items];
@@ -89,6 +74,13 @@ export default function SalesInvoice() {
     setItems(newItems);
     console.log(newItems);
   };
+
+
+  function calculateTotal(items) {
+    return items.reduce((total, item) => {
+        return total + item.price * item.qty;
+    }, 0);
+}
 
 
   const [fields, setFields] = useState([{ value: '' }]);
@@ -193,7 +185,7 @@ export default function SalesInvoice() {
 
 
 
-            <SubTotalSec addItem={addItem}
+            <SubTotalSec addItem={addItem} calculateTotal={calculateTotal(items)}
              />
             <Stack direction="row" justifyContent="flex-end" mb={2} mt={2}>
               <Button variant="contained" color='success' size='large' onClick={CreateInvoice}>

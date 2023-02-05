@@ -1,25 +1,23 @@
 import { useState } from 'react';
 
 import {
-    Button,
     Grid,
     TextField,
-    FormControl,
-    Box, Stack,
-    List,
-    ListItem,
-    ListItemText,
+    Box,
     IconButton,
     Autocomplete,
     createFilterOptions,
-    Divider
 } from '@mui/material';
 import { CheckCircle, Delete, Save, SignalCellularNull } from '@mui/icons-material';
-import Iconify from '../../components/iconify';
 
-export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, removeItem, setItems, items }) {
+
+
+export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, removeItem, setItems,items }) {
  
-    const [itemTotal, setItemtotal] = useState(qty*price);
+    function calculateItemTotal() {
+        return qty * price;
+    }
+
     const products = [
         { label: "Mango", price: 194, unit: "kg", desc: "Kerala mango" },
         { label: 'Apple', price: 250, unit: "kg", desc: "Kashmir Apple" },
@@ -40,7 +38,6 @@ export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, rem
         newItems[Propkey].unit = newValue.unit;
         newItems[Propkey].price = newValue.price;
         newItems[Propkey].qty = 1;
-        setItemtotal(newValue.price);
         setItems(newItems); 
     }; 
     const filterOptions = createFilterOptions({
@@ -55,14 +52,12 @@ export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, rem
         }
         else if (event.target.name === `ItemPrice_${Propkey}`) {
             newItems[Propkey].price = event.target.value;
-            setItemtotal(newItems[Propkey].price*newItems[Propkey].qty);
         }
         else if (event.target.name === `ItemCode_${Propkey}`) {
             newItems[Propkey].name = event.target.value;
         }
         else if (event.target.name === `ItemQty_${Propkey}`) {
             newItems[Propkey].qty = event.target.value;
-            setItemtotal(newItems[Propkey].price*newItems[Propkey].qty);
         }
         else if (event.target.name === `ItemUnit_${Propkey}`) {
             newItems[Propkey].unit = event.target.value;
@@ -139,7 +134,7 @@ export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, rem
                 />
             </Grid>
             <Grid item xs={6} sm={3} md={2}>
-                <TextField disabled fullWidth  size="small" value={itemTotal} label="Total" name="itemTotal" />
+                <TextField disabled fullWidth  size="small" value={calculateItemTotal()} label="Total" name="itemTotal" />
             </Grid>
             <Grid item xs={6} sm={3} md={1}>
                 <IconButton aria-label="delete" onClick={removeItem}>
