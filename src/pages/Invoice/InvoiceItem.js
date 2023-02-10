@@ -19,16 +19,16 @@ export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, rem
     }
 
     const products = [
-        { label: "Mango", price: 194, unit: "kg", desc: "Kerala mango" },
-        { label: 'Apple', price: 250, unit: "kg", desc: "Kashmir Apple" },
-        { label: 'Banana', price: 80, unit: "kg", desc: "Banana from Tamil Nadu" },
-        { label: 'Pineapple', price: 150, unit: "kg", desc: "Pineapple from Himachal Pradesh" },
-        { label: 'Guava', price: 60, unit: "kg", desc: "Guava from Uttar Pradesh" },
-        { label: 'Grapes', price: 200, unit: "kg", desc: "Grapes from Maharashtra" },
-        { label: 'Lemon', price: 80, unit: "kg", desc: "Lemon from Andhra Pradesh" },
-        { label: 'Watermelon', price: 40, unit: "nos", desc: "Watermelon from Rajasthan" },
-        { label: 'Peach', price: 150, unit: "kg", desc: "Peach from Himachal Pradesh" },
-        { label: 'Plum', price: 180, unit: "kg", desc: "from Maharashtra" }
+        { label: "Mango", price: 194, unit: "KG", desc: "Kerala mango" },
+        { label: 'Apple', price: 250, unit: "KG", desc: "Kashmir Apple" },
+        { label: 'Banana', price: 80, unit: "KG", desc: "Banana from Tamil Nadu" },
+        { label: 'Pineapple', price: 150, unit: "KG", desc: "Pineapple from Himachal Pradesh" },
+        { label: 'Guava', price: 60, unit: "KG", desc: "Guava from Uttar Pradesh" },
+        { label: 'Grapes', price: 200, unit: "KG", desc: "Grapes from Maharashtra" },
+        { label: 'Lemon', price: 80, unit: "KG", desc: "Lemon from Andhra Pradesh" },
+        { label: 'Watermelon', price: 40, unit: "NOS", desc: "Watermelon from Rajasthan" },
+        { label: 'Peach', price: 150, unit: "KG", desc: "Peach from Himachal Pradesh" },
+        { label: 'Plum', price: 180, unit: "KG", desc: "from Maharashtra" }
     ] 
     const handleItemCodeChange = (event, newValue) => {
  

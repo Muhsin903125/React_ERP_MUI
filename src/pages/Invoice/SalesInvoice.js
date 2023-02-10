@@ -17,6 +17,7 @@ import Dropdownlist from '../../components/DropdownList';
 import InvoiceItem from './InvoiceItem';
 import SubTotalSec from './SubTotalSec';
 import AlertDialog from '../../components/AlertDialog';
+import CustomerDialog from '../../components/CustomerDialog';
 
 // ----------------------------------------------------------------------
 
@@ -26,6 +27,7 @@ const InvoiceStatusOptions = [
   { value: 'overdue', label: 'Overdue' },
   { value: 'draft', label: 'Draft' },
 ];
+
 
 export default function SalesInvoice() {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -80,7 +82,20 @@ export default function SalesInvoice() {
     return items.reduce((total, item) => {
         return total + item.price * item.qty;
     }, 0);
-}
+  }
+
+  // For Customer Dialog
+  const [open, setOpen] = useState(false);
+  const [selectedValue, setSelectedValue] = useState("Customer Name");
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (value) => {
+    setOpen(false);
+    setSelectedValue(value);
+  };
 
 
   const [fields, setFields] = useState([{ value: '' }]);
@@ -99,6 +114,7 @@ export default function SalesInvoice() {
     setAlertDialog(true)
 
   };
+
   return (
     <>
       <Helmet>
@@ -116,6 +132,42 @@ export default function SalesInvoice() {
         </Stack>
         <Card>
           <Stack m={2.5} >
+            <Grid container spacing={2} mt={1} >
+              <Grid item xs={12} md={6}>
+                <Grid container  spacing={2} mt={1}>
+                  <Grid items xs={8} md={8}>
+                    <Typography variant="subtitle1" ml={2} mb={1} style={ {color:"gray"}} >
+                      Customer :
+                    </Typography>
+                  </Grid>
+                  <Grid items xs={4} md={4} align='right'>
+                    <Button size="small" startIcon={<Iconify icon="eva:edit-fill"  />} onClick={handleClickOpen}>
+                      change
+                    </Button>
+                    <CustomerDialog
+                      selectedValue={selectedValue}
+                      open={open}
+                      onClose={handleClose}
+                    />
+                  </Grid>
+                  <Grid items xs={12} md={12}>
+                    <Typography variant="body2" ml={2}  style={ {color:"black"}} >
+                     {selectedValue}
+                    </Typography>
+                  </Grid>
+                  <Grid items xs={12} md={12}>
+                    <Typography variant="body2" ml={2} mb={2} style={ {color:"gray"}} >
+                      Customer Address 1 <br/>
+                      Customer Address 2 <br/>
+                      United Arab Emirates                 
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Typography variant="h6" mb={2} />
+              </Grid>
+            </Grid>
             <Grid container spacing={2} mt={1}>
               <Grid item xs={6} md={3}  >
                 <FormControl fullWidth>
