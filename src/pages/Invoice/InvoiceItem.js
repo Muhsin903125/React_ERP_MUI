@@ -134,7 +134,15 @@ export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, rem
                 />
             </Grid>
             <Grid item xs={6} sm={3} md={2}>
-                <TextField disabled fullWidth  size="small" value={calculateItemTotal()} label="Total" name="itemTotal" />
+                <TextField 
+                    type={'number'}
+                    inputProps={{ min: "0", style: { textAlign: 'right' } }}
+                    disabled 
+                    fullWidth  
+                    size="small" 
+                    value={calculateItemTotal()} 
+                    label="Total" 
+                    name="itemTotal" />
             </Grid>
             <Grid item xs={6} sm={3} md={1}>
                 <IconButton aria-label="delete" onClick={removeItem}>

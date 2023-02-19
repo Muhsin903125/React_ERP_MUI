@@ -165,10 +165,54 @@ export default function SalesInvoice() {
                 </Grid>
               </Grid>
               <Grid item xs={12} md={6}>
-                <Typography variant="h6" mb={2} />
+                <Grid container  spacing={2}>
+                  <Grid item xs={6} md={6}  >
+                    <FormControl fullWidth>
+                      <TextField
+                        id="invoice-no"
+                        label="Invoice#"
+                        defaultValue="1001"
+                        inputProps={{
+                          readOnly: true
+                        }}
+                      />
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={6} md={6} >
+                    <FormControl fullWidth>
+                      <Dropdownlist options={InvoiceStatusOptions}
+                        value={status}
+                        label={"Status"}
+                        onChange={handleStatusChange}
+                      />
+                    </FormControl>
+                  </Grid>
+                </Grid>
+                <Grid container  spacing={2} mt={1}>
+                  <Grid item xs={6} md={6}  >
+                    <FormControl fullWidth>
+                      <DateSelector
+                        label="Date"
+                        disableFuture={disableFutureDate}
+                        value={selectedDate}
+                        onChange={setSelectedDate}
+                      />
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={6} md={6} >
+                    <FormControl fullWidth>
+                      <DateSelector
+                        label="Due Date"
+                        disableFuture={!disableFutureDate}
+                        value={selectedDueDate}
+                        onChange={setselectedDueDate}
+                      />
+                    </FormControl>
+                  </Grid>
+                </Grid>
               </Grid>
             </Grid>
-            <Grid container spacing={2} mt={1}>
+            {/* <Grid container spacing={2} mt={1}>
               <Grid item xs={6} md={3}  >
                 <FormControl fullWidth>
                   <TextField
@@ -210,7 +254,7 @@ export default function SalesInvoice() {
                   />
                 </FormControl>
               </Grid>
-            </Grid>
+            </Grid> */}
           </Stack>
           <Stack m={2.5} >
 
