@@ -35,7 +35,7 @@ export default function CustomerDialog(props) {
   };
 
   const [searchtext, setsearchtext] = useState("");
-
+  
   const filteredCustomer = customers.filter(
     item => item.name.toLowerCase().toString().includes(searchtext.toLowerCase()) || item.address.toLowerCase().includes(searchtext.toLowerCase())
   );

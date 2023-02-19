@@ -270,12 +270,6 @@ export default function SalesInvoice() {
               unit={items[index].unit} 
               items={items}
               setItems={setItems}
-                // codeRef={codeRef[index]}
-                // descRef={descRef[index]}
-                // unitRef={unitRef[index]}
-                // priceRef={priceRef[index]}
-                // qtyRef={qtyRef[index]}
-                // onChange=
                 removeItem={() => removeItem(index)} />
             ))}
 
