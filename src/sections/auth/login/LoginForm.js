@@ -3,15 +3,15 @@ import { Link, useNavigate } from 'react-router-dom';
 // @mui
 import { Link as Alink, Stack, IconButton, Typography, InputAdornment, Card, TextField, Checkbox, CircularProgress } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { useToast } from '../../../hooks/Common';
-import { post } from '../../../hooks/axios';
+import { useToast } from '../../../hooks/Common'; 
 // components 
 import Iconify from '../../../components/iconify';
 import { AuthContext } from '../../../App';
 import Logo from '../../../components/logo/Logo';
+import { PostLogin } from '../../../hooks/Api';
 
 // ----------------------------------------------------------------------
-const LOGIN_URL = '/Account/login';
+
 export default function LoginForm() {
   const { showToast } = useToast();
   const { login, setLoadingFull } = useContext(AuthContext);
@@ -25,6 +25,7 @@ export default function LoginForm() {
   const [user, setUser] = useState('admin@erp.com');
   const [pwd, setPwd] = useState('123456');
   const [errMsg, setErrMsg] = useState('');
+
   useEffect(() => {
     userRef.current.focus();
   }, [])
@@ -35,11 +36,8 @@ export default function LoginForm() {
 
   const handleClick = async (e) => {
     setLoadingFull(true);
-
     try {
-      const response = await post(LOGIN_URL,
-        JSON.stringify({ "Username": user, "Password": pwd })
-      );
+      const response = await PostLogin(JSON.stringify({ "Username": user, "Password": pwd }));
       if (response?.Success) {
         const accessToken = response?.Data?.access_token;
         login(user, accessToken);
@@ -59,18 +57,13 @@ export default function LoginForm() {
           showToast("Login Failed !!", "error");
         }
       }
-    } catch (err) {
-      if (!err?.response) {
-        setErrMsg("Server no response");
-        showToast("Server no response", "error");
-      } else if (err.response?.status === 400) {
-        setErrMsg('Missing Username or Password');
-      } else {
-        setErrMsg('Login Failed');
-      }
-      // errRef.current.focus();
     }
-
+    catch (err) {
+      setLoadingFull(false);
+    }
+    finally {
+      setLoadingFull(false);
+    }
 
   };
 

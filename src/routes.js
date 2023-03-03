@@ -15,6 +15,7 @@ import CustomerMaster from './pages/Masters/CustomerMaster';
 import { LoginForm } from './sections/auth/login'; 
 import ForgotPassword from './pages/User/ForgotPassword';
 import ResetPassword from './pages/User/ResetPassword';
+import {Post} from './hooks/axios';
 
 // ----------------------------------------------------------------------
 
@@ -37,6 +38,10 @@ export default function Router() {
     {
       path: '/login',
       element: <LoginPage Page={LoginForm}  />,
+    },
+    {
+      path: '/testt',
+      element: <Post  />,
     },
      {
       path: '/forgotpassword',

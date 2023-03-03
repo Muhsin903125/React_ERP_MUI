@@ -6,23 +6,19 @@ import { LoadingButton } from '@mui/lab';
 import { useToast } from '../../hooks/Common';
 // components 
 import CountDownTimer from '../../components/CountDownTimer';
-import Iconify from '../../components/iconify';
-import { post } from '../../hooks/axios';
+import Iconify from '../../components/iconify'; 
 import { AuthContext } from '../../App';
-
-
-const FORGOTPASSWORD_APIURL = '/Account/forgotpassword';
-const OTPVERIFY_APIURL = '/Account/verifyotp';
+import { PostForgotPassword, PostOTPVerify } from '../../hooks/Api';
 
 export default function ForgotPassword() {
-    function GenerateRandomKey (length){
+    function GenerateRandomKey(length) {
         // let result = '';
         // const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         // const charactersLength = characters.length;
         // for (let i = 0; i < length; i+1) {
         //    result += characters.charAt(Math.floor(Math.random() * charactersLength));
         // }
-        return "ofbdkjsasdbasdasm"; 
+        return "ofbdkjsasdbasdasm";
     }
 
     const { showToast } = useToast();
@@ -67,9 +63,7 @@ export default function ForgotPassword() {
                 usernameRef.current.focus();
             } else {
                 setLoadingFull(true);
-                const response = await post(FORGOTPASSWORD_APIURL,
-                    JSON.stringify({ "Username": username, "OTPKey": OTPKey })
-                );
+                const response = await PostForgotPassword(JSON.stringify({ "Username": username, "OTPKey": OTPKey }));
                 if (response?.Success) {
 
                     setResetTimer(resetTimer + 1);
@@ -128,8 +122,7 @@ export default function ForgotPassword() {
                 otpRef.current.focus();
             } else {
                 setLoadingFull(true)
-                const response = await post(OTPVERIFY_APIURL,
-                    JSON.stringify({ "Username": username, "OTPKey": OTPKey, "OTP": otp })
+                const response = await PostOTPVerify(JSON.stringify({ "Username": username, "OTPKey": OTPKey, "OTP": otp })
                 );
                 if (response?.Success) {
                     showToast(response?.Message, "success")

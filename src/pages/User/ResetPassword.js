@@ -6,13 +6,11 @@ import { LoadingButton } from '@mui/lab';
 import { useToast } from '../../hooks/Common';
 // components 
 import CountDownTimer from '../../components/CountDownTimer';
-import Iconify from '../../components/iconify';
-import { post } from '../../hooks/axios';
+import Iconify from '../../components/iconify'; 
 import { AuthContext } from '../../App';
+import { PostResetPassword } from '../../hooks/Api';
 
-
-const RESET_APIURL = '/Account/resetpassword';
-
+ 
 export default function ResetPassword() {
     const { showToast } = useToast();
     const navigate = useNavigate();
@@ -59,9 +57,7 @@ export default function ResetPassword() {
             }
             else {
                 setLoadingFull(true)
-                const response = await post(RESET_APIURL,
-                    JSON.stringify({ "UserName": username, "OTPKey": OTPKey, "Password": password })
-                );
+                const response = await PostResetPassword( JSON.stringify({ "UserName": username, "OTPKey": OTPKey, "Password": password }));
                 if (response?.Success) {
                     showToast(response?.Message, "success")
                     setLoadingFull(false)
@@ -120,16 +116,12 @@ export default function ResetPassword() {
                         required
                         placeholder="Confirm Password"
                         label="Confirm Password"
-                         />
-
- 
+                         /> 
                 </Stack>
 
                 <LoadingButton fullWidth size="large" type="submit" variant="contained" onClick={handleSubmit}>
                     Reset Password
-                </LoadingButton>
-
-
+                </LoadingButton> 
             </Stack>
 
         </Card>
