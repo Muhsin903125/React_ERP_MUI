@@ -5,7 +5,8 @@ import {
     Grid,
     TextField,
 } from '@mui/material';
-import {  useState } from 'react';
+import {  useState  } from 'react';
+
 
 export default function SubTotalSec({addItem,calculateTotal}) {
 
@@ -28,6 +29,8 @@ export default function SubTotalSec({addItem,calculateTotal}) {
     }).format(value)
 }
 
+
+
     return (<>
         <Grid container spacing={3.5} direction="row">
             <Grid item xs={12} md={4}>
@@ -39,7 +42,7 @@ export default function SubTotalSec({addItem,calculateTotal}) {
                     <TextField
                         fullWidth
                         type="number"
-                        inputProps={{ min: "0" }}
+                        inputProps={{ min: "0"}}
                         size="small"
                         label="Discount"
                         name="Discount"
