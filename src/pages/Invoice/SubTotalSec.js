@@ -13,7 +13,7 @@ export default function SubTotalSec({addItem,calculateTotal}) {
   const [discount, setDiscount] = useState(0);
 
   const handleDiscountChange = event => {
-    setDiscount(event.target.value);
+    setDiscount(event.target.value.replace(/^0+/, ""));
   };
 
   const [tax, setTax] = useState(0);

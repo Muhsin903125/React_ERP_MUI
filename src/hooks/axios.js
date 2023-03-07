@@ -18,7 +18,7 @@ export const Post = async (url, payload) => {
     },
     timeout: 15000,
   });
- 
+ console.log('ss',BASEURL);
   try {
     const { data } = await axiosInstance.post(url, payload);
     

@@ -18,6 +18,7 @@ import InvoiceItem from './InvoiceItem';
 import SubTotalSec from './SubTotalSec';
 import AlertDialog from '../../components/AlertDialog';
 import CustomerDialog from '../../components/CustomerDialog';
+import { PostCommonSp } from '../../hooks/Api';
 
 // ----------------------------------------------------------------------
 
@@ -110,8 +111,15 @@ export default function SalesInvoice() {
     values[index].value = event.target.value;
     setFields(values);
   };
-  const CreateInvoice = () => {
-    setAlertDialog(true)
+  const CreateInvoice = async () => {
+    const response = await PostCommonSp({
+      "key": "string",
+      "userId": "string",
+      "json": items,
+      "controller": "string"
+    }) //  JSON.stringify({ "json": items }));
+    console.log(response);
+    // setAlertDialog(true)
 
   };
 
