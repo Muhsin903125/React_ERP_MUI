@@ -115,7 +115,7 @@ export default function SalesInvoice() {
     const response = await PostCommonSp({
       "key": "string",
       "userId": "string",
-      "json": items,
+      "json": JSON.stringify({ "json": items }),
       "controller": "string"
     }) //  JSON.stringify({ "json": items }));
     console.log(response);

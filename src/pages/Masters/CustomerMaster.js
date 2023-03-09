@@ -11,11 +11,28 @@ import {
   FormControl,
 } from '@mui/material';
 import Iconify from '../../components/iconify';
+import { PostCommonSp } from  '../../hooks/Api';
 
 // ----------------------------------------------------------------------
 
 
 export default function CustomerMaster() {
+
+  const [formData, setFormData] = useState({
+    customerName: '',
+    customerCode: '1001',
+    Address: '',
+    TRN: '',
+    Mobile: ''
+  })
+
+  const handleInputChange = event => {
+    const { name, value } = event.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
 
   const [trn, setTRN] = useState();
   const [mob, setMOB] = useState();
@@ -24,6 +41,21 @@ export default function CustomerMaster() {
       return
     }
     setTRN(event.target.value);
+  };
+
+  const SaveCustomer = async () => {
+    const dataArray = [formData];
+    const response = await PostCommonSp({
+      "key": "string",
+      "userId": "string",
+      "json": JSON.stringify({ "json": dataArray,
+      "Test":"123"
+     }),
+      "controller": "string"
+    }) //  JSON.stringify({ "json": items }));
+    console.log("Hi hello");
+    // setAlertDialog(true)
+    
   };
 
   return (
@@ -46,6 +78,9 @@ export default function CustomerMaster() {
                   <TextField
                     id="cust_name"
                     label="Customer Name"
+                    name="customerName"
+                    value={formData.customerName}
+                    onChange={handleInputChange}
                   />
                 </FormControl>
               </Grid>
@@ -54,7 +89,9 @@ export default function CustomerMaster() {
                   <TextField
                     id="cust_id"
                     label="Customer Code"
-                    defaultValue="1001"
+                    name="customerCode"
+                    value={formData.customerCode}
+                    onChange={handleInputChange}
                     inputProps={{
                       readOnly: true
                     }}
@@ -70,6 +107,9 @@ export default function CustomerMaster() {
                   <TextField
                     id="cust_address"
                     label="Address"
+                    name="Address"
+                    value={formData.Address}
+                    onChange={handleInputChange}
                     multiline
                     rows={4}
                     placeholder="Address"
@@ -83,8 +123,9 @@ export default function CustomerMaster() {
                       id="cust_trn"
                       label="TRN"
                       type="number"
-                      value={trn}
-                      onChange={handleTrnChange}
+                      name="TRN"
+                      value={formData.TRN}
+                      onChange={handleInputChange}
                     />
                   </FormControl>
                 </Grid>
@@ -94,8 +135,10 @@ export default function CustomerMaster() {
                       type="tel"
                       id="cust_mob"
                       label="Mobile No"
-                      value={mob}
+                      name="Mobile"
+                      value={formData.Mobile}
                       inputProps={{ maxLength: 10 }}
+                      onChange={handleInputChange}
                     />
                   </FormControl>
                 </Grid>
@@ -104,7 +147,7 @@ export default function CustomerMaster() {
           </Stack>
           <Stack direction="row" alignItems="center" justifyContent="space-between" m={2.5}>
             <Typography />
-            <Button variant="contained" startIcon={<Iconify icon="material-symbols:person-add-rounded" />}>
+            <Button variant="contained" startIcon={<Iconify icon="material-symbols:person-add-rounded" />} onClick={SaveCustomer}>
               Save Customer
             </Button>
           </Stack>

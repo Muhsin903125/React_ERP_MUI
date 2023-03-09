@@ -16,7 +16,7 @@ export async function PostResetPassword(payload) {
 }
 
 export async function PostCommonSp(payload) {
-  return Post('/User/SPCALL', payload);
+  return Post('/User/SPCALL', payload); 
 }
 // payload {
 //   key:""
