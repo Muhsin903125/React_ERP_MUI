@@ -24,3 +24,7 @@ export async function PostCommonSp(payload) {
 //   json:"",
 //   controller: ""
 // }
+
+export async function PostMultiSp(payload) {
+  return Post('/User/CallGETMULTISP', payload); 
+}

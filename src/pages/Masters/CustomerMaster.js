@@ -11,7 +11,7 @@ import {
   FormControl,
 } from '@mui/material';
 import Iconify from '../../components/iconify';
-import { PostCommonSp } from  '../../hooks/Api';
+import { PostCommonSp, PostMultiSp } from  '../../hooks/Api';
 
 // ----------------------------------------------------------------------
 
@@ -45,7 +45,7 @@ export default function CustomerMaster() {
 
   const SaveCustomer = async () => {
     const dataArray = [formData];
-    const response = await PostCommonSp({
+    const response = await PostMultiSp({
       "key": "string",
       "userId": "string",
       "json": JSON.stringify({ "json": dataArray,
@@ -53,7 +53,9 @@ export default function CustomerMaster() {
      }),
       "controller": "string"
     }) //  JSON.stringify({ "json": items }));
-    console.log("Hi hello");
+    console.log(response.Data)
+    console.log(response);
+    setFormData(response.Data[0][0])
     // setAlertDialog(true)
     
   };
