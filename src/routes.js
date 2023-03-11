@@ -11,6 +11,7 @@ import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
 import ChangePassword from './pages/User/ChangePassword';
 import SalesInvoice from './pages/Invoice/SalesInvoice';
+import SalesList from './pages/Invoice/SalesList';
 import CustomerMaster from './pages/Masters/CustomerMaster';
 import { LoginForm } from './sections/auth/login'; 
 import ForgotPassword from './pages/User/ForgotPassword';
@@ -33,6 +34,7 @@ export default function Router() {
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
         { path: 'customermaster', element: <CustomerMaster /> },
+        { path: 'SalesList', element: <SalesList /> },
       ],
     },
     {
