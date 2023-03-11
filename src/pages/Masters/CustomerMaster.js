@@ -12,12 +12,13 @@ import {
 } from '@mui/material';
 import Iconify from '../../components/iconify';
 import { PostCommonSp, PostMultiSp } from  '../../hooks/Api';
+import useAuth from '../../hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
 
 export default function CustomerMaster() {
-
+  const {userToken} =useAuth()
   const [formData, setFormData] = useState({
     customerName: '',
     customerCode: '1001',
@@ -52,7 +53,7 @@ export default function CustomerMaster() {
       "Test":"123"
      }),
       "controller": "string"
-    }) //  JSON.stringify({ "json": items }));
+    },userToken) //  JSON.stringify({ "json": items }));
     console.log(response.Data)
     console.log(response);
     setFormData(response.Data[0][0])

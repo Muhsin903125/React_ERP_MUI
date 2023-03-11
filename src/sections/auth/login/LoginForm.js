@@ -3,18 +3,21 @@ import { Link, useNavigate } from 'react-router-dom';
 // @mui
 import { Link as Alink, Stack, IconButton, Typography, InputAdornment, Card, TextField, Checkbox, CircularProgress } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { useToast } from '../../../hooks/Common'; 
+import { useToast } from '../../../hooks/Common';
 // components 
 import Iconify from '../../../components/iconify';
 import { AuthContext } from '../../../App';
 import Logo from '../../../components/logo/Logo';
 import { PostLogin } from '../../../hooks/Api';
+import useAuth from '../../../hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
-  const { showToast } = useToast();
-  const { login, setLoadingFull } = useContext(AuthContext);
+  const { showToast } = useToast(); 
+  const { setLoadingFull } = useContext(AuthContext);
+  
+  const { login,logout ,userToken} = useAuth();
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -35,18 +38,27 @@ export default function LoginForm() {
   }, [user, pwd])
 
   const handleClick = async (e) => {
+   
     setLoadingFull(true);
     try {
-      const response = await PostLogin(JSON.stringify({ "Username": user, "Password": pwd }));
+      console.log("testt333",userToken);
+
+      const response = await PostLogin(JSON.stringify({ "Username": user, "Password": pwd }),userToken);
+      console.log("testt222",response);
       if (response?.Success) {
-        const accessToken = response?.Data?.access_token;
-        login(user, accessToken);
+        const accessToken = response?.Data?.accessToken;
+        const refreshToken = response?.Data?.refreshToken;
+        const expiry = response?.Data?.expiration;
+        const username = response?.Data?.userName;
+
+        login(username, accessToken,refreshToken,expiry);
         setLoadingFull(false);
 
-        showToast('Successfully Logined !!', 'success');
         navigate("/dashboard", { replace: true })
+        showToast('Successfully Logined !!', 'success');
       }
       else {
+        logout();
         setLoadingFull(false);
         const errResp = response?.Data.response?.data
         if (errResp.statusCode === 400 || errResp.statusCode === 401) {
@@ -59,6 +71,7 @@ export default function LoginForm() {
       }
     }
     catch (err) {
+      console.log("errrrrrrrrrrrrrrrrrrrrr",err);
       setLoadingFull(false);
     }
     finally {

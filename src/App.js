@@ -12,28 +12,15 @@ import Loader from './components/Loader';
 // ----------------------------------------------------------------------
 
 export const AuthContext = createContext();
-function App() {
-  const [token, setToken] = useState();
-  const [username, setUsername] = useState();
+function App() { 
 
-  const [loadingFull, setLoadingFull] = useState(false);
-  const login = (user, token) => {
-
-    setUsername(user);
-    setToken(token);
-  }
-
-  const logout = () => {
-    setUsername(null);
-    setToken(null);
-    //  showToast("Logout Success","info")
-  }
+  const [loadingFull, setLoadingFull] = useState(false); 
 
   return (
     <ThemeProvider>
       <ScrollToTop />
       <StyledChart />
-      <AuthContext.Provider value={{ username, token, login, logout, setLoadingFull }}>
+      <AuthContext.Provider value={{  setLoadingFull }}>
         <SnackbarProvider maxSnack={3}>
           <Router />
         </SnackbarProvider>

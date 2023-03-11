@@ -34,6 +34,10 @@ const navConfig = [
         title: 'Create Invoice',
         path: '/dashboard/salesinvoice',
         icon: icon('ic_radio_button'),
+      }  ,{
+        title: 'Sales List',
+        path: '/dashboard/SalesList',
+        icon: icon('ic_radio_button'),
       } 
     ]
   },  
@@ -47,6 +51,7 @@ const navConfig = [
         path: '/dashboard/changepassword',
         icon: icon('ic_radio_button'),
       } 
+      
     ]
   },
   {

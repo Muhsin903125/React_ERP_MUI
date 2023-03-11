@@ -19,6 +19,7 @@ import SubTotalSec from './SubTotalSec';
 import AlertDialog from '../../components/AlertDialog';
 import CustomerDialog from '../../components/CustomerDialog';
 import { PostCommonSp } from '../../hooks/Api';
+import useAuth from '../../hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -31,6 +32,8 @@ const InvoiceStatusOptions = [
 
 
 export default function SalesInvoice() {
+  const {userToken} =useAuth()
+
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedDueDate, setselectedDueDate] = useState(new Date());
   const [IsAlertDialog, setAlertDialog] = useState(false);
@@ -117,7 +120,7 @@ export default function SalesInvoice() {
       "userId": "string",
       "json": JSON.stringify({ "json": items }),
       "controller": "string"
-    }) //  JSON.stringify({ "json": items }));
+    },userToken) //  JSON.stringify({ "json": items }));
     console.log(response);
     // setAlertDialog(true)
 

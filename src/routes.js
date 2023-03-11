@@ -17,6 +17,7 @@ import { LoginForm } from './sections/auth/login';
 import ForgotPassword from './pages/User/ForgotPassword';
 import ResetPassword from './pages/User/ResetPassword';
 import {Post} from './hooks/axios';
+import { RequireAuth } from './hooks/RequireAuth';
 
 // ----------------------------------------------------------------------
 
@@ -24,7 +25,7 @@ export default function Router() {
   const routes = useRoutes([
     {
       path: '/dashboard',
-      element: <DashboardLayout />,
+      element: <RequireAuth><DashboardLayout /></RequireAuth>,
       children: [
         { element: <Navigate to="/dashboard/app" />, index: true },
         { path: 'app', element: <DashboardAppPage /> },
