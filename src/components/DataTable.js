@@ -1,10 +1,12 @@
 import React from 'react'
 import MaterialReactTable from 'material-react-table';
-import { Box, Button } from '@mui/material';
+import { Box, Button, IconButton, Tooltip } from '@mui/material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { ExportToCsv } from 'export-to-csv';
+ 
+import RefreshIcon from '@mui/icons-material/Refresh';
 
-
+// https://www.material-react-table.com/docs/examples
 
 export default function DataTable({
   columns,
@@ -34,7 +36,16 @@ export default function DataTable({
   return (
     <MaterialReactTable columns={columns} data={data}
     {...props}
-    // enableRowSelection={enableRowSelection}
+    //  enableRowSelection={enableRowSelection}
+
+    // renderTopToolbarCustomActions={() => (
+    //   <Tooltip arrow title="Refresh Data">
+    //     <IconButton onClick={() => refetch()}>
+    //       <RefreshIcon />
+    //     </IconButton>
+    //   </Tooltip>
+    // )}
+
       positionToolbarAlertBanner="bottom"
       renderTopToolbarCustomActions={({ table }) =>enableExport && (
         <Box
@@ -42,7 +53,7 @@ export default function DataTable({
         >
           <Button
             color="primary"
-            // export all data that is currently in the table (ignore pagination, sorting, filtering, etc.)
+            //  export all data that is currently in the table (ignore pagination, sorting, filtering, etc.)
             onClick={handleExportData}
             startIcon={<FileDownloadIcon />}
             variant="contained"
@@ -51,7 +62,7 @@ export default function DataTable({
           </Button>
           <Button
             disabled={table.getPrePaginationRowModel().rows.length === 0}
-            // export all rows, including from the next page, (still respects filtering and sorting)
+            //  export all rows, including from the next page, (still respects filtering and sorting)
             onClick={() =>
               handleExportRows(table.getPrePaginationRowModel().rows)
             }
@@ -62,7 +73,7 @@ export default function DataTable({
           </Button>
           <Button
             disabled={table.getRowModel().rows.length === 0}
-            // export all rows as seen on the screen (respects pagination, sorting, filtering, etc.)
+            //  export all rows as seen on the screen (respects pagination, sorting, filtering, etc.)
             onClick={() => handleExportRows(table.getRowModel().rows)}
             startIcon={<FileDownloadIcon />}
             variant="contained"
@@ -73,7 +84,7 @@ export default function DataTable({
             disabled={
               !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
             }
-            // only export selected rows
+            //  only export selected rows
             onClick={() => handleExportRows(table.getSelectedRowModel().rows)}
             startIcon={<FileDownloadIcon />}
             variant="contained"
@@ -82,6 +93,8 @@ export default function DataTable({
           </Button>
         </Box>
       )}
+
+      
     />
   )
 }

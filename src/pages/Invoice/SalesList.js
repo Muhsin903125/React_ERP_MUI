@@ -87,7 +87,8 @@ export default function SalesList() {
     columns={columns} 
     data={data}
     // enableRowSelection 
-    enableExport
+   // enableGrouping
+    // enableExport
     />;
   
 }
