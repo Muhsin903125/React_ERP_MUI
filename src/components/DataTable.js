@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import MaterialReactTable from 'material-react-table';
 import { Box, Button, IconButton, Tooltip } from '@mui/material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
