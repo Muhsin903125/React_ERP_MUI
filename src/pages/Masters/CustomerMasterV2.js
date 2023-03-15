@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react'
- 
-import DataTable from '../../components/DataTable';
-import {  PostMultiSp } from  '../../hooks/Api';
+
+import MaterialReactTable from 'material-react-table';
+import { PostCommonSp, PostMultiSp } from  '../../hooks/Api';
 import useAuth from '../../hooks/useAuth';
 
 
 
 const columns =   [
   {
-    accessorKey: 'CUS_DOCNO', //  access nested data with dot notation
+    accessorKey: 'CUS_DOCNO', 
     header: 'Code',
-    // size:500
+    enableEditing: false,
+    size:30
   },
   {
     accessorKey: 'CUS_DESC',
@@ -31,24 +32,28 @@ const columns =   [
   {
     accessorKey: 'CUS_CREATED_BY',
     header: 'Created By',
+    enableEditing: false,
   },
   {
+    
     accessorKey: 'CUS_CREATED_TS',
     header: 'Created TS',
+    enableEditing: false,
   },
 ]   ;
  
 
 export default function CustomerMasterV2() { 
     const [customerMaster, setcustomerMaster] = useState([]);
+    const [validationErrors, setValidationErrors] = useState({});
 
-    const dataArray = [];
+   
 
     useEffect(async () => {
         const response = await PostMultiSp({
             "key": "string",
             "userId": "string",
-            "json": JSON.stringify({ "json": dataArray,
+            "json": JSON.stringify({ "json": [],
             "key":"CUSTOMER_LIST"
            }),
             "controller": "string"
@@ -60,9 +65,40 @@ export default function CustomerMasterV2() {
 
     },[])
   
-    return <DataTable 
+
+    // for edit Save
+    const handleSaveRowEdits = async ({ exitEditingMode, row, values }) => {
+      if (!Object.keys(validationErrors).length) {
+        customerMaster[row.index] = values;
+        // send/receive api updates here, then refetch or update local table data for re-render
+        const response = await PostCommonSp({
+          "key": "string",
+          "userId": "string",
+          "json": JSON.stringify({ "json": values,
+          "key":"CUSTOMER_EDIT"
+         }),
+          "controller": "string"
+        },userToken) 
+
+        setcustomerMaster([...customerMaster]);
+        exitEditingMode(); // required to exit editing mode and close modal
+      }
+    };
+
+    // for cancel edit
+    const handleCancelRowEdits = () => {
+      setValidationErrors({});
+    };
+
+    return <MaterialReactTable 
     columns={columns} 
     data={customerMaster}
+    initialState={{ density: 'compact' }}
+    editingMode="modal" //  default
+    enableColumnOrdering
+    enableEditing
+    onEditingRowSave={handleSaveRowEdits}
+    onEditingRowCancel={handleCancelRowEdits}
     // enableRowSelection 
    // enableGrouping
     // enableExport
