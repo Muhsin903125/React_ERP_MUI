@@ -22,7 +22,12 @@ const navConfig = [
         title: 'Customer Master',
         path: '/dashboard/customermaster',
         icon: icon('ic_user'),
-      } 
+      },
+      {
+        title: 'Customer Master V2',
+        path: '/dashboard/customermasterv2',
+        icon: icon('ic_user'),
+      }  
     ]
   },  
   {

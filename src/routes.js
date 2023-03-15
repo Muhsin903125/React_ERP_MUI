@@ -18,6 +18,7 @@ import ForgotPassword from './pages/User/ForgotPassword';
 import ResetPassword from './pages/User/ResetPassword';
 import {Post} from './hooks/axios';
 import { RequireAuth } from './hooks/RequireAuth';
+import CustomerMasterV2 from './pages/Masters/CustomerMasterV2';
 
 // ----------------------------------------------------------------------
 
@@ -35,6 +36,7 @@ export default function Router() {
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
         { path: 'customermaster', element: <CustomerMaster /> },
+        { path: 'customermasterv2', element: <CustomerMasterV2 /> },
         { path: 'SalesList', element: <SalesList /> },
       ],
     },
