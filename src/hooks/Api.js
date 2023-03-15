@@ -4,7 +4,10 @@ export async function PostLogin(payload) {
   
   return Post('/Account/login', payload);
 }
-
+export async function PostRefreshToken(payload) {
+  
+  return Post('/Account/RefreshToken', payload);
+}
 
 export async function PostForgotPassword(payload) {
   return Post('/Account/forgotpassword', payload);
@@ -16,8 +19,8 @@ export async function PostResetPassword(payload) {
   return Post('/Account/resetpassword', payload);
 }
 
-export async function PostCommonSp(payload,userToken) {
-  return Post('/User/SPCALL', payload, userToken);
+export async function PostCommonSp(payload) {
+  return Post('/User/SPCALL', payload);
 }
 // payload {
 //   key:""
@@ -26,6 +29,6 @@ export async function PostCommonSp(payload,userToken) {
 //   controller: ""
 // }
 
-export async function PostMultiSp(payload,userToken) {
-  return Post('/User/CallGETMULTISP', payload,userToken);
+export async function PostMultiSp(payload) {
+  return Post('/User/CallGETMULTISP', payload);
 }

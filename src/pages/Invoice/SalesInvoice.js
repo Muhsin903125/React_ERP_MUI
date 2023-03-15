@@ -32,7 +32,7 @@ const InvoiceStatusOptions = [
 
 
 export default function SalesInvoice() {
-  const {userToken} =useAuth()
+ 
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedDueDate, setselectedDueDate] = useState(new Date());
@@ -120,7 +120,7 @@ export default function SalesInvoice() {
       "userId": "string",
       "json": JSON.stringify({ "json": items }),
       "controller": "string"
-    },userToken) //  JSON.stringify({ "json": items }));
+    }) //  JSON.stringify({ "json": items }));
     console.log(response);
     // setAlertDialog(true)
 

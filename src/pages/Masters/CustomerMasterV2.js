@@ -39,8 +39,7 @@ const columns =   [
 ]   ;
  
 
-export default function CustomerMasterV2() {
-    const {userToken} =useAuth()
+export default function CustomerMasterV2() { 
     const [customerMaster, setcustomerMaster] = useState([]);
 
     const dataArray = [];
@@ -53,7 +52,7 @@ export default function CustomerMasterV2() {
             "key":"CUSTOMER_LIST"
            }),
             "controller": "string"
-          },userToken) //  JSON.stringify({ "json": items }));
+          } ) //  JSON.stringify({ "json": items }));
         //   console.log(response)
         //   console.log(response.Data[0])
         //   console.log("Hi Test")

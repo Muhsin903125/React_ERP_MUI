@@ -17,8 +17,7 @@ import useAuth from '../../hooks/useAuth';
 // ----------------------------------------------------------------------
 
 
-export default function CustomerMaster() {
-  const {userToken} =useAuth()
+export default function CustomerMaster() { 
   const [formData, setFormData] = useState({
     customerName: '',
     customerCode: '1001',
@@ -53,7 +52,7 @@ export default function CustomerMaster() {
       "Test":"123"
      }),
       "controller": "string"
-    },userToken) //  JSON.stringify({ "json": items }));
+    }) //  JSON.stringify({ "json": items }));
     console.log(response.Data)
     console.log(response);
     setFormData(response.Data[0][0])

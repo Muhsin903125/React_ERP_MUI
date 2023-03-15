@@ -17,7 +17,7 @@ export default function LoginForm() {
   const { showToast } = useToast(); 
   const { setLoadingFull } = useContext(AuthContext);
   
-  const { login,logout ,userToken} = useAuth();
+  const { login,logout } = useAuth();
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -41,10 +41,9 @@ export default function LoginForm() {
    
     setLoadingFull(true);
     try {
-      console.log("testt333",userToken);
-
-      const response = await PostLogin(JSON.stringify({ "Username": user, "Password": pwd }),userToken);
-      console.log("testt222",response);
+ 
+      const response = await PostLogin(JSON.stringify({ "Username": user, "Password": pwd }));
+  
       if (response?.Success) {
         const accessToken = response?.Data?.accessToken;
         const refreshToken = response?.Data?.refreshToken;

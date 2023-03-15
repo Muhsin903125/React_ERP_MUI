@@ -14,7 +14,7 @@ export default function  useAuth (){
     const [expiry, setExpiry] = useState(null);
 
     useEffect(() => {
-        const storeduToken = localStorage.getItem("uToken");
+        const storeduToken = sessionStorage.getItem("uToken");
         if (storeduToken) {
             // const bytes = sha256.AES.decrypt(storeduToken, ENCRYPTION_KEY);
             // const decryptedUser = JSON.parse(bytes.toString(sha256.enc.Utf8));
@@ -22,16 +22,16 @@ export default function  useAuth (){
             
             setUserToken(storeduToken);
         }
-        const storedrToken = localStorage.getItem("rToken");
+        const storedrToken = sessionStorage.getItem("rToken");
         if (storedrToken) {
             setRefreshToken(storedrToken);
         }
-        const storedusername = localStorage.getItem("username");
+        const storedusername = sessionStorage.getItem("username");
         if (storedusername) {
             setUsername(storedusername);
         } 
         
-        const storedexpiry = localStorage.getItem("expiry");
+        const storedexpiry = sessionStorage.getItem("expiry");
         if ( storedexpiry) {
             setExpiry(storedexpiry );
         }
@@ -60,10 +60,10 @@ function login (username, token, refreshToken, expiry)   {
         // ).toString();
 
         // localStorage.setItem("uToken", encryptedToken);
-        localStorage.setItem("uToken", token);
-        localStorage.setItem("rToken", refreshToken);
-        localStorage.setItem("username", username);
-        localStorage.setItem("expiry", expiry);
+        sessionStorage.setItem("uToken", token);
+        sessionStorage.setItem("rToken", refreshToken);
+        sessionStorage.setItem("username", username);
+        sessionStorage.setItem("expiry", expiry);
          
         setUserToken(token);
         setRefreshToken(refreshToken);
@@ -71,19 +71,20 @@ function login (username, token, refreshToken, expiry)   {
         setExpiry(expiry);
     };
 
-    function logout() {
-        localStorage.removeItem("uToken");
-        localStorage.removeItem("rToken");
-        localStorage.removeItem("username");
-        localStorage.removeItem("expiry");
+    function logout() { 
+
+        sessionStorage.removeItem("uToken");
+        sessionStorage.removeItem("rToken");
+        sessionStorage.removeItem("username");
+        sessionStorage.removeItem("expiry");
 
 
         setUserToken(null);
         setRefreshToken(null);
         setUsername(null);
         setExpiry(null);
-
-         navigate("/login", { replace: true })
+       // showToast('Successfully Logined !!', 'success');
+        navigate("/login", { replace: true })
     };
 
     return { userToken,refreshToken,username,expiry, login, logout };
