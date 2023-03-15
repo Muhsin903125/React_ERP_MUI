@@ -78,7 +78,7 @@ export default function CustomerMasterV2() {
           "key":"CUSTOMER_EDIT"
          }),
           "controller": "string"
-        },userToken) 
+        }) 
 
         setcustomerMaster([...customerMaster]);
         exitEditingMode(); // required to exit editing mode and close modal
