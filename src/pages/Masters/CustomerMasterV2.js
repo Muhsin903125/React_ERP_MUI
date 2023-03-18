@@ -90,7 +90,7 @@ export default function CustomerMasterV2() {
 
         fetchCustomerList();
 
-    })
+    },[])
   
 
     // for edit Save
