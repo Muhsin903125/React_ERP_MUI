@@ -1,77 +1,55 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 // @mui
-import { Link as Alink, Stack, IconButton, Typography, InputAdornment, Card, TextField, Checkbox, CircularProgress } from '@mui/material';
+import { Link as Alink, Stack, IconButton, Typography, InputAdornment, Card, TextField,  } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useToast } from '../../../hooks/Common';
 // components 
 import Iconify from '../../../components/iconify';
-import { AuthContext } from '../../../App';
-import Logo from '../../../components/logo/Logo';
+import { AuthContext } from '../../../App'; 
 import { PostLogin } from '../../../hooks/Api';
 import useAuth from '../../../hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
-  const { showToast } = useToast(); 
+  const { showToast } = useToast();
   const { setLoadingFull } = useContext(AuthContext);
-  
-  const { login,logout } = useAuth();
+
+  const { login, logout } = useAuth();
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
 
-  const userRef = useRef();
-  const errRef = useRef();
+  const userRef = useRef(); 
 
   const [user, setUser] = useState('admin@erp.com');
-  const [pwd, setPwd] = useState('123456');
-  const [errMsg, setErrMsg] = useState('');
+  const [pwd, setPwd] = useState('123456'); 
 
   useEffect(() => {
     userRef.current.focus();
-  }, [])
+  }, []) 
 
-  useEffect(() => {
-    setErrMsg('');
-  }, [user, pwd])
-
-  const handleClick = async (e) => {
-   
+  const handleClick = async () => {
     setLoadingFull(true);
-    try {
- 
-      const response = await PostLogin(JSON.stringify({ "Username": user, "Password": pwd }));
-  
-      if (response?.Success) {
-        const accessToken = response?.Data?.accessToken;
-        const refreshToken = response?.Data?.refreshToken;
-        const expiry = response?.Data?.expiration;
-        const username = response?.Data?.userName;
 
-        login(username, accessToken,refreshToken,expiry);
-        setLoadingFull(false);
+    try {
+
+      const { Success, Data, Message } = await PostLogin(JSON.stringify({ "Username": user, "Password": pwd })); 
+      if (Success) {
+        const accessToken = Data?.accessToken;
+        const refreshToken = Data?.refreshToken;
+        const expiry = Data?.expiration;
+        const username = Data?.userName;
+        login(username, accessToken, refreshToken, expiry);
 
         navigate("/", { replace: true })
-        showToast('Successfully Logined !!', 'success');
+        showToast(Message, 'success');
       }
       else {
         logout();
-        setLoadingFull(false);
-        const errResp = response?.Data.response?.data
-        if (errResp.statusCode === 400 || errResp.statusCode === 401) {
-          setErrMsg(errResp.message);    //
-          showToast(errResp.message, "error");
-        } else {
-          setErrMsg('Login Failed');
-          showToast("Login Failed !!", "error");
-        }
+        showToast(Message, "error");
       }
-    }
-    catch (err) {
-      console.log("errrrrrrrrrrrrrrrrrrrrr",err);
-      setLoadingFull(false);
     }
     finally {
       setLoadingFull(false);

@@ -12,6 +12,7 @@ import { PostResetPassword } from '../../hooks/Api';
 
  
 export default function ResetPassword() {
+    
     const { showToast } = useToast();
     const navigate = useNavigate();
     const location = useLocation();
