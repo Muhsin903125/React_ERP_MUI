@@ -13,11 +13,15 @@ import {
 import Iconify from '../../components/iconify';
 import { PostCommonSp, PostMultiSp } from  '../../hooks/Api';
 import useAuth from '../../hooks/useAuth';
+import { useToast } from '../../hooks/Common';
 
 // ----------------------------------------------------------------------
 
 
 export default function CustomerMaster() { 
+
+  const { showToast } = useToast(); 
+
   const [formData, setFormData] = useState({
     customerName: '',
     customerCode: '1001',
@@ -45,6 +49,8 @@ export default function CustomerMaster() {
 
   const SaveCustomer = async () => {
     const dataArray = [formData];
+
+
     const response = await PostMultiSp({
       "key": "string",
       "userId": "string",
@@ -55,7 +61,13 @@ export default function CustomerMaster() {
     }) //  JSON.stringify({ "json": items }));
     console.log(response.Data)
     console.log(response);
+    if(response.Success) {
     setFormData(response.Data[0][0])
+    }
+    else
+    {
+      showToast(response.Message, "error");
+    }
     // setAlertDialog(true)
     
   };

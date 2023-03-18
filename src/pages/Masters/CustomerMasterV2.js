@@ -79,7 +79,7 @@ export default function CustomerMasterV2() {
          }),
           "controller": "string"
         }) 
-
+        console.log("Testing Customer V2");
         setcustomerMaster([...customerMaster]);
         exitEditingMode(); // required to exit editing mode and close modal
       }

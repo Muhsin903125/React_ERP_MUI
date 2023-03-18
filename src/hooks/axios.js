@@ -28,7 +28,7 @@ export const Post = async (url, payload) => {
       Message: data?.message,
     };
   } catch (error) {
-    ErrorHandler(error, url, payload);
+    // ErrorHandler(error, url, payload);
     return {
       Success: false,
       Data: error?.response?.data,
@@ -58,7 +58,7 @@ export const Get = async (url, payload) => {
       Message: data?.message,
     };
   } catch (error) {
-    ErrorHandler(error, url, payload);
+    // ErrorHandler(error, url, payload);
     return {
       Success: false,
       Data: error?.response?.data,
@@ -68,38 +68,38 @@ export const Get = async (url, payload) => {
 };
  
 
-export function ErrorHandler (error, url, payload = {})  {
+// export function ErrorHandler (error, url, payload = {})  {
  
-  const { showToast } = useToast();
-  console.log("1112",error);
-  console.log(`REQUEST TO: ${url} with PAYLOAD: ${JSON.stringify(payload)} failed!`);
+//   // const { showToast } = useToast();
+//   console.log("1112",error);
+//   console.log(`REQUEST TO: ${url} with PAYLOAD: ${JSON.stringify(payload)} failed!`);
 
-  if (error.message === 'Network Error') {
-    throw new Error('Network Error. Please check your internet connection.');
-  } else if (error.message === 'Server is not responding') {
-    throw new Error('Server is not responding.');
-  } else {
-    const { response } = error;
+//   if (error.message === 'Network Error') {
+//     throw new Error('Network Error. Please check your internet connection.');
+//   } else if (error.message === 'Server is not responding') {
+//     throw new Error('Server is not responding.');
+//   } else {
+//     const { response } = error;
   
-    if (response) {
-      const { status, data } = response;
-      console.warn(`API ERROR STATUS: ${status}\n`);
+//     if (response) {
+//       const { status, data } = response;
+//       console.warn(`API ERROR STATUS: ${status}\n`);
 
-      if (status === 401) {
-        // const { logout } =useAuth();// useContext(AuthContext);        
-        // logout();
-        throw new Error({
-          message: data.Message,
-          status,
-        });
-      } else {
-        const errorMessage = data?.message || 'Something went wrong.';
-console.log("1111");
-        showToast(errorMessage, 'error');
-        throw new Error(errorMessage);
-      }
-    } else {
-      throw new Error('Something went wrong.');
-    }
-  }
-};
+//       if (status === 401) {
+//         // const { logout } =useAuth();// useContext(AuthContext);        
+//         // logout();
+//         throw new Error({
+//           message: data.Message,
+//           status,
+//         });
+//       } else {
+//         const errorMessage = data?.message || 'Something went wrong.';
+//         console.log("1111");
+//         // showToast(errorMessage, 'error');
+//         throw new Error(errorMessage);
+//       }
+//     } else {
+//       throw new Error('Something went wrong.');
+//     }
+//   }
+// };
