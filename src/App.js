@@ -21,36 +21,37 @@ function App() {
   const [tkn] = useState(userToken);
   const [rtkn] = useState(refreshToken);
 
-  useIdle({ onIdle: logout, idleTime: 5 })// 5 min idle timeout
+  useIdle({ onIdle: logout, idleTime: 15 })// 5 min idle timeout
 
 
   async function fetchToken() {
     const storeduToken = sessionStorage.getItem("uToken");
-    const storedrToken = sessionStorage.getItem("rToken"); 
-    
-    try {
-      const response = await PostRefreshToken(JSON.stringify({ "AccessToken": storeduToken, "RefreshToken": storedrToken }), userToken);
-      if (response?.Success) {
-        const accessToken = response?.Data?.accessToken;
-        const refreshToken = response?.Data?.refreshToken;
-        sessionStorage.setItem("uToken", accessToken);
-        sessionStorage.setItem("rToken", refreshToken);
+    const storedrToken = sessionStorage.getItem("rToken");
+    if (storedrToken && storeduToken) {
+      try {
+        const response = await PostRefreshToken(
+          JSON.stringify({ "AccessToken": storeduToken, "RefreshToken": storedrToken }), userToken);
+        if (response?.Success) {
+          const accessToken = response?.Data?.accessToken;
+          const refreshToken = response?.Data?.refreshToken;
+          sessionStorage.setItem("uToken", accessToken);
+          sessionStorage.setItem("rToken", refreshToken);
+        }
+        else { 
+          logout();
+        }
+      } catch {
+        logout();
+        console.log("refreshtoken failed");
       }
-      else {
-        logout(); 
-      }
-    } catch {
-      logout(); 
-      console.log("refrtoken failed");
     }
-
   }
 
   useEffect(() => {
-    fetchToken();
+    // fetchToken();
     const interval = setInterval(() => {
       fetchToken();
-    }, 5 * 60000);
+    }, 2* 60000);
 
 
     return () => clearInterval(interval);
