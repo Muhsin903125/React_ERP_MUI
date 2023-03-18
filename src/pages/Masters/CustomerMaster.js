@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 // @mui
 import {
   Card,
@@ -11,8 +11,7 @@ import {
   FormControl,
 } from '@mui/material';
 import Iconify from '../../components/iconify';
-import { PostCommonSp, PostMultiSp } from  '../../hooks/Api';
-import useAuth from '../../hooks/useAuth';
+import {  PostMultiSp } from  '../../hooks/Api'; // PostCommonSp
 import { useToast } from '../../hooks/Common';
 
 // ----------------------------------------------------------------------
@@ -38,14 +37,14 @@ export default function CustomerMaster() {
     });
   };
 
-  const [trn, setTRN] = useState();
-  const [mob, setMOB] = useState();
-  const handleTrnChange = (event) => {
-    if (event.target.value.length > 15) {
-      return
-    }
-    setTRN(event.target.value);
-  };
+  // const [trn, setTRN] = useState();
+  // const [mob, setMOB] = useState();
+  // const handleTrnChange = (event) => {
+  //   if (event.target.value.length > 15) {
+  //     return
+  //   }
+  //   setTRN(event.target.value);
+  // };
 
   const SaveCustomer = async () => {
     const dataArray = [formData];
@@ -87,17 +86,6 @@ export default function CustomerMaster() {
         <Card>
           <Stack m={2.5} >
             <Grid container spacing={2} mt={1}>
-              <Grid item xs={12} md={9}  >
-                <FormControl fullWidth>
-                  <TextField
-                    id="cust_name"
-                    label="Customer Name"
-                    name="customerName"
-                    value={formData.customerName}
-                    onChange={handleInputChange}
-                  />
-                </FormControl>
-              </Grid>
               <Grid item xs={12} md={3}  >
                 <FormControl fullWidth>
                   <TextField
@@ -112,11 +100,22 @@ export default function CustomerMaster() {
                   />
                 </FormControl>
               </Grid>
+              <Grid item xs={12} md={9}  >
+                <FormControl fullWidth>
+                  <TextField
+                    id="cust_name"
+                    label="Customer Name"
+                    name="customerName"
+                    value={formData.customerName}
+                    onChange={handleInputChange}
+                  />
+                </FormControl>
+              </Grid>
             </Grid>
           </Stack>
           <Stack m={2.5}>
             <Grid container spacing={2} >
-              <Grid item xs={6} md={6}>
+              <Grid item xs={12} md={6}>
                 <FormControl fullWidth>
                   <TextField
                     id="cust_address"
@@ -130,7 +129,7 @@ export default function CustomerMaster() {
                   />
                 </FormControl>
               </Grid>
-              <Grid item xs={6} md={6}>
+              <Grid item xs={12} md={6}>
                 <Grid item xs={12} md={12} mb={1.5} >
                   <FormControl fullWidth>
                     <TextField

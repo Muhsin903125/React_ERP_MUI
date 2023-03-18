@@ -23,6 +23,11 @@ import CustomerMasterV2 from './pages/Masters/CustomerMasterV2';
 // ----------------------------------------------------------------------
 
 export default function Router() {
+  const userMenus = [
+    { path: 'customermasterv2', element: <CustomerMasterV2 /> },
+    { path: 'SalesList', element: <SalesList /> },
+  ]
+
   const routes = useRoutes([
     {
       path: '/',
@@ -36,8 +41,9 @@ export default function Router() {
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
         { path: 'customermaster', element: <CustomerMaster /> },
-        { path: 'customermasterv2', element: <CustomerMasterV2 /> },
-        { path: 'SalesList', element: <SalesList /> },
+        ...userMenus
+        // { path: 'customermasterv2', element: <CustomerMasterV2 /> },
+        // { path: 'SalesList', element: <SalesList /> },
       ],
     },
     {

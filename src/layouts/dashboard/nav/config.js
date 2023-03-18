@@ -24,7 +24,7 @@ const navConfig = [
         icon: icon('ic_user'),
       },
       {
-        title: 'Customer Master V2',
+        title: 'Customer Master List',
         path: '/customermasterv2',
         icon: icon('ic_user'),
       }  

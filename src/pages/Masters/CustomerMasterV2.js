@@ -1,9 +1,20 @@
 import { Helmet } from 'react-helmet-async';
 import React, { useEffect, useState } from 'react'
 
+import { Link } from 'react-router-dom';
+
+// @mui
+import {
+  
+  Stack,
+  Button,
+  Container,
+  Typography, 
+} from '@mui/material';
 import MaterialReactTable from 'material-react-table';
 import { PostCommonSp, PostMultiSp } from  '../../hooks/Api';
-import useAuth from '../../hooks/useAuth';
+import Iconify from '../../components/iconify/Iconify';
+import { useToast } from '../../hooks/Common';
 
 
 
@@ -12,7 +23,7 @@ const columns =   [
     accessorKey: 'CUS_DOCNO', 
     header: 'Code',
     enableEditing: false,
-    size:30
+    size:0
   },
   {
     accessorKey: 'CUS_DESC',
@@ -45,10 +56,12 @@ const columns =   [
  
 
 export default function CustomerMasterV2() { 
+
+    const { showToast } = useToast(); 
     const [customerMaster, setcustomerMaster] = useState([]);
     const [validationErrors, setValidationErrors] = useState({});
 
-   
+    
 
     useEffect(() => {
 
@@ -66,12 +79,18 @@ export default function CustomerMasterV2() {
         //   console.log(response)
         //   console.log(response.Data[0])
         //   console.log("Hi Test")
-          setcustomerMaster(response.Data[0])
+          if(response.Success){
+            setcustomerMaster(response.Data[0])
+          }
+          else
+          {
+            showToast(response.Message,"error");
+          }
         }
 
         fetchCustomerList();
 
-    },[])
+    })
   
 
     // for edit Save
@@ -87,9 +106,14 @@ export default function CustomerMasterV2() {
          }),
           "controller": "string"
         }) 
-        console.log("Testing Customer V2");
-        setcustomerMaster([...customerMaster]);
-        exitEditingMode(); // required to exit editing mode and close modal
+        if(response.Success) {
+          setcustomerMaster([...customerMaster]);
+          exitEditingMode(); // required to exit editing mode and close modal
+        }
+        else
+        {
+          showToast(response.Message, "error");
+        }
       }
     };
 
@@ -104,19 +128,28 @@ export default function CustomerMasterV2() {
         <title> Customer Master List </title>
       </Helmet>
 
-      <MaterialReactTable 
-      columns={columns} 
-      data={customerMaster}
-      initialState={{ density: 'compact' }}
-      editingMode="modal" //  default
-      enableColumnOrdering
-      enableEditing
-      onEditingRowSave={handleSaveRowEdits}
-      onEditingRowCancel={handleCancelRowEdits}
-      // enableRowSelection 
-    // enableGrouping
-      // enableExport
-      />;
+      <Container maxWidth={"xl"}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
+          <Typography variant="h4" gutterBottom>
+            Customer List
+          </Typography>
+          <Link to="/customermaster" style={{textDecoration: 'none'}}>
+          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+            New Customer
+          </Button>
+          </Link>
+        </Stack>
+        <MaterialReactTable 
+        columns={columns} 
+        data={customerMaster}
+        initialState={{ density: 'compact' }}
+        editingMode="modal" //  default
+        enableColumnOrdering
+        enableEditing
+        onEditingRowSave={handleSaveRowEdits}
+        onEditingRowCancel={handleCancelRowEdits}
+        />  
+      </Container>
     </>
     )
 } 
