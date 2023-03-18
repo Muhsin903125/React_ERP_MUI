@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import React, { useEffect, useState } from 'react'
 
 import MaterialReactTable from 'material-react-table';
@@ -49,7 +50,11 @@ export default function CustomerMasterV2() {
 
    
 
-    useEffect(async () => {
+    useEffect(() => {
+
+      async function  fetchCustomerList() {
+
+      
         const response = await PostMultiSp({
             "key": "string",
             "userId": "string",
@@ -62,6 +67,9 @@ export default function CustomerMasterV2() {
         //   console.log(response.Data[0])
         //   console.log("Hi Test")
           setcustomerMaster(response.Data[0])
+        }
+
+        fetchCustomerList();
 
     },[])
   
@@ -90,18 +98,25 @@ export default function CustomerMasterV2() {
       setValidationErrors({});
     };
 
-    return <MaterialReactTable 
-    columns={columns} 
-    data={customerMaster}
-    initialState={{ density: 'compact' }}
-    editingMode="modal" //  default
-    enableColumnOrdering
-    enableEditing
-    onEditingRowSave={handleSaveRowEdits}
-    onEditingRowCancel={handleCancelRowEdits}
-    // enableRowSelection 
-   // enableGrouping
-    // enableExport
-    />;
-  
-}
+    return (
+    <>
+      <Helmet>
+        <title> Customer Master List </title>
+      </Helmet>
+
+      <MaterialReactTable 
+      columns={columns} 
+      data={customerMaster}
+      initialState={{ density: 'compact' }}
+      editingMode="modal" //  default
+      enableColumnOrdering
+      enableEditing
+      onEditingRowSave={handleSaveRowEdits}
+      onEditingRowCancel={handleCancelRowEdits}
+      // enableRowSelection 
+    // enableGrouping
+      // enableExport
+      />;
+    </>
+    )
+} 

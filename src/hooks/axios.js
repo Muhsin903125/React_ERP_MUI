@@ -3,7 +3,7 @@ import { useToast } from './Common';
 // import useAuth from './useAuth';
 
 // const BASEURL = 'https://muhsinerpapi.azurewebsites.net/api/';
-const BASEURL = process.env.REACT_APP_API_BASE_URL
+const BASEURL = 'http://192.168.1.12:7134/api/'// process.env.REACT_APP_API_BASE_URL
 
 export const Post = async (url, payload) => {  
   // const { getToken } =useAuth();// useContext(AuthContext); 

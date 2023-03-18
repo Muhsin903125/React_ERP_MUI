@@ -11,7 +11,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 export default function DataTable({
   columns,
   data,
-  enableExport=false,
+  enableExport=true,
 },props) {
 
    const csvOptions = {
