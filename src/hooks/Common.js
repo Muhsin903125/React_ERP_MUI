@@ -6,7 +6,7 @@ export function useToast() {
 // variant could be success, error, warning, info, or default
  
   function showToast(message, variant) { // showToast(message: string, variant: VariantType)
-    console.log("Testing Toast");
+    // console.log("Testing Toast");
     const key = enqueueSnackbar(message, { 
       variant,
       anchorOrigin: { vertical: 'bottom', horizontal: 'right' },

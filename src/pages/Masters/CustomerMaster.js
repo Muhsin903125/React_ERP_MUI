@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 // @mui
 import {
   Card,
@@ -11,16 +11,17 @@ import {
   FormControl,
 } from '@mui/material';
 import Iconify from '../../components/iconify';
-import {  PostMultiSp } from  '../../hooks/Api'; // PostCommonSp
+import { PostMultiSp } from '../../hooks/Api'; // PostCommonSp
 import { useToast } from '../../hooks/Common';
+import { AuthContext } from '../../App';
 
 // ----------------------------------------------------------------------
 
 
-export default function CustomerMaster() { 
+export default function CustomerMaster() {
 
-  const { showToast } = useToast(); 
-
+  const { showToast } = useToast();
+  const { setLoadingFull } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     customerName: '',
     customerCode: '1001',
@@ -49,26 +50,29 @@ export default function CustomerMaster() {
   const SaveCustomer = async () => {
     const dataArray = [formData];
 
+    try {
+      setLoadingFull(false);
+      const { Success, Data, Message } = await PostMultiSp({
+        "key": "string",
+        "userId": "string",
+        "json": JSON.stringify({
+          "json": dataArray,
+          "Test": "123"
+        }),
+        "controller": "string"
+      })  
+      if (Success) {
+        setFormData(Data[0][0])
+        showToast(Message, 'success');
+      }
+      else {
+        showToast(Message, "error");
+      }
+    }
+    finally {
+      setLoadingFull(false);
+    }
 
-    const response = await PostMultiSp({
-      "key": "string",
-      "userId": "string",
-      "json": JSON.stringify({ "json": dataArray,
-      "Test":"123"
-     }),
-      "controller": "string"
-    }) //  JSON.stringify({ "json": items }));
-    console.log(response.Data)
-    console.log(response);
-    if(response.Success) {
-    setFormData(response.Data[0][0])
-    }
-    else
-    {
-      showToast(response.Message, "error");
-    }
-    // setAlertDialog(true)
-    
   };
 
   return (

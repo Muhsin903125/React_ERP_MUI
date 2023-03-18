@@ -1,14 +1,12 @@
-import axios from 'axios'; 
-import { useToast } from './Common';
-// import useAuth from './useAuth';
+import axios from 'axios';  
 
 // const BASEURL = 'https://muhsinerpapi.azurewebsites.net/api/';
-const BASEURL = 'http://192.168.1.12:7134/api/'// process.env.REACT_APP_API_BASE_URL
+const BASEURL = process.env.REACT_APP_API_BASE_URL
+// const BASEURL = 'http://192.168.1.12:7134/api/'// process.env.REACT_APP_API_BASE_URL
 
-export const Post = async (url, payload) => {  
-  // const { getToken } =useAuth();// useContext(AuthContext); 
-  // const token=getToken();
-  const storeduToken = sessionStorage.getItem("uToken"); 
+
+export const Post = async (url, payload) => {
+  const storeduToken = sessionStorage.getItem("uToken");
 
   const axiosInstance = axios.create({
     baseURL: BASEURL,
@@ -18,21 +16,21 @@ export const Post = async (url, payload) => {
     },
     timeout: 15000,
   });
- 
+
   try {
     const { data } = await axiosInstance.post(url, payload);
-     
+
     return {
-      Success: true,
+      Success: data?.success,
       Data: data?.data,
       Message: data?.message,
     };
   } catch (error) {
-    // ErrorHandler(error, url, payload);
+
     return {
       Success: false,
       Data: error?.response?.data,
-      Message: error?.response?.data?.message,
+      Message: await ErrorHandler(error, url, payload)
     };
   }
 };
@@ -58,48 +56,42 @@ export const Get = async (url, payload) => {
       Message: data?.message,
     };
   } catch (error) {
-    // ErrorHandler(error, url, payload);
+
     return {
       Success: false,
       Data: error?.response?.data,
-      Message: error?.response?.data?.message,
+      Message: await ErrorHandler(error, url, payload)
     };
   }
 };
- 
 
-// export function ErrorHandler (error, url, payload = {})  {
- 
-//   // const { showToast } = useToast();
-//   console.log("1112",error);
-//   console.log(`REQUEST TO: ${url} with PAYLOAD: ${JSON.stringify(payload)} failed!`);
+export function ErrorHandler(error, url, payload = {}) {
+  console.log("Error:", error);
+  let errMsg = "";
 
-//   if (error.message === 'Network Error') {
-//     throw new Error('Network Error. Please check your internet connection.');
-//   } else if (error.message === 'Server is not responding') {
-//     throw new Error('Server is not responding.');
-//   } else {
-//     const { response } = error;
-  
-//     if (response) {
-//       const { status, data } = response;
-//       console.warn(`API ERROR STATUS: ${status}\n`);
+  console.log(`REQUEST TO: ${url} with PAYLOAD: ${JSON.stringify(payload)} failed!`);
 
-//       if (status === 401) {
-//         // const { logout } =useAuth();// useContext(AuthContext);        
-//         // logout();
-//         throw new Error({
-//           message: data.Message,
-//           status,
-//         });
-//       } else {
-//         const errorMessage = data?.message || 'Something went wrong.';
-//         console.log("1111");
-//         // showToast(errorMessage, 'error');
-//         throw new Error(errorMessage);
-//       }
-//     } else {
-//       throw new Error('Something went wrong.');
-//     }
-//   }
-// };
+  if (error.message === 'Network Error') {
+    errMsg = 'Network Error. Please check your internet connection.';
+  } else if (error.message === 'Server is not responding') {
+    errMsg = 'Server is not responding. Please try again later.';
+  } else {
+    const { response } = error;
+
+    if (response) {
+      const { status } = response;
+      console.warn(`API ERROR STATUS: ${status}\n`);
+
+      if (status === 401) {
+        errMsg = error?.response.data.message || 'Unauthorized access. Please login to continue.';
+      } else if (status === 404) {
+        errMsg = 'The requested resource was not found. Please check the URL and try again.';
+      } else if (status === 500) {
+        errMsg = 'Internal server error. Please try again later.';
+      } else {
+        errMsg = error?.message || 'Something went wrong. Please try again later.';
+      }
+    }
+  }
+  return errMsg;
+}

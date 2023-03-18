@@ -1,12 +1,12 @@
 import { Helmet } from 'react-helmet-async';
-import { useRef, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 // @mui
 import {
   Card,
   Stack,
   Button,
   Container,
-  Typography, 
+  Typography,
   Grid,
   TextField,
   FormControl,
@@ -18,8 +18,9 @@ import InvoiceItem from './InvoiceItem';
 import SubTotalSec from './SubTotalSec';
 import AlertDialog from '../../components/AlertDialog';
 import CustomerDialog from '../../components/CustomerDialog';
-import { PostCommonSp } from '../../hooks/Api';
-import useAuth from '../../hooks/useAuth';
+import { PostCommonSp } from '../../hooks/Api'; 
+import { useToast } from '../../hooks/Common';
+import { AuthContext } from '../../App';
 
 // ----------------------------------------------------------------------
 
@@ -32,8 +33,9 @@ const InvoiceStatusOptions = [
 
 
 export default function SalesInvoice() {
- 
 
+  const { showToast } = useToast();
+  const { setLoadingFull } = useContext(AuthContext);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedDueDate, setselectedDueDate] = useState(new Date());
   const [IsAlertDialog, setAlertDialog] = useState(false);
@@ -48,7 +50,7 @@ export default function SalesInvoice() {
   const [items, setItems] = useState([{
     name: "",
     price: 0,
-    desc:"",
+    desc: "",
     qty: 0,
     unit: "kg"
   }]);
@@ -59,7 +61,7 @@ export default function SalesInvoice() {
     setItems([...items, {
       name: "",
       price: 0,
-      desc:"",
+      desc: "",
       qty: 0,
       unit: "kg"
     }]);
@@ -84,7 +86,7 @@ export default function SalesInvoice() {
 
   function calculateTotal(items) {
     return items.reduce((total, item) => {
-        return total + item.price * item.qty;
+      return total + item.price * item.qty;
     }, 0);
   }
 
@@ -115,15 +117,25 @@ export default function SalesInvoice() {
     setFields(values);
   };
   const CreateInvoice = async () => {
-    const response = await PostCommonSp({
-      "key": "string",
-      "userId": "string",
-      "json": JSON.stringify({ "json": items }),
-      "controller": "string"
-    }) //  JSON.stringify({ "json": items }));
-    console.log(response);
-    // setAlertDialog(true)
+    try {
+      setLoadingFull(false);
+      const { Success, Message } = await PostCommonSp({
+        "key": "string",
+        "userId": "string",
+        "json": JSON.stringify({ "json": items }),
+        "controller": "string"
+      }) //  JSON.stringify({ "json": items }));
 
+      if (Success) {
+        showToast(Message, 'success');
+      }
+      else {
+        showToast(Message, "error");
+      }
+    }
+    finally {
+      setLoadingFull(false);
+    }
   };
 
   return (
@@ -145,14 +157,14 @@ export default function SalesInvoice() {
           <Stack m={2.5} >
             <Grid container spacing={2} mt={1} >
               <Grid item xs={12} md={6}>
-                <Grid container  spacing={2} mt={1}>
+                <Grid container spacing={2} mt={1}>
                   <Grid items xs={8} md={8}>
-                    <Typography variant="subtitle1" ml={2} mb={1} style={ {color:"gray"}} >
+                    <Typography variant="subtitle1" ml={2} mb={1} style={{ color: "gray" }} >
                       Customer :
                     </Typography>
                   </Grid>
                   <Grid items xs={4} md={4} align='right'>
-                    <Button size="small" startIcon={<Iconify icon="eva:edit-fill"  />} onClick={handleClickOpen}>
+                    <Button size="small" startIcon={<Iconify icon="eva:edit-fill" />} onClick={handleClickOpen}>
                       change
                     </Button>
                     <CustomerDialog
@@ -162,21 +174,21 @@ export default function SalesInvoice() {
                     />
                   </Grid>
                   <Grid items xs={12} md={12}>
-                    <Typography variant="body2" ml={2}  style={ {color:"black"}} >
-                     {selectedValue}
+                    <Typography variant="body2" ml={2} style={{ color: "black" }} >
+                      {selectedValue}
                     </Typography>
                   </Grid>
                   <Grid items xs={12} md={12}>
-                    <Typography variant="body2" ml={2} mb={2} style={ {color:"gray"}} >
-                      Customer Address 1 <br/>
-                      Customer Address 2 <br/>
-                      United Arab Emirates                 
+                    <Typography variant="body2" ml={2} mb={2} style={{ color: "gray" }} >
+                      Customer Address 1 <br />
+                      Customer Address 2 <br />
+                      United Arab Emirates
                     </Typography>
                   </Grid>
                 </Grid>
               </Grid>
               <Grid item xs={12} md={6}>
-                <Grid container  spacing={2}>
+                <Grid container spacing={2}>
                   <Grid item xs={6} md={6}  >
                     <FormControl fullWidth>
                       <TextField
@@ -199,7 +211,7 @@ export default function SalesInvoice() {
                     </FormControl>
                   </Grid>
                 </Grid>
-                <Grid container  spacing={2} mt={1}>
+                <Grid container spacing={2} mt={1}>
                   <Grid item xs={6} md={6}  >
                     <FormControl fullWidth>
                       <DateSelector
@@ -274,20 +286,20 @@ export default function SalesInvoice() {
             </Typography>
             {items.map((field, index) => (
               <InvoiceItem Propkey={index}
-              code={items[index].name}
-              desc={items[index].desc}
-              qty={items[index].qty}
-              price={items[index].price} 
-              unit={items[index].unit} 
-              items={items}
-              setItems={setItems}
+                code={items[index].name}
+                desc={items[index].desc}
+                qty={items[index].qty}
+                price={items[index].price}
+                unit={items[index].unit}
+                items={items}
+                setItems={setItems}
                 removeItem={() => removeItem(index)} />
             ))}
 
 
 
             <SubTotalSec addItem={addItem} calculateTotal={calculateTotal(items)}
-             />
+            />
             <Stack direction="row" justifyContent="flex-end" mb={2} mt={2}>
               <Button variant="contained" color='success' size='large' onClick={CreateInvoice}>
                 Create Invoice
