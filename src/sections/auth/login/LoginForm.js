@@ -53,7 +53,7 @@ export default function LoginForm() {
         login(username, accessToken,refreshToken,expiry);
         setLoadingFull(false);
 
-        navigate("/dashboard", { replace: true })
+        navigate("/", { replace: true })
         showToast('Successfully Logined !!', 'success');
       }
       else {

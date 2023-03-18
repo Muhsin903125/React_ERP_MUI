@@ -25,10 +25,10 @@ import CustomerMasterV2 from './pages/Masters/CustomerMasterV2';
 export default function Router() {
   const routes = useRoutes([
     {
-      path: '/dashboard',
+      path: '/',
       element: <RequireAuth><DashboardLayout /></RequireAuth>,
       children: [
-        { element: <Navigate to="/dashboard/app" />, index: true },
+        { element: <Navigate to="/app" />, index: true },
         { path: 'app', element: <DashboardAppPage /> },
         { path: 'changepassword', element: <ChangePassword/> },
         { path: 'salesinvoice', element: <SalesInvoice/> },
@@ -59,7 +59,7 @@ export default function Router() {
     {
       element: <SimpleLayout />,
       children: [
-        { element: <Navigate to="/dashboard/app" />, index: true },
+        { element: <Navigate to="/app" />, index: true },
         { path: '404', element: <Page404 /> },
         { path: '*', element: <Navigate to="/404" /> },
       ],

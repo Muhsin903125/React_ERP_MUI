@@ -41,7 +41,7 @@ export default function CustomerDialog(props) {
   );
 
   return (
-    <Dialog onClose={handleClose} 
+    <Dialog fullWidth maxWidth={"md"} onClose={handleClose} 
             open={open}>
       <DialogTitle>Select Customer</DialogTitle>
       <TextField style={{ marginLeft: 20 ,marginRight: 20}}
