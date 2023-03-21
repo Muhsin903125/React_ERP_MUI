@@ -1,5 +1,7 @@
 import { Helmet } from 'react-helmet-async';
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 // @mui
 import {
   Card,
@@ -20,15 +22,50 @@ import { AuthContext } from '../../App';
 
 export default function CustomerMaster() {
 
+  const navigate = useNavigate();
   const { showToast } = useToast();
   const { setLoadingFull } = useContext(AuthContext);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState(
+    {
     customerName: '',
     customerCode: '1001',
     Address: '',
     TRN: '',
     Mobile: ''
   })
+
+  useEffect(() => {
+
+    async function fetchCustomerEntry() {
+
+      try {
+        setLoadingFull(false);
+        const { Success, Data, Message } = await PostMultiSp({
+          "key": "string",
+          "userId": "string",
+          "json": JSON.stringify({
+            "json": [],
+            "key": "CUSTOMER_ENTRY"
+          }),
+          "controller": "string"
+        })
+        if (Success) {
+          console.log(Data[0][0]);
+          setFormData(Data[0][0])
+        //  showToast(Message, 'success');
+        }
+        else {
+          showToast(Message, "error");
+        }
+      }
+      finally {
+        setLoadingFull(false);
+      } 
+    }
+
+    fetchCustomerEntry();
+
+    },[])
 
   const handleInputChange = event => {
     const { name, value } = event.target;
@@ -57,13 +94,16 @@ export default function CustomerMaster() {
         "userId": "string",
         "json": JSON.stringify({
           "json": dataArray,
-          "Test": "123"
+          "key": "CUSTOMER_SAVE"
         }),
         "controller": "string"
       })  
       if (Success) {
-        setFormData(Data[0][0])
-        showToast(Message, 'success');
+        showToast("Saved Successfully", 'success');
+        navigate("/customermasterv2", { replace: true })
+        // <Navigate  to='/customermasterv2' />
+        // setFormData(Data[0][0])
+        // showToast(Message, 'success');
       }
       else {
         showToast(Message, "error");

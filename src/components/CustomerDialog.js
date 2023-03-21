@@ -14,16 +14,21 @@ import AddIcon from '@mui/icons-material/Add';
 import Typography from '@mui/material/Typography';
 import { blue } from '@mui/material/colors';
 import  TextField from '@mui/material/TextField';
+import { Stack } from '@mui/material';
+import useLookupData from '../datas/useLookupData';
 
 
-const customers = [
-    { name: "Facts Computer Software House LLC", address: "Dubai" },
-    { name: "Safe Line Electrical & Mechanical LLC", address: "Abu Dhabi" },
-    { name: "Monarch Builders", address: 'Kerala \nIndia' },
-    { name: "Dream Company LLC", address: "Dubai" }
-];
+
+// const customers = [
+//     { name: "Facts Computer Software House LLC", address: "Dubai" },
+//     { name: "Safe Line Electrical & Mechanical LLC", address: "Abu Dhabi" },
+//     { name: "Monarch Builders", address: 'Kerala \nIndia' },
+//     { name: "Dream Company LLC", address: "Dubai" }
+// ];
 
 export default function CustomerDialog(props) {
+
+  const customers = useLookupData();
   const { onClose, selectedValue, open } = props;
 
   const handleClose = () => {
@@ -36,12 +41,20 @@ export default function CustomerDialog(props) {
 
   const [searchtext, setsearchtext] = useState("");
   
-  const filteredCustomer = customers.filter(
-    item => item.name.toLowerCase().toString().includes(searchtext.toLowerCase()) || item.address.toLowerCase().includes(searchtext.toLowerCase())
+  const filteredCustomer = customers.filter( item =>
+    Object.values(item).some(
+      prop =>
+        prop &&
+        prop
+          .toString()
+          .toLowerCase()
+          .includes(searchtext.toLowerCase())
+    )
+    // item => item.name.toLowerCase().toString().includes(searchtext.toLowerCase()) || item.address.toLowerCase().includes(searchtext.toLowerCase())
   );
 
   return (
-    <Dialog fullWidth maxWidth={"md"} onClose={handleClose} 
+    <Dialog fullWidth maxWidth={"sm"} onClose={handleClose} 
             open={open}>
       <DialogTitle>Select Customer</DialogTitle>
       <TextField style={{ marginLeft: 20 ,marginRight: 20}}
@@ -53,17 +66,38 @@ export default function CustomerDialog(props) {
         {filteredCustomer.map((customer) => (
           <ListItem disableGutters>
             <ListItemButton onClick={() => handleListItemClick(customer.name)} key={customer.name}>
-              <ListItemAvatar>
+              {/* <ListItemAvatar>
                 <Avatar sx={{ bgcolor: blue[100], color: blue[600] }}>
                   <PersonIcon />
                 </Avatar>
-              </ListItemAvatar>
-              <ListItemText primary={customer.name} secondary={customer.address} />
+              </ListItemAvatar> */}
+              <ListItemText 
+                // primary={customer.name} 
+                primary={
+                  <Typography variant="subtitle1" component="span" style={{ fontWeight: 'bold' }}>
+                    {`${customer.CUS_DOCNO} - ${customer.name}`}
+                  </Typography>
+                }
+                secondary={
+                  <>
+                  <Stack>
+                    <Typography >
+                    {customer.address}
+                    </Typography>
+                  </Stack>
+                  <Stack>
+                  <Typography >
+                  {`TRN ${customer.CUS_TRN}`}
+                  </Typography>
+                </Stack>
+                </>
+                  // `${customer.address} \nTRN ${customer.CUS_TRN}`
+                  } />
             </ListItemButton>
           </ListItem>
         ))}
 
-        <ListItem disableGutters>
+        {/* <ListItem disableGutters>
           <ListItemButton
             autoFocus
             onClick={() => handleListItemClick('Cash Customer')}
@@ -75,7 +109,7 @@ export default function CustomerDialog(props) {
             </ListItemAvatar>
             <ListItemText primary="Cash Customer" />
           </ListItemButton>
-        </ListItem>
+        </ListItem> */}
       </List>
     </Dialog>
   );

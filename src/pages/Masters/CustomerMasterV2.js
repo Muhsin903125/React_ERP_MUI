@@ -81,7 +81,7 @@ export default function CustomerMasterV2() {
         })
         if (Success) {
           setcustomerMaster(Data[0])
-          showToast(Message, 'success');
+        //  showToast(Message, 'success');
         }
         else {
           showToast(Message, "error");

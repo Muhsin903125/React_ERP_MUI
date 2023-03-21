@@ -180,9 +180,7 @@ export default function SalesInvoice() {
                   </Grid>
                   <Grid items xs={12} md={12}>
                     <Typography variant="body2" ml={2} mb={2} style={{ color: "gray" }} >
-                      Customer Address 1 <br />
-                      Customer Address 2 <br />
-                      United Arab Emirates
+                      Address
                     </Typography>
                   </Grid>
                 </Grid>
