@@ -14,7 +14,7 @@ import AddIcon from '@mui/icons-material/Add';
 import Typography from '@mui/material/Typography';
 import { blue } from '@mui/material/colors';
 import  TextField from '@mui/material/TextField';
-import { Stack } from '@mui/material';
+import { Stack,Toolbar } from '@mui/material';
 import useLookupData from '../datas/useLookupData';
 
 
@@ -54,6 +54,7 @@ export default function CustomerDialog(props) {
   );
 
   return (
+
     <Dialog fullWidth maxWidth={"sm"} onClose={handleClose} 
             open={open}>
       <DialogTitle>Select Customer</DialogTitle>
@@ -61,7 +62,9 @@ export default function CustomerDialog(props) {
         label="Search"
         value={searchtext}
         onChange={event => setsearchtext(event.target.value)}
-      />
+      /> 
+      
+      
       <List sx={{ pt: 0 }}>
         {filteredCustomer.map((customer) => (
           <ListItem disableGutters>
