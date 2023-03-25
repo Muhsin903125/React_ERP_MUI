@@ -1,4 +1,5 @@
-import { Post } from './axios';
+ 
+import { Get, Post } from './axios';
 
 export async function PostLogin(payload) {
   
@@ -31,4 +32,19 @@ export async function PostCommonSp(payload) {
 
 export async function PostMultiSp(payload) {
   return Post('/User/CallGETMULTISP', payload);
+}
+
+
+export async function GetUserList() {
+  return Get('/User/Userslist', );
+}
+
+export async function GetRoleList() {
+  return Get('/User/GetRoles', );
+}
+export async function saveRole(payload) {
+  return Get('/User/CreateRole',payload );
+}
+export async function deleteRole(payload) {
+  return Get(`/User/DeleteRole/${payload}`, );
 }

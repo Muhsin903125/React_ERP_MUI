@@ -86,7 +86,7 @@ const RegisterUser = ({ user, onSave, onDelete }) => {
   return (
     <>
       <Helmet>
-        <title> Change Password </title>
+        <title>User Register </title>
       </Helmet>
 
       <Container  >
