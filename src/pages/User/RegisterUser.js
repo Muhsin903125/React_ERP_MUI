@@ -1,0 +1,237 @@
+import React, { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
+import {
+  TextField,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl, 
+  Typography,
+  Container,
+  Stack,
+  Grid,
+  Card,
+} from '@mui/material';
+import { LoadingButton } from '@mui/lab';
+import validator from 'validator';
+
+const RegisterUser = ({ user, onSave, onDelete }) => {
+  const [username, setUsername] = useState(user && user.username || '');
+  const [fullName, setFullName] = useState(user && user.fullName || '');
+  const [mobileNumber, setMobileNumber] = useState(user && user.mobileNumber || '');
+  const [password, setPassword] = useState(user && user.password || '');
+  const [gender, setGender] = useState(user && user.gender || '');
+  const [dateOfBirth, setDateOfBirth] = useState(user && user.dateOfBirth || '');
+  const [citizenship, setCitizenship] = useState(user && user.citizenship || '');
+  const [errors, setErrors] = useState({});
+
+  const isEditing = Boolean(user && user.id);
+
+  const validate = () => {
+    const errors = {};
+
+    if (!validator.isEmail(username)  ) {
+      errors.username = 'Username should be either a valid email ';
+    }
+
+    if (validator.isEmpty(fullName)) {
+      errors.fullName = 'Full Name is required';
+    }
+
+    if (!validator.isNumeric(mobileNumber) || mobileNumber.length < 10) {
+      errors.mobileNumber = 'Mobile Number should be a valid numeric value of at least 10 digits';
+    }
+
+    if (validator.isEmpty(password)) {
+      errors.password = 'Password is required';
+    }
+
+    if (validator.isEmpty(gender)) {
+      errors.gender = 'Gender is required';
+    }
+
+    if (validator.isEmpty(dateOfBirth)) {
+      errors.dateOfBirth = 'Date of Birth is required';
+    } else if (new Date(dateOfBirth) > new Date()) {
+      errors.dateOfBirth = 'Date of Birth cannot be a future date';
+    }
+
+    if (validator.isEmpty(citizenship)) {
+      errors.citizenship = 'Citizenship is required';
+    }
+
+    setErrors(errors);
+
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSave = () => {
+    if (validate()) {
+      onSave({
+        username,
+        fullName,
+        mobileNumber,
+        password,
+        gender,
+        dateOfBirth,
+        citizenship,
+        id: user.id,
+      });
+    }
+  };
+
+  const handleDelete = () => {
+    onDelete(user.id);
+  };
+  return (
+    <>
+      <Helmet>
+        <title> Change Password </title>
+      </Helmet>
+
+      <Container  >
+        <Stack direction="row" alignItems="center" justifyContent="space-between" mb={3}>
+          <Typography variant="h4" gutterBottom>
+            {isEditing ? 'Edit User' : 'New User'}
+          </Typography>
+        </Stack>
+        <Card>
+          <Grid container p={3} spacing={1} >
+            <Grid item xs={12} md={6}  >
+              <TextField
+                label="Username/Email"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                error={errors.username !== undefined}
+                helperText={errors.username}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}  >
+              <TextField
+                label="Full Name"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                error={errors.fullName !== undefined}
+                helperText={errors.fullName}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}  >
+              <TextField
+                fullWidth
+                variant="outlined"
+                label="Mobile Number"
+                margin="normal"
+                value={mobileNumber}
+                onChange={(e) => setMobileNumber(e.target.value)}
+                error={errors.mobileNumber !== undefined}
+                helperText={errors.mobileNumber}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}  >
+              <FormControl variant="outlined" fullWidth margin="normal">
+                <InputLabel id="gender-label">Gender</InputLabel>
+                <Select
+                  labelId="gender-label"
+                  label="Gender"
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value)}
+                  error={errors.gender !== undefined}
+                >
+                  <MenuItem value="male">Male</MenuItem>
+                  <MenuItem value="female">Female</MenuItem>
+                  <MenuItem value="other">Other</MenuItem>
+                </Select>
+                {errors.gender && (
+                  <Typography variant="caption" color="error">
+                    {errors.gender}
+                  </Typography>
+                )}
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12} md={6}  >
+              <TextField
+                fullWidth
+                variant="outlined"
+                type="password"
+                label="Password"
+                margin="normal"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                error={errors.password !== undefined}
+                helperText={errors.password}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}  >
+              <TextField
+                fullWidth
+                variant="outlined"
+                type="date"
+                label="Date of Birth"
+                margin="normal"
+                value={dateOfBirth}
+                onChange={(e) => setDateOfBirth(e.target.value)}
+                error={errors.dateOfBirth !== undefined}
+                helperText={errors.dateOfBirth}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                inputProps={{
+                  max: new Date().toISOString().split('T')[0],
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}  >
+              <FormControl variant="outlined" fullWidth margin="normal">
+                <InputLabel id="citizenship-label">Citizenship</InputLabel>
+                <Select
+                  labelId="citizenship-label"
+                  label="Citizenship"
+                  value={citizenship}
+                  onChange={(e) => setCitizenship(e.target.value)}
+                  error={errors.citizenship !== undefined}
+                >
+                  <MenuItem value="india">India</MenuItem>
+                  <MenuItem value="usa">USA</MenuItem>
+                  <MenuItem value="canada">Canada</MenuItem>
+                  {/* Add more countries here */}
+                </Select>
+                {errors.citizenship && (
+                  <Typography variant="caption" color="error">
+                    {errors.citizenship}
+                  </Typography>
+                )}
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={4}  >
+
+              <LoadingButton variant="contained" color="primary" fullWidth size="large" onClick={handleSave}>
+                {isEditing ? 'Update' : 'Save'}
+              </LoadingButton>
+            </Grid>
+            <Grid item xs={12} md={4}  >
+              {isEditing && (
+                <LoadingButton variant="outlined" color="error" fullWidth size="large" onClick={handleDelete}>
+                  Delete
+                </LoadingButton>
+              )}
+            </Grid>
+          </ Grid></Card>
+      </ Container>
+    </>
+  );
+};
+
+export default RegisterUser;    

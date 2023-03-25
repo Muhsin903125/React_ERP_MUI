@@ -1,4 +1,4 @@
-import {  useState } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
@@ -13,12 +13,10 @@ import PersonIcon from '@mui/icons-material/Person';
 import AddIcon from '@mui/icons-material/Add';
 import Typography from '@mui/material/Typography';
 import { blue } from '@mui/material/colors';
-import  TextField from '@mui/material/TextField';
-import { Stack,Toolbar } from '@mui/material';
+import TextField from '@mui/material/TextField';
+import { Stack, Toolbar } from '@mui/material';
 import useLookupData from '../datas/useLookupData';
-
-
-
+ 
 // const customers = [
 //     { name: "Facts Computer Software House LLC", address: "Dubai" },
 //     { name: "Safe Line Electrical & Mechanical LLC", address: "Abu Dhabi" },
@@ -40,8 +38,8 @@ export default function CustomerDialog(props) {
   };
 
   const [searchtext, setsearchtext] = useState("");
-  
-  const filteredCustomer = customers.filter( item =>
+
+  const filteredCustomer = customers.filter(item =>
     Object.values(item).some(
       prop =>
         prop &&
@@ -55,64 +53,51 @@ export default function CustomerDialog(props) {
 
   return (
 
-    <Dialog fullWidth maxWidth={"sm"} onClose={handleClose} 
-            open={open}>
-      <DialogTitle>Select Customer</DialogTitle>
-      <TextField style={{ marginLeft: 20 ,marginRight: 20}}
-        label="Search"
-        value={searchtext}
-        onChange={event => setsearchtext(event.target.value)}
-      /> 
-      
-      
-      <List sx={{ pt: 0 }}>
+    <Dialog fullWidth maxWidth={"sm"} m={15} onClose={handleClose}
+      open={open}> 
+      <div style={{ position: 'sticky', top: 0, backgroundColor: 'white', zIndex: '1', boxShadow: '#dbdbdb4f -1px 9px 20px 0px' }}>    <DialogTitle elevation={2}  >
+        <Typography variant="h5" style={{ fontWeight: 'bold' }} mb={2}>
+          Select Customer
+        </Typography>
+        <TextField
+          fullWidth
+          label="Search"
+          value={searchtext}
+          onChange={event => setsearchtext(event.target.value)}
+        />
+      </DialogTitle>
+
+      </div>
+      <List sx={{ pt: 0 }} >
         {filteredCustomer.map((customer) => (
           <ListItem disableGutters>
             <ListItemButton onClick={() => handleListItemClick(customer.name)} key={customer.name}>
-              {/* <ListItemAvatar>
-                <Avatar sx={{ bgcolor: blue[100], color: blue[600] }}>
-                  <PersonIcon />
-                </Avatar>
-              </ListItemAvatar> */}
-              <ListItemText 
-                // primary={customer.name} 
+
+              <ListItemText
                 primary={
-                  <Typography variant="subtitle1" component="span" style={{ fontWeight: 'bold' }}>
+                  <Typography ml={1} variant="subtitle1" component="span" style={{ fontWeight: 'bold' }}>
                     {`${customer.CUS_DOCNO} - ${customer.name}`}
                   </Typography>
                 }
                 secondary={
                   <>
-                  <Stack>
-                    <Typography >
-                    {customer.address}
-                    </Typography>
-                  </Stack>
-                  <Stack>
-                  <Typography >
-                  {`TRN ${customer.CUS_TRN}`}
-                  </Typography>
-                </Stack>
-                </>
+                    <Stack>
+                      <Typography ml={1}>
+                        {customer.address}
+                      </Typography>
+                    </Stack>
+                    <Stack>
+                      <Typography ml={1}>
+                        {`TRN ${customer.CUS_TRN}`}
+                      </Typography>
+                    </Stack>
+                  </>
                   // `${customer.address} \nTRN ${customer.CUS_TRN}`
-                  } />
+                } />
             </ListItemButton>
           </ListItem>
         ))}
 
-        {/* <ListItem disableGutters>
-          <ListItemButton
-            autoFocus
-            onClick={() => handleListItemClick('Cash Customer')}
-          >
-            <ListItemAvatar>
-              <Avatar>
-                <AddIcon />
-              </Avatar>
-            </ListItemAvatar>
-            <ListItemText primary="Cash Customer" />
-          </ListItemButton>
-        </ListItem> */}
       </List>
     </Dialog>
   );

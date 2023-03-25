@@ -55,8 +55,12 @@ const navConfig = [
         title: 'Change Password',
         path: '/changepassword',
         icon: icon('ic_radio_button'),
+      } ,
+        {
+        title: 'Register User',
+        path: '/registeruser',
+        icon: icon('ic_radio_button'),
       } 
-      
     ]
   },
   {

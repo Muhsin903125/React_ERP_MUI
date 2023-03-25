@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 // @mui
 import { styled } from '@mui/material/styles';
+import { Container } from '@mui/material';
 //
 import Header from './header';
 import Nav from './nav';
@@ -42,7 +43,9 @@ export default function DashboardLayout() {
       <Nav openNav={open} onCloseNav={() => setOpen(false)} />
 
       <Main>
+        <Container>
         <Outlet />
+        </Container>
       </Main>
     </StyledRoot>
   );

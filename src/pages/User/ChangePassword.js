@@ -25,7 +25,7 @@ export default function ChangePassword() {
                     </Typography>
                 </Stack>
                 <Grid container    >
-                    <Grid item xs={12} md={5}  >
+                    <Grid item xs={12} md={7}  >
                         <Card>
                             <Stack m={2.5} md={6} >
                                 <Grid container spacing={2} >

@@ -4,8 +4,7 @@ import { useContext, useRef, useState } from 'react';
 import {
   Card,
   Stack,
-  Button,
-  Container,
+  Button, 
   Typography,
   Grid,
   TextField,
@@ -143,8 +142,7 @@ export default function SalesInvoice() {
       <Helmet>
         <title> Sales Invoice </title>
       </Helmet>
-
-      <Container>
+ 
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
             Sales Invoice
@@ -308,8 +306,7 @@ export default function SalesInvoice() {
         {IsAlertDialog && (<AlertDialog
           Message="Are you sure you want to proceed?"
           OnSuccess={setAlertDialog}
-        />)}
-      </Container>
+        />)} 
 
     </>
   );

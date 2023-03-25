@@ -6,8 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Card,
   Stack,
-  Button,
-  Container,
+  Button, 
   Typography, Grid,
   TextField,
   FormControl,
@@ -120,8 +119,7 @@ export default function CustomerMaster() {
       <Helmet>
         <title> Customer Master </title>
       </Helmet>
-
-      <Container>
+ 
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
             Create New Customer
@@ -208,8 +206,7 @@ export default function CustomerMaster() {
               Save Customer
             </Button>
           </Stack>
-        </Card>
-      </Container>
+        </Card> 
 
     </>
   );
