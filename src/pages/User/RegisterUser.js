@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
+
+
+import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import {
   TextField,
@@ -14,15 +17,22 @@ import {
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import validator from 'validator';
+import { PostUserResgister } from '../../hooks/Api';
+import { useToast } from '../../hooks/Common';
+import { AuthContext } from '../../App';
 
-const RegisterUser = ({ user, onSave, onDelete }) => {
+const RegisterUser = ({ user,  onDelete }) => {
+  const navigate= useNavigate();
+  const { setLoadingFull } = useContext(AuthContext);
+  const { showToast } = useToast(); 
+
   const [username, setUsername] = useState(user && user.username || '');
-  const [fullName, setFullName] = useState(user && user.fullName || '');
+  const [firstName, setfirstname] = useState(user && user.firstName || '');
+  const [lastName, setlastname] = useState(user && user.lastName || '');
   const [mobileNumber, setMobileNumber] = useState(user && user.mobileNumber || '');
   const [password, setPassword] = useState(user && user.password || '');
   const [gender, setGender] = useState(user && user.gender || '');
-  const [dateOfBirth, setDateOfBirth] = useState(user && user.dateOfBirth || '');
-  const [citizenship, setCitizenship] = useState(user && user.citizenship || '');
+  const [dateOfBirth, setDateOfBirth] = useState(user && user.dateOfBirth || ''); 
   const [errors, setErrors] = useState({});
 
   const isEditing = Boolean(user && user.id);
@@ -34,8 +44,8 @@ const RegisterUser = ({ user, onSave, onDelete }) => {
       errors.username = 'Username should be either a valid email ';
     }
 
-    if (validator.isEmpty(fullName)) {
-      errors.fullName = 'Full Name is required';
+    if (validator.isEmpty(firstName)) {
+      errors.firstName = 'First Name is required';
     }
 
     if (!validator.isNumeric(mobileNumber) || mobileNumber.length < 10) {
@@ -55,27 +65,39 @@ const RegisterUser = ({ user, onSave, onDelete }) => {
     } else if (new Date(dateOfBirth) > new Date()) {
       errors.dateOfBirth = 'Date of Birth cannot be a future date';
     }
-
-    if (validator.isEmpty(citizenship)) {
-      errors.citizenship = 'Citizenship is required';
-    }
-
+ 
     setErrors(errors);
 
     return Object.keys(errors).length === 0;
   };
-
+  const onSave = async (data) => {
+    try {
+      setLoadingFull(true);
+      const { Success, Data, Message } = await PostUserResgister(data)
+      if (Success) { 
+        navigate('/userlist')
+        showToast(Message, 'success');
+      }
+      else {
+        showToast(Message, "error");
+      }
+    }
+    finally {
+      setLoadingFull(false);
+    }
+  }
   const handleSave = () => {
     if (validate()) {
       onSave({
-        username,
-        fullName,
-        mobileNumber,
-        password,
-        gender,
-        dateOfBirth,
-        citizenship,
-        id: user.id,
+        Email: username,
+        FirstName:firstName,
+        LastName:lastName,
+        MobileNumber: mobileNumber,
+        Password: password,
+        Gender: gender,
+        DOB:   dateOfBirth,
+        // citizenship,
+        Id: user?.id,
       });
     }
   };
@@ -97,6 +119,30 @@ const RegisterUser = ({ user, onSave, onDelete }) => {
         </Stack>
         <Card>
           <Grid container p={3} spacing={1} >
+          <Grid item xs={12} md={6}  >
+              <TextField
+                label="First Name"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                value={firstName}
+                onChange={(e) => setfirstname(e.target.value)}
+                error={errors.firstName !== undefined}
+                helperText={errors.firstName}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}  >
+              <TextField
+                label="Last Name"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                value={lastName}
+                onChange={(e) => setlastname(e.target.value)}
+                error={errors.lastName !== undefined}
+                helperText={errors.lastName}
+              />
+            </Grid>
             <Grid item xs={12} md={6}  >
               <TextField
                 label="Username/Email"
@@ -109,18 +155,7 @@ const RegisterUser = ({ user, onSave, onDelete }) => {
                 helperText={errors.username}
               />
             </Grid>
-            <Grid item xs={12} md={6}  >
-              <TextField
-                label="Full Name"
-                variant="outlined"
-                fullWidth
-                margin="normal"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                error={errors.fullName !== undefined}
-                helperText={errors.fullName}
-              />
-            </Grid>
+          
             <Grid item xs={12} md={6}  >
               <TextField
                 fullWidth
@@ -193,7 +228,7 @@ const RegisterUser = ({ user, onSave, onDelete }) => {
                 }}
               />
             </Grid>
-            <Grid item xs={12} md={6}  >
+            {/* <Grid item xs={12} md={6}  >
               <FormControl variant="outlined" fullWidth margin="normal">
                 <InputLabel id="citizenship-label">Citizenship</InputLabel>
                 <Select
@@ -206,7 +241,7 @@ const RegisterUser = ({ user, onSave, onDelete }) => {
                   <MenuItem value="india">India</MenuItem>
                   <MenuItem value="usa">USA</MenuItem>
                   <MenuItem value="canada">Canada</MenuItem>
-                  {/* Add more countries here */}
+                  {/* Add more countries here  
                 </Select>
                 {errors.citizenship && (
                   <Typography variant="caption" color="error">
@@ -214,7 +249,7 @@ const RegisterUser = ({ user, onSave, onDelete }) => {
                   </Typography>
                 )}
               </FormControl>
-            </Grid>
+            </Grid> */}
             <Grid item xs={12} md={4}  >
 
               <LoadingButton variant="contained" color="primary" fullWidth size="large" onClick={handleSave}>

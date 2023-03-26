@@ -34,7 +34,9 @@ export async function PostMultiSp(payload) {
   return Post('/User/CallGETMULTISP', payload);
 }
 
-
+export async function PostUserResgister(payload) {
+  return Post('/account/register',payload );
+}
 export async function GetUserList() {
   return Get('/User/Userslist', );
 }
@@ -43,7 +45,7 @@ export async function GetRoleList() {
   return Get('/User/GetRoles', );
 }
 export async function saveRole(payload) {
-  return Get('/User/CreateRole',payload );
+  return Post('/User/CreateRole',payload );
 }
 export async function deleteRole(payload) {
   return Get(`/User/DeleteRole/${payload}`, );
