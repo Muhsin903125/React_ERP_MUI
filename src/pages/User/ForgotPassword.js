@@ -1,31 +1,26 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import validator from 'validator';
 // @mui
 import { Link, Stack, IconButton, Typography, Card, TextField } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useToast } from '../../hooks/Common';
 // components 
 import CountDownTimer from '../../components/CountDownTimer';
-import Iconify from '../../components/iconify'; 
+import Iconify from '../../components/iconify';
 import { AuthContext } from '../../App';
 import { PostForgotPassword, PostOTPVerify } from '../../hooks/Api';
 
 export default function ForgotPassword() {
-    function GenerateRandomKey(length) {
-        // let result = '';
-        // const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        // const charactersLength = characters.length;
-        // for (let i = 0; i < length; i+1) {
-        //    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-        // }
-        return "ofbdkjsasdbasdasm";
+   
+    const GenerateRandomKey = (min,max) => { 
+        return (Math.floor(Math.random() * (max - min + 1)) + min).toString();
     }
 
     const { showToast } = useToast();
     const navigate = useNavigate()
     const { setLoadingFull } = useContext(AuthContext)
-    // const GenerateRandomKey = GenerateRandomKey(12);
-    const [OTPKey, setOTPKey] = useState(GenerateRandomKey(12))
+    const [OTPKey, setOTPKey] = useState(GenerateRandomKey(1111111,9999999))
     const [username, setUsername] = useState('');
     const [otp, setOtp] = useState('');
     const [resetTimer, setResetTimer] = useState(-1);
@@ -48,31 +43,26 @@ export default function ForgotPassword() {
     useEffect(() => {
         setErrMsg('');
 
-    }, [username, otp])
-
-
+    }, [username, otp]) 
 
     const SendOtp = async (e) => {
-        e.preventDefault();
-
+        e.preventDefault(); 
 
         try {
-            if (username === null || username === "") {
-                setErrMsg("Enter Username");
-                showToast("Username is required", "warning")
+            if (validator.isEmpty(username) || !validator.isEmail(username)  ) {
+                setErrMsg("Enter Valid Email");
+                showToast("Enter Valid Email", "warning")
                 usernameRef.current.focus();
             } else {
                 setLoadingFull(true);
-                const response = await PostForgotPassword(JSON.stringify({ "Username": username, "OTPKey": OTPKey }));
-                if (response?.Success) {
-
-                    setResetTimer(resetTimer + 1);
-
-                    const minutes = 0;
-                    const seconds = 5;
-                    const resetTimer = 0;
-                    const withHour = false;
-                    sethoursMinSecs({ minutes, seconds, withHour, resetTimer });
+                const { Success, Data, Message } = await PostForgotPassword(JSON.stringify({ "Username": username, "OTPKey": OTPKey }));
+                if (Success) { 
+                    setResetTimer(resetTimer + 1); 
+                    const minutes1 = 1;
+                    const seconds1 = 0;
+                    const resetTimer1= 0;
+                    const withHour1 = false;
+                    sethoursMinSecs({ minutes1, seconds1, withHour1, resetTimer1 });
 
                     setIsOtpSend(true);// for enable timer
                     setIsResendEnable(false)
@@ -82,72 +72,47 @@ export default function ForgotPassword() {
                             setIsResendEnable(true)
                             setIsTimerEnable(false);
                         },
-                        5000
+                        60000 
                     );
-                    showToast(response?.Message, "success")
-                    setLoadingFull(false)
+                    showToast(Message, "success") 
                     otpRef.current.focus();
                 }
                 else {
-                    setLoadingFull(false)
-                    const errResp = response?.Data.response?.data
-                    if (errResp.statusCode === 400 || errResp.statusCode === 401) {
-                        setErrMsg(errResp.message);
-                        showToast(errResp.message, "error")
-                    } else {
-                        setErrMsg("Server no response");
-                        showToast("Server no response", "error")
-                    }
+                    setOTPKey(GenerateRandomKey(1111111,9999999));
                     usernameRef.current.focus();
-                    setOTPKey(GenerateRandomKey(15));
+                    showToast(Message, "error");
                 }
-            }
-
-        } catch (err) {
-            setLoadingFull(false)
-            if (!err?.response) {
-                setErrMsg("Server no response");
-            }
-            setOTPKey(GenerateRandomKey(15));
-            usernameRef.current.focus();
-        }
+            } 
+        } 
+        finally {
+            setLoadingFull(false);
+        } 
     }
     const VerifyOtp = async (e) => {
         e.preventDefault();
 
         try {
-            if (otp === null || otp === "") {
-                setErrMsg("Enter OTP");
+            if (validator.isEmpty(otp)) {
                 showToast("OTP is required", "warning")
+                setErrMsg("Enter OTP");
                 otpRef.current.focus();
             } else {
                 setLoadingFull(true)
-                const response = await PostOTPVerify(JSON.stringify({ "Username": username, "OTPKey": OTPKey, "OTP": otp })
+                const { Success, Data, Message } = await PostOTPVerify(JSON.stringify({ "Username": username, "OTPKey": OTPKey, "OTP": otp.trim() })
                 );
-                if (response?.Success) {
-                    showToast(response?.Message, "success")
-                    navigate('/resetpassword', { state: { OTPKey, username } })
-                    setLoadingFull(false)
+                if (Success) {
+                    showToast(Message, "success")
+                    navigate('/resetpassword', { state: { OTPKey, username } }) 
                 }
-                else {
-                    setLoadingFull(false)
-                    const errResp = response?.Data.response?.data
-                    if (errResp.statusCode === 400 || errResp.statusCode === 401) {
-                        setErrMsg(errResp.message);
-                        showToast(errResp.message, "error")
-                    } else {
-                        setErrMsg("Server no response");
-                    }
+                else {  
+                    showToast(Message, "error")
                     usernameRef.current.focus();
                 }
             }
-        } catch (err) {
-            setLoadingFull(false)
-            if (!err?.response) {
-                setErrMsg("Server no response");
-            }
-            usernameRef.current.focus();
-        }
+        }      
+        finally {
+            setLoadingFull(false);
+        } 
     }
 
     return (
@@ -169,6 +134,7 @@ export default function ForgotPassword() {
                     {isOtpSend && (
                         <TextField name="email"
                             id="OTP"
+                            label="OTP"
                             ref={otpRef}
                             onChange={(e) => setOtp(e.target.value)}
                             value={otp}

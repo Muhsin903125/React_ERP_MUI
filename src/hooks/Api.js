@@ -50,3 +50,7 @@ export async function saveRole(payload) {
 export async function deleteRole(payload) {
   return Get(`/User/DeleteRole/${payload}`, );
 }
+
+export async function PostChangePassword(payload) {
+  return Post(`/User/changepassword`,payload );
+}

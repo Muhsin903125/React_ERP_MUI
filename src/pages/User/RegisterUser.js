@@ -40,7 +40,7 @@ const RegisterUser = ({ user,  onDelete }) => {
   const validate = () => {
     const errors = {};
 
-    if (!validator.isEmail(username)  ) {
+    if (!validator.isEmail(username) || validator.isEmail(username) ) {
       errors.username = 'Username should be either a valid email ';
     }
 
