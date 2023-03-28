@@ -58,34 +58,19 @@ export default function ResetPassword() {
             }
             else {
                 setLoadingFull(true)
-                const response = await PostResetPassword( JSON.stringify({ "UserName": username, "OTPKey": OTPKey, "Password": password }));
-                if (response?.Success) {
-                    showToast(response?.Message, "success")
-                    setLoadingFull(false)
+                const { Success, Data, Message } = await PostResetPassword( JSON.stringify({ "UserName": username, "OTPKey": OTPKey, "Password": password }));
+                if (Success) {
+                    showToast(Message, "success") 
                     navigate(redirectPath, { replace: true })
                 }
-                else {
-                    setLoadingFull(false)
-                    const errResp = response?.Data.response?.data
-                    if (errResp.statusCode === 400 || errResp.statusCode === 401) {
-                        setErrMsg(errResp.message);
-                        showToast(errResp.message, "error")
-                    } else {
-                        setErrMsg('Invalid Data');
-                    }
+                else { 
+                    showToast(Message, "error") 
                     errRef.current.focus();
                 }
             }
-        } catch (err) {
-            setLoadingFull(false)
-            if (!err?.response) {
-                setErrMsg("Server no response");
-                showToast('Server no response', "error")
-            } else {
-                setErrMsg('Login Failed');
-            }
-            errRef.current.focus();
-        }
+        }   finally {
+            setLoadingFull(false);
+        } 
     }
 
     return (
@@ -107,6 +92,7 @@ export default function ResetPassword() {
                         placeholder="Password" 
                         label="Password" 
                         />
+                        
                     <TextField 
                         id="confirmPassword"
                         ref={confirmpPasswordRef}

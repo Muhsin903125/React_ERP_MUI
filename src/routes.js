@@ -20,6 +20,9 @@ import {Post} from './hooks/axios';
 import { RequireAuth } from './hooks/RequireAuth';
 import CustomerMasterV2 from './pages/Masters/CustomerMasterV2';
 import RegisterUser from './pages/User/RegisterUser';
+import UserList from './pages/User/UserList';
+import UserRoleList from './pages/User/Roles/UserRoleList';
+import UserRole from './pages/User/Roles/UserRole';
 
 // ----------------------------------------------------------------------
 
@@ -28,7 +31,12 @@ export default function Router() {
     { path: 'customermasterv2', element: <CustomerMasterV2 /> },
     { path: 'SalesList', element: <SalesList /> },
   ]
-
+ const AccountMenus = [
+    { path: 'userlist', element: <UserList /> },
+    { path: 'registeruser', element: <RegisterUser /> },
+    { path: 'rolelist', element: <UserRoleList /> },
+    { path: 'userrole', element: <UserRole /> },
+  ]
   const routes = useRoutes([
     {
       path: '/',
@@ -42,8 +50,9 @@ export default function Router() {
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
         { path: 'customermaster', element: <CustomerMaster /> },
-        { path: 'registeruser', element: <RegisterUser /> },
-        ...userMenus
+
+        ...userMenus,
+        ...AccountMenus
         // { path: 'customermasterv2', element: <CustomerMasterV2 /> },
         // { path: 'SalesList', element: <SalesList /> },
       ],

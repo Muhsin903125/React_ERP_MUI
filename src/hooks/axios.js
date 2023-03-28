@@ -37,21 +37,22 @@ export const Post = async (url, payload) => {
 
 export const Get = async (url, payload) => {
   // const { userToken } =useAuth();// useContext(AuthContext); 
+  const storeduToken = sessionStorage.getItem("uToken");
+
   const axiosInstance = axios.create({
     baseURL: BASEURL,
     headers: {
       'Content-type': 'application/json',
-      Authorization: `bearer  `,
+      Authorization: `bearer ${storeduToken}`,
     },
     timeout: 15000,
   });
 
   try {
-    const { data } = await axiosInstance.get(url, {
-      params: payload,
-    });
+    const { data } = await axiosInstance.get(url, payload);
+
     return {
-      Success: true,
+      Success: data?.success,
       Data: data?.data,
       Message: data?.message,
     };

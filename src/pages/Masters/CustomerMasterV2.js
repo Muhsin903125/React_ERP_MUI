@@ -7,8 +7,7 @@ import { Link } from 'react-router-dom';
 import {
 
   Stack,
-  Button,
-  Container,
+  Button, 
   Typography,
 } from '@mui/material';
 import MaterialReactTable from 'material-react-table';
@@ -132,7 +131,7 @@ export default function CustomerMasterV2() {
         <title> Customer Master List </title>
       </Helmet>
 
-      <Container maxWidth={"xl"}>
+      
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
             Customer List
@@ -158,8 +157,7 @@ export default function CustomerMasterV2() {
           enableGrouping
           onEditingRowSave={handleSaveRowEdits}
           onEditingRowCancel={handleCancelRowEdits}
-        />
-      </Container>
+        /> 
     </>
   )
 } 

@@ -57,8 +57,13 @@ const navConfig = [
         icon: icon('ic_radio_button'),
       } ,
         {
-        title: 'Register User',
-        path: '/registeruser',
+        title: 'User Roles',
+        path: '/rolelist',
+        icon: icon('ic_radio_button'),
+      } ,
+        {
+        title: 'Users',
+        path: '/userlist',
         icon: icon('ic_radio_button'),
       } 
     ]

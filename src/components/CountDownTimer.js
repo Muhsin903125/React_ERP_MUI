@@ -33,12 +33,12 @@ const CountDownTimer = ({ hoursMinSecs }) => {
             ?
             (
                 <div>
-                    <p>{`${time[0].toString().padStart(2, '0')}:${time[1].toString().padStart(2, '0')}:${time[2].toString().padStart(2, '0')}`}</p>
+                    <>{`${time[0].toString().padStart(2, '0')}:${time[1].toString().padStart(2, '0')}:${time[2].toString().padStart(2, '0')}`}</>
                 </div>)
             :
             (
                 <div>
-                    <p>{`${time[1].toString().padStart(2, '0')}:${time[2].toString().padStart(2, '0')}`}</p>
+                    <>{`${time[1].toString().padStart(2, '0')}:${time[2].toString().padStart(2, '0')}`}</>
                 </div>
             )
     );
