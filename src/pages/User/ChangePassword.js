@@ -27,9 +27,9 @@ export default function ChangePassword() {
         const errors = {};
         if (validator.isEmpty(oldPass)) {
             errors.oldPass = "Enter Current Password";
-        } else if (validator.isEmpty(newPass)) {
+        }   if (validator.isEmpty(newPass)) {
             errors.newPass = "Enter New Password";
-        } else if (validator.isEmpty(confirmPass)) {
+        }   if (validator.isEmpty(confirmPass)) {
             errors.confirmPass = "Enter Confirm Password";
         } 
         else if (newPass.length < 6) {
