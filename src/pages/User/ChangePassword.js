@@ -20,30 +20,28 @@ export default function ChangePassword() {
     const [oldPass, setOldPass] = useState(null)
     const [newPass, setNewPass] = useState(null)
     const [confirmPass, setConfirmPass] = useState(null)
-
+    const [errors, setErrors] = useState({});
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        let error = "";
-
+        const errors = {};
         if (validator.isEmpty(oldPass)) {
-            error = "Enter Current Password";
+            errors.oldPass = "Enter Current Password";
         } else if (validator.isEmpty(newPass)) {
-            error = "Enter New Password";
+            errors.newPass = "Enter New Password";
         } else if (validator.isEmpty(confirmPass)) {
-            error = "Enter Confirm Password";
-        }
-
+            errors.confirmPass = "Enter Confirm Password";
+        } 
         else if (newPass.length < 6) {
-            error = "Password Should have alteast 6 digits";
-        } else if (!validator.matches(newPass, confirmPass)) {
-            error = "New Password and Confirm Password do not match";
+            errors.newPass = "Password Should have alteast 6 digits";
+        } else if (validator.matches(newPass, confirmPass)) {
+            errors.confirmPass = "New Password and Confirm Password do not match";
         } else if (validator.matches(oldPass, confirmPass)) {
-            error = "Current Password and New Password are the same";
+            errors.confirmPass = "Current Password and New Password are the same";
         }
-
-        if (error) {
-            showToast(error, "error");
+        setErrors(errors); 
+        
+        if (!Object.keys(errors).length === 0) { 
             return;
         }
 
@@ -89,43 +87,47 @@ export default function ChangePassword() {
                                 <Grid container spacing={2} >
                                     <Grid item xs={12} md={12}  >
                                         <FormControl fullWidth>
-                                            <TextField name="Current password"
-                                                autoComplete="off"
-                                                // size='small'
+                                            <TextField  
+                                                 variant="outlined"
+                                                 fullWidth
+                                                 margin="normal"
                                                 onChange={(e) => setOldPass(e.target.value)}
                                                 value={oldPass}
-                                                required
+                                                error={errors.oldPass !== undefined}
+                                                helperText={errors.oldPass}
                                                 label="Current Password" />
                                         </FormControl>
                                     </Grid>
                                     <Grid item xs={12} md={12}  >
                                         <FormControl fullWidth>
-                                            <TextField name="newpassword"
-                                                autoComplete="off"
-                                                // size='small'
-
+                                            <TextField 
+                                                 variant="outlined"
+                                                 fullWidth
+                                                 margin="normal"
                                                 onChange={(e) => setNewPass(e.target.value)}
                                                 value={newPass}
-                                                required
+                                                error={errors.newPass !== undefined}
+                                                helperText={errors.newPass}
                                                 label="New Password" />
 
                                         </FormControl>
                                     </Grid>
                                     <Grid item xs={12} md={12}  >
                                         <FormControl fullWidth>
-                                            <TextField name="confirmpassword"
-                                                autoComplete="off"
-                                                // size='small'
-
+                                            <TextField  
+                                                variant="outlined"
+                                                fullWidth
+                                                margin="normal"
                                                 onChange={(e) => setConfirmPass(e.target.value)}
                                                 value={confirmPass}
-                                                required
+                                                error={errors.confirmPass !== undefined}
+                                                helperText={errors.confirmPass}
                                                 label="Confirm Password" />
                                         </FormControl>
                                     </Grid>
                                     <Grid item xs={12} md={12}  >
                                         <FormControl fullWidth>
-                                            <LoadingButton fullWidth size="large"  variant="contained" onClick={handleSubmit} >
+                                            <LoadingButton variant="contained" color="primary" fullWidth size="large" onClick={handleSubmit} >
                                                 Update Password
                                             </LoadingButton>
                                         </FormControl>
