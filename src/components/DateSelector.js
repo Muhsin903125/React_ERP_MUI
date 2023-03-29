@@ -14,6 +14,7 @@ export default function DateSelector({ label ,value, onChange,disableFuture }) {
         disableFuture={disableFuture}
         onChange={onChange}
         renderInput={(params) => <TextField {...params} />}
+        inputFormat="DD-MM-YYYY"
       />
     </LocalizationProvider>
   );

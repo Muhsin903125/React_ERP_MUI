@@ -57,6 +57,28 @@ export default function SalesInvoice() {
     PaymentMode: ''
   })
 
+  const handleInputChange = event => {
+    const { name, value } = event.target;
+    setheaderData({
+      ...headerData,
+      [name]: value
+    });
+    console.log(headerData)
+    console.log(selectedDate)
+    console.log(selectedDueDate.$d)
+
+  };
+
+  const handleDateChange = (event,name) => {
+    setheaderData({
+      ...headerData,
+      [name]: event.$d
+    });
+    console.log(headerData)
+    console.log(selectedDate)
+    console.log(selectedDueDate.$d)
+  };
+
   const handleStatusChange = event => {
     setStatus(event.target.value);
   };
@@ -66,7 +88,7 @@ export default function SalesInvoice() {
     price: 0,
     desc: "",
     qty: 0,
-    unit: "kg"
+    unit: "Unit"
   }]);
 
   const addItem = (event) => {
@@ -205,19 +227,22 @@ export default function SalesInvoice() {
                       <TextField
                         id="invoice-no"
                         label="Invoice#"
-                        defaultValue="1001"
-                        inputProps={{
-                          readOnly: true
-                        }}
+                        name="InvNo"
+                        value={headerData.InvNo}
+                        onChange={handleInputChange}
+                        // inputProps={{
+                        //   readOnly: true
+                        // }}
                       />
                     </FormControl>
                   </Grid>
                   <Grid item xs={6} md={6} >
                     <FormControl fullWidth>
                       <Dropdownlist options={InvoiceStatusOptions}
-                        value={status}
+                        name="Status"
+                        value={headerData.Status}
                         label={"Status"}
-                        onChange={handleStatusChange}
+                        onChange={handleInputChange}
                       />
                     </FormControl>
                   </Grid>
@@ -228,8 +253,10 @@ export default function SalesInvoice() {
                       <DateSelector
                         label="Date"
                         disableFuture={disableFutureDate}
-                        value={selectedDate}
-                        onChange={setSelectedDate}
+                        value={headerData.InvDate}
+                        onChange={(e)=>{
+                          handleDateChange(e,"InvDate")}
+                        }
                       />
                     </FormControl>
                   </Grid>
