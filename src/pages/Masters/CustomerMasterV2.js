@@ -145,10 +145,16 @@ export default function CustomerMasterV2() {
         <MaterialReactTable
           columns={columns}
           data={customerMaster}
-          initialState={{ density: 'compact' }}
+          initialState={
+                { 
+                  density: 'compact', 
+                  expanded: true,
+                }
+            }
           editingMode="modal" //  default
           enableColumnOrdering
           enableEditing
+          enableGrouping
           onEditingRowSave={handleSaveRowEdits}
           onEditingRowCancel={handleCancelRowEdits}
         /> 

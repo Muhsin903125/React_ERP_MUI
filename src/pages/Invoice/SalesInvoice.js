@@ -39,8 +39,23 @@ export default function SalesInvoice() {
   const [selectedDueDate, setselectedDueDate] = useState(new Date());
   const [IsAlertDialog, setAlertDialog] = useState(false);
   const [disableFutureDate] = useState(true);
+  const [status, setStatus] = useState('draft');
 
-  const [status, setStatus] = useState('paid');
+  const [headerData, setheaderData] = useState(
+    {
+    InvNo: '',
+    InvDate: new Date(),
+    Status: 'draft',
+    CustomerCode: '',
+    Customer: '',
+    Address: '',
+    TRN: '',
+    ContactNo: '',
+    Email: '',
+    LPONo: '',
+    RefNo: '',
+    PaymentMode: ''
+  })
 
   const handleStatusChange = event => {
     setStatus(event.target.value);
@@ -231,49 +246,6 @@ export default function SalesInvoice() {
                 </Grid>
               </Grid>
             </Grid>
-            {/* <Grid container spacing={2} mt={1}>
-              <Grid item xs={6} md={3}  >
-                <FormControl fullWidth>
-                  <TextField
-                    id="invoice-no"
-                    label="Invoice#"
-                    defaultValue="1001"
-                    inputProps={{
-                      readOnly: true
-                    }}
-                  />
-                </FormControl>
-              </Grid>
-              <Grid item xs={6} md={3} >
-                <FormControl fullWidth>
-                  <Dropdownlist options={InvoiceStatusOptions}
-                    value={status}
-                    label={"Status"}
-                    onChange={handleStatusChange}
-                  />
-                </FormControl>
-              </Grid>
-              <Grid item xs={6} md={3} >
-                <FormControl fullWidth>
-                  <DateSelector
-                    label="Date"
-                    disableFuture={disableFutureDate}
-                    value={selectedDate}
-                    onChange={setSelectedDate}
-                  />
-                </FormControl>
-              </Grid>
-              <Grid item xs={6} md={3} >
-                <FormControl fullWidth>
-                  <DateSelector
-                    label="Due Date"
-                    disableFuture={!disableFutureDate}
-                    value={selectedDueDate}
-                    onChange={setselectedDueDate}
-                  />
-                </FormControl>
-              </Grid>
-            </Grid> */}
           </Stack>
           <Stack m={2.5} >
 
