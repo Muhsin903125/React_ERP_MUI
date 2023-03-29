@@ -9,30 +9,54 @@ import {
   Stack,
   Button,
   Typography,
+  IconButton,
+  Tooltip,
+  Box,
 } from '@mui/material';
 
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import Iconify from '../../../components/iconify/Iconify';
 import { AuthContext } from '../../../App';
 import { deleteRole, GetRoleList, saveRole } from '../../../hooks/Api';
 import { useToast } from '../../../hooks/Common';
 import DataTable from '../../../components/DataTable';
+ 
+export default function UserRoleList() { 
+  const columns = [
+    {
+      accessorKey: 'name', //  access nested data with dot notation
+      header: 'Name',
+       
+      // size:500
+    },
+    {
+      accessorKey: 'normalizedName',
+      header: 'Description',
+    },
+    {
+     // accessorKey: 'name', //  access nested data with dot notation
+      header: 'Acitons',
+      Cell: ({row}) => (
+        <div>
+           
+          <button onClick={() => handleEdit(row)}>Edit</button>
+          <button onClick={() => handleDelete(row.RoleId)}>Delete</button>
+        </div>
+      )
+      // size:500
+    },
+    // {
+    //   cellRenderer: ({ row }) => (
+    //     <div>
+    //       <button onClick={() => handleEdit(row)}>Edit</button>
+    //       <button onClick={() => handleDelete(row)}>Delete</button>
+    //     </div>
+    //   ),
+    //   header: 'Actions',
+    // },
+  ];
 
-
-const columns = [
-  {
-    accessorKey: 'name', //  access nested data with dot notation
-    header: 'Name',
-    // size:500
-  },
-  {
-    accessorKey: 'normalizedName',
-    header: 'Description',
-  }
-];
-
-
-
-export default function UserRoleList() {
   const { setLoadingFull } = useContext(AuthContext);
   const { showToast } = useToast();
   const [data, setData] = useState(null)
@@ -48,9 +72,7 @@ export default function UserRoleList() {
       setLoadingFull(false);
       const { Success, Data, Message } = await GetRoleList()
       if (Success) {
-        console.log("rrr", Data);
         setData(Data)
-        //  showToast(Message, 'success');
       }
       else {
         showToast(Message, "error");
@@ -60,8 +82,8 @@ export default function UserRoleList() {
       setLoadingFull(false);
     }
   }
-  
-  async function onDelete(id) {
+
+  async function handleDelete(id) {
     try {
       setLoadingFull(true);
       const { Success, Data, Message } = await deleteRole(id)
@@ -78,7 +100,10 @@ export default function UserRoleList() {
       setLoadingFull(false);
     }
   }
-  
+  function handleEdit(id, name) {
+    // Navigate to edit page with the given id
+  }
+
   return <>
     <Helmet>
       <title> User Role List </title>
@@ -89,7 +114,7 @@ export default function UserRoleList() {
         <Typography variant="h4" gutterBottom>
           Roles List
         </Typography>
-        <Link to={{ pathname: '/userrole', props: { user: null,  onDelete } }} style={{ textDecoration: 'none' }}>
+        <Link to={{ pathname: '/userrole', props: { user: null, handleDelete } }} style={{ textDecoration: 'none' }}>
           {/* <Link to={{ pathname: '/userrole',   }} style={{ textDecoration: 'none' }}>  */}
           <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New Role
@@ -103,7 +128,7 @@ export default function UserRoleList() {
         // enableRowSelection 
         // enableGrouping
         enableExport={false}
-   
+         
       />}
     </Stack>
 
