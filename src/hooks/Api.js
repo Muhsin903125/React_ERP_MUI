@@ -47,6 +47,10 @@ export async function GetRoleList() {
 export async function saveRole(payload) {
   return Post('/User/CreateRole',payload );
 }
+
+export async function UpdateRole(payload) {
+  return Post('/User/UpdateRole',payload );
+}
 export async function deleteRole(payload) {
   return Get(`/User/DeleteRole/${payload}`, );
 }

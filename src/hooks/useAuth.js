@@ -6,6 +6,15 @@ import { useNavigate } from "react-router-dom";
 const ENCRYPTION_KEY = "my_secret_key";
 
 export default function  useAuth (){
+
+    // let plaintext = CryptoJS. enc.utf8.parse(text); 
+    // let secSpec = CryptoJS. enc.utf8.parse(process.env.REACT_APP_AES_KEY); 
+    // let ivSpec = CryptoJS. enc.utf8.parse(process.env.REACT_APP_AES_IV); 
+    // secSpec = CryptoJS.lib.WordArray.create(secSpec.words.slice(0, 16 / 4));   
+    // ivspec = CryptoJs.lib.WordArray.create(ivSpec.words.slice(0, 16 / 4)); var encrypted = CryptoJS.AES.encrypt (plaintext, secSpec, { iv: ivSpec });
+     
+    // return encrypted.toString()
+     
     const navigate = useNavigate();
     // const deviceID = navigator.userAgent; 
     const [userToken, setUserToken] = useState(null);

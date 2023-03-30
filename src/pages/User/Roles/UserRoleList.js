@@ -2,7 +2,7 @@
 import { Helmet } from 'react-helmet-async';
 import React, { useContext, useEffect, useState } from 'react'
 
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 // @mui
 import {
@@ -21,42 +21,42 @@ import { AuthContext } from '../../../App';
 import { deleteRole, GetRoleList, saveRole } from '../../../hooks/Api';
 import { useToast } from '../../../hooks/Common';
 import DataTable from '../../../components/DataTable';
- 
-export default function UserRoleList() { 
+import Confirm from '../../../components/Confirm';
+
+export default function UserRoleList() {
   const columns = [
+
     {
       accessorKey: 'name', //  access nested data with dot notation
       header: 'Name',
-       
-      // size:500
-    },
-    {
-      accessorKey: 'normalizedName',
-      header: 'Description',
-    },
-    {
-     // accessorKey: 'name', //  access nested data with dot notation
-      header: 'Acitons',
-      Cell: ({row}) => (
-        <div>
-           
-          <button onClick={() => handleEdit(row)}>Edit</button>
-          <button onClick={() => handleDelete(row.RoleId)}>Delete</button>
-        </div>
-      )
-      // size:500
-    },
+      // size:"300"
+    }, 
     // {
-    //   cellRenderer: ({ row }) => (
-    //     <div>
-    //       <button onClick={() => handleEdit(row)}>Edit</button>
-    //       <button onClick={() => handleDelete(row)}>Delete</button>
-    //     </div>
-    //   ),
-    //   header: 'Actions',
+    //   accessorKey: 'normalizedName',
+    //   header: 'Description',
     // },
+    {
+      header: 'Acitons',
+      Cell: ({ row }) => (
+        <div>
+          <Tooltip title="Edit">
+            <IconButton onClick={() => handleEdit(row.original)}>
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Delete">
+            <IconButton onClick={() => handleDelete(row.original.id)}>
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+
+        </div>
+      ),
+      //  size:200
+    },
   ];
 
+  const navigate = useNavigate();
   const { setLoadingFull } = useContext(AuthContext);
   const { showToast } = useToast();
   const [data, setData] = useState(null)
@@ -83,25 +83,26 @@ export default function UserRoleList() {
     }
   }
 
-  async function handleDelete(id) {
-    try {
-      setLoadingFull(true);
-      const { Success, Data, Message } = await deleteRole(id)
-      if (Success) {
-        console.log("rrr", Data);
-        setData(Data)
-        showToast(Message, 'success');
+  const handleDelete = async (id) => {
+    Confirm('Are you sure to Delete?').then(async () => {
+      try {
+        setLoadingFull(true);
+        const { Success, Data, Message } = await deleteRole(id)
+        if (Success) {
+          fetchList();
+          showToast(Message, 'success');
+        }
+        else {
+          showToast(Message, "error");
+        }
       }
-      else {
-        showToast(Message, "error");
+      finally {
+        setLoadingFull(false);
       }
-    }
-    finally {
-      setLoadingFull(false);
-    }
+    });
   }
-  function handleEdit(id, name) {
-    // Navigate to edit page with the given id
+  function handleEdit(users) {
+    navigate('/userrole', { state: { user: users } })
   }
 
   return <>
@@ -114,7 +115,7 @@ export default function UserRoleList() {
         <Typography variant="h4" gutterBottom>
           Roles List
         </Typography>
-        <Link to={{ pathname: '/userrole', props: { user: null, handleDelete } }} style={{ textDecoration: 'none' }}>
+        <Link to={{ pathname: '/userrole', state: { user: null, handleDelete } }} style={{ textDecoration: 'none' }}>
           {/* <Link to={{ pathname: '/userrole',   }} style={{ textDecoration: 'none' }}>  */}
           <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New Role
@@ -128,7 +129,7 @@ export default function UserRoleList() {
         // enableRowSelection 
         // enableGrouping
         enableExport={false}
-         
+
       />}
     </Stack>
 
