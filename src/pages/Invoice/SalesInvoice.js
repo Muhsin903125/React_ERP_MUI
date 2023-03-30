@@ -30,6 +30,13 @@ const InvoiceStatusOptions = [
   { value: 'draft', label: 'Draft' },
 ];
 
+const PaymentModeOptions = [
+  { value: 'CASH', label: 'Cash' },
+  { value: 'CHEQUE', label: 'Cheque' },
+  { value: 'TT', label: 'TT' },
+  { value: 'OTHER', label: 'Others' },
+];
+
 
 export default function SalesInvoice() {
 
@@ -43,18 +50,19 @@ export default function SalesInvoice() {
 
   const [headerData, setheaderData] = useState(
     {
-    InvNo: '',
+    InvNo: '1001',
     InvDate: new Date(),
     Status: 'draft',
     CustomerCode: '',
-    Customer: '',
+    Customer: 'Customer Name',
     Address: '',
     TRN: '',
     ContactNo: '',
     Email: '',
     LPONo: '',
     RefNo: '',
-    PaymentMode: ''
+    PaymentMode: 'CASH',
+    CrDays: 0
   })
 
   const handleInputChange = event => {
@@ -99,7 +107,7 @@ export default function SalesInvoice() {
       price: 0,
       desc: "",
       qty: 0,
-      unit: "kg"
+      unit: ""
     }]);
   };
 
@@ -134,11 +142,20 @@ export default function SalesInvoice() {
     setOpen(true);
   };
 
-  const handleClose = (value) => {
+  const handleClose = () => {
     setOpen(false);
-    setSelectedValue(value);
   };
 
+  const handleSelect = (value) => {
+    setOpen(false);
+    setheaderData({
+      ...headerData,
+      "Customer": value.name,
+      "Address": value.address,
+      "TRN": value.CUS_TRN
+    });
+    // setSelectedValue(value.name);
+  };
 
   const [fields, setFields] = useState([{ value: '' }]);
   const codeRef = useRef({});
@@ -191,7 +208,7 @@ export default function SalesInvoice() {
         <Card>
           <Stack m={2.5} >
             <Grid container spacing={2} mt={1} >
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={5}>
                 <Grid container spacing={2} mt={1}>
                   <Grid items xs={8} md={8}>
                     <Typography variant="subtitle1" ml={2} mb={1} style={{ color: "gray" }} >
@@ -203,26 +220,29 @@ export default function SalesInvoice() {
                       change
                     </Button>
                     <CustomerDialog
-                      selectedValue={selectedValue}
                       open={open}
                       onClose={handleClose}
+                      onSelect={handleSelect}
                     />
                   </Grid>
                   <Grid items xs={12} md={12}>
                     <Typography variant="body2" ml={2} style={{ color: "black" }} >
-                      {selectedValue}
+                      {headerData.Customer}
                     </Typography>
                   </Grid>
                   <Grid items xs={12} md={12}>
+                    <Typography variant="body2" ml={2}  style={{ color: "gray" }} >
+                    {headerData.TRN}
+                    </Typography>
                     <Typography variant="body2" ml={2} mb={2} style={{ color: "gray" }} >
-                      Address
+                    {headerData.Address}
                     </Typography>
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid item xs={12} md={6}>
-                <Grid container spacing={2}>
-                  <Grid item xs={6} md={6}  >
+              <Grid item xs={12} md={7}>
+                <Grid container spacing={1}>
+                  <Grid item xs={6} md={2}  >
                     <FormControl fullWidth>
                       <TextField
                         id="invoice-no"
@@ -230,25 +250,14 @@ export default function SalesInvoice() {
                         name="InvNo"
                         value={headerData.InvNo}
                         onChange={handleInputChange}
-                        // inputProps={{
-                        //   readOnly: true
-                        // }}
+                        size="small"
+                        inputProps={{
+                          readOnly: true
+                        }}
                       />
                     </FormControl>
                   </Grid>
-                  <Grid item xs={6} md={6} >
-                    <FormControl fullWidth>
-                      <Dropdownlist options={InvoiceStatusOptions}
-                        name="Status"
-                        value={headerData.Status}
-                        label={"Status"}
-                        onChange={handleInputChange}
-                      />
-                    </FormControl>
-                  </Grid>
-                </Grid>
-                <Grid container spacing={2} mt={1}>
-                  <Grid item xs={6} md={6}  >
+                  <Grid item xs={6} md={4} >
                     <FormControl fullWidth>
                       <DateSelector
                         label="Date"
@@ -260,13 +269,116 @@ export default function SalesInvoice() {
                       />
                     </FormControl>
                   </Grid>
-                  <Grid item xs={6} md={6} >
+                  <Grid item xs={6} md={2}  >
+                    <FormControl fullWidth>
+                      <TextField
+                        id="credit-days"
+                        label="Credit Days"
+                        name="CrDays"
+                        type='number'
+                        value={headerData.CrDays}
+                        onChange={handleInputChange}
+                        size="small"
+                        inputProps={{
+                          style: {
+                            textAlign: 'right',
+                          },
+                          min: 0,
+                        }}
+                      />
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={6} md={4} >
                     <FormControl fullWidth>
                       <DateSelector
                         label="Due Date"
                         disableFuture={!disableFutureDate}
                         value={selectedDueDate}
                         onChange={setselectedDueDate}
+                      />
+                    </FormControl>
+                  </Grid>
+                </Grid>
+                <Grid container spacing={1} mt={1}>
+                  <Grid item xs={6} md={6}  >
+                    <FormControl fullWidth>
+                      <TextField
+                        id="mob-no"
+                        label="Mobile#"
+                        name="ContactNo"
+                        size="small"
+                        type="tel"
+                        value={headerData.ContactNo}
+                        onChange={handleInputChange}
+                        // inputProps={{
+                        //   pattern: '^\\+(?:[0-9] ?){6,14}[0-9]$',
+                        // }}
+                      />
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={6} md={6} >
+                    <FormControl fullWidth>
+                    <TextField
+                        id="email"
+                        label="Email Id"
+                        name="Email"
+                        size="small"
+                        type="email"
+                        value={headerData.Email}
+                        onChange={handleInputChange}
+                        // inputProps={{
+                        //   pattern: '^\\+(?:[0-9] ?){6,14}[0-9]$',
+                        // }}
+                      />
+                    </FormControl>
+                  </Grid>
+                </Grid>
+                <Grid container spacing={1} mt={1}>
+                  <Grid item xs={6} md={8} >
+                    <FormControl fullWidth>
+                      <TextField
+                        id="lpo-no"
+                        label="Cus.LPO No"
+                        name="LPONo"
+                        size="small"
+                        value={headerData.LPONo}
+                        onChange={handleInputChange}
+                      />
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={6} md={4}  >
+                    <FormControl fullWidth>
+                      <Dropdownlist options={PaymentModeOptions}
+                        name="PaymentMode"
+                        value={headerData.PaymentMode}
+                        label={"Payment Mode"}
+                        onChange={handleInputChange}
+                      />
+                    </FormControl>
+                  </Grid>
+                </Grid>
+                <Grid container spacing={1} mt={1}>
+                  <Grid item xs={6} md={8} >
+                    <FormControl fullWidth>
+                      <TextField
+                        id="Ref-no"
+                        label="Reference"
+                        name="RefNo"
+                        value={headerData.RefNo}
+                        onChange={handleInputChange}
+                        size="small"
+                        required
+                        error="true"
+                      />
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={6} md={4}  >
+                    <FormControl fullWidth>
+                      <Dropdownlist options={InvoiceStatusOptions}
+                        name="Status"
+                        value={headerData.Status}
+                        label={"Status"}
+                        onChange={handleInputChange}
                       />
                     </FormControl>
                   </Grid>

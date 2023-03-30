@@ -13,6 +13,7 @@ const Dropdownlist = ({ name, label, options, value, onChange }) => {
                 value={value}
                 label={label}
                 onChange={onChange}
+                size="small"
             >
                 {/* <MenuItem value="">
             <em>None</em>

@@ -27,14 +27,14 @@ import useLookupData from '../datas/useLookupData';
 export default function CustomerDialog(props) {
 
   const customers = useLookupData();
-  const { onClose, selectedValue, open } = props;
+  const { onClose, open, onSelect } = props;
 
   const handleClose = () => {
-    onClose(selectedValue);
+    onClose();
   };
 
   const handleListItemClick = (value) => {
-    onClose(value);
+    onSelect(value);
   };
 
   const [searchtext, setsearchtext] = useState("");
@@ -71,7 +71,7 @@ export default function CustomerDialog(props) {
       <List sx={{ pt: 0 }} >
         {filteredCustomer.map((customer) => (
           <ListItem disableGutters>
-            <ListItemButton onClick={() => handleListItemClick(customer.name)} key={customer.name}>
+            <ListItemButton onClick={() => handleListItemClick(customer)} key={customer.name}>
 
               <ListItemText
                 primary={

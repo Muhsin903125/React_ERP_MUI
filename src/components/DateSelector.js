@@ -13,7 +13,7 @@ export default function DateSelector({ label ,value, onChange,disableFuture }) {
         views={['year', 'month', 'day']}
         disableFuture={disableFuture}
         onChange={onChange}
-        renderInput={(params) => <TextField {...params} />}
+        renderInput={(params) => <TextField {...params} size="small" />}
         inputFormat="DD-MM-YYYY"
       />
     </LocalizationProvider>
