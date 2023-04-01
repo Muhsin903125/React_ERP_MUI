@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-import { useContext, useRef, useState } from 'react';
+import { useContext,  useState, useEffect } from 'react';
 // @mui
 import {
   Card,
@@ -42,11 +42,13 @@ export default function SalesInvoice() {
 
   const { showToast } = useToast();
   const { setLoadingFull } = useContext(AuthContext);
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  // const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedDueDate, setselectedDueDate] = useState(new Date());
   const [IsAlertDialog, setAlertDialog] = useState(false);
   const [disableFutureDate] = useState(true);
-  const [status, setStatus] = useState('draft');
+  // const [status, setStatus] = useState('draft');
+
+  
 
   const [headerData, setheaderData] = useState(
     {
@@ -65,14 +67,40 @@ export default function SalesInvoice() {
     CrDays: 0
   })
 
+  useEffect(() => {
+    // if (headerData.InvDate && headerData.CrDays) {
+      const dueDate = new Date(headerData.InvDate);
+      dueDate.setDate(dueDate.getDate() + Number(headerData.CrDays));
+      setselectedDueDate(dueDate);
+    // }
+  }, [headerData.InvDate, headerData.CrDays]);
+
+  useEffect(() => {
+    // if (invoiceDate && dueDate) {
+      const creditDays = Math.round(
+        (new Date(selectedDueDate) - new Date(headerData.InvDate)) / (1000 * 60 * 60 * 24));
+        setheaderData({
+          ...headerData,
+          'CrDays': creditDays
+        });
+    // }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ selectedDueDate]);
+
   const handleInputChange = event => {
     const { name, value } = event.target;
+    if (name === 'CrDays' && value==='')
+    setheaderData({
+      ...headerData,
+      [name]: 0
+    });
+    else
     setheaderData({
       ...headerData,
       [name]: value
     });
     console.log(headerData)
-    console.log(selectedDate)
+    // console.log(selectedDate)
     console.log(selectedDueDate.$d)
 
   };
@@ -83,13 +111,13 @@ export default function SalesInvoice() {
       [name]: event.$d
     });
     console.log(headerData)
-    console.log(selectedDate)
+    // console.log(selectedDate)
     console.log(selectedDueDate.$d)
   };
 
-  const handleStatusChange = event => {
-    setStatus(event.target.value);
-  };
+  // const handleStatusChange = event => {
+  //   setStatus(event.target.value);
+  // };
 
   const [items, setItems] = useState([{
     name: "",
@@ -112,12 +140,12 @@ export default function SalesInvoice() {
   };
 
 
-  const editItem = (index, event) => {
-    event.preventDefault();
-    const newItems = [...items];
-    newItems[index] = { name: event.target.itemName.value, price: event.target.itemPrice.value };
-    setItems(newItems);
-  };
+  // const editItem = (index, event) => {
+  //   event.preventDefault();
+  //   const newItems = [...items];
+  //   newItems[index] = { name: event.target.itemName.value, price: event.target.itemPrice.value };
+  //   setItems(newItems);
+  // };
 
   const removeItem = (index) => {
     const newItems = [...items];
@@ -129,14 +157,12 @@ export default function SalesInvoice() {
 
 
   function calculateTotal(items) {
-    return items.reduce((total, item) => {
-      return total + item.price * item.qty;
-    }, 0);
+    return items.reduce((total, item) => total + item.price * item.qty, 0);
   }
 
   // For Customer Dialog
   const [open, setOpen] = useState(false);
-  const [selectedValue, setSelectedValue] = useState("Customer Name");
+  // const [selectedValue, setSelectedValue] = useState("Customer Name");
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -157,18 +183,18 @@ export default function SalesInvoice() {
     // setSelectedValue(value.name);
   };
 
-  const [fields, setFields] = useState([{ value: '' }]);
-  const codeRef = useRef({});
-  const descRef = useRef({});
-  const unitRef = useRef({});
-  const priceRef = useRef({});
-  const qtyRef = useRef({});
-  const handleChange = (index, event) => {
-    console.log(index);
-    const values = [...items];
-    values[index].value = event.target.value;
-    setFields(values);
-  };
+  // const [fields, setFields] = useState([{ value: '' }]);
+  // const codeRef = useRef({});
+  // const descRef = useRef({});
+  // const unitRef = useRef({});
+  // const priceRef = useRef({});
+  // const qtyRef = useRef({});
+  // const handleChange = (index, event) => {
+  //   console.log(index);
+  //   const values = [...items];
+  //   values[index].value = event.target.value;
+  //   setFields(values);
+  // };
   const CreateInvoice = async () => {
     try {
       setLoadingFull(false);
@@ -392,7 +418,9 @@ export default function SalesInvoice() {
               Item Details
             </Typography>
             {items.map((field, index) => (
-              <InvoiceItem Propkey={index}
+              <InvoiceItem
+                key={index} 
+                Propkey={index}
                 code={items[index].name}
                 desc={items[index].desc}
                 qty={items[index].qty}
