@@ -178,7 +178,8 @@ export default function SalesInvoice() {
       ...headerData,
       "Customer": value.name,
       "Address": value.address,
-      "TRN": value.CUS_TRN
+      "TRN": value.CUS_TRN,
+      "CustomerCode": value.CUS_DOCNO
     });
     // setSelectedValue(value.name);
   };
@@ -201,7 +202,11 @@ export default function SalesInvoice() {
       const { Success, Message } = await PostCommonSp({
         "key": "string",
         "userId": "string",
-        "json": JSON.stringify({ "json": items }),
+        "json": JSON.stringify({
+          "headerData": headerData,
+          "detailData": items,
+          "key": "INVOICE_SAVE" 
+        }),
         "controller": "string"
       }) //  JSON.stringify({ "json": items }));
 
@@ -232,7 +237,7 @@ export default function SalesInvoice() {
           </Button>
         </Stack>
         <Card>
-          <Stack m={2.5} >
+          <Stack padding={2.5} style={{ backgroundColor: '#e9ebf5', boxShadow: '#dbdbdb4f -1px 9px 20px 0px'  }}>
             <Grid container spacing={2} mt={1} >
               <Grid item xs={12} md={5}>
                 <Grid container spacing={2} mt={1}>
