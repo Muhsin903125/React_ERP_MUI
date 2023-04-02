@@ -261,6 +261,7 @@ export default function SalesInvoice() {
                     <FormControl fullWidth>
                       <DateSelector
                         label="Date"
+                        size="small"
                         disableFuture={disableFutureDate}
                         value={headerData.InvDate}
                         onChange={(e)=>{
@@ -291,6 +292,7 @@ export default function SalesInvoice() {
                   <Grid item xs={6} md={4} >
                     <FormControl fullWidth>
                       <DateSelector
+                             size="small"
                         label="Due Date"
                         disableFuture={!disableFutureDate}
                         value={selectedDueDate}

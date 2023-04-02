@@ -37,6 +37,15 @@ export async function PostMultiSp(payload) {
 export async function PostUserResgister(payload) {
   return Post('/account/register',payload );
 }
+export async function PostUpdateUserResgisterAdmin(payload) {
+  return Post('/User/UpdateProfileDataAdmin',payload );
+}
+export async function PostDeactiveUser(payload) {
+  return Post(`/User/deactivateUser/${payload}`, );
+}export async function PostActiveUser(payload) {
+  return Post(`/User/activateUser/${payload}`, );
+}
+
 export async function GetUserList() {
   return Get('/User/Userslist', );
 }
