@@ -1,4 +1,4 @@
-import { useState } from 'react';
+// import { useState } from 'react';
 
 import {
     Grid,
@@ -8,7 +8,7 @@ import {
     Autocomplete,
     createFilterOptions,
 } from '@mui/material';
-import { CheckCircle, Delete, Save, SignalCellularNull } from '@mui/icons-material';
+import {  Delete } from '@mui/icons-material';
 
 
 
@@ -65,7 +65,7 @@ export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, rem
         setItems(newItems); 
     } 
     return (
-        <Grid key={Propkey} container spacing={2} mb={2}>
+        <Grid key={Propkey} container spacing={1} mb={1}>
             <Grid item xs={12} md={2}>
                 <Autocomplete
                     disablePortal
@@ -95,6 +95,7 @@ export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, rem
                     name={`ItemDesc_${Propkey}`}
                     size="small"
                     value={desc}
+                    multiline
                     // inputRef={descRef}
                     fullWidth label="Description"
                     onChange={handleChange}
