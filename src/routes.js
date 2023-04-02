@@ -23,6 +23,8 @@ import RegisterUser from './pages/User/RegisterUser';
 import UserList from './pages/User/UserList';
 import UserRoleList from './pages/User/Roles/UserRoleList';
 import UserRole from './pages/User/Roles/UserRole';
+import ProductList from './pages/Masters/Product/ProductList';
+import Product from './pages/Masters/Product/Product';
 
 // ----------------------------------------------------------------------
 
@@ -31,11 +33,13 @@ export default function Router() {
     { path: 'customermasterv2', element: <CustomerMasterV2 /> },
     { path: 'SalesList', element: <SalesList /> },
   ]
- const AccountMenus = [
+ const AdminMenus = [
     { path: 'userlist', element: <UserList /> },
     { path: 'registeruser', element: <RegisterUser /> },
     { path: 'rolelist', element: <UserRoleList /> },
     { path: 'userrole', element: <UserRole /> },
+    { path: 'product', element: <Product /> },
+    { path: 'productlist', element: <ProductList /> },
   ]
   const routes = useRoutes([
     {
@@ -52,7 +56,7 @@ export default function Router() {
         { path: 'customermaster', element: <CustomerMaster /> },
 
         ...userMenus,
-        ...AccountMenus
+        ...AdminMenus
         // { path: 'customermasterv2', element: <CustomerMasterV2 /> },
         // { path: 'SalesList', element: <SalesList /> },
       ],

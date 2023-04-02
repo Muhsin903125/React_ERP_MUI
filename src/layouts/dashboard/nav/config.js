@@ -12,60 +12,64 @@ const navConfig = [
     path: '/app',
     icon: icon('ic_analytics'),
   },
-   
+
   {
     title: 'Masters',
     path: '',
     icon: icon('ic_user'),
-    childern: [     
-      {
-        title: 'Customer Master',
-        path: '/customermaster',
-        icon: icon('ic_user'),
-      },
-      {
-        title: 'Customer Master List',
-        path: '/customermasterv2',
-        icon: icon('ic_user'),
-      }  
+    childern: [{
+      title: 'Products',
+      path: '/productlist',
+      icon: icon('ic_user'),
+    },
+    {
+      title: 'Customer Master',
+      path: '/customermaster',
+      icon: icon('ic_user'),
+    },
+    {
+      title: 'Customer Master List',
+      path: '/customermasterv2',
+      icon: icon('ic_user'),
+    }
     ]
-  },  
+  },
   {
     title: 'Invoice',
     path: '',
     icon: icon('ic_user'),
-    childern: [     
+    childern: [
       {
         title: 'Create Invoice',
         path: '/salesinvoice',
         icon: icon('ic_radio_button'),
-      }  ,{
+      }, {
         title: 'Sales List',
         path: '/SalesList',
         icon: icon('ic_radio_button'),
-      } 
+      }
     ]
-  },  
+  },
   {
     title: 'user',
     path: '/user',
     icon: icon('ic_user'),
-    childern: [     
+    childern: [
       {
         title: 'Change Password',
         path: '/changepassword',
         icon: icon('ic_radio_button'),
-      } ,
-        {
+      },
+      {
         title: 'User Roles',
         path: '/rolelist',
         icon: icon('ic_radio_button'),
-      } ,
-        {
+      },
+      {
         title: 'Users',
         path: '/userlist',
         icon: icon('ic_radio_button'),
-      } 
+      }
     ]
   },
   {
@@ -88,7 +92,7 @@ const navConfig = [
     path: '/404',
     icon: icon('ic_disabled'),
   },
-  
+
 ];
 
 export default navConfig;

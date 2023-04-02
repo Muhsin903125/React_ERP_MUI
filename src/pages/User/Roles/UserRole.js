@@ -16,27 +16,8 @@ import { deleteRole, saveRole, UpdateRole } from '../../../hooks/Api';
 import { useToast } from '../../../hooks/Common';
 import Confirm from '../../../components/Confirm';
 
-function useConfirmationDialog() {
-  const [open, setOpen] = useState(false);
-  const [confirmed, setConfirmed] = useState(false);
-
-  const handleClick = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleConfirm = () => {
-    setConfirmed(true);
-    setOpen(false);
-  };
-
-  return [handleClick, handleClose, handleConfirm, confirmed];
-}
-const UserRole = () => {
-  const [handleClick, handleClose, handleConfirm, confirmed] = useConfirmationDialog();
+ 
+const UserRole = () => { 
 
   const location = useLocation();
   const user = location.state?.user;
