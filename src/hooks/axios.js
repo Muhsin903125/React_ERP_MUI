@@ -1,8 +1,8 @@
 import axios from 'axios';  
 
 // const BASEURL = 'https://muhsinerpapi.azurewebsites.net/api/';
-//  const BASEURL = process.env.REACT_APP_API_BASE_URL
- const BASEURL = 'http://192.168.1.12:7134/api/'
+ const BASEURL = process.env.REACT_APP_API_BASE_URL
+//  const BASEURL = 'http://192.168.1.12:7134/api/'
 
 
 export const Post = async (url, payload) => {
