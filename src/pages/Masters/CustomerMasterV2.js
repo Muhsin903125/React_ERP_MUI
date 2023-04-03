@@ -70,13 +70,9 @@ export default function CustomerMasterV2() {
       try {
         setLoadingFull(false);
         const { Success, Data, Message } = await PostMultiSp({
-          "key": "string",
-          "userId": "string",
           "json": JSON.stringify({
-            "json": [],
             "key": "CUSTOMER_LIST"
-          }),
-          "controller": "string"
+          })
         })
         if (Success) {
           setcustomerMaster(Data[0])

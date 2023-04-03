@@ -89,13 +89,10 @@ export default function CustomerMaster() {
     try {
       setLoadingFull(false);
       const { Success, Data, Message } = await PostMultiSp({
-        "key": "string",
-        "userId": "string",
         "json": JSON.stringify({
           "json": dataArray,
           "key": "CUSTOMER_SAVE"
-        }),
-        "controller": "string"
+        })
       })  
       if (Success) {
         showToast("Saved Successfully", 'success');

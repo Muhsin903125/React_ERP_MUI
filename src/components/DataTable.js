@@ -35,6 +35,12 @@ export default function DataTable({
 
   return (
     <MaterialReactTable columns={columns} data={data}
+    initialState={
+      { 
+        density: 'compact', 
+        expanded: true,
+      }
+    }
     {...props}
     //  enableRowSelection={enableRowSelection}
 

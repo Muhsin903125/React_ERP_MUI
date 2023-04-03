@@ -27,15 +27,6 @@ export default function ProductList() {
   const columns = [
 
     {
-      accessorKey: 'name', //  access nested data with dot notation
-      header: 'Name',
-      // size:"300"
-    }, 
-    // {
-    //   accessorKey: 'normalizedName',
-    //   header: 'Description',
-    // },
-    {
       header: 'Acitons',
       Cell: ({ row }) => (
         <div>
@@ -49,11 +40,41 @@ export default function ProductList() {
               <DeleteIcon />
             </IconButton>
           </Tooltip>
-
         </div>
       ),
-      //  size:200
+      size:0
     },
+
+    {
+      accessorKey: 'IM_CODE', //  access nested data with dot notation
+      header: 'Code',
+       size:0
+    }, 
+    {
+      accessorKey: 'IM_DESC', 
+      header: 'Descrption',
+    },
+    {
+      accessorKey: 'IM_UNIT_CODE', 
+      header: 'Unit',
+    },
+    {
+      accessorKey: 'IM_PRICE', 
+      header: 'Price',
+    },
+    {
+      accessorKey: 'IM_CREATED_BY', 
+      header: 'Created By',
+    },
+    {
+      accessorKey: 'IM_CREATED_TS', 
+      header: 'Created TS',
+    },
+    // {
+    //   accessorKey: 'normalizedName',
+    //   header: 'Description',
+    // },
+    
   ];
 
   const navigate = useNavigate();
@@ -70,9 +91,13 @@ export default function ProductList() {
     setLoadingFull(true);
     try {
       setLoadingFull(false);
-      const { Success, Data, Message } = await GetRoleList()
+      const { Success, Data, Message } = await PostMultiSp({
+        "json": JSON.stringify({
+          "key": "PRODUCT_LIST"
+        })
+      })
       if (Success) {
-        setData(Data)
+        setData(Data[0])
       }
       else {
         showToast(Message, "error");
@@ -109,8 +134,8 @@ export default function ProductList() {
       }
     });
   }
-  function handleEdit(users) {
-    navigate('/product', { state: { user: users } })
+  function handleEdit(products) {
+    navigate('/product', { state: { product: products } })
   }
 
   return <>
@@ -123,7 +148,7 @@ export default function ProductList() {
         <Typography variant="h4" gutterBottom>
           Product List
         </Typography>
-        <Link to={{ pathname: '/product', state: { user: null, handleDelete } }} style={{ textDecoration: 'none' }}>
+        <Link to={{ pathname: '/product', }} style={{ textDecoration: 'none' }}>
           {/* <Link to={{ pathname: '/userrole',   }} style={{ textDecoration: 'none' }}>  */}
           <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New Product

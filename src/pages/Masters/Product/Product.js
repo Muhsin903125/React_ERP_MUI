@@ -25,10 +25,10 @@ const Product = () => {
 
     const location = useLocation();
     const product = location.state?.product;
-    const [name, setName] = useState(product && product.name || '');
-    const [desc, setDesc] = useState(product && product.name || '');
-    const [unit, setunit] = useState(product && product.name || '');
-    const [price, setPrice] = useState(product && product.name || '');
+    const [code, setCode] = useState(product && product.IM_CODE || '');
+    const [desc, setDesc] = useState(product && product.IM_DESC || '');
+    const [unit, setunit] = useState(product && product.IM_UNIT_CODE || '');
+    const [price, setPrice] = useState(product && product.IM_PRICE || '');
 
     const [errors, setErrors] = useState({});
     const navigate = useNavigate();
@@ -41,8 +41,8 @@ const Product = () => {
     const validate = () => {
         const errors = {};
 
-        if (validator.isEmpty(name)) {
-            errors.name = 'Name is required';
+        if (validator.isEmpty(code)) {
+            errors.code = 'Code is required';
         }
         if (validator.isEmpty(desc)) {
             errors.desc = 'Description is required';
@@ -79,7 +79,7 @@ const Product = () => {
     const handleSave = () => {
         if (validate()) {
             onSave({
-                Name: name,
+                Code: code,
                 Desc: desc,
                 Price: price,
                 Unit: unit,
@@ -124,14 +124,14 @@ const Product = () => {
                     <Grid container p={3}  spacing={1} >
                         <Grid item xs={12} md={6} >
                             <TextField
-                                label="Name"
+                                label="Code"
                                 variant="outlined"
                                 fullWidth
                                 margin="normal"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                error={errors.name !== undefined}
-                                helperText={errors.name}
+                                value={code}
+                                onChange={(e) => setCode(e.target.value)}
+                                error={errors.code !== undefined}
+                                helperText={errors.code}
                             />
                         </Grid>
                         <Grid item xs={12} md={6} >
@@ -174,6 +174,7 @@ const Product = () => {
                                     error={errors.gender !== undefined}
                                 >
                                     <MenuItem value="kg">KG</MenuItem>
+                                    <MenuItem value="CTN">CTN</MenuItem>
                                     <MenuItem value="ml">ML</MenuItem>
                                     <MenuItem value="mtr">Meter</MenuItem>
                                     <MenuItem value="nos">NOS</MenuItem>
