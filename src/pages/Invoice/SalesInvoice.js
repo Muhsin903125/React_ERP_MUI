@@ -237,7 +237,7 @@ export default function SalesInvoice() {
           </Button>
         </Stack>
         <Card>
-          <Stack padding={2.5} style={{ backgroundColor: '#e9ebf5', boxShadow: '#dbdbdb4f -1px 9px 20px 0px'  }}>
+          <Stack padding={2.5} style={{ backgroundColor: '#e8f0fa', boxShadow: '#dbdbdb4f -1px 9px 20px 0px'  }}>
             <Grid container spacing={2} mt={1} >
               <Grid item xs={12} md={5}>
                 <Grid container spacing={2} mt={1}>
@@ -247,8 +247,8 @@ export default function SalesInvoice() {
                     </Typography>
                   </Grid>
                   <Grid items xs={4} md={4} align='right'>
-                    <Button size="small" startIcon={<Iconify icon="eva:edit-fill" />} onClick={handleClickOpen}>
-                      change
+                    <Button size="small" startIcon={<Iconify icon={headerData?.CustomerCode? "eva:edit-fill" : "eva:person-add-fill"} />} onClick={handleClickOpen}>
+                      {headerData?.CustomerCode? 'change' : 'Add'}
                     </Button>
                     <CustomerDialog
                       open={open}
@@ -400,8 +400,8 @@ export default function SalesInvoice() {
                         value={headerData.RefNo}
                         onChange={handleInputChange}
                         size="small"
-                        required
-                        error="true"
+                        // required
+                        // error="true"
                       />
                     </FormControl>
                   </Grid>

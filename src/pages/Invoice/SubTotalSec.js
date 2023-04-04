@@ -64,43 +64,43 @@ export default function SubTotalSec({addItem,calculateTotal}) {
                 </Grid>
            
           
-            <Grid container md={6} spacing={1} mt={1} align='right' justifyContent="flex-end"  >
-                <Grid item md={8}>
+            <Grid container xs={12} md={6} spacing={1} mt={1} align='right' justifyContent="flex-end"  >
+                <Grid item md={8} xs={6}>
                     <Typography variant="subtitle2"  >
                         Gross Amount:
                     </Typography>
                 </Grid>
-                <Grid item md={4}>
+                <Grid item md={4} xs={6}>
                     <Typography variant="subtitle2"   >
                     {FormattedNumber(calculateTotal)}
                     </Typography>
                 </Grid>
-                <Grid item md={8}>
+                <Grid item md={8} xs={6}>
                     <Typography variant="subtitle2" >
                         Discount:
                     </Typography>
                 </Grid>
-                <Grid item md={4}>
+                <Grid item md={4} xs={6}>
                     <Typography variant="subtitle2" style={ {color:"#FF5630"}}  >
                         {FormattedNumber(discount * -1)}
                     </Typography>
                 </Grid>
-                <Grid item md={8}>
+                <Grid item md={8} xs={6}>
                     <Typography variant="subtitle2"  >
                         Tax:
                     </Typography>
                 </Grid>
-                <Grid item md={4}>
+                <Grid item md={4} xs={6}>
                     <Typography variant="subtitle2"  >
                     {FormattedNumber((calculateTotal - discount) * tax/100.00)}
                     </Typography>
                 </Grid>
-                <Grid item md={8}>
+                <Grid item md={8} xs={6}>
                     <Typography variant="h6"  >
                         Total Price:
                     </Typography>
                 </Grid>
-                <Grid item md={4}>
+                <Grid item md={4} xs={6}>
                     <Typography variant="h6"  >
                     {FormattedNumber((calculateTotal - discount) *(1+ tax/100.00))}
                     </Typography>

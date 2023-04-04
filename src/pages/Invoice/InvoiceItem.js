@@ -75,16 +75,18 @@ export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, rem
                 <Autocomplete
                     disablePortal
                     options={products}
+                    fullWidth
+                    autoSelect	
                     filterOptions={filterOptions}
                     onChange={handleItemCodeChange}
                     getOptionLabel={() => code}
                     renderOption={(props, option) => (
                         <Box component="li" sx={{ borderBottom: '1px solid blue' }} {...props}>
                             <Grid container >
-                                <Grid item xs={12} md={12} fontSize={12}>
+                                <Grid item xs={12} md={12} fontSize={10}>
                                     {option.label}
                                 </Grid>
-                                <Grid item xs={12} md={12} fontSize={10} fontStyle={'italic'}>
+                                <Grid item xs={12} md={12} fontSize={12} fontStyle={'italic'}>
                                     {option.desc}
                                 </Grid>
                             </Grid>
