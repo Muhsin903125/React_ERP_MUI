@@ -36,7 +36,7 @@ const Product = () => {
     const { showToast } = useToast();
 
 
-    const isEditing = Boolean(product && product.id);
+    const isEditing = Boolean(product && product.IM_CODE);
 
     const validate = () => {
         const errors = {};
@@ -67,7 +67,7 @@ const Product = () => {
                 if (Success) {
                     showToast(Message, 'success');
                     navigate('/productlist')
-                } else {
+                } else { 
                     showToast(Message, 'error');
                 }
             } finally {
@@ -128,6 +128,7 @@ const Product = () => {
                                 variant="outlined"
                                 fullWidth
                                 margin="normal"
+                                size='small'
                                 value={code}
                                 onChange={(e) => setCode(e.target.value)}
                                 error={errors.code !== undefined}
@@ -139,7 +140,7 @@ const Product = () => {
                                 label="Price"
                                 variant="outlined"
                                 fullWidth
-                            
+                                size='small'
                                 margin="normal"
                                 value={price}
                                 onChange={(e) => setPrice(e.target.value)}
@@ -157,6 +158,7 @@ const Product = () => {
                                 variant="outlined"
                                 fullWidth
                                 margin="normal"
+                                size='small'
                                 value={desc}
                                 onChange={(e) => setDesc(e.target.value)}
                                 error={errors.desc !== undefined}
@@ -170,6 +172,7 @@ const Product = () => {
                                     labelId="Unit-label"
                                     label="Unit"
                                     value={unit}
+                                    size='small'
                                     onChange={(e) => setunit(e.target.value)}
                                     error={errors.gender !== undefined}
                                 >
@@ -180,7 +183,7 @@ const Product = () => {
                                     <MenuItem value="nos">NOS</MenuItem>
                                 </Select>
                                 {errors.unit && (
-                                    <Typography variant="caption" color="error">
+                                    <Typography size='small' variant="caption" color="error">
                                         {errors.unit}
                                     </Typography>
                                 )}
@@ -190,13 +193,13 @@ const Product = () => {
                     <Grid container md={12} spacing={1} pl={3} pb={3}>
                         <Grid item xs={12} md={6}  >
 
-                            <LoadingButton variant="contained" color="primary" fullWidth size="large" onClick={handleSave}>
+                            <LoadingButton size="small" variant="contained" color="primary" fullWidth  onClick={handleSave}>
                                 {isEditing ? 'Update' : 'Save'}
                             </LoadingButton>
                         </Grid>
                         <Grid item xs={12} md={6}  >
                             {isEditing && (
-                                <LoadingButton variant="contained" color="error" fullWidth size="large" onClick={handleDelete}>
+                                <LoadingButton size="small" variant="contained" color="error" fullWidth  onClick={handleDelete}>
                                     Delete
                                 </LoadingButton>
                             )}
