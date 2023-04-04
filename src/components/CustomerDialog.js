@@ -26,7 +26,7 @@ import useLookupData from '../datas/useLookupData';
 
 export default function CustomerDialog(props) {
 
-  const customers = useLookupData();
+  const customers = useLookupData("CUS");
   const { onClose, open, onSelect } = props;
 
   const handleClose = () => {

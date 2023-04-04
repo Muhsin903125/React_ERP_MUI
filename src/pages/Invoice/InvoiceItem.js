@@ -9,6 +9,7 @@ import {
     createFilterOptions,
 } from '@mui/material';
 import {  Delete } from '@mui/icons-material';
+import useLookupData from '../../datas/useLookupData';
 
 
 
@@ -18,18 +19,22 @@ export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, rem
         return qty * price;
     }
 
-    const products = [
-        { label: "Mango", price: 194, unit: "KG", desc: "Kerala mango" },
-        { label: 'Apple', price: 250, unit: "KG", desc: "Kashmir Apple" },
-        { label: 'Banana', price: 80, unit: "KG", desc: "Banana from Tamil Nadu" },
-        { label: 'Pineapple', price: 150, unit: "KG", desc: "Pineapple from Himachal Pradesh" },
-        { label: 'Guava', price: 60, unit: "KG", desc: "Guava from Uttar Pradesh" },
-        { label: 'Grapes', price: 200, unit: "KG", desc: "Grapes from Maharashtra" },
-        { label: 'Lemon', price: 80, unit: "KG", desc: "Lemon from Andhra Pradesh" },
-        { label: 'Watermelon', price: 40, unit: "NOS", desc: "Watermelon from Rajasthan" },
-        { label: 'Peach', price: 150, unit: "KG", desc: "Peach from Himachal Pradesh" },
-        { label: 'Plum', price: 180, unit: "KG", desc: "from Maharashtra" }
-    ] 
+    const products = useLookupData("PRODUCT");
+    // [
+    //     { label: "Mango", price: 194, unit: "KG", desc: "Kerala mango" },
+    //     { label: 'Apple', price: 250, unit: "KG", desc: "Kashmir Apple" },
+    //     { label: 'Banana', price: 80, unit: "KG", desc: "Banana from Tamil Nadu" },
+    //     { label: 'Pineapple', price: 150, unit: "KG", desc: "Pineapple from Himachal Pradesh" },
+    //     { label: 'Guava', price: 60, unit: "KG", desc: "Guava from Uttar Pradesh" },
+    //     { label: 'Grapes', price: 200, unit: "KG", desc: "Grapes from Maharashtra" },
+    //     { label: 'Lemon', price: 80, unit: "KG", desc: "Lemon from Andhra Pradesh" },
+    //     { label: 'Watermelon', price: 40, unit: "NOS", desc: "Watermelon from Rajasthan" },
+    //     { label: 'Peach', price: 150, unit: "KG", desc: "Peach from Himachal Pradesh" },
+    //     { label: 'Plum', price: 180, unit: "KG", desc: "from Maharashtra" }
+    // ] 
+
+
+
     const handleItemCodeChange = (event, newValue) => {
  
         const newItems = [...items];

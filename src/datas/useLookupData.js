@@ -2,7 +2,7 @@ import  {  useEffect, useState } from 'react';
 import { PostMultiSp } from '../hooks/Api';
 
 
-export  default function useLookupData() {
+export  default function useLookupData(type) {
 
     const [lookupData, setlookupData] = useState([]); 
 
@@ -17,7 +17,7 @@ export  default function useLookupData() {
               "json": JSON.stringify({
                 "json": [],
                 "key": "COMMON_LOOKUP",
-                "doctype" : "CUS"
+                "doctype" : type
               }),
               "controller": "string"
             })
