@@ -8,6 +8,7 @@ import { LoadingButton } from '@mui/lab';
 import { useToast } from '../../hooks/Common';
 import { AuthContext } from '../../App';
 import { PostChangePassword } from '../../hooks/Api';
+import MyContainer from '../../components/MyContainer';
 
 // components 
 
@@ -74,7 +75,7 @@ export default function ChangePassword() {
                 <title> Change Password </title>
             </Helmet>
 
-            <Container  >
+         
                 <Stack direction="row" alignItems="center" justifyContent="space-between" mb={3}>
                     <Typography variant="h4" gutterBottom>
                         Change Password
@@ -82,7 +83,7 @@ export default function ChangePassword() {
                 </Stack>
                 <Grid container    >
                     <Grid item xs={12} md={7}  >
-                        <Card>
+                    <MyContainer>
                             <Stack m={2.5} md={6} >
                                 <Grid container spacing={2} >
                                     <Grid item xs={12} md={12}  >
@@ -134,11 +135,11 @@ export default function ChangePassword() {
                                     </Grid>
                                 </Grid>
                             </Stack>
-                        </Card>
+                            </MyContainer>
                     </Grid>
                 </Grid>
 
-            </Container>
+          
 
 
         </>

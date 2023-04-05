@@ -25,6 +25,8 @@ import UserRoleList from './pages/User/Roles/UserRoleList';
 import UserRole from './pages/User/Roles/UserRole';
 import ProductList from './pages/Masters/Product/ProductList';
 import Product from './pages/Masters/Product/Product';
+import UnitList from './pages/Masters/Unit/UnitList';
+import Unit from './pages/Masters/Unit/Unit';
 
 // ----------------------------------------------------------------------
 
@@ -40,6 +42,8 @@ export default function Router() {
     { path: 'userrole', element: <UserRole /> },
     { path: 'product', element: <Product /> },
     { path: 'productlist', element: <ProductList /> },
+    { path: 'unit', element: <Unit /> },
+    { path: 'unitlist', element: <UnitList /> },
   ]
   const routes = useRoutes([
     {

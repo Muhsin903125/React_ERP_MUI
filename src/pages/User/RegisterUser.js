@@ -22,6 +22,7 @@ import { useToast } from '../../hooks/Common';
 import { AuthContext } from '../../App';
 import Confirm from '../../components/Confirm';
 import DateSelector from '../../components/DateSelector';
+import MyContainer from '../../components/MyContainer';
 
 const RegisterUser = () => {
   const location = useLocation();
@@ -157,13 +158,13 @@ const RegisterUser = () => {
         <title>User Register </title>
       </Helmet>
 
-      <Container  >
+      
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={3}>
           <Typography variant="h4" gutterBottom>
             {isEditing ? 'Edit User' : 'New User'}
           </Typography>
         </Stack>
-        <Card>
+        <MyContainer>
           <Grid container p={3} spacing={1} >
             <Grid item xs={12} md={6}  >
               <TextField
@@ -312,8 +313,7 @@ const RegisterUser = () => {
                 </LoadingButton>
               )}
             </Grid>
-          </ Grid></Card>
-      </ Container>
+          </ Grid></MyContainer>
     </>
   );
 };

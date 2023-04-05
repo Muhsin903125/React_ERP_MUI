@@ -26,6 +26,7 @@ import { AuthContext } from '../../../App';
 import { deleteRole, saveRole, UpdateRole } from '../../../hooks/Api';
 import { useToast } from '../../../hooks/Common';
 import Confirm from '../../../components/Confirm';
+import MyContainer from '../../../components/MyContainer';
 
 
 const Product = () => {
@@ -127,13 +128,13 @@ const Product = () => {
                 <title>Product </title>
             </Helmet>
 
-            <Container  >
+           
                 <Stack direction="row" alignItems="center" justifyContent="space-between" mb={3}>
                     <Typography variant="h4" gutterBottom>
                         {isEditing ? 'Edit Product' : 'New Product'}
                     </Typography>
                 </Stack>
-                <Card >
+                <MyContainer>
                     <TabContext value={tabValue}
                         aria-label="scrollable secondary   tabs example"
                         textColor="secondary"
@@ -243,9 +244,7 @@ const Product = () => {
                             )}
                         </Grid>
                     </ Grid>
-                </Card>
-
-            </ Container>
+                    </MyContainer>
         </>
     );
 };

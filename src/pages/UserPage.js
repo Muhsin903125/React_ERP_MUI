@@ -30,6 +30,7 @@ import Scrollbar from '../components/scrollbar';
 import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 // mock
 import USERLIST from '../_mock/user';
+import MyContainer from '../components/MyContainer';
 
 // ----------------------------------------------------------------------
 
@@ -152,7 +153,7 @@ export default function UserPage() {
         <title> User | Minimal UI </title>
       </Helmet>
 
-      <Container>
+     
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
             User
@@ -162,7 +163,7 @@ export default function UserPage() {
           </Button>
         </Stack>
 
-        <Card>
+        <MyContainer>
           <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
 
           <Scrollbar>
@@ -258,8 +259,7 @@ export default function UserPage() {
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
-        </Card>
-      </Container>
+       </MyContainer>
 
       <Popover
         open={Boolean(open)}

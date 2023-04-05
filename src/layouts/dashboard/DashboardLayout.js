@@ -29,6 +29,10 @@ const Main = styled('div')(({ theme }) => ({
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
   },
+    backgroundImage: 'url(/assets/illustrations/illustration_docs.svg)',
+    backgroundSize:"350px",
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'bottom right',
 }));
 
 // ----------------------------------------------------------------------

@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import { NavLink as RouterLink } from 'react-router-dom';
 // @mui
 import { Box, List, Collapse, ListItemText, ListItem, ListItemButton } from '@mui/material';
-import { ExpandLess, ExpandMore } from '@mui/icons-material';
+import { ExpandMore } from '@mui/icons-material';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 //
 import { StyledNavItem, StyledNavItemIcon } from './styles';
 // ----------------------------------------------------------------------
@@ -28,14 +29,17 @@ export default function NavSection({ data = [], ...other }) {
         {data.map((item) => (
           item.childern !== undefined && item.childern.length > 0 ?
             <>
-              <ListItemButton onClick={() => { handleClick(item.title) }} disableGutters >
+              <StyledNavItem onClick={() => { handleClick(item.title) }} disableGutters    >
 
                 <StyledNavItemIcon>{item.icon && item.icon}</StyledNavItemIcon>
 
                 <ListItemText disableTypography primary={item.title} />
-                {open[item.title] ? <ExpandLess /> : <ExpandMore />} 
+                {open[item.title] ?
+                  <StyledNavItemIcon><ExpandMore /> </StyledNavItemIcon>
+                  : <StyledNavItemIcon><NavigateNextIcon /></StyledNavItemIcon>
+                }
 
-              </ListItemButton>
+              </StyledNavItem>
               <Collapse in={open[item.title]} timeout="auto" unmountOnExit style={{ backgroundColor: '##e3e3e3' }}>
                 <List disablePadding>
                   {item.childern.map((item2) => (

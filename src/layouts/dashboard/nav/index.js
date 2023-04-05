@@ -37,7 +37,7 @@ Nav.propTypes = {
 export default function Nav({ openNav, onCloseNav }) {
   const { pathname } = useLocation();
 
-  const isDesktop = useResponsive('up', 'lg');
+  const isDesktop = useResponsive('up', 'xl');
 
   useEffect(() => {
     if (openNav) {
@@ -110,18 +110,27 @@ export default function Nav({ openNav, onCloseNav }) {
       component="nav"
       sx={{
         flexShrink: { lg: 0 },
-        // width: { lg: NAV_WIDTH },
+        width: { xl: NAV_WIDTH },
       }}
     >
       {isDesktop ? (
         <Drawer
-        open={openNav}
-        onClose={onCloseNav}
-        ModalProps={{
-          keepMounted: true,
-        }}
-        PaperProps={{
-          sx: { width: NAV_WIDTH },
+        // open={openNav}
+        // onClose={onCloseNav}
+        // ModalProps={{
+        //   keepMounted: true,
+        // }}
+        // PaperProps={{
+        //   sx: { width: NAV_WIDTH },
+        // }}
+        open	
+        variant="permanent"	
+        PaperProps={{	
+          sx: {	
+            width: NAV_WIDTH,	
+            bgcolor: 'background.default',	
+            borderRightStyle: 'dashed',	
+          },	
         }}
       >
         {renderContent}
