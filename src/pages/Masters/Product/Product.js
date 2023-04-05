@@ -12,9 +12,13 @@ import {
     MenuItem,
     InputLabel,
     Select,
+    Box,
+    Tab,
 } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
+import { LoadingButton, TabContext, TabList, TabPanel } from '@mui/lab';
 import validator from 'validator';
+import SpeedIcon from '@mui/icons-material/Speed';
+import CategoryIcon from '@mui/icons-material/Category';
 import { AuthContext } from '../../../App';
 import { deleteRole, saveRole, UpdateRole } from '../../../hooks/Api';
 import { useToast } from '../../../hooks/Common';
@@ -67,7 +71,7 @@ const Product = () => {
                 if (Success) {
                     showToast(Message, 'success');
                     navigate('/productlist')
-                } else { 
+                } else {
                     showToast(Message, 'error');
                 }
             } finally {
@@ -108,6 +112,12 @@ const Product = () => {
         });
     }
 
+
+    const [tabValue, setTabValue] = React.useState(1);
+    const TabhandleChange = (event: React.SyntheticEvent, newValue: string) => {
+        setTabValue(newValue);
+    };
+
     return (
         <>
             <Helmet>
@@ -121,90 +131,108 @@ const Product = () => {
                     </Typography>
                 </Stack>
                 <Card >
-                    <Grid container p={3}  spacing={1} >
-                        <Grid item xs={12} md={6} >
-                            <TextField
-                                label="Code"
-                                variant="outlined"
-                                fullWidth
-                                margin="normal"
-                                size='small'
-                                value={code}
-                                onChange={(e) => setCode(e.target.value)}
-                                error={errors.code !== undefined}
-                                helperText={errors.code}
-                            />
-                        </Grid>
-                        <Grid item xs={12} md={6} >
-                            <TextField
-                                label="Price"
-                                variant="outlined"
-                                fullWidth
-                                size='small'
-                                margin="normal"
-                                value={price}
-                                onChange={(e) => setPrice(e.target.value)}
-                                error={errors.price !== undefined}
-                                helperText={errors.price}
-                                inputProps={{ maxLength: 10 }}
-                                InputLabelProps={{
-                                    shrink: true,
-                                  }}
-                            />
-                        </Grid>
-                        <Grid item xs={12} md={6} >
-                            <TextField
-                                label="Description"
-                                variant="outlined"
-                                fullWidth
-                                margin="normal"
-                                size='small'
-                                value={desc}
-                                onChange={(e) => setDesc(e.target.value)}
-                                error={errors.desc !== undefined}
-                                helperText={errors.desc}
-                            />
-                        </Grid>
-                        <Grid item xs={12} md={6}  >
-                            <FormControl variant="outlined" fullWidth margin="normal">
-                                <InputLabel id="Unit-label">Unit</InputLabel>
-                                <Select
-                                    labelId="Unit-label"
-                                    label="Unit"
-                                    value={unit}
-                                    size='small'
-                                    onChange={(e) => setunit(e.target.value)}
-                                    error={errors.gender !== undefined}
-                                >
-                                    <MenuItem value="kg">KG</MenuItem>
-                                    <MenuItem value="CTN">CTN</MenuItem>
-                                    <MenuItem value="ml">ML</MenuItem>
-                                    <MenuItem value="mtr">Meter</MenuItem>
-                                    <MenuItem value="nos">NOS</MenuItem>
-                                </Select>
-                                {errors.unit && (
-                                    <Typography size='small' variant="caption" color="error">
-                                        {errors.unit}
-                                    </Typography>
-                                )}
-                            </FormControl>
-                        </Grid>
-                    </Grid>
-                    <Grid container md={12} spacing={1} pl={3} pb={3}>
-                        <Grid item xs={12} md={6}  >
+                    <TabContext value={tabValue}
+                        aria-label="scrollable secondary   tabs example"
+                        textColor="secondary"
+                        indicatorColor="secondary"
+                    >
+                        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                            <TabList onChange={TabhandleChange} aria-label="lab API tabs example">
+                                <Tab icon={<CategoryIcon />} iconPosition="start" label="Product" value="1" />
+                                <Tab icon={<SpeedIcon />} iconPosition="start" label="Unit" value="2" />
+                            </TabList>
+                        </Box>
+                        <TabPanel value="1">
+                            <Grid container p={3} spacing={1} >
+                                <Grid item xs={12} md={6} >
+                                    <TextField
+                                        label="Code"
+                                        variant="outlined"
+                                        fullWidth
+                                        margin="normal"
+                                        size='small'
+                                        value={code}
+                                        onChange={(e) => setCode(e.target.value)}
+                                        error={errors.code !== undefined}
+                                        helperText={errors.code}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={6} >
+                                    <TextField
+                                        label="Price"
+                                        variant="outlined"
+                                        fullWidth
+                                        size='small'
+                                        margin="normal"
+                                        value={price}
+                                        onChange={(e) => setPrice(e.target.value)}
+                                        error={errors.price !== undefined}
+                                        helperText={errors.price}
+                                        inputProps={{ maxLength: 10 }}
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={6} >
+                                    <TextField
+                                        label="Description"
+                                        variant="outlined"
+                                        fullWidth
+                                        margin="normal"
+                                        size='small'
+                                        value={desc}
+                                        onChange={(e) => setDesc(e.target.value)}
+                                        error={errors.desc !== undefined}
+                                        helperText={errors.desc}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={6}  >
+                                    <FormControl variant="outlined" fullWidth margin="normal">
+                                        <InputLabel id="Unit-label">Unit</InputLabel>
+                                        <Select
+                                            labelId="Unit-label"
+                                            label="Unit"
+                                            value={unit}
+                                            size='small'
+                                            onChange={(e) => setunit(e.target.value)}
+                                            error={errors.gender !== undefined}
+                                        >
+                                            <MenuItem value="kg">KG</MenuItem>
+                                            <MenuItem value="CTN">CTN</MenuItem>
+                                            <MenuItem value="ml">ML</MenuItem>
+                                            <MenuItem value="mtr">Meter</MenuItem>
+                                            <MenuItem value="nos">NOS</MenuItem>
+                                        </Select>
+                                        {errors.unit && (
+                                            <Typography size='small' variant="caption" color="error">
+                                                {errors.unit}
+                                            </Typography>
+                                        )}
+                                    </FormControl>
+                                </Grid>
+                            </Grid>
+                            <Grid container md={12} spacing={1} pl={3} pb={3}>
+                                <Grid item xs={12} md={6}  >
+                                    <LoadingButton size="small" variant="contained" color="primary" fullWidth onClick={handleSave}>
+                                        {isEditing ? 'Update' : 'Save'}
+                                    </LoadingButton>
+                                </Grid>
+                                <Grid item xs={12} md={6}  >
+                                    {isEditing && (
+                                        <LoadingButton size="small" variant="contained" color="error" fullWidth onClick={handleDelete}>
+                                            Delete
+                                        </LoadingButton>
+                                    )}
+                                </Grid>
+                            </ Grid>
 
-                            <LoadingButton size="small" variant="contained" color="primary" fullWidth  onClick={handleSave}>
-                                {isEditing ? 'Update' : 'Save'}
-                            </LoadingButton>
-                        </Grid>
-                        <Grid item xs={12} md={6}  >
-                            {isEditing && (
-                                <LoadingButton size="small" variant="contained" color="error" fullWidth  onClick={handleDelete}>
-                                    Delete
-                                </LoadingButton>
-                            )}
-                        </Grid>
-                    </ Grid>
+                        </TabPanel>
+                        <TabPanel value="2">Item Two</TabPanel>
+                    </TabContext>
+
+
+
                 </Card>
 
             </ Container>

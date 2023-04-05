@@ -42,39 +42,39 @@ export default function ProductList() {
           </Tooltip>
         </div>
       ),
-      size:0
+      size: 0
     },
 
     {
       accessorKey: 'IM_CODE', //  access nested data with dot notation
       header: 'Code',
-       size:0
-    }, 
+      size: 0
+    },
     {
-      accessorKey: 'IM_DESC', 
+      accessorKey: 'IM_DESC',
       header: 'Descrption',
     },
     {
-      accessorKey: 'IM_UNIT_CODE', 
+      accessorKey: 'IM_UNIT_CODE',
       header: 'Unit',
     },
     {
-      accessorKey: 'IM_PRICE', 
+      accessorKey: 'IM_PRICE',
       header: 'Price',
     },
     {
-      accessorKey: 'IM_CREATED_BY', 
+      accessorKey: 'IM_CREATED_BY',
       header: 'Created By',
     },
     {
-      accessorKey: 'IM_CREATED_TS', 
+      accessorKey: 'IM_CREATED_TS',
       header: 'Created TS',
     },
     // {
     //   accessorKey: 'normalizedName',
     //   header: 'Description',
     // },
-    
+
   ];
 
   const navigate = useNavigate();
@@ -112,15 +112,15 @@ export default function ProductList() {
     Confirm('Are you sure to Delete?').then(async () => {
       try {
         setLoadingFull(true);
-        const { Success, Data, Message } = await await PostMultiSp({
-            "key": "string",
-            "userId": "string",
-            "json": JSON.stringify({
-              "json": [],
-              "key": "CUSTOMER_LIST"
-            }),
-            "controller": "string"
-          })
+        const { Success, Data, Message } = await PostMultiSp({
+          "key": "string",
+          "userId": "string",
+          "json": JSON.stringify({
+            "json": [],
+            "key": "CUSTOMER_LIST"
+          }),
+          "controller": "string"
+        })
         if (Success) {
           fetchList();
           showToast(Message, 'success');
@@ -149,7 +149,6 @@ export default function ProductList() {
           Product List
         </Typography>
         <Link to={{ pathname: '/product', }} style={{ textDecoration: 'none' }}>
-          {/* <Link to={{ pathname: '/userrole',   }} style={{ textDecoration: 'none' }}>  */}
           <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New Product
           </Button>
