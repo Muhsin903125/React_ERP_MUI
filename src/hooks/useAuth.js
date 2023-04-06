@@ -5,16 +5,16 @@ import { useNavigate } from "react-router-dom";
 // import { getUniqueId, getManufacturer } from 'react-native-device-info';
 const ENCRYPTION_KEY = "my_secret_key";
 
-export default function  useAuth (){
+export default function useAuth() {
 
     // let plaintext = CryptoJS. enc.utf8.parse(text); 
     // let secSpec = CryptoJS. enc.utf8.parse(process.env.REACT_APP_AES_KEY); 
     // let ivSpec = CryptoJS. enc.utf8.parse(process.env.REACT_APP_AES_IV); 
     // secSpec = CryptoJS.lib.WordArray.create(secSpec.words.slice(0, 16 / 4));   
     // ivspec = CryptoJs.lib.WordArray.create(ivSpec.words.slice(0, 16 / 4)); var encrypted = CryptoJS.AES.encrypt (plaintext, secSpec, { iv: ivSpec });
-     
+
     // return encrypted.toString()
-     
+
     const navigate = useNavigate();
     // const deviceID = navigator.userAgent; 
     const [userToken, setUserToken] = useState(null);
@@ -28,7 +28,7 @@ export default function  useAuth (){
             // const bytes = sha256.AES.decrypt(storeduToken, ENCRYPTION_KEY);
             // const decryptedUser = JSON.parse(bytes.toString(sha256.enc.Utf8));
             // setUserToken(decryptedUser);          
-            
+
             setUserToken(storeduToken);
         }
         const storedrToken = sessionStorage.getItem("rToken");
@@ -38,30 +38,30 @@ export default function  useAuth (){
         const storedusername = sessionStorage.getItem("username");
         if (storedusername) {
             setUsername(storedusername);
-        } 
-        
-        const storedexpiry = sessionStorage.getItem("expiry");
-        if ( storedexpiry) {
-            setExpiry(storedexpiry );
         }
 
-        
+        const storedexpiry = sessionStorage.getItem("expiry");
+        if (storedexpiry) {
+            setExpiry(storedexpiry);
+        }
+
+
     }, []);
 
-// function getToken(){
-//     const storeduToken = localStorage.getItem("uToken");
-//     // if (storeduToken) {
-//         const bytes = sha256.AES.decrypt(storeduToken, ENCRYPTION_KEY);
-//         const decryptedUser = JSON.parse(bytes.toString(sha256.enc.Utf8));
-//        return decryptedUser;
-//    // }
-// }
+    // function getToken(){
+    //     const storeduToken = localStorage.getItem("uToken");
+    //     // if (storeduToken) {
+    //         const bytes = sha256.AES.decrypt(storeduToken, ENCRYPTION_KEY);
+    //         const decryptedUser = JSON.parse(bytes.toString(sha256.enc.Utf8));
+    //        return decryptedUser;
+    //    // }
+    // }
 
-function login (username, token, refreshToken, expiry)   {
+    function login(username, token, refreshToken, expiry, firstName, lastName, imageurl, email) {
         // Make a request to your API to authenticate the user
         // const user = { id: 1, username: "example_user" };
         // const token = "your_jwt_token";
-       
+
         // Encrypt the user object before storing it in local storage
         // const encryptedToken = sha256.AES.encrypt(
         //     JSON.stringify(token),
@@ -69,18 +69,23 @@ function login (username, token, refreshToken, expiry)   {
         // ).toString();
 
         // localStorage.setItem("uToken", encryptedToken);
+       
         sessionStorage.setItem("uToken", token);
         sessionStorage.setItem("rToken", refreshToken);
         sessionStorage.setItem("username", username);
         sessionStorage.setItem("expiry", expiry);
-         
+        sessionStorage.setItem("firstName", firstName);
+        sessionStorage.setItem("lastName", lastName);
+        sessionStorage.setItem("email", email);
+        sessionStorage.setItem("imageUrl", imageurl);
+
         setUserToken(token);
         setRefreshToken(refreshToken);
         setUsername(username);
         setExpiry(expiry);
     };
 
-    function logout() { 
+    function logout() {
 
         sessionStorage.removeItem("uToken");
         sessionStorage.removeItem("rToken");
@@ -92,11 +97,11 @@ function login (username, token, refreshToken, expiry)   {
         setRefreshToken(null);
         setUsername(null);
         setExpiry(null);
-       // showToast('Successfully Logined !!', 'success');
+        // showToast('Successfully Logined !!', 'success');
         navigate("/login", { replace: true })
     };
 
-    return { userToken,refreshToken,username,expiry, login, logout };
+    return { userToken, refreshToken, username, expiry, login, logout };
 };
 
 // export default useAuth;

@@ -241,7 +241,7 @@ const palette = {
   },
   action: {
     active: GREY[600],
-    hover: alpha(GREY[500], 0.08),
+    hover: themeMode !== 'dark' ? alpha(GREY[500], 0.08) :  alpha(GREY[100], 0.5),
     selected: themeMode !== 'dark' ? getPrimary().lighter :  getPrimary().darker,
     disabled: alpha(GREY[500], 0.8),
     disabledBackground: alpha(GREY[500], 0.24),

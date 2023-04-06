@@ -39,9 +39,13 @@ export default function LoginForm() {
       if (Success) {
         const accessToken = Data?.accessToken;
         const refreshToken = Data?.refreshToken;
+        const firstName = Data?.firstName;
+        const lastName = Data?.lastName;
+        const email = Data?.email;
+        const imageUrl = Data?.imageUrl;
         const expiry = Data?.expiration;
         const username = Data?.userName;
-        login(username, accessToken, refreshToken, expiry);
+        login(username, accessToken, refreshToken, expiry,firstName,lastName,imageUrl,email);
 
         navigate("/", { replace: true })
         showToast(Message, 'success');
