@@ -2,9 +2,10 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { NavLink as RouterLink } from 'react-router-dom';
 // @mui
-import { Box, List, Collapse, ListItemText, ListItem, ListItemButton } from '@mui/material';
+import { Box, List, Collapse, ListItemText,  } from '@mui/material';
 import { ExpandMore } from '@mui/icons-material';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import {   useTheme } from '@mui/material/styles';
 //
 import { StyledNavItem, StyledNavItemIcon } from './styles';
 // ----------------------------------------------------------------------
@@ -14,8 +15,8 @@ NavSection.propTypes = {
 };
 
 export default function NavSection({ data = [], ...other }) {
+  const theme = useTheme();
   const [open, setOpen] = useState({});
-
   const handleClick = (title) => {
     setOpen({
       ...open,
@@ -40,7 +41,7 @@ export default function NavSection({ data = [], ...other }) {
                 }
 
               </StyledNavItem>
-              <Collapse in={open[item.title]} timeout="auto" unmountOnExit style={{ backgroundColor: '##e3e3e3' }}>
+              <Collapse in={open[item.title]} timeout="auto" unmountOnExit style={{ backgroundColor: theme.palette.background.neutral }}>
                 <List disablePadding>
                   {item.childern.map((item2) => (
                     <NavItem key={item2.title} item={item2} />
@@ -77,7 +78,7 @@ function NavItem({ item }) {
           color: 'text.primary',
           bgcolor: 'action.selected',
           fontWeight: 'fontWeightBold',
-          boxShadow: '2px 5px 7px 0px rgb(32 101 209 / 20%)'
+          // boxShadow: '2px 5px 7px 0px rgb(32 101 209 / 20%)'
         },
       }}
     >

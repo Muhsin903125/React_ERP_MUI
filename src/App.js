@@ -60,7 +60,7 @@ function App() {
 
 
   return (
-    <ThemeProvider>
+    <ThemeProvider  >
       <ScrollToTop />
       <StyledChart />
       <AuthContext.Provider value={{ setLoadingFull }}>

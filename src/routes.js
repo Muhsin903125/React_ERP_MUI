@@ -26,7 +26,8 @@ import UserRole from './pages/User/Roles/UserRole';
 import ProductList from './pages/Masters/Product/ProductList';
 import Product from './pages/Masters/Product/Product';
 import UnitList from './pages/Masters/Unit/UnitList';
-import Unit from './pages/Masters/Unit/Unit';
+import Unit from './pages/Masters/Unit/Unit'; 
+import Settings from './pages/Settings';
 
 // ----------------------------------------------------------------------
 
@@ -58,6 +59,7 @@ export default function Router() {
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
         { path: 'customermaster', element: <CustomerMaster /> },
+        { path: 'settings', element: <Settings /> },
 
         ...userMenus,
         ...AdminMenus

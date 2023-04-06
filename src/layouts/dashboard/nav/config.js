@@ -97,6 +97,11 @@ const navConfig = [
       }
     ]
   },
+   {
+    title: 'Settings',
+    path: '/settings',
+    icon: icon('ic_setting'),
+  },
   {
     title: 'product',
     path: '/products',
