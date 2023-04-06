@@ -17,33 +17,35 @@ export default function useAuth() {
 
     const navigate = useNavigate();
     // const deviceID = navigator.userAgent; 
-    const [userToken, setUserToken] = useState(null);
-    const [refreshToken, setRefreshToken] = useState(null);
-    const [username, setUsername] = useState(null);
-    const [expiry, setExpiry] = useState(null);
+    const [userToken, setUserToken] = useState(sessionStorage.getItem("uToken"));
+    const [refreshToken, setRefreshToken] = useState(sessionStorage.getItem("rToken"));
+    const [username, setUsername] = useState(sessionStorage.getItem("username"));
+    const [displayName, setDisplayName] = useState(sessionStorage.getItem("displayName"));
+    const [imageUrl, setImageUrl] = useState(sessionStorage.getItem("imageUrl"));
+    const [expiry, setExpiry] = useState(sessionStorage.getItem("expiry"));
 
     useEffect(() => {
-        const storeduToken = sessionStorage.getItem("uToken");
-        if (storeduToken) {
-            // const bytes = sha256.AES.decrypt(storeduToken, ENCRYPTION_KEY);
-            // const decryptedUser = JSON.parse(bytes.toString(sha256.enc.Utf8));
-            // setUserToken(decryptedUser);          
+        // const storeduToken = sessionStorage.getItem("uToken");
+        // if (storeduToken) {
+        //     // const bytes = sha256.AES.decrypt(storeduToken, ENCRYPTION_KEY);
+        //     // const decryptedUser = JSON.parse(bytes.toString(sha256.enc.Utf8));
+        //     // setUserToken(decryptedUser);          
 
-            setUserToken(storeduToken);
-        }
-        const storedrToken = sessionStorage.getItem("rToken");
-        if (storedrToken) {
-            setRefreshToken(storedrToken);
-        }
-        const storedusername = sessionStorage.getItem("username");
-        if (storedusername) {
-            setUsername(storedusername);
-        }
+        //     setUserToken(storeduToken);
+        // }
+        // const storedrToken = sessionStorage.getItem("rToken");
+        // if (storedrToken) {
+        //     setRefreshToken(storedrToken);
+        // }
+        // const storedusername = sessionStorage.getItem("username");
+        // if (storedusername) {
+        //     setUsername(storedusername);
+        // }
 
-        const storedexpiry = sessionStorage.getItem("expiry");
-        if (storedexpiry) {
-            setExpiry(storedexpiry);
-        }
+        // const storedexpiry = sessionStorage.getItem("expiry");
+        // if (storedexpiry) {
+        //     setExpiry(storedexpiry);
+        // }
 
 
     }, []);
@@ -74,15 +76,15 @@ export default function useAuth() {
         sessionStorage.setItem("rToken", refreshToken);
         sessionStorage.setItem("username", username);
         sessionStorage.setItem("expiry", expiry);
-        sessionStorage.setItem("firstName", firstName);
-        sessionStorage.setItem("lastName", lastName);
-        sessionStorage.setItem("email", email);
+        sessionStorage.setItem("displayName", `${firstName} ${lastName}`);  
         sessionStorage.setItem("imageUrl", imageurl);
 
         setUserToken(token);
         setRefreshToken(refreshToken);
         setUsername(username);
         setExpiry(expiry);
+        setDisplayName(`${firstName} ${lastName}`);
+        setImageUrl(imageurl);
     };
 
     function logout() {
@@ -90,18 +92,20 @@ export default function useAuth() {
         sessionStorage.removeItem("uToken");
         sessionStorage.removeItem("rToken");
         sessionStorage.removeItem("username");
-        sessionStorage.removeItem("expiry");
+        sessionStorage.removeItem("displayName");
+        sessionStorage.removeItem("imageUrl"); 
 
 
         setUserToken(null);
         setRefreshToken(null);
         setUsername(null);
         setExpiry(null);
+        setDisplayName(null);
         // showToast('Successfully Logined !!', 'success');
         navigate("/login", { replace: true })
     };
 
-    return { userToken, refreshToken, username, expiry, login, logout };
+    return { userToken, refreshToken, username, expiry,displayName,imageUrl, login, logout };
 };
 
 // export default useAuth;

@@ -12,6 +12,8 @@ import useResponsive from '../../../hooks/useResponsive';
 import Logo from '../../../components/logo';
 import Scrollbar from '../../../components/scrollbar';
 import NavSection from '../../../components/nav-section';
+
+import useAuth from '../../../hooks/useAuth';
 //
 import navConfig from './config';
 
@@ -36,7 +38,7 @@ Nav.propTypes = {
 
 export default function Nav({ openNav, onCloseNav }) {
   const { pathname } = useLocation();
-
+  const { displayName,username} =useAuth() 
   const isDesktop = useResponsive('up', 'xl');
 
   useEffect(() => {
@@ -64,7 +66,8 @@ export default function Nav({ openNav, onCloseNav }) {
 
             <Box sx={{ ml: 2 }}>
               <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
-                {account.displayName}
+                {/* {account.displayName} */}
+                {displayName}
               </Typography>
 
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
