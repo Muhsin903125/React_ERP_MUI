@@ -26,8 +26,8 @@ const MENU_OPTIONS = [
 // ----------------------------------------------------------------------
 
 export default function AccountPopover() {
-  const [open, setOpen] = useState(null); 
-   const {logout,displayName,username} =useAuth() 
+  const [open, setOpen] = useState(null);
+  const { logout, displayName, username, profileImg } = useAuth()
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
   };
@@ -35,8 +35,8 @@ export default function AccountPopover() {
   const handleClose = () => {
     setOpen(null);
   };
- const HandleLogout = () => {
-  logout();
+  const HandleLogout = () => {
+    logout();
     setOpen(null);
   };
   return (
@@ -58,7 +58,10 @@ export default function AccountPopover() {
           }),
         }}
       >
-        <Avatar src={account.photoURL} alt="photoURL" />
+        <Avatar
+          alt="photoURL"
+          src={`data:image/png;base64,${profileImg}`}
+        />
       </IconButton>
 
       <Popover
@@ -84,8 +87,8 @@ export default function AccountPopover() {
           <Typography variant="subtitle2" noWrap>
             {/* {account.displayName} */}
             {displayName}
-          </Typography> 
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}noWrap  >
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap  >
             {username}
           </Typography>
         </Box>

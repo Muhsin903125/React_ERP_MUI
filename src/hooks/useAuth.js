@@ -21,8 +21,9 @@ export default function useAuth() {
     const [refreshToken, setRefreshToken] = useState(sessionStorage.getItem("rToken"));
     const [username, setUsername] = useState(sessionStorage.getItem("username"));
     const [displayName, setDisplayName] = useState(sessionStorage.getItem("displayName"));
-    const [imageUrl, setImageUrl] = useState(sessionStorage.getItem("imageUrl"));
+    const [profileImg, setprofileImg] = useState(sessionStorage.getItem("profileImg"));
     const [expiry, setExpiry] = useState(sessionStorage.getItem("expiry"));
+    const [role, setRole] = useState(sessionStorage.getItem("role"));
 
     useEffect(() => {
         // const storeduToken = sessionStorage.getItem("uToken");
@@ -59,7 +60,7 @@ export default function useAuth() {
     //    // }
     // }
 
-    function login(username, token, refreshToken, expiry, firstName, lastName, imageurl, email) {
+    function login(username, token, refreshToken, expiry, firstName, lastName, profileImg, email,role) {
         // Make a request to your API to authenticate the user
         // const user = { id: 1, username: "example_user" };
         // const token = "your_jwt_token";
@@ -77,14 +78,16 @@ export default function useAuth() {
         sessionStorage.setItem("username", username);
         sessionStorage.setItem("expiry", expiry);
         sessionStorage.setItem("displayName", `${firstName} ${lastName}`);  
-        sessionStorage.setItem("imageUrl", imageurl);
+        sessionStorage.setItem("profileImg", profileImg);
+        sessionStorage.setItem("role", role);
 
         setUserToken(token);
         setRefreshToken(refreshToken);
         setUsername(username);
         setExpiry(expiry);
         setDisplayName(`${firstName} ${lastName}`);
-        setImageUrl(imageurl);
+        setprofileImg(profileImg);
+        setRole(role);
     };
 
     function logout() {
@@ -93,7 +96,8 @@ export default function useAuth() {
         sessionStorage.removeItem("rToken");
         sessionStorage.removeItem("username");
         sessionStorage.removeItem("displayName");
-        sessionStorage.removeItem("imageUrl"); 
+        sessionStorage.removeItem("profileImg"); 
+        sessionStorage.removeItem("role"); 
 
 
         setUserToken(null);
@@ -101,11 +105,13 @@ export default function useAuth() {
         setUsername(null);
         setExpiry(null);
         setDisplayName(null);
+        setprofileImg(null);
+        setRole(null);
         // showToast('Successfully Logined !!', 'success');
         navigate("/login", { replace: true })
     };
 
-    return { userToken, refreshToken, username, expiry,displayName,imageUrl, login, logout };
+    return { userToken, refreshToken, username, expiry,displayName,profileImg,role, login, logout };
 };
 
 // export default useAuth;
