@@ -42,10 +42,11 @@ export default function LoginForm() {
         const firstName = Data?.firstName;
         const lastName = Data?.lastName;
         const email = Data?.email;
-        const imageUrl = Data?.imageUrl;
+        const profileImg = Data?.profileImg;
         const expiry = Data?.expiration;
         const username = Data?.userName;
-        login(username, accessToken, refreshToken, expiry,firstName,lastName,imageUrl,email);
+        const role = Data?.role;
+        login(username, accessToken, refreshToken, expiry,firstName,lastName,profileImg,email,role);
 
         navigate("/", { replace: true })
         showToast(Message, 'success');

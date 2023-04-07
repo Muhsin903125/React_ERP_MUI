@@ -40,6 +40,8 @@ const RegisterUser = () => {
   const [password, setPassword] = useState(user && user.password || '');
   const [gender, setGender] = useState(user && user.gender || '');
   const [dateOfBirth, setDateOfBirth] = useState(user && user.dob || new Date());
+  const [avatar, setAvatar] = useState(null);
+  const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || null);
   const [errors, setErrors] = useState({});
 
   const isEditing = Boolean(user && user.id);
@@ -79,6 +81,12 @@ const RegisterUser = () => {
     console.log("errors", errors);
 
     return Object.keys(errors).length === 0;
+  };
+
+  const handleAvatarChange = (event) => {
+    const file = event.target.files[0];
+    const url = URL.createObjectURL(file);
+    setAvatarUrl(url);
   };
   const onSave = async (data) => {
     Confirm('Are you sure?').then(async () => {
@@ -302,6 +310,8 @@ const RegisterUser = () => {
           </Grid>
           <Grid container md={12} spacing={1} pl={3} pb={3}>     
                  <Grid item xs={12} md={4}  >
+                 <input type="file" onChange={handleAvatarChange} />
+      {avatarUrl && <img src={avatarUrl} alt="Avatar" />}
             <LoadingButton variant="contained" color="primary" fullWidth size="large" onClick={handleSave}>
               {isEditing ? 'Update' : 'Save'}
             </LoadingButton>

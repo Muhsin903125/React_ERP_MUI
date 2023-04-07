@@ -38,7 +38,7 @@ Nav.propTypes = {
 
 export default function Nav({ openNav, onCloseNav }) {
   const { pathname } = useLocation();
-  const { displayName,username} =useAuth() 
+  const { displayName,username,profileImg,role} =useAuth() 
   const isDesktop = useResponsive('up', 'xl');
 
   useEffect(() => {
@@ -62,7 +62,10 @@ export default function Nav({ openNav, onCloseNav }) {
       <Box sx={{ mb: 2, mx: 1 }}>
         <Link underline="none">
           <StyledAccount>
-            <Avatar src={account.photoURL} alt="photoURL" />
+          <Avatar
+  alt="photoURL"
+  src={`data:image/png;base64,${profileImg}`}
+/>
 
             <Box sx={{ ml: 2 }}>
               <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
@@ -71,7 +74,7 @@ export default function Nav({ openNav, onCloseNav }) {
               </Typography>
 
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {account.role}
+                {role}
               </Typography>
             </Box>
           </StyledAccount>
