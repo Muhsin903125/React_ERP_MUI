@@ -23,7 +23,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 import { AuthContext } from '../../../App';
-import { deleteRole, saveRole, UpdateRole, PostMultiSp } from '../../../hooks/Api';
+import { deleteRole, saveRole, UpdateRole, PostMultiSp, PostCommonSp } from '../../../hooks/Api';
 import { useToast } from '../../../hooks/Common';
 import Confirm from '../../../components/Confirm';
 import MyContainer from '../../../components/MyContainer';
@@ -43,7 +43,7 @@ export default function Product() {
     const { setLoadingFull } = useContext(AuthContext);
     const { showToast } = useToast();
 
-    
+    const [isView, setView] = useState(false);    
     
     const [formData, setFormData] = useState(
         {
@@ -75,7 +75,7 @@ export default function Product() {
             //  showToast(Message, 'success');
             }
             else {
-              showToast(Message, "error");
+              showToast(Data.message? Data.message : Message, 'error');
             }
           }
           finally {
@@ -101,25 +101,28 @@ export default function Product() {
         if (validator.isEmpty(formData.unit)) {
             errors.unit = 'Unit is required';
         }
-        if (validator.isEmpty(formData.price)) {
-            errors.price = 'Price is required';
-        } else if (!validator.isNumeric(formData.price)) {
-            errors.price = 'Price should be numberic';
+        if (!validator.isNumeric(formData.price.toString())) {
+            errors.price = 'Price should be numeric';
         }
         setErrors(errors);
-
+        console.log(errors);
         return Object.keys(errors).length === 0;
     };
     const onSave = async (data) => {
         Confirm('Are you sure?').then(async () => {
             try {
                 setLoadingFull(true);
-                const { Success, Data, Message } = !isEditing ? await saveRole(data) : await UpdateRole(data);
+                const { Success, Data, Message } =  await PostCommonSp({"json": JSON.stringify({"json": data,"key": "PRODUCT_SAVE","isEditing": isEditing ? 1 : 0})}); // !isEditing ? await saveRole(data) : await UpdateRole(data);
                 if (Success) {
                     showToast(Message, 'success');
-                    navigate('/productlist')
+                    if (isEditing)
+                        setView(true); 
+                    else
+                        navigate('/productlist');
                 } else {
-                    showToast(Message, 'error');
+                    // showToast(Message, 'error');
+                    showToast(Data.message? Data.message : Message, 'error');
+                    // console.log(Data);
                 }
             } finally {
                 setLoadingFull(false);
@@ -138,14 +141,7 @@ export default function Product() {
 
     const handleSave = () => {
         if (validate()) {
-            onSave({
-                Code: formData.code,
-                Desc: formData.desc,
-                Price: formData.price,
-                Unit: formData.unit,
-                // id: product?.id,
-                isActive: true
-            });
+            onSave(formData);
         }
     };
     const handleDelete = async () => {
@@ -210,6 +206,7 @@ export default function Product() {
                                             margin="normal"
                                             size='small'
                                             name="code"
+                                            InputProps={{ readOnly: true }}
                                             value={formData.code}
                                             onChange={handleInputChange} // {(e) => setCode(e.target.value)}
                                             error={errors.code !== undefined}
@@ -224,6 +221,7 @@ export default function Product() {
                                             size='small'
                                             margin="normal"
                                             name="price"
+                                            InputProps={{ readOnly: isView }}
                                             value={formData.price}
                                             onChange={handleInputChange} // {(e) => setPrice(e.target.value)}
                                             error={errors.price !== undefined}
@@ -242,6 +240,7 @@ export default function Product() {
                                             margin="normal"
                                             size='small'
                                             name="desc"
+                                            InputProps={{ readOnly: isView }}
                                             value={formData.desc}
                                             onChange={handleInputChange} // {(e) => setDesc(e.target.value)}
                                             error={errors.desc !== undefined}
@@ -257,14 +256,15 @@ export default function Product() {
                                                 value={formData.unit}
                                                 size='small'
                                                 name="unit"
+                                                InputProps={{ readOnly: isView }}
                                                 onChange={handleInputChange}// {(e) => setunit(e.target.value)}
                                                 error={errors.gender !== undefined}
                                             >
-                                                <MenuItem value="kg">KG</MenuItem>
-                                                <MenuItem value="CTN">CTN</MenuItem>
-                                                <MenuItem value="ml">ML</MenuItem>
-                                                <MenuItem value="mtr">Meter</MenuItem>
-                                                <MenuItem value="nos">NOS</MenuItem>
+                                                <MenuItem value="KG"   disabled = {isView} >KG</MenuItem>
+                                                <MenuItem value="CTN"  disabled = {isView} >CTN</MenuItem>
+                                                <MenuItem value="ML"   disabled = {isView} >ML</MenuItem>
+                                                <MenuItem value="MTR"  disabled = {isView} >Meter</MenuItem>
+                                                <MenuItem value="NOS"  disabled = {isView} >NOS</MenuItem>
                                             </Select>
                                             {errors.unit && (
                                                 <Typography size='small' variant="caption" color="error">
@@ -281,7 +281,7 @@ export default function Product() {
                         </Box>
                     </TabContext>
 
-
+                    {!isView &&                                    
                     <Grid container   spacing={1} p={3} 
                         direction="row"
                         justifyContent="start"
@@ -299,7 +299,7 @@ export default function Product() {
                                 </LoadingButton>
                             )}
                         </Grid>
-                    </ Grid>
+                    </ Grid> }
                     </MyContainer>
         </>
     );
