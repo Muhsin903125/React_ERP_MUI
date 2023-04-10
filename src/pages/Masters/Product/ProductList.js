@@ -31,7 +31,7 @@ export default function ProductList() {
       Cell: ({ row }) => (
         <div>
           <Tooltip title="Edit">
-            <IconButton onClick={() => handleEdit(row.original)}>
+            <IconButton onClick={() => handleEdit(row.original.IM_CODE)}>
               <EditIcon />
             </IconButton>
           </Tooltip>

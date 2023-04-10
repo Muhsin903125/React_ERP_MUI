@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -23,44 +23,87 @@ import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 import { AuthContext } from '../../../App';
-import { deleteRole, saveRole, UpdateRole } from '../../../hooks/Api';
+import { deleteRole, saveRole, UpdateRole, PostMultiSp } from '../../../hooks/Api';
 import { useToast } from '../../../hooks/Common';
 import Confirm from '../../../components/Confirm';
 import MyContainer from '../../../components/MyContainer';
 
 
-const Product = () => {
+export default function Product() {
 
     const location = useLocation();
-    const product = location.state?.product;
-    const [code, setCode] = useState(product && product.IM_CODE || '');
-    const [desc, setDesc] = useState(product && product.IM_DESC || '');
-    const [unit, setunit] = useState(product && product.IM_UNIT_CODE || '');
-    const [price, setPrice] = useState(product && product.IM_PRICE || '');
+    // const product = location.state?.product;
+    // const [code, setCode] = useState(product && product.IM_CODE || '');
+    // const [desc, setDesc] = useState(product && product.IM_DESC || '');
+    // const [unit, setunit] = useState(product && product.IM_UNIT_CODE || '');
+    // const [price, setPrice] = useState(product && product.IM_PRICE || '');
 
     const [errors, setErrors] = useState({});
     const navigate = useNavigate();
     const { setLoadingFull } = useContext(AuthContext);
     const { showToast } = useToast();
 
+    
+    
+    const [formData, setFormData] = useState(
+        {
+        code: '',
+        desc: '',
+        unit: '',
+        price: 0
+      });
 
-    const isEditing = Boolean(product && product.IM_CODE);
+      useEffect(() => {
+
+        async function fetchCustomerEntry() {
+    
+          try {
+            setLoadingFull(false);
+            const { Success, Data, Message } = await PostMultiSp({
+              "key": "string",
+              "userId": "string",
+              "json": JSON.stringify({
+                "json": [],
+                "key": "PRODUCT_ENTRY",
+                "code":location.state?.product,
+              }),
+              "controller": "string"
+            })
+            if (Success) {
+              console.log(Data[0][0]);
+              setFormData(Data[0][0]);
+            //  showToast(Message, 'success');
+            }
+            else {
+              showToast(Message, "error");
+            }
+          }
+          finally {
+            setLoadingFull(false);
+          } 
+        }
+    
+        fetchCustomerEntry();
+    
+        },[])
+
+    const isEditing = Boolean(location.state?.product);
 
     const validate = () => {
         const errors = {};
 
-        if (validator.isEmpty(code)) {
+        if (validator.isEmpty(formData.code)) {
             errors.code = 'Code is required';
         }
-        if (validator.isEmpty(desc)) {
+        if (validator.isEmpty(formData.desc)) {
             errors.desc = 'Description is required';
         }
-        if (validator.isEmpty(unit)) {
+        if (validator.isEmpty(formData.unit)) {
             errors.unit = 'Unit is required';
         }
-        if (validator.isEmpty(price)) {
+        if (validator.isEmpty(formData.price)) {
             errors.price = 'Price is required';
-        } else if (!validator.isNumeric(price)) {
+        } else if (!validator.isNumeric(formData.price)) {
             errors.price = 'Price should be numberic';
         }
         setErrors(errors);
@@ -84,14 +127,23 @@ const Product = () => {
         });
     };
 
+    const handleInputChange = event => {
+        const { name, value } = event.target;
+        setFormData({
+          ...formData,
+          [name]: value
+        });
+      };
+
+
     const handleSave = () => {
         if (validate()) {
             onSave({
-                Code: code,
-                Desc: desc,
-                Price: price,
-                Unit: unit,
-                id: product?.id,
+                Code: formData.code,
+                Desc: formData.desc,
+                Price: formData.price,
+                Unit: formData.unit,
+                // id: product?.id,
                 isActive: true
             });
         }
@@ -101,7 +153,7 @@ const Product = () => {
             try {
                 setLoadingFull(true);
 
-                const { Success, Data, Message } = await deleteRole(product?.id)
+                const { Success, Data, Message } = await deleteRole('')
                 if (Success) {
                     navigate('/productlist')
                     showToast(Message, 'success');
@@ -157,8 +209,9 @@ const Product = () => {
                                             fullWidth
                                             margin="normal"
                                             size='small'
-                                            value={code}
-                                            onChange={(e) => setCode(e.target.value)}
+                                            name="code"
+                                            value={formData.code}
+                                            onChange={handleInputChange} // {(e) => setCode(e.target.value)}
                                             error={errors.code !== undefined}
                                             helperText={errors.code}
                                         />
@@ -170,8 +223,9 @@ const Product = () => {
                                             fullWidth
                                             size='small'
                                             margin="normal"
-                                            value={price}
-                                            onChange={(e) => setPrice(e.target.value)}
+                                            name="price"
+                                            value={formData.price}
+                                            onChange={handleInputChange} // {(e) => setPrice(e.target.value)}
                                             error={errors.price !== undefined}
                                             helperText={errors.price}
                                             inputProps={{ maxLength: 10 }}
@@ -187,8 +241,9 @@ const Product = () => {
                                             fullWidth
                                             margin="normal"
                                             size='small'
-                                            value={desc}
-                                            onChange={(e) => setDesc(e.target.value)}
+                                            name="desc"
+                                            value={formData.desc}
+                                            onChange={handleInputChange} // {(e) => setDesc(e.target.value)}
                                             error={errors.desc !== undefined}
                                             helperText={errors.desc}
                                         />
@@ -199,9 +254,10 @@ const Product = () => {
                                             <Select
                                                 labelId="Unit-label"
                                                 label="Unit"
-                                                value={unit}
+                                                value={formData.unit}
                                                 size='small'
-                                                onChange={(e) => setunit(e.target.value)}
+                                                name="unit"
+                                                onChange={handleInputChange}// {(e) => setunit(e.target.value)}
                                                 error={errors.gender !== undefined}
                                             >
                                                 <MenuItem value="kg">KG</MenuItem>
@@ -248,5 +304,3 @@ const Product = () => {
         </>
     );
 };
-
-export default Product;    
