@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import validator from 'validator';
-import { PostActiveUser, PostDeactiveUser, PostUpdateUserResgisterAdmin, PostUserResgister } from '../../hooks/Api';
+import { PostActiveUser, PostDeactiveUser, PostUpdateUserResgisterAdmin, PostUserRegister } from '../../hooks/Api';
 import { useToast } from '../../hooks/Common';
 import { AuthContext } from '../../App';
 import Confirm from '../../components/Confirm';
@@ -26,8 +26,7 @@ import MyContainer from '../../components/MyContainer';
 
 const RegisterUser = () => {
   const location = useLocation();
-  const user = location.state?.user;
-  console.log("dsdsdddddd", user);
+  const user = location.state?.user; 
   const navigate = useNavigate();
   const { setLoadingFull } = useContext(AuthContext);
   const { showToast } = useToast();
@@ -38,6 +37,7 @@ const RegisterUser = () => {
   const [isActive, setIsActive] = useState(user && user.isActive || '');
   const [mobileNumber, setMobileNumber] = useState(user && user.mobileNumber || '');
   const [password, setPassword] = useState(user && user.password || '');
+  const [loginId, setLoginId] = useState(user && user.loginId || '');
   const [gender, setGender] = useState(user && user.gender || '');
   const [dateOfBirth, setDateOfBirth] = useState(user && user.dob || new Date());
   const [avatar, setAvatar] = useState(null);
@@ -45,6 +45,7 @@ const RegisterUser = () => {
   const [errors, setErrors] = useState({});
 
   const isEditing = Boolean(user && user.id);
+  const formData = new FormData();
 
   const validate = () => {
     const errors = {};
@@ -64,9 +65,9 @@ const RegisterUser = () => {
 
     if (!isEditing && validator.isEmpty(password)) {
       errors.password = 'Password is required';
-    }else if (!isEditing && password.length < 6) {
+    } else if (!isEditing && password.length < 6) {
       errors.password = "Password Should have alteast 6 digits";
-  }
+    }
     if (validator.isEmpty(gender)) {
       errors.gender = 'Gender is required';
     }
@@ -87,12 +88,13 @@ const RegisterUser = () => {
     const file = event.target.files[0];
     const url = URL.createObjectURL(file);
     setAvatarUrl(url);
+    setAvatar(file);
   };
   const onSave = async (data) => {
     Confirm('Are you sure?').then(async () => {
       try {
         setLoadingFull(true);
-        const { Success, Data, Message } = !isEditing ? await PostUserResgister(data) : await PostUpdateUserResgisterAdmin(data)
+        const { Success, Data, Message } = !isEditing ? await PostUserRegister(data) : await PostUpdateUserResgisterAdmin(data)
         if (Success) {
           navigate('/userlist')
           showToast(Message, 'success');
@@ -108,19 +110,34 @@ const RegisterUser = () => {
       // cancel case
     });
   }
-  const handleSave = () => {
+  const handleSave = (event) => {
+    event.preventDefault();
+    if (validate()) { 
+      formData.append('Email', username);
+      formData.append('FirstName', firstName);
+      formData.append('LastName', lastName);
+      formData.append('MobileNumber', mobileNumber);
+      formData.append('LoginId', loginId);
+      formData.append('Password', password);
+      formData.append('Gender', gender);
+      formData.append('Image', avatar);
+      formData.append('DOB', dateOfBirth);
+      if(user) 
+       formData.append('Id', user?.id);
 
-    if (validate()) {
-      onSave({
-        Email: username,
-        FirstName: firstName,
-        LastName: lastName,
-        MobileNumber: mobileNumber,
-        Password: password,
-        Gender: gender,
-        DOB: dateOfBirth,
-        Id: user?.id,
-      });
+      onSave(formData);
+      // {
+      //   Email: username,
+      //   FirstName: firstName,
+      //   LastName: lastName,
+      //   MobileNumber: mobileNumber,
+      //   Password: password,
+      //   Gender: gender,
+      //   LoginId: loginId,
+      //  // Image: avatarUrl,
+      //   DOB: dateOfBirth,
+      //   Id: user?.id,
+      // }
     }
   };
 
@@ -165,8 +182,8 @@ const RegisterUser = () => {
       <Helmet>
         <title>User Register </title>
       </Helmet>
+      <form onSubmit={handleSave} encType='multipart/form-data'>
 
-      
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={3}>
           <Typography variant="h4" gutterBottom>
             {isEditing ? 'Edit User' : 'New User'}
@@ -179,6 +196,7 @@ const RegisterUser = () => {
                 label="First Name"
                 variant="outlined"
                 fullWidth
+                size='small'
                 margin="normal"
                 value={firstName}
                 onChange={(e) => setfirstname(e.target.value)}
@@ -191,6 +209,7 @@ const RegisterUser = () => {
                 label="Last Name"
                 variant="outlined"
                 fullWidth
+                size='small'
                 margin="normal"
                 value={lastName}
                 onChange={(e) => setlastname(e.target.value)}
@@ -200,9 +219,10 @@ const RegisterUser = () => {
             </Grid>
             <Grid item xs={12} md={6}  >
               <TextField
-                label="Username/Email"
+                label="Email"
                 variant="outlined"
                 fullWidth
+                size='small'
                 margin="normal"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
@@ -210,13 +230,26 @@ const RegisterUser = () => {
                 helperText={errors.username}
               />
             </Grid>
-
+            <Grid item xs={12} md={6}  >
+              <TextField
+                label="Login Id"
+                variant="outlined"
+                fullWidth
+                size='small'
+                margin="normal"
+                value={loginId}
+                onChange={(e) => setLoginId(e.target.value)}
+                error={errors.username !== undefined}
+                helperText={errors.username}
+              />
+            </Grid>
             <Grid item xs={12} md={6}  >
               <TextField
                 fullWidth
                 variant="outlined"
                 label="Mobile Number"
                 margin="normal"
+                size='small'
                 inputProps={{ maxLength: 10 }}
                 value={mobileNumber}
                 onChange={(e) => setMobileNumber(e.target.value)}
@@ -233,6 +266,7 @@ const RegisterUser = () => {
                 <Select
                   labelId="gender-label"
                   label="Gender"
+                  size='small'
                   value={gender}
                   onChange={(e) => setGender(e.target.value)}
                   error={errors.gender !== undefined}
@@ -248,6 +282,7 @@ const RegisterUser = () => {
                 )}
               </FormControl>
             </Grid>
+
             {
               !isEditing &&
               <Grid item xs={12} md={6}  >
@@ -257,6 +292,7 @@ const RegisterUser = () => {
                   type="password"
                   label="Password"
                   margin="normal"
+                  size='small'
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   error={errors.password !== undefined}
@@ -272,7 +308,7 @@ const RegisterUser = () => {
                 <DateSelector
                   label="Date of Birth"
                   variant="outlined"
-                  size="medium"
+                  size='small'
                   disableFuture
                   value={dateOfBirth}
                   onChange={(e) => setDateOfBirth(new Date(e.$d))}
@@ -285,6 +321,27 @@ const RegisterUser = () => {
               </FormControl>
 
             </Grid>
+            <Grid item xs={12} md={12}  >
+              <Grid container spacing={3} >
+                <Grid item md={6}  >
+                  <input type="file"  accept="image/*" onChange={handleAvatarChange} />
+                  {/* <TextField
+                    fullWidth
+                    variant="outlined"
+                    type="file"
+                    size='small'
+                    label="Image"
+                    margin="normal"
+
+                    onChange={handleAvatarChange}
+                  /> */}
+                </Grid> 
+                <Grid item md={6}  >
+                  {avatarUrl && <img height={150} style={{maxWidth:"200px"}} src={avatarUrl} alt="Avatar" />}
+                </Grid>
+              </Grid>
+            </Grid>
+
             {/* <Grid item xs={12} md={6}  >
               <FormControl variant="outlined" fullWidth margin="normal">
                 <InputLabel id="citizenship-label">Citizenship</InputLabel>
@@ -308,22 +365,24 @@ const RegisterUser = () => {
               </FormControl>
             </Grid> */}
           </Grid>
-          <Grid container md={12} spacing={1} pl={3} pb={3}>     
-                 <Grid item xs={12} md={4}  >
-                 <input type="file" onChange={handleAvatarChange} />
-      {avatarUrl && <img src={avatarUrl} alt="Avatar" />}
-            <LoadingButton variant="contained" color="primary" fullWidth size="large" onClick={handleSave}>
-              {isEditing ? 'Update' : 'Save'}
-            </LoadingButton>
-          </Grid>
+          <Grid container md={12} spacing={1} pl={3} pb={3}>
+            <Grid item xs={12} md={4}  >
+
+              <LoadingButton variant="contained" type='submit' color="primary" fullWidth size="large" // onClick={handleSave}
+              >
+                {isEditing ? 'Update' : 'Save'}
+              </LoadingButton>
+            </Grid>
             <Grid item xs={12} md={4}  >
               {isEditing && (
-                <LoadingButton variant="outlined" color= {isActive ? "error" : "success"} fullWidth size="large" onClick={isActive ? handleBlock : handleUnBlock}>
+                <LoadingButton variant="outlined" color={isActive ? "error" : "success"} fullWidth size="large" onClick={isActive ? handleBlock : handleUnBlock}>
                   {isActive ? "Block User" : "Unblock User"}
                 </LoadingButton>
               )}
             </Grid>
-          </ Grid></MyContainer>
+          </ Grid>
+          </MyContainer>
+      </form>
     </>
   );
 };
