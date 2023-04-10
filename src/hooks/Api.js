@@ -1,5 +1,5 @@
  
-import { Get, Post } from './axios';
+import { Get, Post, PostForm } from './axios';
 
 export async function PostLogin(payload) {
   
@@ -34,11 +34,12 @@ export async function PostMultiSp(payload) {
   return Post('/User/CallGETMULTISP', payload);
 }
 
-export async function PostUserResgister(payload) {
-  return Post('/account/register',payload );
-}
 export async function PostUpdateUserResgisterAdmin(payload) {
-  return Post('/User/UpdateProfileDataAdmin',payload );
+  return PostForm('/User/UpdateProfileDataAdmin',payload );
+}
+
+export async function PostUserRegister(payload) {
+  return PostForm('/account/register',payload );
 }
 export async function PostDeactiveUser(payload) {
   return Post(`/User/deactivateUser/${payload}`, );

@@ -1,17 +1,16 @@
 import axios from 'axios';  
 
 // const BASEURL = 'https://muhsinerpapi.azurewebsites.net/api/';
-//  const BASEURL = process.env.REACT_APP_API_BASE_URL
- const BASEURL = 'http://192.168.1.12:7134/api/'
+const BASEURL = process.env.REACT_APP_API_BASE_URL
+ //  const BASEURL = 'http://192.168.1.12:7134/api/'
 
 
-export const Post = async (url, payload) => {
+export const Post = async (url, payload) => { 
   const storeduToken = sessionStorage.getItem("uToken");
-
   const axiosInstance = axios.create({
     baseURL: BASEURL,
     headers: {
-      'Content-type': 'application/json',
+      'Content-type':  'application/json' ,
       Authorization: `bearer ${storeduToken}`,
     },
     timeout: 15000,
@@ -20,6 +19,33 @@ export const Post = async (url, payload) => {
   try {
     const { data } = await axiosInstance.post(url, payload);
 
+    return {
+      Success: data?.success,
+      Data: data?.data,
+      Message: data?.message,
+    };
+  } catch (error) {
+
+    return {
+      Success: false,
+      Data: error?.response?.data,
+      Message: await ErrorHandler(error, url, payload)
+    };
+  }
+};
+export const PostForm = async (url, payload) => {
+  const storeduToken = sessionStorage.getItem("uToken"); 
+  const axiosInstance = axios.create({
+    baseURL: BASEURL,
+    headers: {
+      'Content-type':  'multipart/form-data',
+      Authorization: `bearer ${storeduToken}`,
+    },
+    timeout: 15000,
+  });
+
+  try {
+    const { data } = await axiosInstance.post(url, payload); 
     return {
       Success: data?.success,
       Data: data?.data,
