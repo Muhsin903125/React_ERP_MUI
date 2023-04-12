@@ -1,4 +1,4 @@
-// import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import {
     Grid,
@@ -13,7 +13,7 @@ import useLookupData from '../../datas/useLookupData';
 
 
 
-export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, removeItem, setItems,items }) {
+export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, removeItem, setItems,items,errors }) {
  
     function calculateItemTotal() {
         return qty * price;
@@ -33,6 +33,11 @@ export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, rem
     //     { label: 'Plum', price: 180, unit: "KG", desc: "from Maharashtra" }
     // ] 
 
+    const [hasErrors, setHasErrors] = useState(false); // state variable to trigger re-render
+
+    useEffect(() => {
+        setHasErrors(errors !== undefined && errors !== null && Object.keys(errors).length > 0);
+    }, [errors]); // listen for changes to errors prop and update hasErrors accordingly
 
 
     const handleItemCodeChange = (event, newValue) => {
@@ -92,8 +97,11 @@ export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, rem
                             </Grid>
                         </Box>
                     )}
-                    renderInput={(params) => <TextField {...params} size="small"
-                        onChange={handleItemCodeChange} name={`ItemCode_${Propkey}`} label="Code" />}
+                    renderInput={(params) => 
+                        <TextField {...params} size="small" 
+                            error={hasErrors && ( items[Propkey].name == null || Object.keys(items[Propkey].name).length === 0) }
+                            helperText={( items[Propkey].name == null || Object.keys(items[Propkey].name).length === 0)?errors:''}
+                            onChange={handleItemCodeChange} name={`ItemCode_${Propkey}`} label="Code" />}
                 />
 
             </Grid>

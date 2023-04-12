@@ -10,6 +10,8 @@ import {
   TextField,
   FormControl,
 } from '@mui/material';
+import validator from 'validator';
+import Confirm from '../../components/Confirm';
 import Iconify from '../../components/iconify';
 import DateSelector from '../../components/DateSelector';
 import Dropdownlist from '../../components/DropdownList';
@@ -47,6 +49,7 @@ export default function SalesInvoice() {
   const [IsAlertDialog, setAlertDialog] = useState(false);
   const [disableFutureDate] = useState(true);
   // const [status, setStatus] = useState('draft');
+  const [errors, setErrors] = useState({});
 
   
 
@@ -66,6 +69,25 @@ export default function SalesInvoice() {
     PaymentMode: 'CASH',
     CrDays: 0
   })
+
+  const validate = () => {
+    const errors = {};
+
+    if (validator.isEmpty(headerData.CustomerCode)) {
+        errors.CustomerCode = 'Customer is required';
+        showToast('Customer is required', "error");
+    }
+    if (items.some((item) => validator.isEmpty(item.name))) {
+        errors.item = 'Item Should not be blank'
+        // showToast(errors.item, "error");
+    }
+    if ((!validator.isEmail(headerData.Email) && Object.keys(headerData.Email).length > 0)) {
+        errors.Email = 'Not a valid Email'
+    }
+    setErrors(errors);
+    console.log(errors);
+    return Object.keys(errors).length === 0;
+  };  
 
   useEffect(() => {
     // if (headerData.InvDate && headerData.CrDays) {
@@ -115,6 +137,12 @@ export default function SalesInvoice() {
     console.log(selectedDueDate.$d)
   };
 
+  const handleSave = () => {
+    if (validate()) {
+      CreateInvoice();
+    }
+};
+
   // const handleStatusChange = event => {
   //   setStatus(event.target.value);
   // };
@@ -128,15 +156,17 @@ export default function SalesInvoice() {
   }]);
 
   const addItem = (event) => {
-    event.preventDefault();
-    // console.log(ItemNewLength);
-    setItems([...items, {
-      name: "",
-      price: 0,
-      desc: "",
-      qty: 0,
-      unit: ""
-    }]);
+    if(validate()) {
+      event.preventDefault();
+      // console.log(ItemNewLength);
+      setItems([...items, {
+        name: "",
+        price: 0,
+        desc: "",
+        qty: 0,
+        unit: ""
+      }]);
+    }
   };
 
 
@@ -197,29 +227,28 @@ export default function SalesInvoice() {
   //   setFields(values);
   // };
   const CreateInvoice = async () => {
-    try {
-      setLoadingFull(false);
-      const { Success, Message } = await PostCommonSp({
-        "key": "string",
-        "userId": "string",
-        "json": JSON.stringify({
-          "headerData": headerData,
-          "detailData": items,
-          "key": "INVOICE_SAVE" 
-        }),
-        "controller": "string"
-      }) //  JSON.stringify({ "json": items }));
+    Confirm('Do you want to save?').then(async () => {
+      try {
+        setLoadingFull(false);
+        const { Success, Message } = await PostCommonSp({
+            "json": JSON.stringify({
+            "headerData": headerData,
+            "detailData": items,
+            "key": "INVOICE_SAVE" 
+          })
+        }) //  JSON.stringify({ "json": items }));
 
-      if (Success) {
-        showToast(Message, 'success');
+        if (Success) {
+          showToast(Message, 'success');
+        }
+        else {
+          showToast(Message, "error");
+        }
       }
-      else {
-        showToast(Message, "error");
+      finally {
+        setLoadingFull(false);
       }
-    }
-    finally {
-      setLoadingFull(false);
-    }
+    });
   };
 
   return (
@@ -359,6 +388,8 @@ export default function SalesInvoice() {
                         type="email"
                         value={headerData.Email}
                         onChange={handleInputChange}
+                        error = {errors.Email !== undefined}
+                        helperText = {errors.Email}
                         // inputProps={{
                         //   pattern: '^\\+(?:[0-9] ?){6,14}[0-9]$',
                         // }}
@@ -435,7 +466,9 @@ export default function SalesInvoice() {
                 unit={items[index].unit}
                 items={items}
                 setItems={setItems}
-                removeItem={() => removeItem(index)} />
+                removeItem={() => removeItem(index)} 
+                errors = {errors.item}
+              />
             ))}
 
 
@@ -443,7 +476,7 @@ export default function SalesInvoice() {
             <SubTotalSec addItem={addItem} calculateTotal={calculateTotal(items)}
             />
             <Stack direction="row" justifyContent="flex-end" mb={2} mt={2}>
-              <Button variant="contained" color='success' size='large' onClick={CreateInvoice}>
+              <Button variant="contained" color='success' size='large' onClick={handleSave}>
                 Create Invoice
               </Button>
             </Stack>
