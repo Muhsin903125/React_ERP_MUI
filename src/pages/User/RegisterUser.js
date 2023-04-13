@@ -311,7 +311,7 @@ const RegisterUser = () => {
                   size='small'
                   disableFuture
                   value={dateOfBirth}
-                  onChange={(e) => setDateOfBirth(new Date(e.$d))}
+                  onChange={(e) => setDateOfBirth(new Date(e.$d).toISOString().substr(0, 10))}
                 />
                 {errors.dateOfBirth && (
                   <Typography variant="caption" color="error">

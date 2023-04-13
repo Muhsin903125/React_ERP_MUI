@@ -250,6 +250,5 @@ const palette = {
     disabledOpacity: 0.48,
   },
 };
-
-
+ 
 export default palette;
