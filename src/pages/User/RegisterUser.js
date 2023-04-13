@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import validator from 'validator';
-import { PostActiveUser, PostDeactiveUser, PostUpdateUserResgisterAdmin, PostUserRegister } from '../../hooks/Api';
+import { GetRoleList, PostActiveUser, PostDeactiveUser, PostUpdateUserResgisterAdmin, PostUserRegister } from '../../hooks/Api';
 import { useToast } from '../../hooks/Common';
 import { AuthContext } from '../../App';
 import Confirm from '../../components/Confirm';
@@ -26,11 +26,12 @@ import MyContainer from '../../components/MyContainer';
 
 const RegisterUser = () => {
   const location = useLocation();
-  const user = location.state?.user; 
+  const user = location.state?.user;
   const navigate = useNavigate();
   const { setLoadingFull } = useContext(AuthContext);
   const { showToast } = useToast();
 
+  const [roleList, setRoleList] = useState([]);
   const [username, setUsername] = useState(user && user.email || '');
   const [firstName, setfirstname] = useState(user && user.firstName || '');
   const [lastName, setlastname] = useState(user && user.lastName || '');
@@ -39,13 +40,36 @@ const RegisterUser = () => {
   const [password, setPassword] = useState(user && user.password || '');
   const [loginId, setLoginId] = useState(user && user.loginId || '');
   const [gender, setGender] = useState(user && user.gender || '');
-  const [dateOfBirth, setDateOfBirth] = useState(user && user.dob || new Date());
+  const [role, setRole] = useState(user && user.roles || '');
+  const [dateOfBirth, setDateOfBirth] = useState(user && user.dob || new Date().toISOString().substr(0, 10));
   const [avatar, setAvatar] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || null);
   const [errors, setErrors] = useState({});
 
   const isEditing = Boolean(user && user.id);
   const formData = new FormData();
+  useEffect(() => {
+
+
+    fetchRoleList();
+
+  }, [])
+
+  async function fetchRoleList() {
+    try {
+      setLoadingFull(false);
+      const { Success, Data, Message } = await GetRoleList()
+      if (Success) {
+        setRoleList(Data)
+      }
+      else {
+        showToast(Message, "error");
+      }
+    }
+    finally {
+      setLoadingFull(false);
+    }
+  }
 
   const validate = () => {
     const errors = {};
@@ -70,6 +94,9 @@ const RegisterUser = () => {
     }
     if (validator.isEmpty(gender)) {
       errors.gender = 'Gender is required';
+    }
+    if (validator.isEmpty(role)) {
+      errors.gender = 'Role is required';
     }
     if (dateOfBirth == null) {
       errors.dateOfBirth = 'Date of Birth is required';
@@ -112,7 +139,7 @@ const RegisterUser = () => {
   }
   const handleSave = (event) => {
     event.preventDefault();
-    if (validate()) { 
+    if (validate()) {
       formData.append('Email', username);
       formData.append('FirstName', firstName);
       formData.append('LastName', lastName);
@@ -122,22 +149,12 @@ const RegisterUser = () => {
       formData.append('Gender', gender);
       formData.append('Image', avatar);
       formData.append('DOB', dateOfBirth);
-      if(user) 
-       formData.append('Id', user?.id);
+      formData.append('Roles', role);
+      if (user)
+        formData.append('Id', user?.id);
 
       onSave(formData);
-      // {
-      //   Email: username,
-      //   FirstName: firstName,
-      //   LastName: lastName,
-      //   MobileNumber: mobileNumber,
-      //   Password: password,
-      //   Gender: gender,
-      //   LoginId: loginId,
-      //  // Image: avatarUrl,
-      //   DOB: dateOfBirth,
-      //   Id: user?.id,
-      // }
+
     }
   };
 
@@ -282,7 +299,30 @@ const RegisterUser = () => {
                 )}
               </FormControl>
             </Grid>
+            <Grid item xs={12} md={6}  >
+              <FormControl variant="outlined" fullWidth margin="normal">
+                <InputLabel id="role-label">Role</InputLabel>
+                <Select
+                  labelId="role-label"
+                  label="Role"
+                  size='small'
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  error={errors.role !== undefined}
+                >
 
+                  {roleList && roleList.map((role) => (
+                    <MenuItem value={role.name}>{role.name}</MenuItem>
+                  ))
+                  }
+                </Select>
+                {errors.role && (
+                  <Typography variant="caption" color="error">
+                    {errors.role}
+                  </Typography>
+                )}
+              </FormControl>
+            </Grid>
             {
               !isEditing &&
               <Grid item xs={12} md={6}  >
@@ -324,7 +364,7 @@ const RegisterUser = () => {
             <Grid item xs={12} md={12}  >
               <Grid container spacing={3} >
                 <Grid item md={6}  >
-                  <input type="file"  accept="image/*" onChange={handleAvatarChange} />
+                  <input type="file" accept="image/*" onChange={handleAvatarChange} />
                   {/* <TextField
                     fullWidth
                     variant="outlined"
@@ -335,9 +375,9 @@ const RegisterUser = () => {
 
                     onChange={handleAvatarChange}
                   /> */}
-                </Grid> 
+                </Grid>
                 <Grid item md={6}  >
-                  {avatarUrl && <img height={150} style={{maxWidth:"200px"}} src={avatarUrl} alt="Avatar" />}
+                  {avatarUrl && <img height={150} style={{ maxWidth: "200px" }} src={avatarUrl} alt="Avatar" />}
                 </Grid>
               </Grid>
             </Grid>
@@ -381,7 +421,7 @@ const RegisterUser = () => {
               )}
             </Grid>
           </ Grid>
-          </MyContainer>
+        </MyContainer>
       </form>
     </>
   );
