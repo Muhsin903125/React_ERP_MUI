@@ -42,7 +42,8 @@ export default function ProductList() {
           </Tooltip>
         </div>
       ),
-      size: 0
+      size: 0,
+      excelColumnDisable: true
     },
 
     {
@@ -160,8 +161,8 @@ export default function ProductList() {
         data={data}
         // enableRowSelection 
         // enableGrouping
-        enableExport={false}
-
+        enableExport
+        fileTitle="ProductList" // name of exl file
       />}
     </Stack>
 
