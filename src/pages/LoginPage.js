@@ -50,7 +50,7 @@ export default function LoginPage({Page}) {
   return (
     <>
       <Helmet>
-        <title> ERP </title>
+        <title> Login | Exapp ERP </title>
       </Helmet>
 
       <StyledRoot>

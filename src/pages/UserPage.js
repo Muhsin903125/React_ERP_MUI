@@ -150,7 +150,7 @@ export default function UserPage() {
   return (
     <>
       <Helmet>
-        <title> User | Minimal UI </title>
+        <title> User | Exapp ERP</title>
       </Helmet>
 
      

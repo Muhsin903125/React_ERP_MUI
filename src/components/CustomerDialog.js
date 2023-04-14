@@ -17,13 +17,6 @@ import TextField from '@mui/material/TextField';
 import { Stack, Toolbar } from '@mui/material';
 import useLookupData from '../datas/useLookupData';
  
-// const customers = [
-//     { name: "Facts Computer Software House LLC", address: "Dubai" },
-//     { name: "Safe Line Electrical & Mechanical LLC", address: "Abu Dhabi" },
-//     { name: "Monarch Builders", address: 'Kerala \nIndia' },
-//     { name: "Dream Company LLC", address: "Dubai" }
-// ];
-
 export default function CustomerDialog(props) {
 
   const customers = useLookupData("CUS");
@@ -92,7 +85,6 @@ export default function CustomerDialog(props) {
                       </Typography>
                     </Stack>
                   </>
-                  // `${customer.address} \nTRN ${customer.CUS_TRN}`
                 } />
             </ListItemButton>
           </ListItem>
