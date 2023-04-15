@@ -8,19 +8,19 @@ import {
 import {  useState  } from 'react';
 
 
-export default function SubTotalSec({addItem,calculateTotal}) {
+export default function SubTotalSec({addItem,calculateTotal,discount,tax,handleInputChange}) {
 
-  const [discount, setDiscount] = useState(0);
+//   const [discount, setDiscount] = useState(0);
 
-  const handleDiscountChange = event => {
-    setDiscount(event.target.value.replace(/^0+/, ""));
-  };
+//   const handleDiscountChange = event => {
+//     setDiscount(event.target.value.replace(/^0+/, ""));
+//   };
 
-  const [tax, setTax] = useState(0);
+//   const [tax, setTax] = useState(0);
 
-  const handleTaxChange = event => {
-    setTax(event.target.value);
-  };
+//   const handleTaxChange = event => {
+//     setTax(event.target.value);
+//   };
 
   function FormattedNumber(value) {
     return new Intl.NumberFormat('en-US', {
@@ -47,7 +47,7 @@ export default function SubTotalSec({addItem,calculateTotal}) {
                         label="Discount"
                         name="Discount"
                         value={discount}
-                        onChange={handleDiscountChange}
+                        onChange={handleInputChange}
                     />
                 </Grid>
                 <Grid item xs={6} md={4}>
@@ -59,7 +59,7 @@ export default function SubTotalSec({addItem,calculateTotal}) {
                         label="Tax %"
                         name="Tax"
                         value={tax}
-                        onChange={handleTaxChange}
+                        onChange={handleInputChange}
                     />
                 </Grid>
            

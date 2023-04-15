@@ -22,6 +22,7 @@ import CustomerDialog from '../../components/CustomerDialog';
 import { PostCommonSp } from '../../hooks/Api'; 
 import { useToast } from '../../hooks/Common';
 import { AuthContext } from '../../App';
+// import { head } from 'lodash';
 
 // ----------------------------------------------------------------------
 
@@ -67,7 +68,12 @@ export default function SalesInvoice() {
     LPONo: '',
     RefNo: '',
     PaymentMode: 'CASH',
-    CrDays: 0
+    CrDays: 0,
+    Discount:0,
+    Tax:0,
+    GrossAmount:0,
+    TaxAmount:0,
+    NetAmount:0
   })
 
   const validate = () => {
@@ -110,7 +116,13 @@ export default function SalesInvoice() {
   }, [ selectedDueDate]);
 
   const handleInputChange = event => {
-    const { name, value } = event.target;
+    const {type, name, value } = event.target;
+    if (type === 'number' && Object.keys(value).length > 1)
+    setheaderData({
+      ...headerData,
+      [name]: value.replace(/^0+/, '')
+    });
+    else
     if (name === 'CrDays' && value==='')
     setheaderData({
       ...headerData,
@@ -232,8 +244,18 @@ export default function SalesInvoice() {
         setLoadingFull(false);
         const { Success, Message } = await PostCommonSp({
             "json": JSON.stringify({
-            "headerData": headerData,
-            "detailData": items,
+            "headerData": {
+              ...headerData,
+              "GrossAmount": calculateTotal(items),
+              "TaxAmount": (calculateTotal(items) - headerData.Discount) * headerData.Tax / 100.00,
+              "NetAmount": (calculateTotal(items) - headerData.Discount) * (1 + headerData.Tax / 100.00)
+            },
+            "detailData": items.map((item, index) => {
+                return {
+                  ...item,
+                  srno: index + 1
+                };
+              }),
             "key": "INVOICE_SAVE" 
           })
         }) //  JSON.stringify({ "json": items }));
@@ -473,7 +495,12 @@ export default function SalesInvoice() {
 
 
 
-            <SubTotalSec addItem={addItem} calculateTotal={calculateTotal(items)}
+            <SubTotalSec 
+              addItem={addItem} 
+              calculateTotal={calculateTotal(items)} 
+              discount={headerData.Discount}
+              tax={headerData.Tax}
+              handleInputChange={(e)=>handleInputChange(e)}
             />
             <Stack direction="row" justifyContent="flex-end" mb={2} mt={2}>
               <Button variant="contained" color='success' size='large' onClick={handleSave}>
