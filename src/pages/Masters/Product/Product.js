@@ -27,6 +27,7 @@ import { deleteRole, saveRole, UpdateRole, PostMultiSp, PostCommonSp } from '../
 import { useToast } from '../../../hooks/Common';
 import Confirm from '../../../components/Confirm';
 import MyContainer from '../../../components/MyContainer';
+import GridEntry from '../../../components/GridEntry';
 
 
 export default function Product() {
@@ -53,6 +54,8 @@ export default function Product() {
         price: 0
       });
 
+    const [units, setUnits] = useState([]);
+
       useEffect(() => {
 
         async function fetchCustomerEntry() {
@@ -72,6 +75,9 @@ export default function Product() {
             if (Success) {
               console.log(Data[0][0]);
               setFormData(Data[0][0]);
+              setUnits(Data[1]);
+              console.log(Data[1]);
+              console.log(Data);
             //  showToast(Message, 'success');
             }
             else {
@@ -277,7 +283,7 @@ export default function Product() {
 
 
                             </TabPanel>
-                            <TabPanel value="Unit">Item Two UnitUnitUnitUnit UnitUnitUnit</TabPanel>
+                            <TabPanel value="Unit"><GridEntry data={units} /></TabPanel>
                         </Box>
                     </TabContext>
 
