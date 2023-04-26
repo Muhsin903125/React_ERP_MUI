@@ -68,3 +68,7 @@ export async function deleteRole(payload) {
 export async function PostChangePassword(payload) {
   return Post(`/User/changepassword`,payload );
 }
+
+export async function GetInvoice() {
+  return Get('/Invoice/getInvoice', );
+}

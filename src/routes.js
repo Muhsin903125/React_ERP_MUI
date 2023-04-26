@@ -28,6 +28,7 @@ import Product from './pages/Masters/Product/Product';
 import UnitList from './pages/Masters/Unit/UnitList';
 import Unit from './pages/Masters/Unit/Unit'; 
 import Settings from './pages/Settings';
+import InvoicePrint from './pages/Invoice/InvoicePrint';
 
 // ----------------------------------------------------------------------
 
@@ -45,6 +46,7 @@ export default function Router() {
     { path: 'productlist', element: <ProductList /> },
     { path: 'unit', element: <Unit /> },
     { path: 'unitlist', element: <UnitList /> },
+    { path: 'invoiceprint', element: <InvoicePrint /> },
   ]
   const routes = useRoutes([
     {
