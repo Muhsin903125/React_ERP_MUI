@@ -2,9 +2,11 @@ import React, { useContext, useState, useEffect } from 'react';
 import MaterialReactTable from 'material-react-table';
 import { Box, Button, IconButton, Tooltip,Select,MenuItem,InputLabel,FormControl } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Delete, Edit } from '@mui/icons-material';
+import { Delete, Edit, Tune } from '@mui/icons-material';
 import { useToast } from '../hooks/Common';
 import { deleteRole, saveRole, UpdateRole, PostMultiSp, PostCommonSp } from '../hooks/Api';
+
+
 
 const columns = [
   // {
@@ -43,6 +45,8 @@ const columns = [
       {
         accessorKey: 'toUnit',
         header: 'To Unit',
+        editVariant: 'select',
+        editSelectOptions:['true','KM']
       },
 ]
 
