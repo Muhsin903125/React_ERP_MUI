@@ -17,36 +17,47 @@ const navConfig = [
     title: 'Masters',
     path: '',
     icon: icon('ic_folder'),
-    childern: [{
-      title: 'Products',
-      path: '/productlist',
-      icon: <span style={{
-        width: "4px", height: "4px", borderRadius: "50%", backgroundColor: "rgb(145, 158, 171)", display: "inline-block", marginRight: "5px"
-      }} />,
-    },
-
-    {
-      title: 'Units',
-      path: '/unitlist',
-      icon: <span style={{
-        width: "4px", height: "4px", borderRadius: "50%", backgroundColor: "rgb(145, 158, 171)", display: "inline-block", marginRight: "5px"
-      }} />,
-    },
-    {
-      title: 'Customer Master',
-      path: '/customermaster',
-      icon: <span style={{
-        width: "4px", height: "4px", borderRadius: "50%", backgroundColor: "rgb(145, 158, 171)", display: "inline-block", marginRight: "5px"
-      }} />,
-
-    },
-    {
-      title: 'Customer Master List',
-      path: '/customermasterv2',
-      icon: <span style={{
-        width: "4px", height: "4px", borderRadius: "50%", backgroundColor: "rgb(145, 158, 171)", display: "inline-block", marginRight: "5px"
-      }} />,
-    }
+    childern: [
+      {
+        title: 'Finance',
+        path: '',
+        icon: icon('ic_folder'),
+        childern: [
+          
+          {
+            title: 'Products',
+            path: '/productlist',
+            icon: <span style={{
+              width: "4px", height: "4px", borderRadius: "50%", backgroundColor: "rgb(145, 158, 171)", display: "inline-block", marginRight: "5px"
+            }} />,
+          },
+      
+          {
+            title: 'Units',
+            path: '/unitlist',
+            icon: <span style={{
+              width: "4px", height: "4px", borderRadius: "50%", backgroundColor: "rgb(145, 158, 171)", display: "inline-block", marginRight: "5px"
+            }} />,
+          },
+          {
+            title: 'Customer',
+            path: '/customermaster',
+            icon: <span style={{
+              width: "4px", height: "4px", borderRadius: "50%", backgroundColor: "rgb(145, 158, 171)", display: "inline-block", marginRight: "5px"
+            }} />,
+      
+          },
+          {
+            title: 'Customer Master List',
+            path: '/customermasterv2',
+            icon: <span style={{
+              width: "4px", height: "4px", borderRadius: "50%", backgroundColor: "rgb(145, 158, 171)", display: "inline-block", marginRight: "5px"
+            }} />,
+          }
+        ]
+      },
+      
+     
     ]
   },
   {

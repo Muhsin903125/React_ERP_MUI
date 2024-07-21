@@ -75,7 +75,6 @@ const RegisterUser = () => {
     const errors = {};
 
     if (!validator.isEmail(username) || validator.isEmpty(username)) {
-
       errors.username = 'Username should be either a valid email ';
     }
 
