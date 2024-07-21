@@ -5,6 +5,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { Delete, Edit, Tune } from '@mui/icons-material';
 import { useToast } from '../hooks/Common';
 import { deleteRole, saveRole, UpdateRole, PostMultiSp, PostCommonSp } from '../hooks/Api';
+import  GridEntryAdd from './GridEntryAdd';
 
 
 
@@ -61,10 +62,17 @@ const columns = [
 export default function GridEntry(props) {
 
     const { showToast } = useToast();
+    const [addNewOpen, setaddNewOpen] = useState(false);
 
     const [tableData, setTableData] = useState(() =>  props.data);
 
     console.log(tableData)
+
+    const handleAddNewRow = (values) => {
+      tableData.push(values);
+      setTableData([...tableData]);
+    };
+
 
     // for edit Save
   const handleSaveRowEdits = async ({ exitEditingMode, row, values }) => {
@@ -92,6 +100,7 @@ export default function GridEntry(props) {
   };
 
     return (
+      <>
         <MaterialReactTable
           columns={columns}  //  {props.columns}
           data={tableData} //  {props.data}
@@ -113,7 +122,23 @@ export default function GridEntry(props) {
               </Tooltip>
             </Box>
           )}
+          renderTopToolbarCustomActions={() => (
+            <Button
+              color="secondary"
+              onClick={() => setaddNewOpen(true)}
+              variant="contained"
+            >
+              Add
+            </Button>
+          )}
         />
+        <GridEntryAdd
+          columns={columns}
+          open={addNewOpen}
+          onClose={() => setaddNewOpen(false)}
+          onSubmit={handleAddNewRow}
+        />
+      </>
       );  
 
 }
