@@ -18,7 +18,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import BlockIcon from '@mui/icons-material/Block';
 import Iconify from '../../components/iconify/Iconify'; 
 import { AuthContext } from '../../App';
-import { GetUserList } from '../../hooks/Api';
+import { GetUserList, PostCommonSp } from '../../hooks/Api';
 import { useToast } from '../../hooks/Common';
 import DataTable from '../../components/DataTable';
 import Confirm from '../../components/Confirm';
@@ -39,7 +39,9 @@ export default function UserList() {
  async function fetchList() {
             try {
                 setLoadingFull(false);
-                const { Success, Data, Message } = await GetUserList()
+                const { Success, Data, Message } = await   PostCommonSp({
+                    "key": "USER_LIST",  
+                  })
                 if (Success) {
                     console.log("sss", Data);
                     setData(Data)
@@ -58,16 +60,16 @@ export default function UserList() {
 
 const columns = [
     {
-        accessorKey: 'firstName', //  access nested data with dot notation
+        accessorKey: 'FirstName', //  access nested data with dot notation
         header: 'First Name',
         // size:500
     },
     {
-        accessorKey: 'lastName',
+        accessorKey: 'LastName',
         header: 'Last Name',
     },
     {
-        accessorKey: 'email', //  normal accessorKey
+        accessorKey: 'Email', //  normal accessorKey
         header: 'Email',
     }, 
      {
@@ -75,7 +77,7 @@ const columns = [
         header: 'Status',
         Cell: ({ row }) => (
 
-             row.original.isActive ?  
+             row.original.IsActive ?  
             <div>
               <Tooltip title="Active">
               <Chip icon={<CheckIcon />}  color="success" size='small' label="Active" />

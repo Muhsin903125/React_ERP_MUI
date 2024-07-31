@@ -32,30 +32,30 @@ export default function LoginForm() {
 
   const handleClick = async () => {
     setLoadingFull(true);
-    login("username", "accessToken", "refreshToken", "expiry","firstName","lastName","profileImg","email","role");
-    navigate("/", { replace: true })
+    // login("username", "accessToken", "refreshToken", "expiry","firstName","lastName","profileImg","email","role");
+    // navigate("/", { replace: true })
     try {
 
-      // const { Success, Data, Message } = await PostLogin(JSON.stringify({ "Username": user, "Password": pwd })); 
-      // if (Success) {
-      //   const accessToken = Data?.accessToken;
-      //   const refreshToken = Data?.refreshToken;
-      //   const firstName = Data?.firstName;
-      //   const lastName = Data?.lastName;
-      //   const email = Data?.email;
-      //   const profileImg = Data?.profileImg;
-      //   const expiry = Data?.expiration;
-      //   const username = Data?.userName;
-      //   const role = Data?.role;
-      //   login(username, accessToken, refreshToken, expiry,firstName,lastName,profileImg,email,role);
+      const { Success, Data, Message } = await PostLogin(JSON.stringify({ "username": user, "password": pwd })); 
+      if (Success) {
+        const accessToken = Data?.accessToken;
+        const refreshToken = Data?.refreshToken;
+        const firstName = Data?.firstName;
+        const lastName = Data?.lastName;
+        const email = Data?.email;
+        const profileImg = Data?.profileImg;
+        const expiry = Data?.expiration;
+        const username = Data?.userName;
+        const role = Data?.role;
+        login(username, accessToken, refreshToken, expiry,firstName,lastName,profileImg,email,role);
 
-      //   navigate("/", { replace: true })
-      //   showToast(Message, 'success');
-      // }
-      // else {
-      //   logout();
-      //   showToast(Message, "error");
-      // }
+        navigate("/", { replace: true })
+        showToast(Message, 'success');
+      }
+      else {
+        logout();
+        showToast(Message, "error");
+      }
     }
     finally {
       setLoadingFull(false);

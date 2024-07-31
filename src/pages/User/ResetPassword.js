@@ -58,7 +58,7 @@ export default function ResetPassword() {
             }
             else {
                 setLoadingFull(true)
-                const { Success, Data, Message } = await PostResetPassword( JSON.stringify({ "UserName": username, "OTPKey": OTPKey, "Password": password }));
+                const { Success, Data, Message } = await PostResetPassword( JSON.stringify({ "UserName": username, "OTPKey": OTPKey, "newPassword": password }));
                 if (Success) {
                     showToast(Message, "success") 
                     navigate(redirectPath, { replace: true })

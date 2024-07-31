@@ -3,7 +3,7 @@ import { Get, Post, PostForm } from './axios';
 
 export async function PostLogin(payload) {
   
-  return Post('/Account/login', payload);
+  return Post('/Account/Login', payload);
 }
 export async function PostRefreshToken(payload) {
   
@@ -21,7 +21,7 @@ export async function PostResetPassword(payload) {
 }
 
 export async function PostCommonSp(payload) {
-  return Post('/User/SPCALL', payload);
+  return Post('/General/RouterGatway', payload);
 }
 // payload {
 //   key:""
@@ -31,7 +31,7 @@ export async function PostCommonSp(payload) {
 // }
 
 export async function PostMultiSp(payload) {
-  return Post('/User/CallGETMULTISP', payload);
+  return Post('/General/RouterGatwayV2', payload);
 }
 
 export async function PostUpdateUserResgisterAdmin(payload) {

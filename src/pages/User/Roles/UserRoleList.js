@@ -18,7 +18,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Iconify from '../../../components/iconify/Iconify';
 import { AuthContext } from '../../../App';
-import { deleteRole, GetRoleList, saveRole } from '../../../hooks/Api';
+import { deleteRole, GetRoleList, PostCommonSp, saveRole } from '../../../hooks/Api';
 import { useToast } from '../../../hooks/Common';
 import DataTable from '../../../components/DataTable';
 import Confirm from '../../../components/Confirm';
@@ -27,14 +27,14 @@ export default function UserRoleList() {
   const columns = [
 
     {
-      accessorKey: 'name', //  access nested data with dot notation
-      header: 'Name',
+      accessorKey: 'R_CODE', //  access nested data with dot notation
+      header: 'Id',
       // size:"300"
     }, 
-    // {
-    //   accessorKey: 'normalizedName',
-    //   header: 'Description',
-    // },
+    {
+      accessorKey: 'R_NAME',
+      header: 'Name',
+    },
     {
       header: 'Acitons',
       Cell: ({ row }) => (
@@ -70,7 +70,9 @@ export default function UserRoleList() {
     setLoadingFull(true);
     try {
       setLoadingFull(false);
-      const { Success, Data, Message } = await GetRoleList()
+      const { Success, Data, Message } =   await PostCommonSp({
+        "key": "ROLE_LIST",  
+      })
       if (Success) {
         setData(Data)
       }
