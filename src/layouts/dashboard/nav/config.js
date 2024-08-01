@@ -1,10 +1,20 @@
 // component
+import { SvgIcon } from '@mui/material';
+import { AccountBalance, AccountBalanceTwoTone, AccountBalanceWalletTwoTone, ArticleTwoTone, Assessment, Assignment, CardTravelTwoTone, Inventory2TwoTone, LocalGroceryStoreTwoTone, LocalShippingTwoTone, MenuTwoTone, PermIdentityTwoTone, SettingsTwoTone, StorefrontTwoTone, ToggleOffTwoTone } from '@mui/icons-material';
 import SvgColor from '../../../components/svg-color';
-
 
 // ----------------------------------------------------------------------
 
-const icon = (name) => <SvgColor src={`/assets/icons/navbar/${name}.svg`} sx={{ width: 1, height: 1 }} />;
+const icon = (name, isMaterialIcon = false) => {
+  if (isMaterialIcon) {
+    return <SvgIcon sx={{ width: 1, height: 1 }}>{name}</SvgIcon>;
+  }
+  return <SvgColor src={`/assets/icons/navbar/${name}.svg`} sx={{ width: 1, height: 1 }} />;
+};
+
+const subIcon = () => <span style={{
+  width: "4px", height: "4px", borderRadius: "50%", backgroundColor: "rgb(145, 158, 171)", display: "inline-block", marginRight: "5px"
+}} />
 
 const navConfig = [
   {
@@ -12,54 +22,322 @@ const navConfig = [
     path: '/app',
     icon: icon('ic_dashboard'),
   },
-
+  // master
   {
     title: 'Masters',
     path: '',
-    icon: icon('ic_folder'),
+    icon: icon(<Assignment />, true),
     childern: [
       {
         title: 'Finance',
         path: '',
-        icon: icon('ic_folder'),
+        icon: icon(<AccountBalanceTwoTone />, true),
         childern: [
+          {
+            title: 'Chart Of Account',
+            path: '/productlist',
+            icon: subIcon()
+          },
+          {
+            title: 'Supplier',
+            path: '/customermasterv2',
+            icon: subIcon()
+          },
+          {
+            title: 'Salesman',
+            path: '/customermasterv2',
+            icon: subIcon()
+          },
           
+  
+        ]
+      },
+      {
+        title: 'Inventory',
+        path: '',
+        icon: icon(<Inventory2TwoTone />, true),
+        childern: [
           {
             title: 'Products',
-            path: '/productlist',
-            icon: <span style={{
-              width: "4px", height: "4px", borderRadius: "50%", backgroundColor: "rgb(145, 158, 171)", display: "inline-block", marginRight: "5px"
-            }} />,
+            path: '/products',
+            icon: subIcon()
           },
-      
           {
             title: 'Units',
             path: '/unitlist',
-            icon: <span style={{
-              width: "4px", height: "4px", borderRadius: "50%", backgroundColor: "rgb(145, 158, 171)", display: "inline-block", marginRight: "5px"
-            }} />,
+            icon: subIcon()
           },
           {
-            title: 'Customer',
-            path: '/customermaster',
-            icon: <span style={{
-              width: "4px", height: "4px", borderRadius: "50%", backgroundColor: "rgb(145, 158, 171)", display: "inline-block", marginRight: "5px"
-            }} />,
-      
+            title: 'Locations',
+            path: '/unitlist',
+            icon: subIcon()
           },
-          {
-            title: 'Customer Master List',
-            path: '/customermasterv2',
-            icon: <span style={{
-              width: "4px", height: "4px", borderRadius: "50%", backgroundColor: "rgb(145, 158, 171)", display: "inline-block", marginRight: "5px"
-            }} />,
-          }
         ]
       },
-      
-     
+
+
     ]
   },
+
+  // transactions
+  {
+    title: 'Transactions',
+    path: '',
+    icon: icon(<AccountBalanceWalletTwoTone />, true),
+    childern: [
+      {
+        title: 'Purchase',
+        path: '',
+        icon: icon(<LocalShippingTwoTone />, true),
+        childern: [
+          {
+            title: 'Order',
+            path: '/productlist',
+            icon: subIcon()
+          },
+          {
+            title: 'Invoice',
+            path: '/customermasterv2',
+            icon: subIcon()
+          },
+          {
+            title: 'Debit Note',
+            path: '/customermasterv2',
+            icon: subIcon()
+          },
+        ]
+      },
+      {
+        title: 'Sales',
+        path: '',
+        icon: icon(<LocalGroceryStoreTwoTone />, true),
+        childern: [
+          {
+            title: 'Quotation',
+            path: '/productlist',
+            icon: subIcon()
+          },
+          {
+            title: 'Invoice',
+            path: '/customermasterv2',
+            icon: subIcon()
+          },
+          {
+            title: 'Credit Note',
+            path: '/customermasterv2',
+            icon: subIcon()
+          },
+        ]
+      },
+      {
+        title: 'Finance',
+        path: '',
+        icon: icon(<CardTravelTwoTone />, true),
+        childern: [
+          {
+            title: 'Reciept',
+            path: '/productlist',
+            icon: subIcon()
+          },
+          {
+            title: 'Payment',
+            path: '/customermasterv2',
+            icon: subIcon()
+          },
+          {
+            title: 'Journal',
+            path: '/customermasterv2',
+            icon: subIcon()
+          },
+          {
+            title: 'Allocation',
+            path: '/customermasterv2',
+            icon: subIcon()
+          },
+        ]
+      },
+      {
+        title: 'Store',
+        path: '',
+        icon: icon(<StorefrontTwoTone />, true),
+        childern: [
+          {
+            title: 'Stock Adjustment',
+            path: '/productlist',
+            icon: subIcon()
+          },
+          {
+            title: 'Transfer',
+            path: '/customermasterv2',
+            icon: subIcon()
+          },
+        ]
+      },
+    ]
+  },
+
+  // reports 
+  {
+    title: 'Reports',
+    path: '',
+    icon: icon(<ArticleTwoTone />, true),
+    childern: [
+      {
+        title: 'Finance',
+        path: '',
+        icon: icon(<AccountBalanceTwoTone />, true),
+        childern: [
+          {
+            title: 'Statement of Account',
+            path: '/productlist',
+            icon: subIcon()
+          },
+          {
+            title: 'Trail Balance',
+            path: '/customermasterv2',
+            icon: subIcon()
+          },
+          {
+            title: 'P&L',
+            path: '/customermasterv2',
+            icon: subIcon()
+          },
+          {
+            title: 'Balance Sheet',
+            path: '/customermasterv2',
+            icon: subIcon()
+          },
+
+          {
+            title: 'Ageing',
+            path: '/customermasterv2',
+            icon: subIcon()
+          },
+        ]
+      },
+      {
+        title: 'Sales',
+        path: '',
+        icon: icon(<LocalGroceryStoreTwoTone />, true),
+        childern: [
+          {
+            title: 'Summary',
+            path: '/productlist',
+            icon: subIcon()
+          },
+          {
+            title: 'Analysis',
+            path: '/unitlist',
+            icon: subIcon()
+          },
+        ]
+      },
+      {
+        title: 'Purchase',
+        path: '',
+        icon: icon(<LocalShippingTwoTone />, true),
+        childern: [
+          {
+            title: 'Summary',
+            path: '/productlist',
+            icon: subIcon()
+          },
+        ]
+      },
+      {
+        title: 'Inventory',
+        path: '',
+        icon: icon(<Inventory2TwoTone />, true),
+        childern: [
+          {
+            title: 'Stock Balance',
+            path: '/productlist',
+            icon: subIcon()
+          }, {
+            title: 'Stock Location Wise Balance',
+            path: '/productlist',
+            icon: subIcon()
+          }, {
+            title: 'Stock Ledger',
+            path: '/productlist',
+            icon: subIcon()
+          }, {
+            title: 'Stock Ageing',
+            path: '/productlist',
+            icon: subIcon()
+          }, {
+            title: 'Stock Movement',
+            path: '/productlist',
+            icon: subIcon()
+          },
+        ]
+      }, 
+    ]
+  },
+
+  {
+    title: 'Settings',
+    path: '',
+    icon: icon(<SettingsTwoTone />, true),
+    childern: [
+      {
+        title: 'Account',
+        path: '',
+        icon: icon(<PermIdentityTwoTone />, true),
+        childern: [
+          {
+            title: 'Change Password',
+        path: '/changepassword',
+            icon: subIcon()
+          },  
+          
+          {
+            title: 'Users',
+            path: '/userlist',
+            icon: subIcon()
+          },
+          {
+            title: 'User Roles',
+            path: '/rolelist',
+            icon: subIcon()
+          },
+          {
+            title: 'Permissions',
+            path: '/customermasterv2',
+            icon: subIcon()
+          },
+       
+
+        ]
+      },
+      {
+        title: 'Menu',
+        path: '',
+        icon: icon(<MenuTwoTone />, true),
+        childern: [
+          {
+            title: 'Screens',
+            path: '/productlist',
+            icon: subIcon()
+          }, 
+        ]
+      },
+      {
+        title: 'ERP',
+        path: '',
+        icon: icon(<ToggleOffTwoTone />, true),
+        childern: [
+          {
+            title: 'Configs',
+            path: '/settings', 
+            icon: subIcon()
+          }, 
+        ]
+      }
+
+    ]
+  },
+
   {
     title: 'Invoice',
     path: '',
@@ -87,60 +365,8 @@ const navConfig = [
       }
     ]
   },
-  {
-    title: 'user',
-    path: '/user',
-    icon: icon('ic_user'),
-    childern: [
-      {
-        title: 'Change Password',
-        path: '/changepassword',
-        icon: <span style={{
-          width: "4px", height: "4px", borderRadius: "50%", backgroundColor: "rgb(145, 158, 171)", display: "inline-block", marginRight: "5px"
-        }} />,
-      },
-      {
-        title: 'User Roles',
-        path: '/rolelist',
-        icon: <span style={{
-          width: "4px", height: "4px", borderRadius: "50%", backgroundColor: "rgb(145, 158, 171)", display: "inline-block", marginRight: "5px"
-        }} />,
-      },
-      {
-        title: 'Users',
-        path: '/userlist',
-        icon: <span style={{
-          width: "4px", height: "4px", borderRadius: "50%", backgroundColor: "rgb(145, 158, 171)", display: "inline-block", marginRight: "5px"
-        }} />,
-      }
-    ]
-  },
-   {
-    title: 'Settings',
-    path: '/settings',
-    icon: icon('ic_setting'),
-  },
-  {
-    title: 'product',
-    path: '/products',
-    icon: icon('ic_cart'),
-  },
-  {
-    title: 'blog',
-    path: '/blog',
-    icon: icon('ic_blog'),
-  },
-  {
-    title: 'login',
-    path: '/login',
-    icon: icon('ic_lock'),
-  },
-  {
-    title: 'Not found',
-    path: '/404',
-    icon: icon('ic_disabled'),
-  },
-
+    
+  
 ];
 
 export default navConfig;
