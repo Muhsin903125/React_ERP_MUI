@@ -70,9 +70,7 @@ export default function CustomerMasterV2() {
       try {
         setLoadingFull(false);
         const { Success, Data, Message } = await PostMultiSp({
-          "json": JSON.stringify({
-            "key": "CUSTOMER_LIST"
-          })
+         "key": "CUSTOMER_LIST"
         })
         if (Success) {
           setcustomerMaster(Data[0])
@@ -98,13 +96,8 @@ export default function CustomerMasterV2() {
       customerMaster[row.index] = values;
       // send/receive api updates here, then refetch or update local table data for re-render
       const response = await PostCommonSp({
-        "key": "string",
-        "userId": "string",
-        "json": JSON.stringify({
-          "json": values,
-          "key": "CUSTOMER_EDIT"
-        }),
-        "controller": "string"
+        "json": values,
+        "key": "CUSTOMER_EDIT"
       })
       if (response.Success) {
         setcustomerMaster([...customerMaster]);

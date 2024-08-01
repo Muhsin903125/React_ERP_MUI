@@ -59,7 +59,7 @@ const navConfig = [
         childern: [
           {
             title: 'Products',
-            path: '/products',
+            path: '/productlist',
             icon: subIcon()
           },
           {

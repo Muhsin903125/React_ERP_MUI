@@ -118,7 +118,12 @@ export default function Product() {
         Confirm('Are you sure?').then(async () => {
             try {
                 setLoadingFull(true);
-                const { Success, Data, Message } =  await PostCommonSp({"json": JSON.stringify({"json": data,"key": "PRODUCT_SAVE","isEditing": isEditing ? 1 : 0})}); // !isEditing ? await saveRole(data) : await UpdateRole(data);
+                const { Success, Data, Message } =  await PostCommonSp({
+                    "json": JSON.stringify({
+                        "json": data,
+                        "key": "PRODUCT_SAVE",
+                        "isEditing": isEditing ? 1 : 0
+                    })}); // !isEditing ? await saveRole(data) : await UpdateRole(data);
                 if (Success) {
                     showToast(Message, 'success');
                     if (isEditing)

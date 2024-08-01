@@ -40,13 +40,7 @@ export default function CustomerMaster() {
       try {
         setLoadingFull(false);
         const { Success, Data, Message } = await PostMultiSp({
-          "key": "string",
-          "userId": "string",
-          "json": JSON.stringify({
-            "json": [],
-            "key": "CUSTOMER_ENTRY"
-          }),
-          "controller": "string"
+            "key": "CUSTOMER_ENTRY", 
         })
         if (Success) {
           console.log(Data[0][0]);
@@ -89,10 +83,8 @@ export default function CustomerMaster() {
     try {
       setLoadingFull(false);
       const { Success, Data, Message } = await PostMultiSp({
-        "json": JSON.stringify({
-          "json": dataArray,
+       "json": dataArray,
           "key": "CUSTOMER_SAVE"
-        })
       })  
       if (Success) {
         showToast("Saved Successfully", 'success');

@@ -80,13 +80,8 @@ export default function GridEntry(props) {
         tableData[row.index] = values;
       // send/receive api updates here, then refetch or update local table data for re-render
       const response = await PostCommonSp({
-        "key": "string",
-        "userId": "string",
-        "json": JSON.stringify({
-          "json": values,
-          "key": props.key
-        }),
-        "controller": "string"
+        "json": values,
+        "key": props.key
       })
       if (response.Success) {
         setTableData([...tableData]);

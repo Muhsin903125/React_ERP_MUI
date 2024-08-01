@@ -93,9 +93,7 @@ export default function ProductList() {
     try {
       setLoadingFull(false);
       const { Success, Data, Message } = await PostMultiSp({
-        "json": JSON.stringify({
-          "key": "PRODUCT_LIST"
-        })
+         "key": "PRODUCT_LIST"
       })
       if (Success) {
         setData(Data[0])
@@ -114,13 +112,7 @@ export default function ProductList() {
       try {
         setLoadingFull(true);
         const { Success, Data, Message } = await PostMultiSp({
-          "key": "string",
-          "userId": "string",
-          "json": JSON.stringify({
-            "json": [],
-            "key": "CUSTOMER_LIST"
-          }),
-          "controller": "string"
+         "key": "CUSTOMER_LIST"
         })
         if (Success) {
           fetchList();

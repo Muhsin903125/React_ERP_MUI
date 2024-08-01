@@ -81,9 +81,7 @@ export default function UnitList() {
     try {
       setLoadingFull(false);
       const { Success, Data, Message } = await PostMultiSp({
-        "json": JSON.stringify({
-          "key": "UNIT_LIST"
-        })
+       "key": "UNIT_LIST"
       })
       if (Success) {
         setData(Data[0])
@@ -102,13 +100,7 @@ export default function UnitList() {
       try {
         setLoadingFull(true);
         const { Success, Data, Message } = await PostMultiSp({
-          "key": "string",
-          "userId": "string",
-          "json": JSON.stringify({
-            "json": [],
-            "key": "CUSTOMER_LIST"
-          }),
-          "controller": "string"
+           "key": "CUSTOMER_LIST"
         })
         if (Success) {
           fetchList();
