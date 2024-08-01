@@ -237,6 +237,8 @@ const palette = {
     paper: '#fff',
     default: GREY[100],
     neutral: GREY[200],
+    neutral2: GREY[300],
+    medium: GREY[400],
     transparent: alpha(GREY[200], 0.95)
   },
   action: {
