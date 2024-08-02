@@ -47,15 +47,15 @@ function App() {
     }
   }
 
-  useEffect(() => {
-    // fetchToken();
-    const interval = setInterval(() => {
-      fetchToken();
-    }, 2* 60000);
+  // useEffect(() => {
+  //   // fetchToken();
+  //   // const interval = setInterval(() => {
+  //   //     fetchToken();
+  //   // }, 15* 60000);
 
 
-    return () => clearInterval(interval);
-  }, []);
+  //   return () => clearInterval(interval);
+  // }, []);
 
 
 

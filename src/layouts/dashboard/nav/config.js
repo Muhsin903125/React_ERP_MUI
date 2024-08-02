@@ -35,7 +35,7 @@ const navConfig = [
         childern: [
           {
             title: 'Chart Of Account',
-            path: '/productlist',
+            path: '/coa',
             icon: subIcon()
           },
           {
@@ -329,6 +329,11 @@ const navConfig = [
         childern: [
           {
             title: 'Configs',
+            path: '/settings', 
+            icon: subIcon()
+          }, 
+          {
+            title: 'Lookups',
             path: '/settings', 
             icon: subIcon()
           }, 

@@ -29,6 +29,7 @@ import UnitList from './pages/Masters/Unit/UnitList';
 import Unit from './pages/Masters/Unit/Unit'; 
 import Settings from './pages/Settings';
 import InvoicePrint from './pages/Invoice/InvoicePrint';
+import ChartOfAccount from './pages/Masters/Finance/ChartOfAccount';
 
 // ----------------------------------------------------------------------
 
@@ -46,6 +47,7 @@ export default function Router() {
     { path: 'productlist', element: <ProductList /> },
     { path: 'unit', element: <Unit /> },
     { path: 'unitlist', element: <UnitList /> },
+    { path: 'coa', element: <ChartOfAccount /> },
     { path: 'invoiceprint', element: <InvoicePrint /> },
   ]
   const routes = useRoutes([

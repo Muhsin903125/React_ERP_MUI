@@ -1,8 +1,6 @@
 import axios from 'axios';  
 
-// const BASEURL = 'https://muhsinerpapi.azurewebsites.net/api/';
- const BASEURL = process.env.REACT_APP_API_BASE_URL
-//  const BASEURL = 'http://192.168.1.19:7134/api/'
+const BASEURL = process.env.REACT_APP_API_BASE_URL 
 
 
 export const Post = async (url, payload) => { 
@@ -110,6 +108,7 @@ export function ErrorHandler(error, url, payload = {}) {
       console.warn(`API ERROR STATUS: ${status}\n`);
 
       if (status === 401) {
+
         errMsg = error?.response.data.message || 'Unauthorized access. Please login to continue.';
       } else if (status === 404) {
         errMsg = 'The requested resource was not found. Please check the URL and try again.';
