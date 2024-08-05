@@ -66,9 +66,9 @@ const UserRole = () => {
   const handleSave = () => {
     if (validate()) {
       onSave({
-        RoleName: roleName,
-        RoleId: user?.id,
-        IsActive: true
+        R_NAME: roleName,
+        R_CODE: user?.id,
+        R_IS_ACTIVE: true
       });
     }
   };

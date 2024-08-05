@@ -71,7 +71,9 @@ export default function UserRoleList() {
     try {
       setLoadingFull(false);
       const { Success, Data, Message } =   await PostCommonSp({
-        "key": "ROLE_LIST",  
+        "key": "ROLE_CRUD",
+        "TYPE": "GET_ALL",
+
       })
       if (Success) {
         setData(Data)
