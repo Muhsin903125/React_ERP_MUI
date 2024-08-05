@@ -24,7 +24,7 @@ import DataTable from '../../../../components/DataTable';
 import Confirm from '../../../../components/Confirm'; 
 import ModalForm from './ModalForm';
 
-export default function ChartOfAccount() {
+export default function Salesman() {
     const columns = [
 
         {
@@ -110,13 +110,13 @@ export default function ChartOfAccount() {
 
     return <>
         <Helmet>
-            <title>Charts of Account </title>
+            <title>Salesman </title>
         </Helmet>
 
         <Stack m={5} >
             <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
                 <Typography variant="h4" gutterBottom>
-                    Charts of Account
+                Salesman
                 </Typography>
 
                 <Button variant="contained"

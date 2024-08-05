@@ -40,12 +40,12 @@ const navConfig = [
           },
           {
             title: 'Supplier',
-            path: '/customermasterv2',
+            path: '/supplier',
             icon: subIcon()
           },
           {
             title: 'Salesman',
-            path: '/customermasterv2',
+            path: '/salesman',
             icon: subIcon()
           },
           
