@@ -22,15 +22,16 @@ import { deleteRole, GetRoleList, PostCommonSp, saveRole } from '../../../hooks/
 import { useToast } from '../../../hooks/Common';
 import DataTable from '../../../components/DataTable';
 import Confirm from '../../../components/Confirm';
+import ModalForm from './ModalForm';
 
 export default function UserRoleList() {
   const columns = [
 
     {
       accessorKey: 'R_CODE', //  access nested data with dot notation
-      header: 'Id',
+      header: 'Code',
       // size:"300"
-    }, 
+    },
     {
       accessorKey: 'R_NAME',
       header: 'Name',
@@ -45,7 +46,7 @@ export default function UserRoleList() {
             </IconButton>
           </Tooltip>
           <Tooltip title="Delete">
-            <IconButton onClick={() => handleDelete(row.original.id)}>
+            <IconButton onClick={() => handleDelete(row.original.R_CODE)}>
               <DeleteIcon />
             </IconButton>
           </Tooltip>
@@ -56,10 +57,12 @@ export default function UserRoleList() {
     },
   ];
 
-  const navigate = useNavigate();
   const { setLoadingFull } = useContext(AuthContext);
   const { showToast } = useToast();
   const [data, setData] = useState(null)
+  const [editData, setEditData] = useState(null)
+
+  const [showModal, SetShowModal] = useState(false)
   useEffect(() => {
 
     fetchList();
@@ -70,8 +73,9 @@ export default function UserRoleList() {
     setLoadingFull(true);
     try {
       setLoadingFull(false);
-      const { Success, Data, Message } =   await PostCommonSp({
-        "key": "ROLE_LIST",  
+      const { Success, Data, Message } = await PostCommonSp({
+        "key": "ROLE_CRUD",
+        "TYPE": "GET_ALL",
       })
       if (Success) {
         setData(Data)
@@ -89,7 +93,12 @@ export default function UserRoleList() {
     Confirm('Are you sure to Delete?').then(async () => {
       try {
         setLoadingFull(true);
-        const { Success, Data, Message } = await deleteRole(id)
+        const { Success, Data, Message } = await PostCommonSp({
+          "key": "ROLE_CRUD",
+          "TYPE": "DELETE",
+          "R_CODE": id
+        })
+        // const { Success, Data, Message } = await deleteRole(id)
         if (Success) {
           fetchList();
           showToast(Message, 'success');
@@ -104,25 +113,31 @@ export default function UserRoleList() {
     });
   }
   function handleEdit(users) {
-    navigate('/userrole', { state: { user: users } })
+    SetShowModal(true);
+    setEditData(users)
+  }
+
+  function handleNew() {
+    SetShowModal(true);
+    setEditData(null)
   }
 
   return <>
     <Helmet>
-      <title> User Role List </title>
+      <title> User Roles </title>
     </Helmet>
 
     <Stack m={5} >
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4" gutterBottom>
-          Roles List
+          User Roles
         </Typography>
-        <Link to={{ pathname: '/userrole', state: { user: null, handleDelete } }} style={{ textDecoration: 'none' }}>
-          {/* <Link to={{ pathname: '/userrole',   }} style={{ textDecoration: 'none' }}>  */}
-          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New Role
-          </Button>
-        </Link>
+
+        <Button variant="contained"
+          onClick={() => handleNew()}
+          startIcon={<Iconify icon="eva:plus-fill" />}>
+          New Role
+        </Button>
       </Stack>
 
       {data && <DataTable
@@ -133,6 +148,7 @@ export default function UserRoleList() {
         enableExport={false}
 
       />}
+      <ModalForm open={showModal} initialValues={editData} onClose={() => SetShowModal(false)} />
     </Stack>
 
   </>
