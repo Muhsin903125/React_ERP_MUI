@@ -337,6 +337,11 @@ const navConfig = [
             path: '/settings', 
             icon: subIcon()
           }, 
+          {
+            title: 'Last Number',
+            path: '/lastno', 
+            icon: subIcon()
+          }, 
         ]
       }
 

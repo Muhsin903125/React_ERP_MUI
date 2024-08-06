@@ -61,9 +61,10 @@ export default function Supplier() {
     const { setLoadingFull } = useContext(AuthContext);
     const { showToast } = useToast();
     const [data, setData] = useState(null)
-    const [showModal, SetShowModal] = useState(false)
+    const [editData, setEditData] = useState(null);
+    const [showModal, SetShowModal] = useState(false);
     useEffect(() => {
-        // fetchList();
+        fetchList();
     }, [])
 
     async function fetchList() {
@@ -71,7 +72,8 @@ export default function Supplier() {
         try {
             setLoadingFull(false);
             const { Success, Data, Message } = await PostCommonSp({
-                "key": "ROLE_LIST",
+                "key": "SUP_CRUD",
+                "TYPE": "GET_ALL",
             })
             if (Success) {
                 setData(Data)
@@ -85,28 +87,46 @@ export default function Supplier() {
         }
     }
 
-    const handleDelete = async (id) => {
-        Confirm('Are you sure to Delete?').then(async () => {
-            try {
-                setLoadingFull(true);
-                const { Success, Data, Message } = await deleteRole(id)
-                if (Success) {
-                    fetchList();
-                    showToast(Message, 'success');
-                }
-                else {
-                    showToast(Message, "error");
-                }
-            }
-            finally {
-                setLoadingFull(false);
-            }
-        });
-    }
+   
+  const handleDelete = async (id) => {
+    Confirm('Are you sure to Delete?').then(async () => {
+      try {
+        setLoadingFull(true);
+        const { Success, Data, Message } = await PostCommonSp({
+          "key": "SUP_CRUD",
+          "TYPE": "DELETE",
+          "R_CODE": id
+        }) 
+        if (Success) {
+          fetchList();
+          showToast(Message, 'success');
+        }
+        else {
+          showToast(Message, "error");
+        }
+      }
+      finally {
+        setLoadingFull(false);
+      }
+    });
+  }
 
-    function handleEdit(users) {
-        navigate('/userrole', { state: { user: users } })
-    }
+   
+  function closeModal() {
+    SetShowModal(false);
+    setEditData(null);
+    fetchList();
+  }
+  function handleEdit(users) {
+    SetShowModal(true);
+    setEditData(users)
+  }
+
+  function handleNew() {
+    SetShowModal(true);
+    setEditData(null)
+  }
+
 
     return <>
         <Helmet>

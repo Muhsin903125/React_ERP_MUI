@@ -11,8 +11,10 @@ const ModalForm = ({ open, onClose, initialValues }) => {
   const { showToast } = useToast();
   const [isNew, setIsNew] = useState(true);
   useEffect(() => {
-    if (initialValues !== null) {
+    if (initialValues !== null ) {
       setIsNew(false);
+    } else {
+      setIsNew(true);
     }
   }, [initialValues]);
 
@@ -117,7 +119,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                       onClick={onClose}>
                       Cancel
                     </Button>
-                    <Button type="submit" variant="contained" startIcon={<Iconify icon="basil:save-outline" />}>
+                    <Button type="submit" variant="contained" color={isNew ? "success" : "warning"}  startIcon={<Iconify icon="basil:save-outline" />}>
                       {isNew ? "Save" : "Update"} Role
                     </Button>
                   </Stack>

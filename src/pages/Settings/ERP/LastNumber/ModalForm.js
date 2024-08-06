@@ -62,7 +62,7 @@ const ModalForm = ({ open, onClose, initialValues  }) => {
         }}
       >
         <Typography variant="h4" component="h2" sx={{ mb: 3.5, display: 'flex', justifyContent: 'space-between' }}>
-          {isNew ? "Create Supplier" : "Update Supplier"}
+          {isNew ? "Create Last Number" : "Update Last Number"}
         </Typography>
 
         <Formik
@@ -135,8 +135,8 @@ const ModalForm = ({ open, onClose, initialValues  }) => {
                       onClick={onClose}>
                       Cancel
                     </Button>
-                    <Button type="submit" variant="contained" color={isNew ? "success" : "warning"} startIcon={<Iconify icon="basil:save-outline" />}>
-                      {isNew ? "Save" : "Update"} Supplier
+                    <Button type="submit" variant="contained" color={isNew ? "success" : "warning"}  startIcon={<Iconify icon="basil:save-outline" />}>
+                      {isNew ? "Save" : "Update"} Last Number
                     </Button>
                   </Stack>
                 </Grid>

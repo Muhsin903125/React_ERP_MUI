@@ -21,8 +21,7 @@ import { RequireAuth } from './hooks/RequireAuth';
 import CustomerMasterV2 from './pages/Masters/CustomerMasterV2';
 import RegisterUser from './pages/User/RegisterUser';
 import UserList from './pages/User/UserList';
-import UserRoleList from './pages/User/Roles/UserRoleList';
-import UserRole from './pages/User/Roles/UserRole';
+import UserRoleList from './pages/User/Roles/UserRoleList'; 
 import ProductList from './pages/Masters/Product/ProductList';
 import Product from './pages/Masters/Product/Product';
 import UnitList from './pages/Masters/Unit/UnitList';
@@ -32,6 +31,7 @@ import InvoicePrint from './pages/Invoice/InvoicePrint';
 import ChartOfAccount from './pages/Masters/Finance/ChartOfAccount';
 import Supplier from './pages/Masters/Finance/Supplier';
 import Salesman from './pages/Masters/Finance/Salesman';
+import LastNumber from './pages/Settings/ERP/LastNumber';
 
 // ----------------------------------------------------------------------
 
@@ -43,15 +43,14 @@ export default function Router() {
  const AdminMenus = [
     { path: 'userlist', element: <UserList /> },
     { path: 'registeruser', element: <RegisterUser /> },
-    { path: 'rolelist', element: <UserRoleList /> },
-    { path: 'userrole', element: <UserRole /> },
+    { path: 'rolelist', element: <UserRoleList /> }, 
     { path: 'product', element: <Product /> },
     { path: 'productlist', element: <ProductList /> },
     { path: 'unit', element: <Unit /> },
     { path: 'unitlist', element: <UnitList /> },
     { path: 'coa', element: <ChartOfAccount /> },
     { path: 'supplier', element: <Supplier /> },   
-    { path: 'salesman', element: <Salesman /> },
+    { path: 'salesman', element: <Salesman /> },  { path: 'lastno', element: <LastNumber /> },
     { path: 'invoiceprint', element: <InvoicePrint /> },
   ]
   const routes = useRoutes([
