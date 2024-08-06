@@ -63,14 +63,8 @@ export default function Product() {
           try {
             setLoadingFull(false);
             const { Success, Data, Message } = await PostMultiSp({
-              "key": "string",
-              "userId": "string",
-              "json": JSON.stringify({
-                "json": [],
-                "key": "PRODUCT_ENTRY",
-                "code":location.state?.product,
-              }),
-              "controller": "string"
+              "key": "PRODUCT_ENTRY",
+              "code":location.state?.product
             })
             if (Success) {
               console.log(Data[0][0]);
