@@ -88,6 +88,7 @@ const ModalForm = ({ open, onClose, initialValues  }) => {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
+                    disabled={!isNew}
                     label="Doc Type"
                     name="docType" // Ensure this matches the validation schema
                     value={values.docType} // Use values.name instead of values.R_NAME

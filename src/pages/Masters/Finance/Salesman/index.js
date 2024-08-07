@@ -25,17 +25,25 @@ import DataTable from '../../../../components/DataTable';
 import Confirm from '../../../../components/Confirm';
 import ModalForm from './ModalForm'; 
 
-export default function UserRoleList() {
+export default function Salesman() {
   const columns = [
 
     {
-      accessorKey: 'R_CODE', //  access nested data with dot notation
+      accessorKey: 'SMAN_DOCNO', //  access nested data with dot notation
       header: 'Code',
       // size:"300"
     },
     {
-      accessorKey: 'R_NAME',
-      header: 'Name',
+      accessorKey: 'SMAN_DESC',
+      header: 'Desc',
+    }, 
+      {
+      accessorKey: 'SMAN_EMAIL',
+      header: 'Email',
+    }, 
+    {
+        accessorKey: 'SMAN_MOB',
+      header: 'Mobile',
     },
     {
       header: 'Acitons',
@@ -47,7 +55,7 @@ export default function UserRoleList() {
             </IconButton>
           </Tooltip>
           <Tooltip title="Delete">
-            <IconButton onClick={() => handleDelete(row.original.R_CODE)}>
+            <IconButton onClick={() => handleDelete(row.original.SMAN_DOCNO)}>
               <DeleteIcon />
             </IconButton>
           </Tooltip>
@@ -95,7 +103,7 @@ export default function UserRoleList() {
         const { Success, Data, Message } = await PostCommonSp({
           "key": "SMAN_CRUD",
           "TYPE": "DELETE",
-          "R_CODE": id
+          "SMAN_DOCNO": id
         })
         // const { Success, Data, Message } = await deleteRole(id)
         if (Success) {
