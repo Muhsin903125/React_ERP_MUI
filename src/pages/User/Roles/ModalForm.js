@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { Button, Modal, Grid, TextField, Stack, Box, Typography } from '@mui/material';
+import { Button, Modal, Grid, TextField, Stack, Box, Typography, Checkbox, FormControlLabel } from '@mui/material';
 import { Formik, Form } from 'formik';
 import * as yup from 'yup';
 import Iconify from '../../../components/iconify';
@@ -20,6 +20,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
 
   const validationSchema = yup.object().shape({
     name: yup.string().required('Name is required'),
+    active: yup.boolean().required('Active is required'),
   });
 
 
@@ -29,7 +30,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
         "key": "ROLE_CRUD",
         "TYPE": "ADD",
         "R_NAME": data.name,
-        "R_IS_ACTIVE":true
+        "R_IS_ACTIVE":data.active
       })
       if (Success) {
         showToast(Message, 'success');
@@ -50,7 +51,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
         "TYPE": "UPDATE",
         "R_NAME": data.name,
         "R_CODE": data.id,
-        "R_IS_ACTIVE":true
+        "R_IS_ACTIVE":data.active
 
       })
       if (Success) {
@@ -87,6 +88,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
           initialValues={{
             name: initialValues?.R_NAME || '', // Load R_NAME for editing
             id: initialValues?.R_CODE || '', // Load R_NAME for editing
+            active: initialValues?.R_IS_ACTIVE || '', // Load R_NAME for editing
           }}
           validationSchema={validationSchema}
           onSubmit={(values) => {
@@ -98,7 +100,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
             console.log(values);
           }}
         >
-          {({ values, errors, touched, handleChange }) => (
+          {({ values, errors, touched, handleChange,setFieldValue }) => (
             <Form>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
@@ -113,6 +115,17 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                   />
                 </Grid>
                 <Grid item xs={12}>
+                <Stack direction="row" alignItems="center" justifyContent="space-between">
+                  <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={values.active}
+                          onChange={(event) => setFieldValue('active', event.target.checked)}
+                          name="active"
+                        />
+                      }
+                      label="Active"
+                    />
                   <Stack direction="row" alignItems="center" justifyContent="flex-end">
                     <Button variant="outlined" color="error" startIcon={<Iconify icon="mdi:cancel" />}
                       sx={{ mr: 2 }}
@@ -122,6 +135,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                     <Button type="submit" variant="contained" color={isNew ? "success" : "warning"}  startIcon={<Iconify icon="basil:save-outline" />}>
                       {isNew ? "Save" : "Update"} Role
                     </Button>
+                  </Stack>
                   </Stack>
                 </Grid>
               </Grid>

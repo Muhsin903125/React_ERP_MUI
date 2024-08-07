@@ -14,8 +14,11 @@ import {
     Box,
     Card,
     CircularProgress,
+    Chip,
 } from '@mui/material';
 
+import CheckIcon from '@mui/icons-material/Check';
+import BlockIcon from '@mui/icons-material/Block';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Iconify from '../../../../components/iconify/Iconify';
@@ -46,15 +49,25 @@ export default function LastNumber() {
             accessorKey: 'LASTNO_LENGTH',
             header: 'Length',
         },
+       
         {
-            accessorKey: 'LASTNO_IS_EDITABLE',
+            // accessorKey: '', //  normal accessorKey
             header: 'Field Editable',
-
             Cell: ({ row }) => (
+      
+                 row.original.LASTNO_IS_EDITABLE ?  
                 <div>
-                    {row.original.LASTNO_IS_EDITABLE? "True":"False"}
+                  <Tooltip title="Active">
+                  <Chip icon={<CheckIcon />}  color="success" size='small' label="Active" />
+                  </Tooltip> 
                 </div>
-            ),
+                :
+                <div>
+                  <Tooltip title="Blocked">
+                  <Chip icon={<BlockIcon />}  color="error" size='small' label="Blocked" />
+                  </Tooltip> 
+                </div>
+              ),
         },
         {
             header: 'Acitons',

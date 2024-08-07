@@ -13,9 +13,12 @@ import {
   Tooltip,
   Box,
   Container,Card,
-  CircularProgress
+  CircularProgress,
+  Chip
 } from '@mui/material';
 
+import CheckIcon from '@mui/icons-material/Check';
+import BlockIcon from '@mui/icons-material/Block';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Iconify from '../../../components/iconify/Iconify';
@@ -38,6 +41,25 @@ export default function UserRoleList() {
       accessorKey: 'R_NAME',
       header: 'Name',
     },
+    {
+      // accessorKey: '', //  normal accessorKey
+      header: 'Status',
+      Cell: ({ row }) => (
+
+           row.original.R_IS_ACTIVE ?  
+          <div>
+            <Tooltip title="Active">
+            <Chip icon={<CheckIcon />}  color="success" size='small' label="Active" />
+            </Tooltip> 
+          </div>
+          :
+          <div>
+            <Tooltip title="Blocked">
+            <Chip icon={<BlockIcon />}  color="error" size='small' label="Blocked" />
+            </Tooltip> 
+          </div>
+        ),
+  },
     {
       header: 'Acitons',
       Cell: ({ row }) => (
