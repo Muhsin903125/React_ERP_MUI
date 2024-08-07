@@ -47,6 +47,16 @@ export default function LastNumber() {
             header: 'Length',
         },
         {
+            accessorKey: 'LASTNO_IS_EDITABLE',
+            header: 'Field Editable',
+
+            Cell: ({ row }) => (
+                <div>
+                    {row.original.LASTNO_IS_EDITABLE? "True":"False"}
+                </div>
+            ),
+        },
+        {
             header: 'Acitons',
             Cell: ({ row }) => (
                 <div>

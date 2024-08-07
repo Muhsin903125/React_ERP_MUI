@@ -108,7 +108,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                   <TextField
                     fullWidth
                     label="Doc No"
-                    disabled={isNew ? !codeEditable : !isNew}
+                    disabled={isNew ? !codeEditable : true}
                     name="docNo" //  Ensure this matches the validation schema
                     value={values.docNo} // Use values.name instead of values.R_NAME
                     onChange={handleChange} // This will now work correctly

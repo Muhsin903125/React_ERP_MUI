@@ -1,17 +1,17 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { Button, Modal, Grid, TextField, Stack, Box, Typography } from '@mui/material';
+import { Button, Modal, Grid, TextField, Stack, Box, Typography, CheckBox, FormControlLabel, Checkbox } from '@mui/material';
 import { Formik, Form } from 'formik';
 import * as yup from 'yup';
 import Iconify from '../../../../components/iconify';
 import { PostCommonSp } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 
-const ModalForm = ({ open, onClose, initialValues  }) => {
+const ModalForm = ({ open, onClose, initialValues }) => {
   const { showToast } = useToast();
   const [isNew, setIsNew] = useState(true);
-  useEffect(() => { 
-    if (initialValues !== null ) {
+  useEffect(() => {
+    if (initialValues !== null) {
       setIsNew(false);
     } else {
       setIsNew(true);
@@ -23,9 +23,12 @@ const ModalForm = ({ open, onClose, initialValues  }) => {
     lastno: yup.number().required('Last No is required'),
     prefix: yup.string().required('Prefix is required'),
     length: yup.number().required('Lenght is required'),
+    edit: yup.boolean().required('Editable is required'),
   });
 
   const HandleData = async (data, type) => {
+    console.log("sdsdsd",data);
+    
     try {
       const { Success, Data, Message } = await PostCommonSp({
         "key": "LAST_NO_CRUD",
@@ -34,6 +37,7 @@ const ModalForm = ({ open, onClose, initialValues  }) => {
         "LASTNO_LASTNO": data.lastno,
         "LASTNO_PREFIX": data.prefix,
         "LASTNO_LENGTH": data.length,
+        "LASTNO_IS_EDITABLE": data.edit,
       });
 
       if (Success) {
@@ -71,17 +75,20 @@ const ModalForm = ({ open, onClose, initialValues  }) => {
             lastno: initialValues?.LASTNO_LASTNO || '',
             prefix: initialValues?.LASTNO_PREFIX || '',
             length: initialValues?.LASTNO_LENGTH || '',
+            edit: initialValues?.LASTNO_IS_EDITABLE || '',
             // id: initialValues?.R_CODE || '',  
           }}
           validationSchema={validationSchema}
           onSubmit={(values) => {
+            console.log("sdsdsd",values);
+    
             if (isNew)
               HandleData(values, 'ADD');
             else
               HandleData(values, 'UPDATE');
           }}
         >
-          {({ values, errors, touched, handleChange }) => (
+          {({ values, errors, touched, handleChange, setFieldValue }) => (
             <Form>
               <Grid container spacing={2}>
 
@@ -118,7 +125,8 @@ const ModalForm = ({ open, onClose, initialValues  }) => {
                     error={Boolean(touched.prefix && errors.prefix)}
                     helperText={touched.prefix && errors.prefix}
                   />
-                </Grid> <Grid item xs={12} sm={6}>
+                </Grid>
+                <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
                     label="Length"
@@ -130,15 +138,27 @@ const ModalForm = ({ open, onClose, initialValues  }) => {
                   />
                 </Grid>
                 <Grid item xs={12}>
-                  <Stack direction="row" alignItems="center" justifyContent="flex-end">
-                    <Button variant="outlined" color="error" startIcon={<Iconify icon="mdi:cancel" />}
-                      sx={{ mr: 2 }}
-                      onClick={onClose}>
-                      Cancel
-                    </Button>
-                    <Button type="submit" variant="contained" color={isNew ? "success" : "warning"}  startIcon={<Iconify icon="basil:save-outline" />}>
-                      {isNew ? "Save" : "Update"} Last Number
-                    </Button>
+                  <Stack direction="row" alignItems="center" justifyContent="space-between">
+                  <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={values.edit}
+                          onChange={(event) => setFieldValue('edit', event.target.checked)}
+                          name="edit"
+                        />
+                      }
+                      label="Editable"
+                    />
+                    <Stack direction="row" alignItems="center" justifyContent="flex-end">
+                      <Button variant="outlined" color="error" startIcon={<Iconify icon="mdi:cancel" />}
+                        sx={{ mr: 2 }}
+                        onClick={onClose}>
+                        Cancel
+                      </Button>
+                      <Button type="submit" variant="contained" color={isNew ? "success" : "warning"} startIcon={<Iconify icon="basil:save-outline" />}>
+                        {isNew ? "Save" : "Update"} Last Number
+                      </Button>
+                    </Stack>
                   </Stack>
                 </Grid>
               </Grid>
