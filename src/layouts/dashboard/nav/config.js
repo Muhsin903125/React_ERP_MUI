@@ -48,6 +48,11 @@ const navConfig = [
             path: '/salesman',
             icon: subIcon()
           },
+          {
+            title: 'Customer',
+            path: '/customer',
+            icon: subIcon()
+          },
           
   
         ]

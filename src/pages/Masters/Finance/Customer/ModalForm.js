@@ -25,18 +25,22 @@ const ModalForm = ({ open, onClose, initialValues }) => {
     docNo: yup.string().required('Doc No is required'),
     desc: yup.string().required('Description is required'),
     email: yup.string(),
-    mobile: yup.string().required('Mobile is required'),
+    mobile: yup.string(),
+    trn: yup.string().max(15),
+    address: yup.string(),
   });
 
   const HandleData = async (data, type) => {
     try {
       const { Success, Message } = await PostCommonSp({
-        "key": "SMAN_CRUD",
+        "key": "CUS_CRUD",
         "TYPE": type, // Pass the type as a parameter
-        "SMAN_DOCNO": data.docNo,
-        "SMAN_DESC": data.desc,
-        "SMAN_EMAIL": data.email,
-        "SMAN_MOB": (data.mobile).toString(),
+        "CUS_DOCNO": data.docNo,
+        "CUS_DESC": data.desc,
+        "CUS_EMAIL": data.email,
+        "CUS_TRN": data.trn,
+        "CUS_ADDRESS": data.address,
+        "CUS_MOB": (data.mobile).toString(),
       });
 
       if (Success) {
@@ -54,7 +58,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
     try {
       const { Success, Data, Message } = await PostCommonSp({
         "key": "LAST_NO",
-        "TYPE": "SMAN",
+        "TYPE": "CUS",
       });
 
       if (Success) {
@@ -72,7 +76,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
     <Modal open={open} onClose={onClose}>
       <Box
         sx={{
-          width: { xs: '90%', sm: '500px', md: "720px" },
+          width: { xs: '90%', sm: '550px', md: "720px" },
           bgcolor: 'background.paper',
           borderRadius: '8px',
           boxShadow: 24,
@@ -82,15 +86,17 @@ const ModalForm = ({ open, onClose, initialValues }) => {
         }}
       >
         <Typography variant="h4" component="h2" sx={{ mb: 3.5, display: 'flex', justifyContent: 'space-between' }}>
-          {isNew ? "Create SalesMan" : "Update Salesman"}
+          {isNew ? "Create Customer" : "Update Customer"}
         </Typography>
 
         <Formik
           initialValues={{
-            docNo: initialValues?.SMAN_DOCNO || code,
-            desc: initialValues?.SMAN_DESC || '',
-            email: initialValues?.SMAN_EMAIL || '',
-            mobile: initialValues?.SMAN_MOB || '',
+            docNo: initialValues?.CUS_DOCNO || code,
+            desc: initialValues?.CUS_DESC || '',
+            email: initialValues?.CUS_EMAIL || '',
+            mobile: initialValues?.CUS_MOB || '',
+            address: initialValues?.CUS_ADDRESS || '',
+            trn: initialValues?.CUS_TRN || '', 
           }}
           validationSchema={validationSchema}
           onSubmit={(values) => {
@@ -138,7 +144,8 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                     error={Boolean(touched.email && errors.email)}
                     helperText={touched.email && errors.email}
                   />
-                </Grid> <Grid item xs={12} sm={6}>
+                </Grid>
+                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
                     type='number'
@@ -150,6 +157,29 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                     helperText={touched.mobile && errors.mobile}
                   />
                 </Grid>
+                <Grid item xs={12} sm={8}>
+                  <TextField
+                    fullWidth                     
+                    label="Address"
+                    name="address" // Ensure this matches the validation schema
+                    value={values.address} // Use values.name instead of values.R_NAME
+                    onChange={handleChange} // This will now work correctly
+                    error={Boolean(touched.address && errors.address)}
+                    helperText={touched.address && errors.address}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    fullWidth 
+                  
+                    label="TRN"
+                    name="trn" // Ensure this matches the validation schema
+                    value={values.trn} // Use values.name instead of values.R_NAME
+                    onChange={handleChange} // This will now work correctly
+                    error={Boolean(touched.trn && errors.trn)}
+                    helperText={touched.trn && errors.trn}
+                  />
+                </Grid>
                 <Grid item xs={12}>
                   <Stack direction="row" alignItems="center" justifyContent="flex-end">
                     <Button variant="outlined" color="error" startIcon={<Iconify icon="mdi:cancel" />}
@@ -158,7 +188,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                       Cancel
                     </Button>
                     <Button type="submit" variant="contained" color={isNew ? "success" : "warning"} startIcon={<Iconify icon="basil:save-outline" />}>
-                      {isNew ? "Save" : "Update"} Salesman
+                      {isNew ? "Save" : "Update"} Customer
                     </Button>
                   </Stack>
                 </Grid>

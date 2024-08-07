@@ -32,6 +32,7 @@ import ChartOfAccount from './pages/Masters/Finance/ChartOfAccount';
 import Supplier from './pages/Masters/Finance/Supplier';
 import Salesman from './pages/Masters/Finance/Salesman';
 import LastNumber from './pages/Settings/ERP/LastNumber';
+import Customer from './pages/Masters/Finance/Customer';
 
 // ----------------------------------------------------------------------
 
@@ -50,7 +51,9 @@ export default function Router() {
     { path: 'unitlist', element: <UnitList /> },
     { path: 'coa', element: <ChartOfAccount /> },
     { path: 'supplier', element: <Supplier /> },   
-    { path: 'salesman', element: <Salesman /> },  { path: 'lastno', element: <LastNumber /> },
+    { path: 'salesman', element: <Salesman /> },
+    { path: 'customer', element: <Customer /> },
+      { path: 'lastno', element: <LastNumber /> },
     { path: 'invoiceprint', element: <InvoicePrint /> },
   ]
   const routes = useRoutes([
