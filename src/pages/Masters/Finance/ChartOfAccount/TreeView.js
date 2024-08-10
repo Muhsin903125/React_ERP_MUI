@@ -1,19 +1,15 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { animated, useSpring } from '@react-spring/web';
 import { styled, alpha } from '@mui/material/styles';
-
 import Box from '@mui/material/Box';
-import Collapse from '@mui/material/Collapse';
 import Typography from '@mui/material/Typography';
 import ArticleIcon from '@mui/icons-material/Article';
 import DeleteIcon from '@mui/icons-material/Delete';
-import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import FolderRounded from '@mui/icons-material/FolderRounded';
 import ImageIcon from '@mui/icons-material/Image';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import VideoCameraBackIcon from '@mui/icons-material/VideoCameraBack';
-import { RichTreeView } from '@mui/x-tree-view/RichTreeView';
+import { RichTreeViewPro } from '@mui/x-tree-view-pro/RichTreeViewPro';
 import { treeItemClasses } from '@mui/x-tree-view/TreeItem';
 import { unstable_useTreeItem2 as useTreeItem2 } from '@mui/x-tree-view/useTreeItem2';
 import {
@@ -22,19 +18,24 @@ import {
   TreeItem2IconContainer,
   TreeItem2Label,
   TreeItem2Root,
+  TreeItem2GroupTransition,
 } from '@mui/x-tree-view/TreeItem2';
 import { TreeItem2Icon } from '@mui/x-tree-view/TreeItem2Icon';
 import { TreeItem2Provider } from '@mui/x-tree-view/TreeItem2Provider';
 import { TreeItem2DragAndDropOverlay } from '@mui/x-tree-view/TreeItem2DragAndDropOverlay';
 
+import { useTreeViewApiRef } from '@mui/x-tree-view/hooks';
+
 const ITEMS = [
   {
     id: '1',
     label: 'Documents',
+    fileType: 'folder',
     children: [
       {
         id: '1.1',
         label: 'Company',
+        fileType: 'folder',
         children: [
           { id: '1.1.1', label: 'Invoice', fileType: 'pdf' },
           { id: '1.1.2', label: 'Meeting notes', fileType: 'doc' },
@@ -50,7 +51,7 @@ const ITEMS = [
   {
     id: '2',
     label: 'Bookmarked',
-    fileType: 'pinned',
+    fileType: 'folder',
     children: [
       { id: '2.1', label: 'Learning materials', fileType: 'folder' },
       { id: '2.2', label: 'News', fileType: 'folder' },
@@ -95,7 +96,6 @@ const CustomTreeItemContent = styled(TreeItem2Content)(({ theme }) => ({
   borderRadius: theme.spacing(0.7),
   marginBottom: theme.spacing(0.5),
   marginTop: theme.spacing(0.5),
-  padding: theme.spacing(0.5),
   paddingRight: theme.spacing(1),
   fontWeight: 500,
   [`&.Mui-expanded `]: {
@@ -131,19 +131,6 @@ const CustomTreeItemContent = styled(TreeItem2Content)(({ theme }) => ({
     color: theme.palette.primary.contrastText,
   },
 }));
-
-const AnimatedCollapse = animated(Collapse);
-
-function TransitionComponent(props) {
-  const style = useSpring({
-    to: {
-      opacity: props.in ? 1 : 0,
-      transform: `translate3d(0,${props.in ? 0 : 20}px,0)`,
-    },
-  });
-
-  return <AnimatedCollapse style={style} {...props} />;
-}
 
 const StyledTreeItemLabelText = styled(Typography)({
   color: 'inherit',
@@ -194,81 +181,81 @@ const getIconFromFileType = (fileType) => {
       return VideoCameraBackIcon;
     case 'folder':
       return FolderRounded;
-    case 'pinned':
-      return FolderOpenIcon;
     case 'trash':
       return DeleteIcon;
     default:
       return ArticleIcon;
   }
 };
-const CustomTreeItem = React.forwardRef((props, ref) => {
-    const { id, itemId, label, disabled, children, onClick, ...other } = props;
-  
-    const {
-      getRootProps,
-      getContentProps,
-      getIconContainerProps,
-      getCheckboxProps,
-      getLabelProps,
-      getGroupTransitionProps,
-      getDragAndDropOverlayProps,
-      status,
-      publicAPI,
-    } = useTreeItem2({ id, itemId, children, label, disabled, rootRef: ref });
-  
-    const item = publicAPI.getItem(itemId);
-    const expandable = isExpandable(children);
-    let icon;
-    if (expandable) {
-      icon = FolderRounded;
-    } else if (item.fileType) {
-      icon = getIconFromFileType(item.fileType);
-    }
-  
-    const handleClick = () => {
-        console.log("claaaback ",label);
-        onClick(label);
-    };
-  
-    return (
-      <TreeItem2Provider itemId={itemId}>
-        <StyledTreeItemRoot {...getRootProps(other)} >
-          <CustomTreeItemContent 
-            {...getContentProps({
-              className: clsx('content', {
-                'Mui-expanded': status.expanded,
-                'Mui-selected': status.selected,
-                'Mui-focused': status.focused,
-                'Mui-disabled': status.disabled,
-              }),
-            })}
-          >
-            <TreeItem2IconContainer {...getIconContainerProps()}>
-              <TreeItem2Icon status={status} />
-            </TreeItem2IconContainer>
-            <TreeItem2Checkbox {...getCheckboxProps()} />
-            <CustomLabel
-            onClick={handleClick}
-              {...getLabelProps({ icon, expandable: expandable && status.expanded })}
-            />
-            <TreeItem2DragAndDropOverlay {...getDragAndDropOverlayProps()} />
-          </CustomTreeItemContent>
-          {children && <TransitionComponent {...getGroupTransitionProps()} />}
-        </StyledTreeItemRoot>
-      </TreeItem2Provider>
-    );
-  });
-  
-  export default function TreeView({ callbackFunction }) {
-    return (
-      <RichTreeView
-        items={ITEMS}
-        defaultExpandedItems={['1', '1.1']}
-        defaultSelectedItems="1.1"
-  
-        sx={{ height: 'fit-content', flexGrow: 1, maxWidth: 400, overflowY: 'auto' }}
-        slots={{ item: (props) => <CustomTreeItem {...props} onClick={callbackFunction} /> }}
-      />
-    );
-  }
+
+const CustomTreeItem  = React.forwardRef((props, ref) => {
+  const { id, itemId, label, disabled, children,onClick, ...other } = props;
+
+  const {
+    getRootProps,
+    getContentProps,
+    getIconContainerProps,
+    getCheckboxProps,
+    getLabelProps,
+    getGroupTransitionProps,
+    getDragAndDropOverlayProps,
+    status,
+    publicAPI,
+  } = useTreeItem2({ id, itemId, children, label, disabled, rootRef: ref });
+
+  const item = publicAPI.getItem(itemId);
+  const expandable = isExpandable(children);
+  const icon = getIconFromFileType(item.fileType);
+
+  return (
+    <TreeItem2Provider itemId={itemId}>
+      <StyledTreeItemRoot {...getRootProps(other)}>
+        <CustomTreeItemContent
+          {...getContentProps({
+            className: clsx('content', {
+              'Mui-expanded': status.expanded,
+              'Mui-selected': status.selected,
+              'Mui-focused': status.focused,
+              'Mui-disabled': status.disabled,
+            }),
+          })}
+        >
+          <TreeItem2IconContainer {...getIconContainerProps()}>
+            <TreeItem2Icon status={status} />
+          </TreeItem2IconContainer>
+          <TreeItem2Checkbox {...getCheckboxProps()} />
+          <CustomLabel 
+          onClick={onClick(label)}
+            {...getLabelProps({ icon, expandable: expandable && status.expanded })}
+          />
+          <TreeItem2DragAndDropOverlay {...getDragAndDropOverlayProps()} />
+        </CustomTreeItemContent>
+        {children && <TreeItem2GroupTransition {...getGroupTransitionProps()} />}
+      </StyledTreeItemRoot>
+    </TreeItem2Provider>
+  );
+});
+
+export default function FileExplorer({callbackFunction}) {
+  const apiRef = useTreeViewApiRef();
+
+  return (
+    <RichTreeViewPro
+      items={ITEMS}
+      apiRef={apiRef}
+      defaultExpandedItems={['1', '1.1']}
+      sx={{ height: 'fit-content', flexGrow: 1, maxWidth: 400, overflowY: 'auto' }}
+      slots={{ item: (props) => <CustomTreeItem {...props} onClick={callbackFunction}/>}}
+      experimentalFeatures={{ indentationAtItemLevel: true, itemsReordering: true }}
+      itemsReordering
+      canMoveItemToNewPosition={(params) => {
+        return (
+          params.newPosition.parentId === null ||
+          ['folder', 'trash'].includes(
+            apiRef.current.getItem(params.newPosition.parentId).fileType,
+          )
+        );
+      }}
+    />
+  );
+}
