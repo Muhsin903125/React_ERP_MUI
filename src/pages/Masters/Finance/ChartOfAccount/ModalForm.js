@@ -1,54 +1,82 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { Button, Modal, Grid, TextField, Stack, Select, MenuItem, Checkbox, FormControl, InputLabel, FormHelperText, Box, Typography, FormControlLabel } from '@mui/material';
+import { Button, Modal, Grid, TextField, Stack, Box, Typography } from '@mui/material';
 import { Formik, Form } from 'formik';
 import * as yup from 'yup';
 import Iconify from '../../../../components/iconify';
+import { PostCommonSp } from '../../../../hooks/Api';
+import { useToast } from '../../../../hooks/Common';
 
 const ModalForm = ({ open, onClose, initialValues }) => {
-  const [currencyOptions, setCurrencyOptions] = useState([]);
-  const [taxTreatmentOptions, setTaxTreatmentOptions] = useState([]);
+  const { showToast } = useToast();
   const [isNew, setIsNew] = useState(true);
-
+  const [code, setCode] = useState(null);
+  const [codeEditable, setCodeEditable] = useState(false);
   useEffect(() => {
-    const fetchCurrencyAndTaxTreatmentOptions = async () => {
-      const currencyOptions = [
-        { value: 'USD', label: 'USD' },
-        { value: 'EUR', label: 'EUR' },
-      ];
-      const taxTreatmentOptions = [
-        { value: 'standard', label: 'Standard' },
-        { value: 'exempt', label: 'Exempt' },
-      ];
-      return { currencyOptions, taxTreatmentOptions };
-    };
-
     if (initialValues !== null) {
       setIsNew(false);
+    } else {
+      setIsNew(true);
+      getCode();
     }
-
-    fetchCurrencyAndTaxTreatmentOptions()
-      .then(({ currencyOptions, taxTreatmentOptions }) => {
-        setCurrencyOptions(currencyOptions);
-        setTaxTreatmentOptions(taxTreatmentOptions);
-      })
-      .catch((error) => {
-        console.error('Error fetching options:', error);
-      });
-  }, [initialValues]);
+  }, [initialValues, open]);
 
   const validationSchema = yup.object().shape({
-    accountDescription: yup.string().required('Account Description is required'),
-    currency: yup.string().required('Currency is required'),
-    narration: yup.string(),
-    taxTreatment: yup.string().required('Tax Treatment is required'),
+    docNo: yup.string().required('Doc No is required'),
+    desc: yup.string().required('Description is required'),
+    email: yup.string(),
+    mobile: yup.string(),
+    trn: yup.string().max(15),
+    address: yup.string(),
   });
+
+  const HandleData = async (data, type) => {
+    try {
+      const { Success, Message } = await PostCommonSp({
+        "key": "CUS_CRUD",
+        "TYPE": type, // Pass the type as a parameter
+        "CUS_DOCNO": data.docNo,
+        "CUS_DESC": data.desc,
+        "CUS_EMAIL": data.email,
+        "CUS_TRN": data.trn,
+        "CUS_ADDRESS": data.address,
+        "CUS_MOB": (data.mobile).toString(),
+      });
+
+      if (Success) {
+        showToast(Message, 'success');
+        onClose();
+      } else {
+        showToast(Message, "error");
+      }
+    } catch (error) {
+      console.error("Error:", error); // More informative error handling
+    }
+  };
+
+  const getCode = async () => {
+    try {
+      const { Success, Data, Message } = await PostCommonSp({
+        "key": "LAST_NO",
+        "TYPE": "CUS",
+      });
+
+      if (Success) {
+        setCode(Data?.LAST_NO);
+        setCodeEditable(Data?.IS_EDITABLE);
+      } else {
+        showToast(Message, "error");
+      }
+    } catch (error) {
+      console.error("Error:", error); // More informative error handling
+    }
+  };
 
   return (
     <Modal open={open} onClose={onClose}>
       <Box
         sx={{
-          width: { xs: '90%', sm: '500px', md: "720px" },
+          width: { xs: '90%', sm: '550px', md: "720px" },
           bgcolor: 'background.paper',
           borderRadius: '8px',
           boxShadow: 24,
@@ -58,136 +86,111 @@ const ModalForm = ({ open, onClose, initialValues }) => {
         }}
       >
         <Typography variant="h4" component="h2" sx={{ mb: 3.5, display: 'flex', justifyContent: 'space-between' }}>
-          {isNew ? "Create Chart of Account" : "Update Chart of Account"}
-          {/* <Button onClick={onClose} color="secondary" size="small">
-            Close
-          </Button> */}
+          {isNew ? "Create Customer" : "Update Customer"}
         </Typography>
 
         <Formik
-          initialValues={initialValues}
+          initialValues={{
+            docNo: initialValues?.CUS_DOCNO || code,
+            desc: initialValues?.CUS_DESC || '',
+            email: initialValues?.CUS_EMAIL || '',
+            mobile: initialValues?.CUS_MOB || '',
+            address: initialValues?.CUS_ADDRESS || '',
+            trn: initialValues?.CUS_TRN || '', 
+          }}
           validationSchema={validationSchema}
+          onSubmit={(values) => {
+            if (isNew)
+              HandleData(values, 'ADD');
+            else
+              HandleData(values, 'UPDATE');
+          }}
         >
           {({ values, errors, touched, handleChange }) => (
             <Form>
               <Grid container spacing={2}>
+
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
-                    label="Account Description"
-                    name="accountDescription"
-                    value={values?.accountDescription}
-                    onChange={handleChange}
-                    error={Boolean(touched.accountDescription && errors.accountDescription)}
-                    helperText={touched.accountDescription && errors.accountDescription}
-
+                    label="Doc No"
+                    disabled={isNew ? !codeEditable : true}
+                    name="docNo" //  Ensure this matches the validation schema
+                    value={values.docNo} // Use values.name instead of values.R_NAME
+                    onChange={handleChange} // This will now work correctly
+                    error={Boolean(touched.docNo && errors.docNo)}
+                    helperText={touched.docNo && errors.docNo}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
-                    label="Code"
-                    name="code"
-                    value={values?.code}
-                    disabled
-
+                    label="Description"
+                    name="desc" // Ensure this matches the validation schema
+                    value={values.desc} // Use values.name instead of values.R_NAME
+                    onChange={handleChange} // This will now work correctly
+                    error={Boolean(touched.desc && errors.desc)}
+                    helperText={touched.desc && errors.desc}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth sx={{ mb: 1 }}>
-                    <InputLabel id="currency-label">Currency</InputLabel>
-                    <Select
-                      labelId="currency-label"
-                      id="currency"
-                      name="currency"
-                      value={values?.currency}
-                      onChange={handleChange}
-                      error={Boolean(touched.currency && errors.currency)}
-                    >
-                      {currencyOptions.map((option) => (
-                        <MenuItem key={option.value} value={option.value}>
-                          {option.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    <FormHelperText>{touched.currency && errors.currency}</FormHelperText>
-                  </FormControl>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth sx={{ mb: 1 }}>
-                    <InputLabel id="taxTreatment-label">Tax Treatment</InputLabel>
-                    <Select
-                      labelId="taxTreatment-label"
-                      id="taxTreatment"
-                      name="taxTreatment"
-                      value={values?.taxTreatment}
-                      onChange={handleChange}
-                      error={Boolean(touched.taxTreatment && errors.taxTreatment)}
-                    >
-                      {taxTreatmentOptions.map((option) => (
-                        <MenuItem key={option.value} value={option.value}>
-                          {option.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    <FormHelperText>{touched.taxTreatment && errors.taxTreatment}</FormHelperText>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={12}>
                   <TextField
                     fullWidth
-                    label="Narration"
-                    name="narration"
-                    multiline
-                    rows={2}
-                    value={values?.narration}
-                    onChange={handleChange}
-
+                    type='email'
+                    label="Email"
+                    name="email" // Ensure this matches the validation schema
+                    value={values.email} // Use values.name instead of values.R_NAME
+                    onChange={handleChange} // This will now work correctly
+                    error={Boolean(touched.email && errors.email)}
+                    helperText={touched.email && errors.email}
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={values?.accountOnStop}
-                        // onChange={(e) => setActive(e.target.checked)}
-                        onChange={handleChange}
-                        color="primary"
-                        size="large"
-                        sx={{
-                          '& .MuiSvgIcon-root': {
-                            fontSize: 25,
-                            borderRadius: 50
-                          },
-                        }}
-                      />
-                    }
-                    label={
-                      <Typography sx={{ fontSize: 14 }}>
-                        Account On Stop
-                      </Typography>
-                    }
-                    labelPlacement="end"
+                 <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    type='number'
+                    label="Mobile"
+                    name="mobile" // Ensure this matches the validation schema
+                    value={values.mobile} // Use values.name instead of values.R_NAME
+                    onChange={handleChange} // This will now work correctly
+                    error={Boolean(touched.mobile && errors.mobile)}
+                    helperText={touched.mobile && errors.mobile}
                   />
                 </Grid>
-                <Grid item xs={12} sm={12}>
-                  <Stack direction="row" alignItems="center" justifyContent="space-between"  >
-                    <Button variant="contained" color="error" startIcon={<Iconify icon="mdi:cancel"  />} onClick={onClose} >
+                <Grid item xs={12} sm={8}>
+                  <TextField
+                    fullWidth                     
+                    label="Address"
+                    name="address" // Ensure this matches the validation schema
+                    value={values.address} // Use values.name instead of values.R_NAME
+                    onChange={handleChange} // This will now work correctly
+                    error={Boolean(touched.address && errors.address)}
+                    helperText={touched.address && errors.address}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    fullWidth 
+                  
+                    label="TRN"
+                    name="trn" // Ensure this matches the validation schema
+                    value={values.trn} // Use values.name instead of values.R_NAME
+                    onChange={handleChange} // This will now work correctly
+                    error={Boolean(touched.trn && errors.trn)}
+                    helperText={touched.trn && errors.trn}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Stack direction="row" alignItems="center" justifyContent="flex-end">
+                    <Button variant="outlined" color="error" startIcon={<Iconify icon="mdi:cancel" />}
+                      sx={{ mr: 2 }}
+                      onClick={onClose}>
                       Cancel
                     </Button>
-                    <Button type="submit" variant="contained" startIcon={<Iconify icon="basil:save-outline" />}  >
-                      {isNew ? "Save" : "Update"} Chart Of Account
+                    <Button type="submit" variant="contained" color={isNew ? "success" : "warning"} startIcon={<Iconify icon="basil:save-outline" />}>
+                      {isNew ? "Save" : "Update"} Customer
                     </Button>
-                  </Stack>  
-                  {/* <Button
-                    type="submit"
-                    variant="contained"
-                    size='large'
-                    color={isNew ? "primary" : "warning"}
-                  >
-                    {isNew ? "Save" : "Update"}
-                  </Button> */}
+                  </Stack>
                 </Grid>
               </Grid>
             </Form>

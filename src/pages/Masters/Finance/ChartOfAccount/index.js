@@ -12,29 +12,45 @@ import {
     IconButton,
     Tooltip,
     Box,
+    Container, Card,
+    CircularProgress,
+    InputLabel,
+    Grid
 } from '@mui/material';
 
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Iconify from '../../../../components/iconify/Iconify';
-import { AuthContext } from '../../../../App';
 import { deleteRole, GetRoleList, PostCommonSp, saveRole } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 import DataTable from '../../../../components/DataTable';
-import Confirm from '../../../../components/Confirm'; 
+import Confirm from '../../../../components/Confirm';
 import ModalForm from './ModalForm';
+import TreeView from './TreeView';
 
 export default function ChartOfAccount() {
     const columns = [
 
         {
-            accessorKey: 'R_CODE', //  access nested data with dot notation
-            header: 'Id',
-            // size:"300"
+            accessorKey: 'CUS_DOCNO', //  access nested data with dot notation
+            header: 'Code',
+            size: "100"
         },
         {
-            accessorKey: 'R_NAME',
-            header: 'Name',
+            accessorKey: 'CUS_DESC',
+            header: 'Desc',
+        },
+        {
+            accessorKey: 'CUS_EMAIL',
+            header: 'Email',
+        },
+        {
+            accessorKey: 'CUS_TRN',
+            header: 'TRN',
+        },
+        {
+            accessorKey: 'CUS_MOB',
+            header: 'Mobile',
         },
         {
             header: 'Acitons',
@@ -46,7 +62,7 @@ export default function ChartOfAccount() {
                         </IconButton>
                     </Tooltip>
                     <Tooltip title="Delete">
-                        <IconButton onClick={() => handleDelete(row.original.id)}>
+                        <IconButton onClick={() => handleDelete(row.original.CUS_DOCNO)}>
                             <DeleteIcon />
                         </IconButton>
                     </Tooltip>
@@ -57,21 +73,24 @@ export default function ChartOfAccount() {
         },
     ];
 
-    const navigate = useNavigate();
-    const { setLoadingFull } = useContext(AuthContext);
     const { showToast } = useToast();
     const [data, setData] = useState(null)
+    const [editData, setEditData] = useState(null);
+    const [accName, setAccName] = useState(null);
+    const [loader, setLoader] = useState(true);
     const [showModal, SetShowModal] = useState(false)
     useEffect(() => {
+
         // fetchList();
+
     }, [])
 
     async function fetchList() {
-        setLoadingFull(true);
+        setLoader(true);
         try {
-            setLoadingFull(false);
             const { Success, Data, Message } = await PostCommonSp({
-                "key": "ROLE_LIST",
+                "key": "CUS_CRUD",
+                "TYPE": "GET_ALL",
             })
             if (Success) {
                 setData(Data)
@@ -81,15 +100,20 @@ export default function ChartOfAccount() {
             }
         }
         finally {
-            setLoadingFull(false);
+            setLoader(false);
         }
     }
 
     const handleDelete = async (id) => {
         Confirm('Are you sure to Delete?').then(async () => {
             try {
-                setLoadingFull(true);
-                const { Success, Data, Message } = await deleteRole(id)
+                setLoader(true);
+                const { Success, Data, Message } = await PostCommonSp({
+                    "key": "CUS_CRUD",
+                    "TYPE": "DELETE",
+                    "CUS_DOCNO": id
+                })
+                // const { Success, Data, Message } = await deleteRole(id)
                 if (Success) {
                     fetchList();
                     showToast(Message, 'success');
@@ -99,42 +123,73 @@ export default function ChartOfAccount() {
                 }
             }
             finally {
-                setLoadingFull(false);
+                setLoader(false);
             }
         });
     }
-
-    function handleEdit(users) {
-        navigate('/userrole', { state: { user: users } })
+    function closeModal() {
+        SetShowModal(false);
+        setEditData(null);
+        fetchList();
     }
+    function handleEdit(users) {
+        SetShowModal(true);
+        setEditData(users)
+    }
+
+    function handleNew() {
+        SetShowModal(true);
+        setEditData(null)
+    }
+  
+    const handleItemClick = (item) => {
+        console.log('Item clicked:', item);
+        setAccName(item)
+        // Do something with the clicked item
+      };
+    
 
     return <>
         <Helmet>
-            <title>Charts of Account </title>
+            <title> Customer </title>
         </Helmet>
+        <Card>
 
-        <Stack m={5} >
-            <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-                <Typography variant="h4" gutterBottom>
-                    Charts of Account
-                </Typography>
+            <Stack m={5} >
+                <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
+                    <Typography variant="h4" gutterBottom>
+                        Chart Of Account
+                    </Typography>
 
-                <Button variant="contained"
-                    onClick={() => SetShowModal(true)}
-                    startIcon={<Iconify icon="eva:plus-fill" />}>
-                    New
-                </Button>
+                    <Button variant="contained"
+                        onClick={() => handleNew()}
+                        startIcon={<Iconify icon="eva:plus-fill" />}>
+                        New
+                    </Button>
+                </Stack>
+                <Grid container>
+                    <Grid item sm={4} md={3}>
+                        <TreeView callbackFunction={handleItemClick} />
+                    </Grid>
+                    <Grid item sm={8} md={9}>
+                    <Typography variant="h4" gutterBottom>
+                        Chart Of Account -{accName}
+                    </Typography> 
+                    </Grid>
+                </Grid>
+                {/* {
+                    (!loader && data) ? <DataTable
+                        columns={columns}
+                        data={data}
+                        // enableRowSelection 
+                        // enableGrouping
+                        enableExport={false}
+
+                    /> : <CircularProgress color="inherit" />
+                }
+          <ModalForm open={showModal} initialValues={editData} onClose={() => closeModal()} /> */}
             </Stack>
-
-            {/* {data && <DataTable
-                columns={columns}
-                data={data}
-                enableExport={false}
-
-            />} */}
-            <ModalForm open={showModal} initialValues={null} onClose={() => SetShowModal(false)} />
-        </Stack>
-
+        </Card>
     </>
 
 }
