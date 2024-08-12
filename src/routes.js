@@ -1,3 +1,4 @@
+import { createContext, useContext, useEffect, useState } from 'react';
 import { Navigate, useRoutes } from 'react-router-dom';
 // layouts
 import DashboardLayout from './layouts/dashboard';
@@ -35,8 +36,52 @@ import LastNumber from './pages/Settings/ERP/LastNumber';
 import Customer from './pages/Masters/Finance/Customer';
 
 // ----------------------------------------------------------------------
+const RequiredRolesContext = createContext();
 
+const fetchRequiredRoles = async (routePath) => {
+  // Replace with your actual API call
+  const response = await fetch(`/api/routes/${routePath}/requiredRoles`);
+  const data = await response.json();
+  return data.requiredRoles;
+};
+
+const canAccess = (userRoles, requiredRoles) => {
+  return requiredRoles.some(role => userRoles.includes(role));
+};
+
+const ProtectedRoute = ({ children }) => {
+  const requiredRoles = useContext(RequiredRolesContext);
+
+  if (!requiredRoles) {
+    return <div>Loading...</div>; // or display a loading indicator
+  }
+
+  const userRoles ='admin' /* Get user roles from state or context */;
+
+  if (!canAccess(userRoles, requiredRoles)) {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
+  return children;
+};
 export default function Router() {
+
+
+  const [requiredRoles, setRequiredRoles] = useState(null);
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+      const roles = await fetchRequiredRoles(window.location.pathname);
+      setRequiredRoles(roles);
+    };
+
+    fetchRoles();
+  }, []);
+
+
+
+
+
   const userMenus = [
     { path: 'customermasterv2', element: <CustomerMasterV2 /> },
     { path: 'SalesList', element: <SalesList /> },
@@ -107,5 +152,13 @@ export default function Router() {
     },
   ]);
 
-  return routes;
+   return routes;
+  // return (
+  //   <RequiredRolesContext.Provider value={requiredRoles}>
+  //     <Routes>
+  //       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+  //       {/* Other routes */}
+  //     </Routes>
+  //   </RequiredRolesContext.Provider>
+  // );
 }

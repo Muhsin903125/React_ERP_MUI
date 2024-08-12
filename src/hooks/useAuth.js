@@ -114,4 +114,32 @@ export default function useAuth() {
     return { userToken, refreshToken, username, expiry,displayName,profileImg,role, login, logout };
 };
 
-// export default useAuth;
+// // export default useAuth;
+
+// import { useSelector, useDispatch } from 'react-redux';
+// import { login, logout } from './authSlice';
+
+// export default function useAuth() {   
+//   const { userToken, refreshToken, username, expiry, displayName, profileImg, role } = useSelector(state => state.auth);
+//   const dispatch = useDispatch();
+
+//   const handleLogin = (username, token, refreshToken, expiry, firstName, lastName, profileImg, role) => {
+//     dispatch(login({ username, token, refreshToken, expiry, firstName, lastName, profileImg, role }));
+//   };
+
+//   const handleLogout = () => {
+//     dispatch(logout());
+//   };
+
+//   return {
+//     userToken,
+//     refreshToken,
+//     username,
+//     expiry,
+//     displayName,
+//     profileImg,
+//     role,
+//     login: handleLogin,
+//     logout: handleLogout,
+//   };
+// }
