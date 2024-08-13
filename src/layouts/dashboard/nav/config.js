@@ -322,7 +322,7 @@ const navConfig = [
         childern: [
           {
             title: 'Screens',
-            path: '/productlist',
+            path: '/screens',
             icon: subIcon()
           }, 
         ]

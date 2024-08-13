@@ -1,39 +1,27 @@
-import  {  useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PostMultiSp } from '../hooks/Api';
 
-
-export  default function useLookupData(type) {
-
-    const [lookupData, setlookupData] = useState([]); 
+export default function useLookupData(type) {
+    const [lookupData, setLookupData] = useState([]);
 
     useEffect(() => {
+        const fetchLookupData = async () => {
+            try {
+                const { Success, Data } = await PostMultiSp({
+                    key: 'LOOKUP',
+                    TYPE: type,
+                });
 
-        async function fetchCustomerList() {
-    
-          try {
-            const { Success, Data, Message } = await PostMultiSp({
-              "key": "string",
-              "userId": "string",
-              "json": JSON.stringify({
-                "json": [],
-                "key": "COMMON_LOOKUP",
-                "doctype" : type
-              }),
-              "controller": "string"
-            })
-            if (Success) {
-                setlookupData(Data[0])
-            //  showToast(Message, 'success');
+                if (Success) {
+                    setLookupData(Data[0]); 
+                }
+            } catch (err) {
+                console.error("Error fetching lookup data:", err);
             }
-          }
-          finally {
-            console.log("Lookup Data Failure")
-          } 
-        }
-    
-        fetchCustomerList();
-    
-        },[])
+        };
 
-        return lookupData
+        fetchLookupData();
+    }, [type]); // Added type as a dependency
+
+    return lookupData;
 }

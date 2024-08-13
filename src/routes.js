@@ -34,6 +34,7 @@ import Supplier from './pages/Masters/Finance/Supplier';
 import Salesman from './pages/Masters/Finance/Salesman';
 import LastNumber from './pages/Settings/ERP/LastNumber';
 import Customer from './pages/Masters/Finance/Customer';
+import Screens from './pages/Settings/Menu/Screens';
 
 // ----------------------------------------------------------------------
 const RequiredRolesContext = createContext();
@@ -74,6 +75,7 @@ export default function Router() {
       const roles = await fetchRequiredRoles(window.location.pathname);
       setRequiredRoles(roles);
     };
+console.log("pathh- ",window.location.pathname);
 
     fetchRoles();
   }, []);
@@ -99,6 +101,7 @@ export default function Router() {
     { path: 'salesman', element: <Salesman /> },
     { path: 'customer', element: <Customer /> },
       { path: 'lastno', element: <LastNumber /> },
+      { path: 'screens', element: <Screens /> },
     { path: 'invoiceprint', element: <InvoicePrint /> },
   ]
   const routes = useRoutes([
