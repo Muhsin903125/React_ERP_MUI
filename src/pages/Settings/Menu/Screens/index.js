@@ -39,13 +39,11 @@ export default function Screens() {
         },
         {
             accessorKey: 'MENU_URL',
-            header: 'url', 
-            size:"300"
+            header: 'url',  
         },
         {
             accessorKey: 'MENU_ACTION_TYPE',
-            header: 'Type',
-             size:"150"
+            header: 'Type', 
         },
         {
             accessorKey: 'PARENT_NAME',
