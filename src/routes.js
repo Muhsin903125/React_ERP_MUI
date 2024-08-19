@@ -35,6 +35,7 @@ import Salesman from './pages/Masters/Finance/Salesman';
 import LastNumber from './pages/Settings/ERP/LastNumber';
 import Customer from './pages/Masters/Finance/Customer';
 import Screens from './pages/Settings/Menu/Screens';
+import Permissions from './pages/Settings/Menu/Permissions';
 
 // ----------------------------------------------------------------------
 const RequiredRolesContext = createContext();
@@ -102,6 +103,7 @@ console.log("pathh- ",window.location.pathname);
     { path: 'customer', element: <Customer /> },
       { path: 'lastno', element: <LastNumber /> },
       { path: 'screens', element: <Screens /> },
+      { path: 'permissions', element: <Permissions /> },
     { path: 'invoiceprint', element: <InvoicePrint /> },
   ]
   const routes = useRoutes([

@@ -325,6 +325,11 @@ const navConfig = [
             path: '/screens',
             icon: subIcon()
           }, 
+          {
+            title: 'Permissions',
+            path: '/permissions',
+            icon: subIcon()
+          }, 
         ]
       },
       {
