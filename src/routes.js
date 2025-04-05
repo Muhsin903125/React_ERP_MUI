@@ -36,6 +36,7 @@ import Screens from './pages/Settings/Menu/Screens';
 import Permissions from './pages/Settings/Menu/Permissions';
 import Product from './pages/Masters/Inventory/Product';
 import Unit from './pages/Masters/Inventory/Unit';
+import Location from './pages/Masters/Inventory/Location';
 
 // ----------------------------------------------------------------------
 const RequiredRolesContext = createContext();
@@ -96,6 +97,7 @@ console.log("pathh- ",window.location.pathname);
     { path: 'product', element: <Product /> },
     { path: 'productlist', element: <ProductList /> },
     { path: 'unit', element: <Unit /> },
+    { path: 'location', element: <Location /> },
     { path: 'unitlist', element: <UnitList /> },
     { path: 'coa', element: <ChartOfAccount /> },
     { path: 'supplier', element: <Supplier /> },   

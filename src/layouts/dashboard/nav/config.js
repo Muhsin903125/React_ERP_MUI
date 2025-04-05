@@ -74,7 +74,7 @@ const navConfig = [
           },
           {
             title: 'Locations',
-            path: '/unitlist',
+            path: '/location',
             icon: subIcon()
           },
         ]
