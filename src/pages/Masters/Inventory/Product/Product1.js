@@ -22,15 +22,15 @@ import CategoryIcon from '@mui/icons-material/Category';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import { AuthContext } from '../../../App';
-import { deleteRole, saveRole, UpdateRole, PostMultiSp, PostCommonSp } from '../../../hooks/Api';
-import { useToast } from '../../../hooks/Common';
-import Confirm from '../../../components/Confirm';
-import MyContainer from '../../../components/MyContainer';
-import GridEntry from '../../../components/GridEntry';
+import { AuthContext } from '../../../../App';
+import { deleteRole, saveRole, UpdateRole, PostMultiSp, PostCommonSp } from '../../../../hooks/Api';
+import { useToast } from '../../../../hooks/Common';
+import Confirm from '../../../../components/Confirm';
+import MyContainer from '../../../../components/MyContainer';
+import GridEntry from '../../../../components/GridEntry';
 
 
-export default function Product() {
+export default function Product1() {
 
     const location = useLocation();
     // const product = location.state?.product;

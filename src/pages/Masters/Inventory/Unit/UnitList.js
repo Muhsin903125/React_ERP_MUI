@@ -16,14 +16,14 @@ import {
 
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import Iconify from '../../../components/iconify/Iconify';
-import { AuthContext } from '../../../App';
-import { deleteRole, GetRoleList, PostMultiSp, saveRole } from '../../../hooks/Api';
-import { useToast } from '../../../hooks/Common';
-import DataTable from '../../../components/DataTable';
-import Confirm from '../../../components/Confirm';
+import Iconify from '../../../../components/iconify/Iconify';
+import { AuthContext } from '../../../../App';
+import {   PostMultiSp } from '../../../../hooks/Api';
+import { useToast } from '../../../../hooks/Common';
+import DataTable from '../../../../components/DataTable';
+import Confirm from '../../../../components/Confirm';
 
-export default function ProductList() {
+export default function UnitList() {
   const columns = [
 
     {
@@ -31,7 +31,7 @@ export default function ProductList() {
       Cell: ({ row }) => (
         <div>
           <Tooltip title="Edit">
-            <IconButton onClick={() => handleEdit(row.original.IM_CODE)}>
+            <IconButton onClick={() => handleEdit(row.original)}>
               <EditIcon />
             </IconButton>
           </Tooltip>
@@ -42,35 +42,23 @@ export default function ProductList() {
           </Tooltip>
         </div>
       ),
-      size: 0,
-      excelColumnDisable: true
+      size: 0
     },
 
     {
-      accessorKey: 'IM_CODE', //  access nested data with dot notation
+      accessorKey: 'UM_CODE', //  access nested data with dot notation
       header: 'Code',
       size: 0
     },
     {
-      accessorKey: 'IM_DESC',
+      accessorKey: 'UM_DESC',
       header: 'Descrption',
     },
     {
-      accessorKey: 'IM_UNIT_CODE',
+      accessorKey: 'UM_DECIMAL',
       header: 'Unit',
     },
-    {
-      accessorKey: 'IM_PRICE',
-      header: 'Price',
-    },
-    {
-      accessorKey: 'IM_CREATED_BY',
-      header: 'Created By',
-    },
-    {
-      accessorKey: 'IM_CREATED_TS',
-      header: 'Created TS',
-    },
+    
     // {
     //   accessorKey: 'normalizedName',
     //   header: 'Description',
@@ -93,7 +81,7 @@ export default function ProductList() {
     try {
       setLoadingFull(false);
       const { Success, Data, Message } = await PostMultiSp({
-         "key": "PRODUCT_LIST"
+       "key": "UNIT_LIST"
       })
       if (Success) {
         setData(Data[0])
@@ -112,7 +100,7 @@ export default function ProductList() {
       try {
         setLoadingFull(true);
         const { Success, Data, Message } = await PostMultiSp({
-         "key": "CUSTOMER_LIST"
+           "key": "CUSTOMER_LIST"
         })
         if (Success) {
           fetchList();
@@ -127,8 +115,8 @@ export default function ProductList() {
       }
     });
   }
-  function handleEdit(products) {
-    navigate('/product', { state: { product: products } })
+  function handleEdit(units) {
+    navigate('/unit', { state: { unit: units } })
   }
 
   return <>
@@ -139,11 +127,11 @@ export default function ProductList() {
     <Stack m={5} >
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4" gutterBottom>
-          Product List
+          Unit List
         </Typography>
-        <Link to={{ pathname: '/product', }} style={{ textDecoration: 'none' }}>
+        <Link to={{ pathname: '/unit', }} style={{ textDecoration: 'none' }}>
           <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New Product
+            New Unit
           </Button>
         </Link>
       </Stack>
@@ -153,8 +141,8 @@ export default function ProductList() {
         data={data}
         // enableRowSelection 
         // enableGrouping
-        enableExport
-        fileTitle="ProductList" // name of exl file
+        enableExport={false}
+
       />}
     </Stack>
 

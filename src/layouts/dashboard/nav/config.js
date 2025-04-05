@@ -64,12 +64,12 @@ const navConfig = [
         childern: [
           {
             title: 'Products',
-            path: '/productlist',
+            path: '/product',
             icon: subIcon()
           },
           {
             title: 'Units',
-            path: '/unitlist',
+            path: '/unit',
             icon: subIcon()
           },
           {

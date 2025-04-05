@@ -23,10 +23,8 @@ import CustomerMasterV2 from './pages/Masters/CustomerMasterV2';
 import RegisterUser from './pages/User/RegisterUser';
 import UserList from './pages/User/UserList';
 import UserRoleList from './pages/User/Roles/UserRoleList'; 
-import ProductList from './pages/Masters/Product/ProductList';
-import Product from './pages/Masters/Product/Product';
-import UnitList from './pages/Masters/Unit/UnitList';
-import Unit from './pages/Masters/Unit/Unit'; 
+import ProductList from './pages/Masters/Inventory/Product/ProductList'; 
+import UnitList from './pages/Masters/Inventory/Unit/UnitList'; 
 import Settings from './pages/Settings';
 import InvoicePrint from './pages/Invoice/InvoicePrint';
 import ChartOfAccount from './pages/Masters/Finance/ChartOfAccount';
@@ -36,6 +34,8 @@ import LastNumber from './pages/Settings/ERP/LastNumber';
 import Customer from './pages/Masters/Finance/Customer';
 import Screens from './pages/Settings/Menu/Screens';
 import Permissions from './pages/Settings/Menu/Permissions';
+import Product from './pages/Masters/Inventory/Product';
+import Unit from './pages/Masters/Inventory/Unit';
 
 // ----------------------------------------------------------------------
 const RequiredRolesContext = createContext();
