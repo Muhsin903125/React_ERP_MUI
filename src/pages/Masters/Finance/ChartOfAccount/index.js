@@ -76,12 +76,18 @@ export default function ChartOfAccount() {
     const { showToast } = useToast();
     const [data, setData] = useState(null)
     const [editData, setEditData] = useState(null);
+    const [accDetails, setAccDetails] = useState(null);
+    const [isDelete, setIsDelete] = useState(false);
+
     const [accName, setAccName] = useState(null);
     const [loader, setLoader] = useState(true);
     const [showModal, SetShowModal] = useState(false)
+    const [accId, setAccId] = useState(null);
+    const [accCredit, setAccCredit] = useState(0.00);
+
     useEffect(() => {
 
-        // fetchList();
+        fetchList();
 
     }, [])
 
@@ -89,11 +95,12 @@ export default function ChartOfAccount() {
         setLoader(true);
         try {
             const { Success, Data, Message } = await PostCommonSp({
-                "key": "CUS_CRUD",
-                "TYPE": "GET_ALL",
+                "key": "COA_CRUD",
+                "TYPE": "GET_TREE",
             })
             if (Success) {
-                setData(Data)
+
+                setData(JSON.parse(Data?.TreeData))
             }
             else {
                 showToast(Message, "error");
@@ -137,44 +144,106 @@ export default function ChartOfAccount() {
         setEditData(users)
     }
 
-    function handleNew() {
+    function handleNew(id) {
         SetShowModal(true);
         setEditData(null)
     }
-  
+    const getAccountDetails = async (id) => {
+        const { Success, Data, Message } = await PostCommonSp({
+            "key": "COA_CRUD",
+            "TYPE": "GET_BY_PARENT",
+            "ACMAIN_PARENT": id
+        })
+        if (Success) {
+            setIsDelete(Data?.isDeletable)
+            setAccDetails(Data)
+            setAccCredit(Data?.Credit)
+        }
+    }
     const handleItemClick = (item) => {
         console.log('Item clicked:', item);
-        setAccName(item)
+        setAccName(item.label)
+        setAccId(item.id)
+        getAccountDetails(item.id)
+
         // Do something with the clicked item
-      };
-    
+    };
+
 
     return <>
         <Helmet>
             <title> Customer </title>
         </Helmet>
-        <Card>
+        <Card >
 
             <Stack m={5} >
-                <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-                    <Typography variant="h4" gutterBottom>
-                        Chart Of Account
-                    </Typography>
 
-                    <Button variant="contained"
-                        onClick={() => handleNew()}
-                        startIcon={<Iconify icon="eva:plus-fill" />}>
-                        New
-                    </Button>
-                </Stack>
-                <Grid container>
-                    <Grid item sm={4} md={3}>
-                        <TreeView callbackFunction={handleItemClick} />
+                <Grid container spacing={4}>
+                    <Grid item md={12}
+                    >
+                        <Typography variant="h4" gutterBottom>
+                            Chart Of Account
+                        </Typography>
                     </Grid>
-                    <Grid item sm={8} md={9}>
-                    <Typography variant="h4" gutterBottom>
-                        Chart Of Account -{accName}
-                    </Typography> 
+                    <Grid item sm={7} md={7}
+                        sx={{
+                            backgroundColor: 'white',
+
+                            borderRadius: '10px', padding: '10px'
+                        }}
+                    >
+                        {data && <TreeView callbackFunction={handleItemClick} data={data} />}
+                    </Grid>
+                    <Grid item sm={5} md={5} sx={{
+                        background: 'linear-gradient(to right,rgba(255, 255, 255, 0.51),rgba(247, 247, 247, 0.38))',
+
+                        // boxShadow: '0px 0px 10px 0px rgba(36, 1, 1, 0.1)',
+                        borderRadius: '10px', padding: '20px',
+                        paddingRight: '20px'
+                    }}>
+                      { accName && <Box display="flex" flexDirection="column" alignItems="flex-end" gap={2}>
+                            <Typography variant="h4" gutterBottom>
+                                {accName}
+                            </Typography>
+                            <Box display="flex" gap={2} justifyContent="flex-end" flexDirection="row">
+                                <Button variant="outlined"
+                                    size="small"
+                                    onClick={() => handleNew(accId)}
+                                    startIcon={<Iconify icon="eva:plus-fill" />}>
+                                    Add Child
+                                </Button>
+                                <Button variant="outlined"
+                                    size="small"
+                                    onClick={() => handleNew(accId)}
+                                    startIcon={<Iconify icon="eva:edit-fill" />}>
+                                    Edit
+                                </Button>
+                                <Button variant="outlined"
+                                    size="small"
+                                    onClick={() => handleNew(accId)}
+                                    startIcon={<Iconify icon="eva:eye-fill" />}>
+                                    View Ledger
+                                </Button>
+                                {isDelete === 1 && <Button variant="outlined" color="error"
+                                    size="small"
+                                    startIcon={<Iconify icon="eva:trash-2-outline" />}
+                                    onClick={() => handleDelete(accId)}>
+                                    Delete
+                                </Button>
+                                }
+
+                            </Box>
+                            <Box display="flex" gap={2}>
+                                <Typography variant="body1" gutterBottom>
+                                    Credit Limit
+                                </Typography>
+                                <Typography variant="body1" gutterBottom>
+                                    {accCredit}
+                                </Typography>
+                            </Box>
+
+
+                        </Box>}
                     </Grid>
                 </Grid>
                 {/* {
@@ -186,8 +255,8 @@ export default function ChartOfAccount() {
                         enableExport={false}
 
                     /> : <CircularProgress color="inherit" />
-                }
-          <ModalForm open={showModal} initialValues={editData} onClose={() => closeModal()} /> */}
+                } */}
+                <ModalForm open={showModal} initialValues={editData} onClose={() => closeModal()} />
             </Stack>
         </Card>
     </>

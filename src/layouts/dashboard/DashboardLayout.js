@@ -47,9 +47,9 @@ export default function DashboardLayout() {
       <Nav openNav={open} onCloseNav={() => setOpen(false)} />
 
       <Main>
-        <Container>
+        {/* <Container> */}
           <Outlet />
-        </Container>
+        {/* </Container> */}
       </Main>
     </StyledRoot>
   );
