@@ -201,29 +201,36 @@ export default function ChartOfAccount() {
                         borderRadius: '10px', padding: '20px',
                         paddingRight: '20px'
                     }}>
-                      { accName && <Box display="flex" flexDirection="column" alignItems="flex-end" gap={2}>
+                        {accName && <Box display="flex" flexDirection="column" alignItems="flex-end" gap={2}>
                             <Typography variant="h4" gutterBottom>
                                 {accName}
                             </Typography>
                             <Box display="flex" gap={2} justifyContent="flex-end" flexDirection="row">
-                                <Button variant="outlined"
+                                {accDetails.ACMAIN_ACTYPE_DOCNO === 'GH' ? <Button variant="outlined"
                                     size="small"
                                     onClick={() => handleNew(accId)}
                                     startIcon={<Iconify icon="eva:plus-fill" />}>
                                     Add Child
+                                </Button> : <Button variant="outlined"
+                                    size="small"
+                                    onClick={() => handleNew(accId)}
+                                    startIcon={<Iconify icon="eva:plus-fill" />}>
+                                    Add Account
                                 </Button>
+                                }
                                 <Button variant="outlined"
                                     size="small"
                                     onClick={() => handleNew(accId)}
                                     startIcon={<Iconify icon="eva:edit-fill" />}>
                                     Edit
                                 </Button>
-                                <Button variant="outlined"
+                                {accDetails.ACMAIN_ACTYPE_DOCNO !== 'GH' && <Button variant="outlined"
                                     size="small"
                                     onClick={() => handleNew(accId)}
                                     startIcon={<Iconify icon="eva:eye-fill" />}>
                                     View Ledger
                                 </Button>
+                                }
                                 {isDelete === 1 && <Button variant="outlined" color="error"
                                     size="small"
                                     startIcon={<Iconify icon="eva:trash-2-outline" />}
