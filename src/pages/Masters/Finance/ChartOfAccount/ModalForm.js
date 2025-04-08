@@ -1,46 +1,50 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { Button, Modal, Grid, TextField, Stack, Box, Typography } from '@mui/material';
-import { Formik, Form } from 'formik';
+import { Button, Modal, Grid, TextField, Stack, Box, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Formik, Form, Field } from 'formik';
 import * as yup from 'yup';
 import Iconify from '../../../../components/iconify';
 import { PostCommonSp } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 
-const ModalForm = ({ open, onClose, initialValues }) => {
+const ModalForm = ({ open, onClose, initialValues ,parentId}) => {
   const { showToast } = useToast();
   const [isNew, setIsNew] = useState(true);
   const [code, setCode] = useState(null);
   const [codeEditable, setCodeEditable] = useState(false);
+  const [parents, setParents] = useState([]);
+  const [accountType, setAccountType] = useState([]);
   useEffect(() => {
     if (initialValues !== null) {
       setIsNew(false);
     } else {
       setIsNew(true);
       getCode();
+      getParents();
+      getAccountType();
     }
   }, [initialValues, open]);
 
   const validationSchema = yup.object().shape({
-    docNo: yup.string().required('Doc No is required'),
+    code: yup.string().required('Code is required'),
     desc: yup.string().required('Description is required'),
-    email: yup.string(),
-    mobile: yup.string(),
-    trn: yup.string().max(15),
-    address: yup.string(),
+    parent: yup.string(),
+    acType: yup.string(),
+    accNo: yup.string(), 
   });
 
   const HandleData = async (data, type) => {
     try {
       const { Success, Message } = await PostCommonSp({
-        "key": "CUS_CRUD",
+        "key": "COA_CRUD",
         "TYPE": type, // Pass the type as a parameter
-        "CUS_DOCNO": data.docNo,
-        "CUS_DESC": data.desc,
-        "CUS_EMAIL": data.email,
-        "CUS_TRN": data.trn,
-        "CUS_ADDRESS": data.address,
-        "CUS_MOB": (data.mobile).toString(),
+        "ACMAIN_CODE": data.code,
+        "ACMAIN_DESC": data.desc,
+        "ACMAIN_PARENT": data.parent,
+        "ACMAIN_ACTYPE_DOCNO": initialValues?.ACMAIN_ACTYPE_DOCNO === "GH" ? "GL" : "GH",
+        "ACMAIN_ACCNO": data.accNo,
+        "ACMAIN_ACTYPE": data.acType
+
       });
 
       if (Success) {
@@ -53,12 +57,41 @@ const ModalForm = ({ open, onClose, initialValues }) => {
       console.error("Error:", error); // More informative error handling
     }
   };
-
+  const getParents = async () => {
+    try {
+      const { Success, Data, Message } = await PostCommonSp({
+        "key": "COA_CRUD",
+        "TYPE": "GET_ALL",
+      });
+      if (Success) {
+        setParents(Data);
+      } else {
+        showToast(Message, "error");
+      }
+    } catch (error) {
+      console.error("Error:", error); // More informative error handling
+    }
+  }
+  const getAccountType = async () => {
+    try {
+      const { Success, Data, Message } = await PostCommonSp({
+        "key": "LOOKUP",
+        "TYPE": "CAO_ACTYPE",
+      });
+      if (Success) {
+        setAccountType(Data);
+      } else {
+        showToast(Message, "error");
+      }
+    } catch (error) {
+      console.error("Error:", error); // More informative error handling
+    }
+  }
   const getCode = async () => {
     try {
       const { Success, Data, Message } = await PostCommonSp({
         "key": "LAST_NO",
-        "TYPE": "CUS",
+        "TYPE": "COA",
       });
 
       if (Success) {
@@ -86,17 +119,17 @@ const ModalForm = ({ open, onClose, initialValues }) => {
         }}
       >
         <Typography variant="h4" component="h2" sx={{ mb: 3.5, display: 'flex', justifyContent: 'space-between' }}>
-          {isNew ? "Create Customer" : "Update Customer"}
+          {isNew ? "Create Chart of Account" : "Update Chart of Account"}
         </Typography>
 
         <Formik
           initialValues={{
-            docNo: initialValues?.CUS_DOCNO || code,
-            desc: initialValues?.CUS_DESC || '',
-            email: initialValues?.CUS_EMAIL || '',
-            mobile: initialValues?.CUS_MOB || '',
-            address: initialValues?.CUS_ADDRESS || '',
-            trn: initialValues?.CUS_TRN || '', 
+            code: initialValues?.ACMAIN_CODE || code,
+            desc: initialValues?.ACMAIN_DESC || '',
+            parent: initialValues?.ACMAIN_PARENT || parentId,
+            acType: initialValues?.ACMAIN_ACTYPE || '',
+            accNo: initialValues?.ACMAIN_ACCNO || '',
+            
           }}
           validationSchema={validationSchema}
           onSubmit={(values) => {
@@ -113,13 +146,13 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
-                    label="Doc No"
+                    label="Code"
                     disabled={isNew ? !codeEditable : true}
-                    name="docNo" //  Ensure this matches the validation schema
-                    value={values.docNo} // Use values.name instead of values.R_NAME
+                    name="code" //  Ensure this matches the validation schema
+                    value={values.code} // Use values.name instead of values.R_NAME
                     onChange={handleChange} // This will now work correctly
-                    error={Boolean(touched.docNo && errors.docNo)}
-                    helperText={touched.docNo && errors.docNo}
+                    error={Boolean(touched.code && errors.code)}
+                    helperText={touched.code && errors.code}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -134,52 +167,64 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth error={Boolean(touched.parent && errors.parent)}>
+                    <InputLabel>Parent</InputLabel>
+                    <Field
+                      as={Select}
+                      label="Parent"
+                      name="parent"
+                      value={values.parent}
+                      onChange={handleChange}
+                    >
+                      {parents.map((item) => (
+                        <MenuItem key={item.ACMAIN_CODE} value={item.ACMAIN_CODE}>
+                          {item.ACMAIN_DESC}
+                        </MenuItem>
+                      ))}
+                    </Field>
+                    {touched.parent && errors.parent && (
+                      <Typography color="error" variant="caption">
+                        {errors.parent}
+                      </Typography>
+                    )}
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
-                    type='email'
-                    label="Email"
-                    name="email" // Ensure this matches the validation schema
-                    value={values.email} // Use values.name instead of values.R_NAME
+                    label="Account No"
+                    name="accNo" // Ensure this matches the validation schema
+                    value={values.accNo} // Use values.name instead of values.R_NAME
                     onChange={handleChange} // This will now work correctly
-                    error={Boolean(touched.email && errors.email)}
-                    helperText={touched.email && errors.email}
+                    error={Boolean(touched.accNo && errors.accNo)}
+                    helperText={touched.accNo && errors.accNo}
                   />
                 </Grid>
-                 <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    type='number'
-                    label="Mobile"
-                    name="mobile" // Ensure this matches the validation schema
-                    value={values.mobile} // Use values.name instead of values.R_NAME
-                    onChange={handleChange} // This will now work correctly
-                    error={Boolean(touched.mobile && errors.mobile)}
-                    helperText={touched.mobile && errors.mobile}
-                  />
+                <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth error={Boolean(touched.acType && errors.acType)}>
+                    <InputLabel>Account Type</InputLabel>
+                    <Field
+                      as={Select}
+                      label="Account Type"
+                      name="acType"
+                      value={values.acType}
+                      onChange={handleChange}
+                    >
+                      {accountType.map((item) => (
+                        <MenuItem key={item.LK_KEY} value={item.LK_KEY}>
+                          {item.LK_VALUE}
+                        </MenuItem>
+                      ))}
+                    </Field>
+                    {touched.acType && errors.acType && (
+                      <Typography color="error" variant="caption">
+                        {errors.acType}
+                      </Typography>
+                    )}
+                  </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={8}>
-                  <TextField
-                    fullWidth                     
-                    label="Address"
-                    name="address" // Ensure this matches the validation schema
-                    value={values.address} // Use values.name instead of values.R_NAME
-                    onChange={handleChange} // This will now work correctly
-                    error={Boolean(touched.address && errors.address)}
-                    helperText={touched.address && errors.address}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <TextField
-                    fullWidth 
                   
-                    label="TRN"
-                    name="trn" // Ensure this matches the validation schema
-                    value={values.trn} // Use values.name instead of values.R_NAME
-                    onChange={handleChange} // This will now work correctly
-                    error={Boolean(touched.trn && errors.trn)}
-                    helperText={touched.trn && errors.trn}
-                  />
-                </Grid>
+
                 <Grid item xs={12}>
                   <Stack direction="row" alignItems="center" justifyContent="flex-end">
                     <Button variant="outlined" color="error" startIcon={<Iconify icon="mdi:cancel" />}
@@ -188,7 +233,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                       Cancel
                     </Button>
                     <Button type="submit" variant="contained" color={isNew ? "success" : "warning"} startIcon={<Iconify icon="basil:save-outline" />}>
-                      {isNew ? "Save" : "Update"} Customer
+                      {isNew ? "Save" : "Update"} Chart of Account
                     </Button>
                   </Stack>
                 </Grid>

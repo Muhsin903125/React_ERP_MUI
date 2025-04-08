@@ -141,7 +141,7 @@ export default function ChartOfAccount() {
     }
     function handleEdit(users) {
         SetShowModal(true);
-        setEditData(users)
+        setEditData(accDetails)
     }
 
     function handleNew(id) {
@@ -206,7 +206,7 @@ export default function ChartOfAccount() {
                                 {accName}
                             </Typography>
                             <Box display="flex" gap={2} justifyContent="flex-end" flexDirection="row">
-                                {accDetails.ACMAIN_ACTYPE_DOCNO === 'GH' ? <Button variant="outlined"
+                                {accDetails?.ACMAIN_ACTYPE_DOCNO === 'GH' ? <Button variant="outlined"
                                     size="small"
                                     onClick={() => handleNew(accId)}
                                     startIcon={<Iconify icon="eva:plus-fill" />}>
@@ -220,11 +220,11 @@ export default function ChartOfAccount() {
                                 }
                                 <Button variant="outlined"
                                     size="small"
-                                    onClick={() => handleNew(accId)}
+                                    onClick={() => handleEdit(accDetails)}
                                     startIcon={<Iconify icon="eva:edit-fill" />}>
                                     Edit
                                 </Button>
-                                {accDetails.ACMAIN_ACTYPE_DOCNO !== 'GH' && <Button variant="outlined"
+                                {accDetails?.ACMAIN_ACTYPE_DOCNO !== 'GH' && <Button variant="outlined"
                                     size="small"
                                     onClick={() => handleNew(accId)}
                                     startIcon={<Iconify icon="eva:eye-fill" />}>
@@ -263,7 +263,7 @@ export default function ChartOfAccount() {
 
                     /> : <CircularProgress color="inherit" />
                 } */}
-                <ModalForm open={showModal} initialValues={editData} onClose={() => closeModal()} />
+                <ModalForm open={showModal} initialValues={editData} parentId={accId} onClose={() => closeModal()} />
             </Stack>
         </Card>
     </>
