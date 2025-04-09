@@ -116,9 +116,9 @@ export default function ChartOfAccount() {
             try {
                 setLoader(true);
                 const { Success, Data, Message } = await PostCommonSp({
-                    "key": "CUS_CRUD",
+                    "key": "COA_CRUD",
                     "TYPE": "DELETE",
-                    "CUS_DOCNO": id
+                    "ACMAIN_CODE": id
                 })
                 // const { Success, Data, Message } = await deleteRole(id)
                 if (Success) {
