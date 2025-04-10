@@ -22,14 +22,22 @@ import {
   FolderRounded,
   FolderOpenRounded,
   DescriptionRounded,
-  InsertDriveFileRounded,
-  ArticleIcon,
+  InsertDriveFileRounded, 
   DeleteIcon,
-  FolderOpenIcon,
-  ImageIcon,
-  PictureAsPdfIcon,
-  VideoCameraBackIcon,
+  FolderOpenIcon,  
 } from '@mui/icons-material';
+
+import FolderRoundedIcon from '@mui/icons-material/FolderRounded';
+import FolderOpenRoundedIcon from '@mui/icons-material/FolderOpenRounded';
+import DescriptionRoundedIcon from '@mui/icons-material/DescriptionRounded';
+import InsertDriveFileRoundedIcon from '@mui/icons-material/InsertDriveFileRounded';
+import ArticleIcon from '@mui/icons-material/Article';
+import ImageIcon from '@mui/icons-material/Image';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import VideoCameraBackIcon from '@mui/icons-material/VideoCameraBack';
+import ArchiveIcon from '@mui/icons-material/Archive';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import InventoryIcon from '@mui/icons-material/Inventory';
 
 function DotIcon() {
   return (
@@ -119,10 +127,14 @@ function CustomLabel({ icon: Icon, expandable, children, ...other }) {
         <Box
           component={Icon}
           className="labelIcon"
-          color="inherit"
-          sx={{ mr: 1, fontSize: '1.2rem' }}
+          sx={{
+            mr: 1,
+            fontSize: '1.2rem',
+            color: other.iconColor || 'inherit',
+          }}
         />
       )}
+
       <StyledTreeItemLabelText variant="body2">{children}</StyledTreeItemLabelText>
       {expandable && <DotIcon />}
     </TreeItem2Label>
@@ -153,23 +165,47 @@ const CustomTreeItem = React.forwardRef((props, ref) => {
 
   const item = publicAPI.getItem(itemId);
   const expandable = isExpandable(children);
-  const level = item.level; 
+  const iconColor = item?.ACMAIN_ACTYPE_DOCNO === 'GH' ? 'success.main' : 'error.main';
+  const level = item.level;
   let icon;
   switch (level) {
     case 0:
-      icon = FolderRounded;
+      icon = FolderRoundedIcon;
       break;
     case 1:
-      icon = FolderOpenRounded;
+      icon = FolderOpenRoundedIcon;
       break;
     case 2:
-      icon = DescriptionRounded;
+      icon = DescriptionRoundedIcon;
+      break;
+    case 3:
+      icon = ArticleIcon;
+      break;
+    case 4:
+      icon = ImageIcon;
+      break;
+    case 5:
+      icon = PictureAsPdfIcon;
+      break;
+    case 6:
+      icon = VideoCameraBackIcon;
+      break;
+    case 7:
+      icon = ArchiveIcon;
+      break;
+    case 8:
+      icon = AssignmentIcon;
+      break;
+    case 9:
+      icon = InventoryIcon;
+      break;
+    case 10:
+      icon = InsertDriveFileRoundedIcon;
       break;
     default:
-      icon = InsertDriveFileRounded;
+      icon = InsertDriveFileRoundedIcon;
       break;
   }
-
   const handleClick = (e) => {
     e.stopPropagation();
     if (onClick) onClick(item);
@@ -193,13 +229,17 @@ const CustomTreeItem = React.forwardRef((props, ref) => {
           </TreeItem2IconContainer>
           <TreeItem2Checkbox {...getCheckboxProps()} />
           <CustomLabel
+            icon={icon}
+            iconColor={iconColor}
+            expandable={expandable && status.expanded}
             onClick={handleClick}
-            {...getLabelProps({
-              icon,
-              expandable: expandable && status.expanded,
-              style: { paddingLeft: `${(level + 1) * 10}px` },
-            })}
-          />
+            {...getLabelProps()}
+            style={{ paddingLeft: `${level * 15}px` }} // level 1: 5px, level 2: 10px, etc.
+          >
+            {label}
+          </CustomLabel>
+
+
           {/* <TreeItem2DragAndDropOverlay {...getDragAndDropOverlayProps()} /> */}
         </CustomTreeItemContent>
         {children && <TransitionComponent {...getGroupTransitionProps()} />}
@@ -209,14 +249,27 @@ const CustomTreeItem = React.forwardRef((props, ref) => {
 });
 
 export default function TreeView({ callbackFunction, data }) {
-  const firstNode = data?.[0];
+  function buildTree(flatData, parentId = '0', level = 0) {
+    return flatData
+      .filter(item => (item.ACMAIN_PARENT ?? '0') === parentId)
+      .map(item => ({
+        ...item,
+        level,
+        children: buildTree(flatData, item.id, level + 1),
+      }));
+  }
+
+
+  const treeData = React.useMemo(() => buildTree(data), [data]);
+
+  const firstNode = treeData?.[0];
   const firstChild = firstNode?.children?.[0];
   const defaultExpandedItems = firstNode ? [firstNode.id] : [];
   const defaultSelectedItems = firstChild ? [firstChild.id] : [];
 
   return (
     <RichTreeView
-      items={data}
+      items={treeData}
       defaultExpandedItems={defaultExpandedItems}
       defaultSelectedItems={defaultSelectedItems}
       sx={{ height: 'fit-content', flexGrow: 1, maxWidth: 400, overflowY: 'auto' }}

@@ -100,7 +100,7 @@ export default function ChartOfAccount() {
             })
             if (Success) {
 
-                setData(JSON.parse(Data?.TreeData))
+                setData(Data)
             }
             else {
                 showToast(Message, "error");
@@ -151,8 +151,8 @@ export default function ChartOfAccount() {
     const getAccountDetails = async (id) => {
         const { Success, Data, Message } = await PostCommonSp({
             "key": "COA_CRUD",
-            "TYPE": "GET_BY_PARENT",
-            "ACMAIN_PARENT": id
+            "TYPE": "GET_DETAILS",
+            "ACMAIN_CODE": id
         })
         if (Success) {
             setIsDelete(Data?.isDeletable)
@@ -206,7 +206,7 @@ export default function ChartOfAccount() {
                                 {accName}
                             </Typography>
                             <Box display="flex" gap={2} justifyContent="flex-end" flexDirection="row">
-                                {accDetails?.ACMAIN_ACTYPE_DOCNO === 'GH' ? <Button variant="outlined"
+                                {accDetails?.ACMAIN_ACTYPE_DOCNO === 'GH' && accDetails?.IsAllowToCreateGH ? <Button variant="outlined"
                                     size="small"
                                     onClick={() => handleNew(accId)}
                                     startIcon={<Iconify icon="eva:plus-fill" />}>
@@ -263,7 +263,12 @@ export default function ChartOfAccount() {
 
                     /> : <CircularProgress color="inherit" />
                 } */}
-                <ModalForm open={showModal} initialValues={editData} parentId={accId} onClose={() => closeModal()} />
+                <ModalForm 
+                open={showModal} 
+                initialValues={editData} 
+                parentId={accDetails?.ACMAIN_ACTYPE_DOCNO === "GL" ? accDetails?.ACMAIN_PARENT : accId} onClose={() => closeModal()} 
+                grpCode={!accDetails?.IsAllowToCreateGH? "GL" : accDetails?.ACMAIN_ACTYPE_DOCNO} 
+                />
             </Stack>
         </Card>
     </>
