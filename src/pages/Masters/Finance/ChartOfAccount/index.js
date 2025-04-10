@@ -267,6 +267,8 @@ export default function ChartOfAccount() {
                 open={showModal} 
                 initialValues={editData} 
                 parentId={accDetails?.ACMAIN_ACTYPE_DOCNO === "GL" ? accDetails?.ACMAIN_PARENT : accId} onClose={() => closeModal()} 
+                IsAllowToCreateGH= {accDetails?.IsAllowToCreateGH}
+                IsAllowToCreateGL= {accDetails?.IsAllowToCreateGL}
                 grpCode={!accDetails?.IsAllowToCreateGH? "GL" : accDetails?.ACMAIN_ACTYPE_DOCNO} 
                 />
             </Stack>

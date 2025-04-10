@@ -7,7 +7,7 @@ import Iconify from '../../../../components/iconify';
 import { PostCommonSp } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 
-const ModalForm = ({ open, onClose, initialValues, parentId, grpCode }) => {
+const ModalForm = ({ open, onClose, initialValues, parentId, grpCode,IsAllowToCreateGH,IsAllowToCreateGL }) => {
   const { showToast } = useToast();
   const [isNew, setIsNew] = useState(true);
   const [code, setCode] = useState(null);
@@ -96,7 +96,7 @@ const validationSchema = yup.object().shape({
         "ACMAIN_CODE": data.code,
         "ACMAIN_DESC": data.desc,
         "ACMAIN_PARENT": data.parent,
-        "ACMAIN_ACTYPE_DOCNO": grpCode === "GH" ? (data.isGroup ? "GH" : "GL") : 'GL',
+        "ACMAIN_ACTYPE_DOCNO": data.isGroup ? "GH" : "GL",
         "ACMAIN_DEFAULT_BALANCE_SIGN": data.defaultBalance,
         // "ACMAIN_ACTYPE": data.acType,
         "ACMAIN_ACCNO": data.accNo,
@@ -187,7 +187,7 @@ const validationSchema = yup.object().shape({
     <Modal open={open} onClose={onClose}>
       <Box
         sx={{
-          width: { xs: '90%', sm: '550px', md: "720px" },
+          width: { xs: '90%', sm: '550px', md: "850px" },
           bgcolor: 'background.paper',
           borderRadius: '8px',
           boxShadow: 24,
@@ -207,7 +207,7 @@ const validationSchema = yup.object().shape({
             parent: initialValues?.ACMAIN_PARENT || parentId,
             // acType: initialValues?.ACMAIN_ACTYPE || '',
             accNo: initialValues?.ACMAIN_ACCNO || '',
-            isGroup: initialValues?.ACMAIN_ACTYPE_DOCNO==="GH" || false,
+            isGroup:initialValues?.ACMAIN_ACTYPE_DOCNO==="GH" || IsAllowToCreateGH  ,
             defaultBalance: initialValues?.ACMAIN_DEFAULT_BALANCE_SIGN || '',
             tax: initialValues?.ACMAIN_ACCOUNT_TAX || '',
             accCode: initialValues?.ACMAIN_ACC_CODE || accountCode,
@@ -280,12 +280,16 @@ const validationSchema = yup.object().shape({
 
                 {grpCode === "GH" && <Grid item xs={12} sm={6}>
                   <FormControlLabel
-                    control={<Checkbox checked={values.isGroup} onChange={(e) => setFieldValue('isGroup', e.target.checked)} />}
+                    control={<Checkbox
+                      disabled={(!IsAllowToCreateGH && !IsAllowToCreateGL) || !IsAllowToCreateGL}
+                      checked={values.isGroup}
+                    
+                    onChange={(e) => setFieldValue('isGroup', e.target.checked)} />}
                     label="Is Group"
                   />
                 </Grid>
                 }
-                {(grpCode !== "GH" || !values.isGroup) &&
+                {(grpCode !== "GH" || !values.isGroup) && IsAllowToCreateGL &&
                   <Grid item xs={12} sm={12}>
                     <Paper sx={{ p: 2, border: '1px solid #ccc', borderRadius: 2 }}>
                       <Typography variant="h6" gutterBottom mb={2}>
@@ -293,19 +297,7 @@ const validationSchema = yup.object().shape({
                       </Typography>
 
                       <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
-                          <TextField
-                            fullWidth
-                            label="Account Code"
-                            size="small"
-                            disabled={isNew ? !accountCodeEditable : true}
-                            name="accCode"
-                            value={values.accCode}
-                            onChange={handleChange}
-                            error={Boolean(touched.accCode && errors.accCode)}
-                            helperText={touched.accCode && errors.accCode}
-                          />
-                        </Grid>
+                        
                         <Grid item xs={12} sm={6}>
                           <TextField
                             fullWidth
@@ -328,6 +320,19 @@ const validationSchema = yup.object().shape({
                             onChange={handleChange}
                             error={Boolean(touched.accDesc && errors.accDesc)}
                             helperText={touched.accDesc && errors.accDesc}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={4}>
+                          <TextField
+                            fullWidth
+                            label="Account Code"
+                            size="small"
+                            disabled={isNew ? !accountCodeEditable : true}
+                            name="accCode"
+                            value={values.accCode}
+                            onChange={handleChange}
+                            error={Boolean(touched.accCode && errors.accCode)}
+                            helperText={touched.accCode && errors.accCode}
                           />
                         </Grid>
                         {/* <Grid item xs={12} sm={6}>
@@ -354,7 +359,7 @@ const validationSchema = yup.object().shape({
                             )}
                           </FormControl>
                         </Grid> */}
-                        <Grid item xs={12} sm={6}>
+                        <Grid item xs={12} sm={4}>
                           <FormControl fullWidth size='small' error={Boolean(touched.tax && errors.tax)}>
                             <InputLabel>Tax treatment</InputLabel>
                             <Field
@@ -378,7 +383,7 @@ const validationSchema = yup.object().shape({
                             )}
                           </FormControl>
                         </Grid>
-                        <Grid item xs={12} sm={6}>
+                        <Grid item xs={12} sm={4}>
                           <FormControl fullWidth size="small" error={Boolean(touched.defaultBalance && errors.defaultBalance)}>
                             <InputLabel>Default Balance</InputLabel>
                             <Field
@@ -402,12 +407,7 @@ const validationSchema = yup.object().shape({
                             )}
                           </FormControl>
                         </Grid> 
-                        <Grid item xs={12} sm={6}>
-                          <FormControlLabel
-                            control={<Checkbox size= "small" checked={values.enableAccount} onChange={(e) => setFieldValue('enableAccount', e.target.checked)} />}
-                            label="Enable Account"
-                          />
-                        </Grid>
+                       
                         <Grid item xs={12} sm={12}>
                           <TextField
                             fullWidth
@@ -422,7 +422,12 @@ const validationSchema = yup.object().shape({
                             helperText={touched.remark && errors.remark}
                           />
                         </Grid>
-                       
+                        <Grid item xs={12} sm={6}>
+                          <FormControlLabel
+                            control={<Checkbox size= "small" checked={values.enableAccount} onChange={(e) => setFieldValue('enableAccount', e.target.checked)} />}
+                            label="Enable Account"
+                          />
+                        </Grid>
                       </Grid>
                     </Paper>
 

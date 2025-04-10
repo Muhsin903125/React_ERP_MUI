@@ -18,14 +18,6 @@ import {
   TreeItem2Provider,
   TreeItem2DragAndDropOverlay
 } from '@mui/x-tree-view';
-import {
-  FolderRounded,
-  FolderOpenRounded,
-  DescriptionRounded,
-  InsertDriveFileRounded, 
-  DeleteIcon,
-  FolderOpenIcon,  
-} from '@mui/icons-material';
 
 import FolderRoundedIcon from '@mui/icons-material/FolderRounded';
 import FolderOpenRoundedIcon from '@mui/icons-material/FolderOpenRounded';
@@ -206,6 +198,7 @@ const CustomTreeItem = React.forwardRef((props, ref) => {
       icon = InsertDriveFileRoundedIcon;
       break;
   }
+
   const handleClick = (e) => {
     e.stopPropagation();
     if (onClick) onClick(item);
@@ -239,8 +232,6 @@ const CustomTreeItem = React.forwardRef((props, ref) => {
             {label}
           </CustomLabel>
 
-
-          {/* <TreeItem2DragAndDropOverlay {...getDragAndDropOverlayProps()} /> */}
         </CustomTreeItemContent>
         {children && <TransitionComponent {...getGroupTransitionProps()} />}
       </StyledTreeItemRoot>
@@ -258,7 +249,6 @@ export default function TreeView({ callbackFunction, data }) {
         children: buildTree(flatData, item.id, level + 1),
       }));
   }
-
 
   const treeData = React.useMemo(() => buildTree(data), [data]);
 
