@@ -108,7 +108,7 @@ export default function LastNumber() {
             })
 
             if (Success) {
-                setData(Data)
+                setData(Data[0])
             }
             else {
                 showToast(Message, "error");

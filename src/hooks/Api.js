@@ -21,7 +21,7 @@ export async function PostResetPassword(payload) {
 }
 
 export async function PostCommonSp(payload) {
-  return Post('/General/RouterGatway', payload);
+  return Post('/General/RouterGatwayV2', payload);
 }
 // payload {
 //   key:""

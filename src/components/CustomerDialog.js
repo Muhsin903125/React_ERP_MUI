@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
@@ -14,12 +14,30 @@ import AddIcon from '@mui/icons-material/Add';
 import Typography from '@mui/material/Typography';
 import { blue } from '@mui/material/colors';
 import TextField from '@mui/material/TextField';
-import { Stack, Toolbar } from '@mui/material';
-import useLookupData from '../datas/useLookupData';
- 
+import { Stack, Toolbar } from '@mui/material'; 
+import { PostMultiSp } from '../hooks/Api';
+
 export default function CustomerDialog(props) {
 
-  const customers = useLookupData("CUS");
+  const [customers, setCustomers] = useState([]);
+  useEffect(() => {
+    getCustomers(); // Fetch customers when the component mounts
+  }, []);
+
+  const getCustomers = async () => {
+    try {
+      const { Success, Data, Message } = await PostMultiSp({
+        "key": "CUS_CRUD",
+        "TYPE": "GET_ALL",
+      });
+      if (Success) {
+        setCustomers(Data[0]);
+      }
+    } catch (error) {
+      console.error("Error:", error); // More informative error handling
+    }
+  };
+  // const customers = useLookupData("CUS");
   const { onClose, open, onSelect } = props;
 
   const handleClose = () => {
@@ -47,7 +65,7 @@ export default function CustomerDialog(props) {
   return (
 
     <Dialog fullWidth maxWidth={"sm"} m={15} onClose={handleClose}
-      open={open}> 
+      open={open}>
       <div style={{ position: 'sticky', top: 0, backgroundColor: 'white', zIndex: '1', boxShadow: '#dbdbdb4f -1px 9px 20px 0px' }}>    <DialogTitle elevation={2}  >
         <Typography variant="h5" style={{ fontWeight: 'bold' }} mb={2}>
           Select Customer
@@ -64,19 +82,19 @@ export default function CustomerDialog(props) {
       <List sx={{ pt: 0 }} >
         {filteredCustomer.map((customer) => (
           <ListItem disableGutters>
-            <ListItemButton onClick={() => handleListItemClick(customer)} key={customer.name}>
+            <ListItemButton onClick={() => handleListItemClick(customer)} key={customer.CUS_DESC}>
 
               <ListItemText
                 primary={
                   <Typography ml={1} variant="subtitle1" component="span" style={{ fontWeight: 'bold' }}>
-                    {`${customer.CUS_DOCNO} - ${customer.name}`}
+                    {`${customer.CUS_DOCNO} - ${customer.CUS_DESC}`}
                   </Typography>
                 }
                 secondary={
                   <>
                     <Stack>
                       <Typography ml={1}>
-                        {customer.address}
+                        {customer.CUS_ADDRESS}
                       </Typography>
                     </Stack>
                     <Stack>

@@ -89,7 +89,7 @@ export default function Customer() {
         "TYPE": "GET_ALL",
       })
       if (Success) {
-        setData(Data)
+        setData(Data[0])
       }
       else {
         showToast(Message, "error");

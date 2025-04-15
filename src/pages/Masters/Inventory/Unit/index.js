@@ -77,7 +77,7 @@ export default function Unit() {
         TYPE: 'UNITS',
       })
       if (Success) {
-        setData(Data)
+        setData(Data[0])
       }
       else {
         showToast(Message, "error");

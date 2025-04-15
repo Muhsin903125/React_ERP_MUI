@@ -58,8 +58,8 @@ const ModalForm = ({ open, onClose, initialValues }) => {
       });
 
       if (Success) {
-        setCode(Data?.LAST_NO);
-        setCodeEditable(Data?.IS_EDITABLE);
+        setCode(Data[0]?.LAST_NO);
+        setCodeEditable(Data[0]?.IS_EDITABLE);
       } else {
         showToast(Message, "error");
       }

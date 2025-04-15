@@ -79,10 +79,10 @@ export default function SalesInvoice() {
   const validate = () => {
     const errors = {};
 
-    if (validator.isEmpty(headerData.CustomerCode)) {
-        errors.CustomerCode = 'Customer is required';
-        showToast('Customer is required', "error");
-    }
+    // if (validator.isEmpty(headerData.CustomerCode)) {
+    //     errors.CustomerCode = 'Customer is required';
+    //     showToast('Customer is required', "error");
+    // }
     if (items.some((item) => validator.isEmpty(item.name))) {
         errors.item = 'Item Should not be blank'
         // showToast(errors.item, "error");
@@ -218,8 +218,8 @@ export default function SalesInvoice() {
     setOpen(false);
     setheaderData({
       ...headerData,
-      "Customer": value.name,
-      "Address": value.address,
+      "Customer": value.CUS_DESC,
+      "Address": value.CUS_ADDRESS,
       "TRN": value.CUS_TRN,
       "CustomerCode": value.CUS_DOCNO
     });
@@ -287,14 +287,14 @@ export default function SalesInvoice() {
             New Invoice
           </Button>
         </Stack>
-        <Card>
-          <Stack padding={2.5} style={{ backgroundColor: '#e8f0fa', boxShadow: '#dbdbdb4f -1px 9px 20px 0px'  }}>
-            <Grid container spacing={2} mt={1} >
+        <Card  >
+          <Stack maxwidth={'lg'} padding={2.5} style={{ backgroundColor: '#e8f0fa', boxShadow: '#dbdbdb4f -1px 9px 20px 0px'  }}>
+            <Grid container spacing={2} mt={1}  >
               <Grid item xs={12} md={5}>
                 <Grid container spacing={2} mt={1}>
                   <Grid items xs={8} md={8}>
                     <Typography variant="subtitle1" ml={2} mb={1} style={{ color: "gray" }} >
-                      Customer :
+                      Customer :   {headerData.CustomerCode}
                     </Typography>
                   </Grid>
                   <Grid items xs={4} md={4} align='right'>
@@ -472,13 +472,13 @@ export default function SalesInvoice() {
               </Grid>
             </Grid>
           </Stack>
-          <Stack m={2.5} >
+          <Stack m={2.5}  maxwidth={'lg'}  >
 
             <Typography variant="h6" mb={2} >
               Item Details
             </Typography>
             {items.map((field, index) => (
-              <InvoiceItem
+              <InvoiceItem 
                 key={index} 
                 Propkey={index}
                 code={items[index].name}

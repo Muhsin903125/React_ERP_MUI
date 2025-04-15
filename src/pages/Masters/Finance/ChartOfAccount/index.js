@@ -100,7 +100,7 @@ export default function ChartOfAccount() {
             })
             if (Success) {
 
-                setData(Data)
+                setData(Data[0])
             }
             else {
                 showToast(Message, "error");
@@ -155,9 +155,9 @@ export default function ChartOfAccount() {
             "ACMAIN_CODE": id
         })
         if (Success) {
-            setIsDelete(Data?.isDeletable)
-            setAccDetails(Data)
-            setAccCredit(Data?.Credit)
+            setIsDelete(Data[0]?.isDeletable)
+            setAccDetails(Data[0])
+            setAccCredit(Data[0]?.Credit)
         }
     }
     const handleItemClick = (item) => {

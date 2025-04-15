@@ -80,7 +80,7 @@ const validationSchema = yup.object().shape({
       });
 
       if (Success) {
-        setTaxTreat(Data);
+        setTaxTreat(Data[0]);
       } else {
         showToast(Message, 'error');
       }
@@ -124,7 +124,7 @@ const validationSchema = yup.object().shape({
         "TYPE": "GET_ALL_GH",
       });
       if (Success) {
-        setParents(Data);
+        setParents(Data[0]);
       } else {
         showToast(Message, "error");
       }
@@ -140,7 +140,7 @@ const validationSchema = yup.object().shape({
       });
       if (Success) {
         // setAccountType(Data);
-        setDefaultBalance(Data);
+        setDefaultBalance(Data[0]);
       } else {
         showToast(Message, "error");
       }
@@ -156,8 +156,8 @@ const validationSchema = yup.object().shape({
       });
 
       if (Success) {
-        setCode(Data?.LAST_NO);
-        setCodeEditable(Data?.IS_EDITABLE);
+        setCode(Data[0]?.LAST_NO);
+        setCodeEditable(Data[0]?.IS_EDITABLE);
       } else {
         showToast(Message, "error");
       }
@@ -173,8 +173,8 @@ const validationSchema = yup.object().shape({
       });
 
       if (Success) {
-        setAccountCode(Data?.LAST_NO);
-        setAccountCodeEditable(Data?.IS_EDITABLE);
+        setAccountCode(Data[0]?.LAST_NO);
+        setAccountCodeEditable(Data[0]?.IS_EDITABLE);
       } else {
         showToast(Message, "error");
       }

@@ -8,18 +8,19 @@ import {
     Autocomplete,
     createFilterOptions,
 } from '@mui/material';
-import {  Delete } from '@mui/icons-material';
-import useLookupData from '../../datas/useLookupData';
+import { Delete } from '@mui/icons-material';
+import { PostCommonSp, PostMultiSp } from '../../hooks/Api';
 
 
 
-export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, removeItem, setItems,items,errors }) {
- 
+export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, removeItem, setItems, items, errors }) {
+
+    const [products, setProducts] = useState([]);
     function calculateItemTotal() {
         return qty * price;
     }
 
-    const products = useLookupData("PRODUCT");
+    // const products = // useLookupData("PRODUCT");
     // [
     //     { label: "Mango", price: 194, unit: "KG", desc: "Kerala mango" },
     //     { label: 'Apple', price: 250, unit: "KG", desc: "Kashmir Apple" },
@@ -33,6 +34,25 @@ export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, rem
     //     { label: 'Plum', price: 180, unit: "KG", desc: "from Maharashtra" }
     // ] 
 
+
+    const getProducts = async () => {
+        try {
+            const { Success, Data, Message } = await PostMultiSp({
+                "key": "ITEM_CRUD",
+                "TYPE": "GET_ALL",
+            });
+            if (Success) {
+                setProducts(Data[0]);
+            }
+        } catch (error) {
+            console.error("Error:", error); // More informative error handling
+        }
+    };
+
+    useEffect(() => {
+        getProducts(); // Fetch products when the component mounts
+    }, []);
+
     const [hasErrors, setHasErrors] = useState(false); // state variable to trigger re-render
 
     useEffect(() => {
@@ -41,24 +61,24 @@ export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, rem
 
 
     const handleItemCodeChange = (event, newValue) => {
- 
+
         const newItems = [...items];
-        newItems[Propkey].name = newValue.label;
+        newItems[Propkey].name = newValue.code;
         newItems[Propkey].desc = newValue.desc;
         newItems[Propkey].unit = newValue.unit;
         newItems[Propkey].price = newValue.price;
         newItems[Propkey].qty = 1;
-        setItems(newItems); 
-    }; 
+        setItems(newItems);
+    };
     const filterOptions = createFilterOptions({
-        stringify: (option) => option.desc + option.label,
+        stringify: (option) => option.desc + option.code,
     });
 
-    const handleChange = (event) => { 
+    const handleChange = (event) => {
         const newItems = [...items];
 
         if (event.target.name === `ItemDesc_${Propkey}`) {
-            newItems[Propkey].desc = event.target.value; 
+            newItems[Propkey].desc = event.target.value;
         }
         else if (event.target.name === `ItemPrice_${Propkey}`) {
             newItems[Propkey].price = event.target.value;
@@ -72,16 +92,16 @@ export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, rem
         else if (event.target.name === `ItemUnit_${Propkey}`) {
             newItems[Propkey].unit = event.target.value;
         }
-        setItems(newItems); 
-    } 
+        setItems(newItems);
+    }
     return (
-        <Grid key={Propkey} container spacing={1} mb={1}>
+        <Grid key={Propkey} container spacing={1} mb={1} >
             <Grid item xs={12} md={2}>
-                <Autocomplete
+              {products.length > 0 &&  <Autocomplete
                     disablePortal
                     options={products}
                     fullWidth
-                    autoSelect	
+                    autoSelect
                     filterOptions={filterOptions}
                     onChange={handleItemCodeChange}
                     getOptionLabel={() => code}
@@ -97,12 +117,12 @@ export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, rem
                             </Grid>
                         </Box>
                     )}
-                    renderInput={(params) => 
-                        <TextField {...params} size="small" 
-                            error={hasErrors && ( items[Propkey].name == null || Object.keys(items[Propkey].name).length === 0) }
-                            helperText={( items[Propkey].name == null || Object.keys(items[Propkey].name).length === 0)?errors:''}
+                    renderInput={(params) =>
+                        <TextField {...params} size="small"
+                            error={hasErrors && (items[Propkey].name == null || Object.keys(items[Propkey].name).length === 0)}
+                            helperText={(items[Propkey].name == null || Object.keys(items[Propkey].name).length === 0) ? errors : ''}
                             onChange={handleItemCodeChange} name={`ItemCode_${Propkey}`} label="Code" />}
-                />
+                />}
 
             </Grid>
             <Grid item xs={12} md={3}>
@@ -150,14 +170,14 @@ export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, rem
                 />
             </Grid>
             <Grid item xs={6} sm={3} md={2}>
-                <TextField 
+                <TextField
                     type={'number'}
                     inputProps={{ min: "0", style: { textAlign: 'right' } }}
-                    disabled 
-                    fullWidth  
-                    size="small" 
-                    value={calculateItemTotal()} 
-                    label="Total" 
+                    disabled
+                    fullWidth
+                    size="small"
+                    value={calculateItemTotal()}
+                    label="Total"
                     name="itemTotal" />
             </Grid>
             <Grid item xs={6} sm={3} md={1}>

@@ -126,7 +126,7 @@ export default function Product1() {
                         navigate('/productlist');
                 } else {
                     // showToast(Message, 'error');
-                    showToast(Data.message? Data.message : Message, 'error');
+                    showToast(Data[0].message ? Data[0].message : Message, 'error');
                     // console.log(Data);
                 }
             } finally {

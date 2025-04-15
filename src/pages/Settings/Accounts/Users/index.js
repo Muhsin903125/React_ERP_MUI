@@ -104,7 +104,7 @@ export default function Users() {
         "TYPE": "GET_ALL",
       })
       if (Success) {
-        setData(Data)
+        setData(Data[0])
       }
       else {
         showToast(Message, "error");

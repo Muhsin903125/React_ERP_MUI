@@ -64,7 +64,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
       });
 
       if (Success) {
-        setRoles(Data);
+        setRoles(Data[0]);
       } else {
         showToast(Message, 'error');
       }

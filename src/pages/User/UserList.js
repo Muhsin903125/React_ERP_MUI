@@ -44,7 +44,7 @@ export default function UserList() {
                   })
                 if (Success) {
                     console.log("sss", Data);
-                    setData(Data)
+                    setData(Data[0])
                     //  showToast(Message, 'success');
                 }
                 else {
