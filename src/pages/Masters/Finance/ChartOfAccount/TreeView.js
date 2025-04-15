@@ -83,8 +83,8 @@ const CustomTreeItemContent = styled(TreeItem2Content)(({ theme }) => ({
     color: theme.palette.mode === 'light' ? theme.palette.primary.main : 'white',
   },
   '&.Mui-focused, &.Mui-selected, &.Mui-selected.Mui-focused': {
-    backgroundColor: theme.palette.mode === 'light' ? theme.palette.primary.main : theme.palette.primary.dark,
-    color: theme.palette.primary.contrastText,
+    backgroundColor: 'transparent',
+    color: 'inherit',
   },
 }));
 
