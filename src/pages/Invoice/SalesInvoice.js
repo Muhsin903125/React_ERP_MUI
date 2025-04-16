@@ -242,7 +242,7 @@ export default function SalesInvoice() {
     Confirm('Do you want to save?').then(async () => {
       try {
         setLoadingFull(false);
-        const { Success, Message } = await PostCommonSp({
+        const { Success, Message } = await PostCommonSp(SON.stringify({
           "key": "INVOICE_CRUD",
           "TYPE": "INSERT",
           "headerData": {
@@ -257,7 +257,7 @@ export default function SalesInvoice() {
                   srno: index + 1
                 };
             })
-        }) //  JSON.stringify({ "json": items }));
+        })) //  JSON.stringify({ "json": items }));
 
         if (Success) {
           showToast(Message, 'success');
