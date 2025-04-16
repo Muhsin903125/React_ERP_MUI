@@ -10,8 +10,7 @@ import LoginPage from './pages/LoginPage';
 import Page404 from './pages/Page404';
 import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
-import ChangePassword from './pages/User/ChangePassword';
-import SalesInvoice from './pages/Invoice/SalesInvoice';
+import ChangePassword from './pages/User/ChangePassword'; 
 import SalesList from './pages/Invoice/SalesList';
 import CustomerMaster from './pages/Masters/CustomerMaster';
 import { LoginForm } from './sections/auth/login'; 
@@ -37,6 +36,9 @@ import Permissions from './pages/Settings/Menu/Permissions';
 import Product from './pages/Masters/Inventory/Product';
 import Unit from './pages/Masters/Inventory/Unit';
 import Location from './pages/Masters/Inventory/Location';
+import SalesInvoice2 from './pages/Invoice/SalesInvoice';
+import SalesInvoice from './pages/Transactions/Sales/Invoice';
+import SalesEntry from './pages/Transactions/Sales/Invoice/SalesEntry';
 
 // ----------------------------------------------------------------------
 const RequiredRolesContext = createContext();
@@ -107,6 +109,11 @@ console.log("pathh- ",window.location.pathname);
       { path: 'screens', element: <Screens /> },
       { path: 'permissions', element: <Permissions /> },
     { path: 'invoiceprint', element: <InvoicePrint /> },
+
+    { path: 'salesinvoice', element: <SalesInvoice /> },
+    { path: 'salesentry', element: <SalesEntry /> },
+
+
   ]
   const routes = useRoutes([
     {

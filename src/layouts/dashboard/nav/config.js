@@ -124,7 +124,7 @@ const navConfig = [
           },
           {
             title: 'Invoice',
-            path: '/customermasterv2',
+            path: '/salesinvoice',
             icon: subIcon()
           },
           {

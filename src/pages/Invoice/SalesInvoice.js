@@ -41,7 +41,7 @@ const PaymentModeOptions = [
 ];
 
 
-export default function SalesInvoice() {
+export default function SalesInvoice2() {
 
   const { showToast } = useToast();
   const { setLoadingFull } = useContext(AuthContext);
