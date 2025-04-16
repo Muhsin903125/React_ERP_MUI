@@ -242,7 +242,7 @@ export default function SalesInvoice() {
     Confirm('Do you want to save?').then(async () => {
       try {
         setLoadingFull(false);
-        const { Success, Message } = await PostCommonSp(SON.stringify({
+        const { Success, Message } = await PostCommonSp(JSON.stringify({
           "key": "INVOICE_CRUD",
           "TYPE": "INSERT",
           "headerData": {
