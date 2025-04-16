@@ -266,7 +266,7 @@ export default function SalesInvoice() {
               })
           }));
 
-        const { Success, Message } = await PostCommonSp({
+        const { Success, Message } = await GetSingleResult({
           "json": base64Data
         }) //  JSON.stringify({ "json": items }));
 
