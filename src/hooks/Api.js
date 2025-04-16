@@ -23,6 +23,9 @@ export async function PostResetPassword(payload) {
 export async function PostCommonSp(payload) {
   return Post('/General/RouterGatwayV2', payload);
 }
+export async function GetSingleResult(payload) {
+  return Post('/General/RouterGatway', payload);
+}
 // payload {
 //   key:""
 //   userId:"",

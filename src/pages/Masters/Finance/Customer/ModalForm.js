@@ -4,7 +4,7 @@ import { Button, Modal, Grid, TextField, Stack, Box, Typography } from '@mui/mat
 import { Formik, Form } from 'formik';
 import * as yup from 'yup';
 import Iconify from '../../../../components/iconify';
-import { PostCommonSp } from '../../../../hooks/Api';
+import { GetSingleResult, PostCommonSp } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 
 const ModalForm = ({ open, onClose, initialValues }) => {
@@ -56,13 +56,13 @@ const ModalForm = ({ open, onClose, initialValues }) => {
 
   const getCode = async () => {
     try {
-      const { Success, Data, Message } = await PostCommonSp({
+      const { Success, Data, Message } = await GetSingleResult({
         "key": "LAST_NO",
         "TYPE": "CUS",
       });
 
       if (Success) {
-        setCode(Data[0]?.LAST_NO);
+        setCode(Data[0].LAST_NO);
         setCodeEditable(Data[0]?.IS_EDITABLE);
       } else {
         showToast(Message, "error");

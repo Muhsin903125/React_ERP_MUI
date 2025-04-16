@@ -4,7 +4,7 @@ import { Button, Modal, Grid, TextField, Stack, Box, Typography, FormControl, In
 import { Formik, Form, Field } from 'formik';
 import * as yup from 'yup';
 import Iconify from '../../../../components/iconify';
-import { PostCommonSp } from '../../../../hooks/Api';
+import { GetSingleResult, PostCommonSp } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 
 const ModalForm = ({ open, onClose, initialValues, parentId, grpCode,IsAllowToCreateGH,IsAllowToCreateGL }) => {
@@ -150,14 +150,14 @@ const validationSchema = yup.object().shape({
   }
   const getCOACode = async () => {
     try {
-      const { Success, Data, Message } = await PostCommonSp({
+      const { Success, Data, Message } = await GetSingleResult({
         "key": "LAST_NO",
         "TYPE": "COA",
       });
 
       if (Success) {
-        setCode(Data[0]?.LAST_NO);
-        setCodeEditable(Data[0]?.IS_EDITABLE);
+        setCode(Data.LAST_NO);
+        setCodeEditable(Data.IS_EDITABLE);
       } else {
         showToast(Message, "error");
       }

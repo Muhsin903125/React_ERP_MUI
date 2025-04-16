@@ -79,10 +79,10 @@ export default function SalesInvoice() {
   const validate = () => {
     const errors = {};
 
-    // if (validator.isEmpty(headerData.CustomerCode)) {
-    //     errors.CustomerCode = 'Customer is required';
-    //     showToast('Customer is required', "error");
-    // }
+    if (validator.isEmpty(headerData.CustomerCode)) {
+        errors.CustomerCode = 'Customer is required';
+        showToast('Customer is required', "error");
+    }
     if (items.some((item) => validator.isEmpty(item.name))) {
         errors.item = 'Item Should not be blank'
         // showToast(errors.item, "error");
@@ -243,6 +243,8 @@ export default function SalesInvoice() {
       try {
         setLoadingFull(false);
         const { Success, Message } = await PostCommonSp({
+          "key": "INVOICE_CRUD",
+          "TYPE": "INSERT",
             "json": JSON.stringify({
             "headerData": {
               ...headerData,
