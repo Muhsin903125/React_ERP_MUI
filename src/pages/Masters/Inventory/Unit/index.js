@@ -19,7 +19,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Iconify from '../../../../components/iconify/Iconify';
-import { deleteRole, GetRoleList, PostCommonSp, saveRole } from '../../../../hooks/Api';
+import { deleteRole, GetRoleList, GetSingleListResult, GetSingleResult, PostCommonSp, saveRole } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 import DataTable from '../../../../components/DataTable';
 import Confirm from '../../../../components/Confirm';
@@ -72,12 +72,12 @@ export default function Unit() {
   async function fetchList() {
     setLoader(true);
     try {
-      const { Success, Data, Message } = await PostCommonSp({
+      const { Success, Data, Message } = await GetSingleListResult({
         key: 'LOOKUP',
         TYPE: 'UNITS',
       })
       if (Success) {
-        setData(Data[0])
+        setData(Data)
       }
       else {
         showToast(Message, "error");

@@ -4,7 +4,7 @@ import { Button, Modal, Grid, TextField, Stack, Box, Typography, CheckBox, FormC
 import { Formik, Form } from 'formik';
 import * as yup from 'yup';
 import Iconify from '../../../../components/iconify';
-import { PostCommonSp } from '../../../../hooks/Api';
+import { GetSingleResult, PostCommonSp } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 
 const ModalForm = ({ open, onClose, initialValues }) => {
@@ -30,7 +30,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
     console.log("sdsdsd",data);
     
     try {
-      const { Success, Data, Message } = await PostCommonSp({
+      const { Success, Data, Message } = await GetSingleResult({
         "key": "LAST_NO_CRUD",
         "TYPE": type, // Pass the type as a parameter
         "LASTNO_DOCTYPE": data.docType,

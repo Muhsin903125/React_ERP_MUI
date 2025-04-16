@@ -23,7 +23,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 import { AuthContext } from '../../../../App';
-import { deleteRole, saveRole, UpdateRole, PostMultiSp, PostCommonSp } from '../../../../hooks/Api';
+import { deleteRole, saveRole, UpdateRole, PostMultiSp, PostCommonSp, GetSingleResult } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 import Confirm from '../../../../components/Confirm';
 import MyContainer from '../../../../components/MyContainer';
@@ -112,7 +112,7 @@ export default function Product1() {
         Confirm('Are you sure?').then(async () => {
             try {
                 setLoadingFull(true);
-                const { Success, Data, Message } =  await PostCommonSp({
+                const { Success, Data, Message } =  await GetSingleResult({
                     "json": JSON.stringify({
                         "json": data,
                         "key": "PRODUCT_SAVE",

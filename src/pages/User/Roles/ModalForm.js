@@ -4,7 +4,7 @@ import { Button, Modal, Grid, TextField, Stack, Box, Typography, Checkbox, FormC
 import { Formik, Form } from 'formik';
 import * as yup from 'yup';
 import Iconify from '../../../components/iconify';
-import { PostCommonSp } from '../../../hooks/Api';
+import { GetSingleResult, PostCommonSp } from '../../../hooks/Api';
 import { useToast } from '../../../hooks/Common';
 
 const ModalForm = ({ open, onClose, initialValues }) => {
@@ -26,7 +26,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
 
   const HandleSave = async (data) => {
     try {
-      const { Success, Data, Message } = await PostCommonSp({
+      const { Success, Data, Message } = await GetSingleResult({
         "key": "ROLE_CRUD",
         "TYPE": "ADD",
         "R_NAME": data.name,
@@ -46,7 +46,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
 
   const HandleUpdate = async (data) => {
     try {
-      const { Success, Data, Message } = await PostCommonSp({
+      const { Success, Data, Message } = await GetSingleResult({
         "key": "ROLE_CRUD",
         "TYPE": "UPDATE",
         "R_NAME": data.name,

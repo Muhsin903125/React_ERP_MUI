@@ -25,6 +25,34 @@ export async function PostCommonSp(payload) {
 }
 export async function GetSingleResult(payload) {
   return Post('/General/RouterGatway', payload);
+  // payload = { key: "", userId: "", json: "" }
+  // response = { Success: true, "data": {
+  //   "LAST_NO": "C0033",
+  //   "IS_EDITABLE": false
+  // }, Message: "" }
+}
+export async function GetSingleListResult(payload) {
+  return Post('/General/RouterGatwayV1', payload);
+  // payload = { key: "", userId: "", json: "" }
+
+  // response = { Success: true, Data:  "data": [
+  //   {
+  //     "LAST_NO": "C0033",
+  //     "IS_EDITABLE": false
+  //   }
+  // ], Message: "" }
+}
+export async function GetMultipleResult(payload) {
+  return Post('/General/RouterGatwayV2', payload);
+  // payload = { key: "", userId: "", json: "" }
+  // response = { Success: true,"data": [
+  //   [
+  //     {
+  //       "LAST_NO": "C0033",
+  //       "IS_EDITABLE": false
+  //     }
+  //   ]
+  // ], Message: "" }
 }
 // payload {
 //   key:""

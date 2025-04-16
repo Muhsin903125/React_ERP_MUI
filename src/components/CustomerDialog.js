@@ -15,7 +15,7 @@ import Typography from '@mui/material/Typography';
 import { blue } from '@mui/material/colors';
 import TextField from '@mui/material/TextField';
 import { Stack, Toolbar } from '@mui/material'; 
-import { PostMultiSp } from '../hooks/Api';
+import { GetSingleListResult, PostMultiSp } from '../hooks/Api';
 
 export default function CustomerDialog(props) {
 
@@ -26,12 +26,12 @@ export default function CustomerDialog(props) {
 
   const getCustomers = async () => {
     try {
-      const { Success, Data, Message } = await PostMultiSp({
+      const { Success, Data, Message } = await GetSingleListResult({
         "key": "CUS_CRUD",
         "TYPE": "GET_ALL",
       });
       if (Success) {
-        setCustomers(Data[0]);
+        setCustomers(Data);
       }
     } catch (error) {
       console.error("Error:", error); // More informative error handling

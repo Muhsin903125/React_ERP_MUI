@@ -4,7 +4,7 @@ import { Button, Modal, Grid, TextField, Stack, Box, Typography, CheckBox, FormC
 import { Formik, Form, Field } from 'formik';
 import * as yup from 'yup';
 import Iconify from '../../../../components/iconify';
-import { PostCommonSp, PostMultiSp } from '../../../../hooks/Api';
+import { GetSingleListResult, GetSingleResult, PostCommonSp, PostMultiSp } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 import useLookupData from '../../../../datas/useLookupData';
 
@@ -38,7 +38,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
   const HandleData = async (data, type) => {
 
     try {
-      const { Success, Data, Message } = await PostCommonSp({
+      const { Success, Data, Message } = await GetSingleResult({
         "key": "MENU_CRUD",
         "TYPE": type, // Pass the type as a parameter
         "MENU_NAME": data.name,
@@ -65,13 +65,13 @@ const ModalForm = ({ open, onClose, initialValues }) => {
 
   const getParentMenu = async () => {
     try {
-      const { Success, Data, Message } = await PostMultiSp({
+      const { Success, Data, Message } = await GetSingleListResult({
         key: 'MENU_CRUD',
         TYPE: 'GET_MENU_NAME_LIST',
       });
 
       if (Success) {
-        setParentMenu(Data[0]);
+        setParentMenu(Data);
       } else {
         showToast(Message, 'error');
       }

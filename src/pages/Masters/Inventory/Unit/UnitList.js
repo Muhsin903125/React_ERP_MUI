@@ -18,7 +18,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Iconify from '../../../../components/iconify/Iconify';
 import { AuthContext } from '../../../../App';
-import {   PostMultiSp } from '../../../../hooks/Api';
+import {   GetSingleListResult, PostMultiSp } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 import DataTable from '../../../../components/DataTable';
 import Confirm from '../../../../components/Confirm';
@@ -80,11 +80,11 @@ export default function UnitList() {
     setLoadingFull(true);
     try {
       setLoadingFull(false);
-      const { Success, Data, Message } = await PostMultiSp({
+      const { Success, Data, Message } = await GetSingleListResult({
        "key": "UNIT_LIST"
       })
       if (Success) {
-        setData(Data[0])
+        setData(Data)
       }
       else {
         showToast(Message, "error");

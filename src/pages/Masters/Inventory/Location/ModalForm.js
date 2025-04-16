@@ -4,7 +4,7 @@ import { Button, Modal, Grid, TextField, Stack, Box, Typography, MenuItem, FormC
 import { Formik, Form, Field } from 'formik';
 import * as yup from 'yup';
 import Iconify from '../../../../components/iconify';
-import { PostCommonSp } from '../../../../hooks/Api';
+import { GetSingleListResult, GetSingleResult, PostCommonSp } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 
 const ModalForm = ({ open, onClose, initialValues }) => {
@@ -37,7 +37,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
 
   const HandleData = async (data, type) => {
     try {
-      const { Success, Message } = await PostCommonSp({
+      const { Success, Message } = await GetSingleResult({
         key: 'LOCATION_CRUD',
         TYPE: type,
         LM_LOCATION_CODE: data.code,
@@ -63,14 +63,14 @@ const ModalForm = ({ open, onClose, initialValues }) => {
 
   const getCode = async () => {
     try {
-      const { Success, Data, Message } = await PostCommonSp({
+      const { Success, Data, Message } = await GetSingleResult({
         key: 'LAST_NO',
         TYPE: 'LOCATION',
       });
 
       if (Success) {
-        setCode(Data[0]?.LAST_NO);
-        setCodeEditable(Data[0]?.IS_EDITABLE);
+        setCode(Data?.LAST_NO);
+        setCodeEditable(Data?.IS_EDITABLE);
       } else {
         showToast(Message, 'error');
       }
@@ -81,13 +81,13 @@ const ModalForm = ({ open, onClose, initialValues }) => {
 
   const getCountry = async () => {
     try {
-      const { Success, Data, Message } = await PostCommonSp({
+      const { Success, Data, Message } = await GetSingleListResult({
         key: 'LOOKUP',
         TYPE: 'COUNTRY',
       });
 
       if (Success) {
-        setCountry(Data[0]);
+        setCountry(Data);
       } else {
         showToast(Message, 'error');
       }

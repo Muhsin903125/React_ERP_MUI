@@ -4,7 +4,7 @@ import { Button, Modal, Grid, TextField, Stack, Box, Typography, MenuItem, FormC
 import { Formik, Form, Field } from 'formik';
 import * as yup from 'yup';
 import Iconify from '../../../../components/iconify';
-import { PostCommonSp } from '../../../../hooks/Api';
+import { GetSingleListResult, GetSingleResult, PostCommonSp } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 
 const ModalForm = ({ open, onClose, initialValues }) => {
@@ -34,7 +34,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
 
   const HandleData = async (data, type) => {
     try {
-      const { Success, Message } = await PostCommonSp({
+      const { Success, Message } = await GetSingleResult({
         key: 'USR_CRUD',
         TYPE: type,
         USR_CODE: data.code ,
@@ -58,13 +58,13 @@ const ModalForm = ({ open, onClose, initialValues }) => {
 
   const getRoles = async () => {
     try {
-      const { Success, Data, Message } = await PostCommonSp({
+      const { Success, Data, Message } = await GetSingleListResult({
         key: 'USR_CRUD',
         TYPE: 'GET_ROLES',
       });
 
       if (Success) {
-        setRoles(Data[0]);
+        setRoles(Data);
       } else {
         showToast(Message, 'error');
       }

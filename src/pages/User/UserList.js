@@ -18,7 +18,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import BlockIcon from '@mui/icons-material/Block';
 import Iconify from '../../components/iconify/Iconify'; 
 import { AuthContext } from '../../App';
-import { GetUserList, PostCommonSp } from '../../hooks/Api';
+import { GetSingleListResult, GetUserList, PostCommonSp } from '../../hooks/Api';
 import { useToast } from '../../hooks/Common';
 import DataTable from '../../components/DataTable';
 import Confirm from '../../components/Confirm';
@@ -39,12 +39,12 @@ export default function UserList() {
  async function fetchList() {
             try {
                 setLoadingFull(false);
-                const { Success, Data, Message } = await   PostCommonSp({
+                const { Success, Data, Message } = await   GetSingleListResult({
                     "key": "USER_LIST",  
                   })
                 if (Success) {
                     console.log("sss", Data);
-                    setData(Data[0])
+                    setData(Data)
                     //  showToast(Message, 'success');
                 }
                 else {

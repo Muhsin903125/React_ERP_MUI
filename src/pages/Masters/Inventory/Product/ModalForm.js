@@ -4,7 +4,7 @@ import { Button, Modal, Grid, TextField, Stack, Box, Typography, MenuItem, FormC
 import { Formik, Form, Field } from 'formik';
 import * as yup from 'yup';
 import Iconify from '../../../../components/iconify';
-import { GetSingleResult, PostCommonSp } from '../../../../hooks/Api';
+import { GetSingleListResult, GetSingleResult } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 
 const ModalForm = ({ open, onClose, initialValues }) => {
@@ -33,7 +33,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
 
   const HandleData = async (data, type) => {
     try {
-      const { Success, Message } = await PostCommonSp({
+      const { Success, Message } = await GetSingleResult({
         key: 'ITEM_CRUD',
         TYPE: type,
         IM_CODE: data.code,
@@ -73,7 +73,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
 
   const getUnit = async () => {
     try {
-      const { Success, Data, Message } = await PostCommonSp({
+      const { Success, Data, Message } = await GetSingleListResult({
         key: 'LOOKUP',
         TYPE: 'UNITS',
       });

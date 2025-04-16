@@ -19,7 +19,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Iconify from '../../../../components/iconify/Iconify'; 
-import { deleteRole, GetRoleList, PostCommonSp, saveRole } from '../../../../hooks/Api';
+import { deleteRole, GetRoleList, GetSingleListResult, GetSingleResult,  saveRole } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 import DataTable from '../../../../components/DataTable';
 import Confirm from '../../../../components/Confirm';
@@ -84,12 +84,12 @@ export default function Supplier() {
   async function fetchList() {
     setLoader(true);
     try { 
-      const { Success, Data, Message } = await PostCommonSp({
+      const { Success, Data, Message } = await GetSingleListResult({
         "key": "SUP_CRUD",
         "TYPE": "GET_ALL",
       })
       if (Success) {
-        setData(Data[0])
+        setData(Data)
       }
       else {
         showToast(Message, "error");
@@ -104,7 +104,7 @@ export default function Supplier() {
     Confirm('Are you sure to Delete?').then(async () => {
       try {
         setLoader(true);
-        const { Success, Data, Message } = await PostCommonSp({
+        const { Success, Data, Message } = await GetSingleResult({
           "key": "SUP_CRUD",
           "TYPE": "DELETE",
           "SUP_DOCNO": id

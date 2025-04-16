@@ -21,7 +21,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Iconify from '../../../../components/iconify/Iconify';
-import { deleteRole, GetRoleList, PostCommonSp, saveRole } from '../../../../hooks/Api';
+import { deleteRole, GetRoleList, GetSingleListResult, GetSingleResult,  saveRole } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 import DataTable from '../../../../components/DataTable';
 import Confirm from '../../../../components/Confirm';
@@ -94,13 +94,13 @@ export default function ChartOfAccount() {
     async function fetchList() {
         setLoader(true);
         try {
-            const { Success, Data, Message } = await PostCommonSp({
+            const { Success, Data, Message } = await GetSingleListResult({
                 "key": "COA_CRUD",
                 "TYPE": "GET_TREE",
             })
             if (Success) {
 
-                setData(Data[0])
+                setData(Data)
             }
             else {
                 showToast(Message, "error");
@@ -115,7 +115,7 @@ export default function ChartOfAccount() {
         Confirm('Are you sure to Delete?').then(async () => {
             try {
                 setLoader(true);
-                const { Success, Data, Message } = await PostCommonSp({
+                const { Success, Data, Message } = await GetSingleResult({
                     "key": "COA_CRUD",
                     "TYPE": "DELETE",
                     "ACMAIN_CODE": id
@@ -149,15 +149,15 @@ export default function ChartOfAccount() {
         setEditData(null)
     }
     const getAccountDetails = async (id) => {
-        const { Success, Data, Message } = await PostCommonSp({
+        const { Success, Data, Message } = await GetSingleResult({
             "key": "COA_CRUD",
             "TYPE": "GET_DETAILS",
             "ACMAIN_CODE": id
         })
         if (Success) {
-            setIsDelete(Data[0]?.isDeletable)
-            setAccDetails(Data[0])
-            setAccCredit(Data[0]?.Credit)
+            setIsDelete(Data?.isDeletable)
+            setAccDetails(Data)
+            setAccCredit(Data?.Credit)
         }
     }
     const handleItemClick = (item) => {

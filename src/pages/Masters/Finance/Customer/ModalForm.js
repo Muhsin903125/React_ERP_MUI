@@ -32,7 +32,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
 
   const HandleData = async (data, type) => {
     try {
-      const { Success, Message } = await PostCommonSp({
+      const { Success, Message } = await GetSingleResult({
         "key": "CUS_CRUD",
         "TYPE": type, // Pass the type as a parameter
         "CUS_DOCNO": data.docNo,
@@ -62,8 +62,8 @@ const ModalForm = ({ open, onClose, initialValues }) => {
       });
 
       if (Success) {
-        setCode(Data[0].LAST_NO);
-        setCodeEditable(Data[0]?.IS_EDITABLE);
+        setCode(Data?.LAST_NO);
+        setCodeEditable(Data?.IS_EDITABLE);
       } else {
         showToast(Message, "error");
       }

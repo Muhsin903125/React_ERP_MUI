@@ -18,7 +18,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Iconify from '../../../../components/iconify/Iconify';
 import { AuthContext } from '../../../../App';
-import { deleteRole, GetRoleList, PostMultiSp, saveRole } from '../../../../hooks/Api';
+import { deleteRole, GetRoleList, GetSingleListResult, PostMultiSp, saveRole } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 import DataTable from '../../../../components/DataTable';
 import Confirm from '../../../../components/Confirm';
@@ -92,11 +92,11 @@ export default function ProductList() {
     setLoadingFull(true);
     try {
       setLoadingFull(false);
-      const { Success, Data, Message } = await PostMultiSp({
+      const { Success, Data, Message } = await GetSingleListResult({
          "key": "PRODUCT_LIST"
       })
       if (Success) {
-        setData(Data[0])
+        setData(Data)
       }
       else {
         showToast(Message, "error");
@@ -111,7 +111,7 @@ export default function ProductList() {
     Confirm('Are you sure to Delete?').then(async () => {
       try {
         setLoadingFull(true);
-        const { Success, Data, Message } = await PostMultiSp({
+        const { Success, Data, Message } = await GetSingleListResult({
          "key": "CUSTOMER_LIST"
         })
         if (Success) {

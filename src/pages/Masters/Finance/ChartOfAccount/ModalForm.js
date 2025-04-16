@@ -4,7 +4,7 @@ import { Button, Modal, Grid, TextField, Stack, Box, Typography, FormControl, In
 import { Formik, Form, Field } from 'formik';
 import * as yup from 'yup';
 import Iconify from '../../../../components/iconify';
-import { GetSingleResult, PostCommonSp } from '../../../../hooks/Api';
+import { GetSingleListResult, GetSingleResult } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 
 const ModalForm = ({ open, onClose, initialValues, parentId, grpCode,IsAllowToCreateGH,IsAllowToCreateGL }) => {
@@ -74,13 +74,13 @@ const validationSchema = yup.object().shape({
 });
   const getTaxTreat = async () => {
     try {
-      const { Success, Data, Message } = await PostCommonSp({
+      const { Success, Data, Message } = await GetSingleListResult({
         key: 'LOOKUP',
         TYPE: 'TAX_TREAT',
       });
 
       if (Success) {
-        setTaxTreat(Data[0]);
+        setTaxTreat(Data);
       } else {
         showToast(Message, 'error');
       }
@@ -90,7 +90,7 @@ const validationSchema = yup.object().shape({
   };
   const HandleData = async (data, type) => {
     try {
-      const { Success, Message } = await PostCommonSp({
+      const { Success, Message } = await GetSingleResult({
         "key": "COA_CRUD",
         "TYPE": type, // Pass the type as a parameter
         "ACMAIN_CODE": data.code,
@@ -119,12 +119,12 @@ const validationSchema = yup.object().shape({
   };
   const getParents = async () => {
     try {
-      const { Success, Data, Message } = await PostCommonSp({
+      const { Success, Data, Message } = await GetSingleListResult({
         "key": "COA_CRUD",
         "TYPE": "GET_ALL_GH",
       });
       if (Success) {
-        setParents(Data[0]);
+        setParents(Data);
       } else {
         showToast(Message, "error");
       }
@@ -134,13 +134,13 @@ const validationSchema = yup.object().shape({
   }
   const getAccountType = async () => {
     try {
-      const { Success, Data, Message } = await PostCommonSp({
+      const { Success, Data, Message } = await GetSingleListResult({
         "key": "LOOKUP",
         "TYPE": "CAO_ACTYPE",
       });
       if (Success) {
         // setAccountType(Data);
-        setDefaultBalance(Data[0]);
+        setDefaultBalance(Data);
       } else {
         showToast(Message, "error");
       }
@@ -167,14 +167,14 @@ const validationSchema = yup.object().shape({
   };
   const getAccountCode = async () => {
     try {
-      const { Success, Data, Message } = await PostCommonSp({
+      const { Success, Data, Message } = await GetSingleResult({
         "key": "LAST_NO",
         "TYPE": "ACC",
       });
 
       if (Success) {
-        setAccountCode(Data[0]?.LAST_NO);
-        setAccountCodeEditable(Data[0]?.IS_EDITABLE);
+        setAccountCode(Data?.LAST_NO);
+        setAccountCodeEditable(Data?.IS_EDITABLE);
       } else {
         showToast(Message, "error");
       }

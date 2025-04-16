@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@mui/material';
 import MaterialReactTable from 'material-react-table';
-import { PostCommonSp, PostMultiSp } from '../../hooks/Api';
+import { GetSingleListResult, PostCommonSp, PostMultiSp } from '../../hooks/Api';
 import Iconify from '../../components/iconify/Iconify';
 import { useToast } from '../../hooks/Common';
 import { AuthContext } from '../../App';
@@ -69,11 +69,11 @@ export default function CustomerMasterV2() {
 
       try {
         setLoadingFull(false);
-        const { Success, Data, Message } = await PostMultiSp({
+        const { Success, Data, Message } = await GetSingleListResult({
          "key": "CUSTOMER_LIST"
         })
         if (Success) {
-          setcustomerMaster(Data[0])
+          setcustomerMaster(Data)
         //  showToast(Message, 'success');
         }
         else {

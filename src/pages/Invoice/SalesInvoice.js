@@ -19,7 +19,7 @@ import InvoiceItem from './InvoiceItem';
 import SubTotalSec from './SubTotalSec';
 import AlertDialog from '../../components/AlertDialog';
 import CustomerDialog from '../../components/CustomerDialog';
-import { PostCommonSp } from '../../hooks/Api'; 
+import { GetSingleResult } from '../../hooks/Api'; 
 import { useToast } from '../../hooks/Common';
 import { AuthContext } from '../../App';
 // import { head } from 'lodash';
@@ -242,7 +242,7 @@ export default function SalesInvoice() {
     Confirm('Do you want to save?').then(async () => {
       try {
         setLoadingFull(false);
-        const { Success, Message } = await PostCommonSp({
+        const { Success, Message } = await GetSingleResult({
           "key": "INVOICE_CRUD",
           "TYPE": "INSERT",
           "headerData": {

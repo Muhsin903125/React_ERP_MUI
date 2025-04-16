@@ -23,7 +23,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Iconify from '../../../../components/iconify/Iconify';
 import { AuthContext } from '../../../../App';
-import { deleteRole, GetRoleList, PostCommonSp, PostMultiSp, saveRole } from '../../../../hooks/Api';
+import { deleteRole, GetRoleList, GetSingleListResult, PostCommonSp, PostMultiSp, saveRole } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 import DataTable from '../../../../components/DataTable';
 import Confirm from '../../../../components/Confirm';
@@ -102,13 +102,13 @@ export default function Screens() {
     async function fetchList() {
         try {
             setLoader(true);
-            const { Success, Data, Message } = await PostMultiSp({
+            const { Success, Data, Message } = await GetSingleListResult({
                 "key": "MENU_CRUD",
                 "TYPE": "GET_ALL",
             })
 
             if (Success) {
-                setData(Data[0])
+                setData(Data) // Update to setData(Data) instead of         setData(Data[0])
             }
             else {
                 showToast(Message, "error");

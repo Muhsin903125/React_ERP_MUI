@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { PostMultiSp } from '../hooks/Api';
+import { GetSingleListResult, PostMultiSp } from '../hooks/Api';
 
 export default function useLookupData(type) {
     const [lookupData, setLookupData] = useState([]);
@@ -7,13 +7,13 @@ export default function useLookupData(type) {
     useEffect(() => {
         const fetchLookupData = async () => {
             try {
-                const { Success, Data } = await PostMultiSp({
+                const { Success, Data } = await GetSingleListResult({
                     key: 'LOOKUP',
                     TYPE: type,
                 });
 
                 if (Success) {
-                    setLookupData(Data[0]); 
+                    setLookupData(Data); 
                 }
             } catch (err) {
                 console.error("Error fetching lookup data:", err);

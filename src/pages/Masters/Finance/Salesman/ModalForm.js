@@ -4,15 +4,18 @@ import { Button, Modal, Grid, TextField, Stack, Box, Typography } from '@mui/mat
 import { Formik, Form } from 'formik';
 import * as yup from 'yup';
 import Iconify from '../../../../components/iconify';
-import { PostCommonSp } from '../../../../hooks/Api';
+import { GetSingleResult, PostCommonSp } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
+import { getLastNumber } from '../../../../utils/CommonServices';
 
 const ModalForm = ({ open, onClose, initialValues }) => {
   const { showToast } = useToast();
   const [isNew, setIsNew] = useState(true);
   const [code, setCode] = useState(null);
   const [codeEditable, setCodeEditable] = useState(false);
+   // Assuming this is a function that fetches the last number
   useEffect(() => {
+ 
     if (initialValues !== null) {
       setIsNew(false);
     } else {
@@ -30,7 +33,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
 
   const HandleData = async (data, type) => {
     try {
-      const { Success, Message } = await PostCommonSp({
+      const { Success, Message } = await GetSingleResult({
         "key": "SMAN_CRUD",
         "TYPE": type, // Pass the type as a parameter
         "SMAN_DOCNO": data.docNo,
@@ -51,21 +54,9 @@ const ModalForm = ({ open, onClose, initialValues }) => {
   };
 
   const getCode = async () => {
-    try {
-      const { Success, Data, Message } = await PostCommonSp({
-        "key": "LAST_NO",
-        "TYPE": "SMAN",
-      });
-
-      if (Success) {
-        setCode(Data[0]?.LAST_NO);
-        setCodeEditable(Data[0]?.IS_EDITABLE);
-      } else {
-        showToast(Message, "error");
-      }
-    } catch (error) {
-      console.error("Error:", error); // More informative error handling
-    }
+    const { lastNo, IsEditable } = await getLastNumber('SMAN');
+    setCode(lastNo);
+    setCodeEditable(IsEditable);
   };
 
   return (

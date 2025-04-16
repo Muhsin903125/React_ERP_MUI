@@ -9,7 +9,7 @@ import {
     createFilterOptions,
 } from '@mui/material';
 import { Delete } from '@mui/icons-material';
-import { PostCommonSp, PostMultiSp } from '../../hooks/Api';
+import { GetSingleListResult, PostCommonSp, PostMultiSp } from '../../hooks/Api';
 
 
 
@@ -37,12 +37,12 @@ export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, rem
 
     const getProducts = async () => {
         try {
-            const { Success, Data, Message } = await PostMultiSp({
+            const { Success, Data, Message } = await GetSingleListResult({
                 "key": "ITEM_CRUD",
                 "TYPE": "GET_ALL",
             });
             if (Success) {
-                setProducts(Data[0]);
+                setProducts(Data);
             }
         } catch (error) {
             console.error("Error:", error); // More informative error handling
