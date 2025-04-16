@@ -245,21 +245,18 @@ export default function SalesInvoice() {
         const { Success, Message } = await PostCommonSp({
           "key": "INVOICE_CRUD",
           "TYPE": "INSERT",
-            "json": JSON.stringify({
-            "headerData": {
+          "headerData": {
               ...headerData,
               "GrossAmount": calculateTotal(items),
               "TaxAmount": (calculateTotal(items) - headerData.Discount) * headerData.Tax / 100.00,
               "NetAmount": (calculateTotal(items) - headerData.Discount) * (1 + headerData.Tax / 100.00)
             },
-            "detailData": items.map((item, index) => {
+          "detailData": items.map((item, index) => {
                 return {
                   ...item,
                   srno: index + 1
                 };
-              }),
-            "key": "INVOICE_SAVE" 
-          })
+            })
         }) //  JSON.stringify({ "json": items }));
 
         if (Success) {
