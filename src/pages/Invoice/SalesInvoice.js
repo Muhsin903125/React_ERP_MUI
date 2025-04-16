@@ -242,21 +242,32 @@ export default function SalesInvoice() {
     Confirm('Do you want to save?').then(async () => {
       try {
         setLoadingFull(false);
-        const { Success, Message } = await GetSingleResult({
-          "key": "INVOICE_CRUD",
-          "TYPE": "INSERT",
-          "headerData": {
-              ...headerData,
-              "GrossAmount": calculateTotal(items),
-              "TaxAmount": (calculateTotal(items) - headerData.Discount) * headerData.Tax / 100.00,
-              "NetAmount": (calculateTotal(items) - headerData.Discount) * (1 + headerData.Tax / 100.00)
-            },
-          "detailData": items.map((item, index) => {
-                return {
-                  ...item,
-                  srno: index + 1
-                };
-            })
+        
+        const encodeJsonToBase64 = (json) => {
+          // Step 1: Convert the string to Base64
+          const base64Encoded = btoa(json);
+          return base64Encoded;
+        };
+      
+        const base64Data = encodeJsonToBase64(JSON.stringify({
+            "key": "INVOICE_CRUD",
+            "TYPE": "INSERT",
+            "headerData": {
+                ...headerData,
+                "GrossAmount": calculateTotal(items),
+                "TaxAmount": (calculateTotal(items) - headerData.Discount) * headerData.Tax / 100.00,
+                "NetAmount": (calculateTotal(items) - headerData.Discount) * (1 + headerData.Tax / 100.00)
+              },
+            "detailData": items.map((item, index) => {
+                  return {
+                    ...item,
+                    srno: index + 1
+                  };
+              })
+          }));
+
+        const { Success, Message } = await PostCommonSp({
+          "json": base64Data
         }) //  JSON.stringify({ "json": items }));
 
         if (Success) {
