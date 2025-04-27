@@ -1,14 +1,11 @@
 import { Helmet } from 'react-helmet-async';
 // @mui
 import { styled } from '@mui/material/styles';
-import { Link, Container, Typography, Divider, Stack, Button } from '@mui/material';
+import { Container } from '@mui/material';
 // hooks
 import useResponsive from '../hooks/useResponsive';
 // components
 import Logo from '../components/logo';
-import Iconify from '../components/iconify';
-// sections
-import { LoginForm } from '../sections/auth/login';
 
 // ----------------------------------------------------------------------
 
@@ -17,19 +14,9 @@ const StyledRoot = styled('div')(({ theme }) => ({
     display: 'flex',
   },
   backgroundImage: `url('/assets/illustrations/LoginBG.svg')`,
-    backgroundSize: "cover",
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "center"
-}));
-
-const StyledSection = styled('div')(({ theme }) => ({
-  width: '100%',
-  maxWidth: 480,
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-  // boxShadow: theme.customShadows.card,
- // backgroundColor: theme.palette.background.default,
+  backgroundSize: "cover",
+  backgroundRepeat: "no-repeat",
+  backgroundPosition: "center"
 }));
 
 const StyledContent = styled('div')(({ theme }) => ({
@@ -44,7 +31,7 @@ const StyledContent = styled('div')(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-export default function LoginPage({Page}) {
+export default function LoginPage({ Page }) {
   const mdUp = useResponsive('up', 'md');
 
   return (
@@ -54,29 +41,16 @@ export default function LoginPage({Page}) {
       </Helmet>
 
       <StyledRoot>
-       
-{/* 
-        {mdUp && (
-          <StyledSection>
-            <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
-              Hi, Welcome Back
-            </Typography>
-            <img src="/assets/illustrations/illustration_login.png" alt="login" />
-          </StyledSection>
-        )} */}
-
         <Container maxWidth="sm">
           <StyledContent>
-          <Logo
-          sx={{
-            position: 'fixed',
-            top: { xs: 16, sm: 24, md: 40 },
-            left: { xs: 16, sm: 24, md: 40 },
-          }}
-        />
-        
-
-            {<Page/>}
+            <Logo
+              sx={{
+                position: 'fixed',
+                top: { xs: 16, sm: 24, md: 40 },
+                left: { xs: 16, sm: 24, md: 40 },
+              }}
+            />
+            {Page && <Page />}
           </StyledContent>
         </Container>
       </StyledRoot>

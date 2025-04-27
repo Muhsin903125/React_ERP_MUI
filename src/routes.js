@@ -112,6 +112,7 @@ console.log("pathh- ",window.location.pathname);
 
     { path: 'salesinvoice', element: <SalesInvoice /> },
     { path: 'salesentry', element: <SalesEntry /> },
+    { path: 'salesentry/:id', element: <SalesEntry /> },
 
 
   ]
@@ -124,6 +125,8 @@ console.log("pathh- ",window.location.pathname);
         { path: 'app', element: <DashboardAppPage /> },
         { path: 'changepassword', element: <ChangePassword/> },
         { path: 'salesinvoice', element: <SalesInvoice/> },
+        { path: 'salesentry', element: <SalesEntry /> },
+        { path: 'salesentry/:id', element: <SalesEntry /> },
         { path: 'user', element: <UserPage /> },
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },

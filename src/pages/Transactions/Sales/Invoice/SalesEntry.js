@@ -11,7 +11,7 @@ import {
     FormControl,
 } from '@mui/material';
 import validator from 'validator';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { getLastNumber } from '../../../../utils/CommonServices';
 import Confirm from '../../../../components/Confirm';
 import Iconify from '../../../../components/iconify';
@@ -21,7 +21,7 @@ import InvoiceItem from './InvoiceItem';
 import SubTotalSec from './SubTotalSec';
 import AlertDialog from '../../../../components/AlertDialog';
 import CustomerDialog from '../../../../components/CustomerDialog';
-import { GetSingleResult } from '../../../../hooks/Api';
+import { GetSingleResult, GetSingleListResult, GetMultipleResult } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 import { AuthContext } from '../../../../App';
 // import { head } from 'lodash';
@@ -45,6 +45,7 @@ const PaymentModeOptions = [
 
 export default function SalesEntry() {
     const navigate = useNavigate();
+    const { id } = useParams();
     const { showToast } = useToast();
     const { setLoadingFull } = useContext(AuthContext);
     const [code, setCode] = useState('');
@@ -54,10 +55,12 @@ export default function SalesEntry() {
     const [disableFutureDate] = useState(true);
     // const [status, setStatus] = useState('draft');
     const [errors, setErrors] = useState({});
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [isEditable, setIsEditable] = useState(false);
 
 
 
- 
+
 
     const [headerData, setheaderData] = useState(
         {
@@ -101,10 +104,11 @@ export default function SalesEntry() {
 
     useEffect(() => {
         // if (headerData.InvDate && headerData.CrDays) {
-        const dueDate = new Date(headerData.InvDate);
-        dueDate.setDate(dueDate.getDate() + Number(headerData.CrDays));
-        setselectedDueDate(dueDate);
-        // }
+        if (!id) {
+            const dueDate = new Date(headerData.InvDate);
+            dueDate.setDate(dueDate.getDate() + Number(headerData.CrDays));
+            setselectedDueDate(dueDate);
+        }
     }, [headerData.InvDate, headerData.CrDays]);
 
     useEffect(() => {
@@ -148,9 +152,7 @@ export default function SalesEntry() {
             ...headerData,
             [name]: event.$d
         });
-        console.log(headerData)
-        // console.log(selectedDate)
-        console.log(selectedDueDate.$d)
+        
     };
 
     const handleSave = () => {
@@ -158,10 +160,15 @@ export default function SalesEntry() {
             CreateInvoice();
         }
     };
-useEffect(() => {
-    getCode();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-}, []);
+    useEffect(() => {
+        if (id) {
+            loadInvoiceDetails(id);
+            setIsEditMode(true);
+        } else {
+            getCode();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [id]);
     const getCode = async () => {
         const { lastNo, IsEditable } = await getLastNumber('INV');
         setCode(lastNo);
@@ -170,7 +177,7 @@ useEffect(() => {
             InvNo: lastNo
         }));
     };
-   
+
     const [items, setItems] = useState([{
         name: "",
         price: 0,
@@ -263,7 +270,8 @@ useEffect(() => {
 
                 const base64Data = encodeJsonToBase64(JSON.stringify({
                     "key": "INVOICE_CRUD",
-                    "TYPE": "INSERT",
+                    "TYPE": isEditMode ? "UPDATE" : "INSERT",
+                    "DOC_NO":id,
                     "headerData": {
                         ...headerData,
                         "GrossAmount": calculateTotal(items),
@@ -280,7 +288,7 @@ useEffect(() => {
 
                 const { Success, Message } = await GetSingleResult({
                     "json": base64Data
-                }) //  JSON.stringify({ "json": items }));
+                });
 
                 if (Success) {
                     navigate('/salesinvoice', { replace: true });
@@ -296,6 +304,48 @@ useEffect(() => {
         });
     };
 
+    const loadInvoiceDetails = async (invoiceId) => {
+        try {
+            setLoadingFull(true);
+            const { Success, Data, Message } = await GetMultipleResult({
+                "key": "INVOICE_CRUD",
+                "TYPE": "GET",
+                "DOC_NO": invoiceId
+            });
+
+            if (Success) {
+                // Data[0] contains header data, Data[1] contains items
+                const headerData = Data[0][0]; // First array's first element
+                const itemsData = Data[1]; // Second array contains all items
+                console.log("asdas--", itemsData, Data);
+
+                setheaderData({
+                    ...headerData,
+                    InvNo: headerData?.InvNo,
+                    Status: headerData?.Status,
+                    CustomerCode: headerData?.CustomerCode,  
+                    InvDate: new Date(headerData.InvDate)
+                });
+                setselectedDueDate(new Date(headerData.InvDate));
+                setItems(itemsData || []);
+            } else {
+                showToast(Message, "error");
+            }
+        } catch (error) {
+            showToast("Error loading invoice details", "error");
+        } finally {
+            setLoadingFull(false);
+        }
+    };
+
+    const handlePrint = () => {
+        window.print();
+    };
+
+    const toggleEditMode = () => {
+        setIsEditable(!isEditable);
+    };
+
     return (
         <>
             <Helmet>
@@ -304,11 +354,28 @@ useEffect(() => {
 
             <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
                 <Typography variant="h4" gutterBottom>
-                    Sales Invoice
+                    {isEditMode ? 'Edit Sales Invoice' : 'New Sales Invoice'}
                 </Typography>
-                <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-                    New Invoice
-                </Button>
+                <Stack direction="row" spacing={2}>
+                    {!isEditable && (
+                        <Button variant="outlined" startIcon={<Iconify icon="eva:printer-fill" />} onClick={handlePrint}>
+                            Print
+                        </Button>
+                    )}
+                    {isEditMode && !isEditable && (
+                        <Button variant="contained" color="primary" startIcon={<Iconify icon="eva:edit-fill" />} onClick={toggleEditMode}>
+                            Enable Edit
+                        </Button>
+                    )}
+                    {isEditable && (
+                        <Button variant="contained" color="secondary" startIcon={<Iconify icon="eva:close-fill" />} onClick={toggleEditMode}>
+                            Cancel Edit
+                        </Button>
+                    )}
+                    <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />} onClick={() => navigate('/salesentry')}>
+                        New Invoice
+                    </Button>
+                </Stack>
             </Stack>
             <Card  >
                 <Stack maxwidth={'lg'} padding={2.5} style={{ backgroundColor: '#e8f0fa', boxShadow: '#dbdbdb4f -1px 9px 20px 0px' }}>
@@ -321,9 +388,11 @@ useEffect(() => {
                                     </Typography>
                                 </Grid>
                                 <Grid items xs={4} md={4} align='right'>
-                                    <Button size="small" startIcon={<Iconify icon={headerData?.CustomerCode ? "eva:edit-fill" : "eva:person-add-fill"} />} onClick={handleClickOpen}>
-                                        {headerData?.CustomerCode ? 'change' : 'Add'}
-                                    </Button>
+                                    {isEditable && (
+                                        <Button size="small" startIcon={<Iconify icon={headerData?.CustomerCode ? "eva:edit-fill" : "eva:person-add-fill"} />} onClick={handleClickOpen}>
+                                            {headerData?.CustomerCode ? 'change' : 'Add'}
+                                        </Button>
+                                    )}
                                     <CustomerDialog
                                         open={open}
                                         onClose={handleClose}
@@ -359,6 +428,7 @@ useEffect(() => {
                                             inputProps={{
                                                 readOnly: true
                                             }}
+                                            disabled={!isEditable}
                                         />
                                     </FormControl>
                                 </Grid>
@@ -371,8 +441,8 @@ useEffect(() => {
                                             value={headerData.InvDate}
                                             onChange={(e) => {
                                                 handleDateChange(e, "InvDate")
-                                            }
-                                            }
+                                            }}
+                                            disabled={!isEditable}
                                         />
                                     </FormControl>
                                 </Grid>
@@ -392,6 +462,7 @@ useEffect(() => {
                                                 },
                                                 min: 0,
                                             }}
+                                            disabled={!isEditable}
                                         />
                                     </FormControl>
                                 </Grid>
@@ -403,6 +474,7 @@ useEffect(() => {
                                             disableFuture={!disableFutureDate}
                                             value={selectedDueDate}
                                             onChange={setselectedDueDate}
+                                            disabled={!isEditable}
                                         />
                                     </FormControl>
                                 </Grid>
@@ -418,6 +490,7 @@ useEffect(() => {
                                             type="tel"
                                             value={headerData.ContactNo}
                                             onChange={handleInputChange}
+                                            disabled={!isEditable}
                                         // inputProps={{
                                         //   pattern: '^\\+(?:[0-9] ?){6,14}[0-9]$',
                                         // }}
@@ -436,6 +509,7 @@ useEffect(() => {
                                             onChange={handleInputChange}
                                             error={errors.Email !== undefined}
                                             helperText={errors.Email}
+                                            disabled={!isEditable}
                                         // inputProps={{
                                         //   pattern: '^\\+(?:[0-9] ?){6,14}[0-9]$',
                                         // }}
@@ -453,6 +527,7 @@ useEffect(() => {
                                             size="small"
                                             value={headerData.LPONo}
                                             onChange={handleInputChange}
+                                            disabled={!isEditable}
                                         />
                                     </FormControl>
                                 </Grid>
@@ -463,6 +538,7 @@ useEffect(() => {
                                             value={headerData.PaymentMode}
                                             label={"Payment Mode"}
                                             onChange={handleInputChange}
+                                            disabled={!isEditable}
                                         />
                                     </FormControl>
                                 </Grid>
@@ -477,6 +553,7 @@ useEffect(() => {
                                             value={headerData.RefNo}
                                             onChange={handleInputChange}
                                             size="small"
+                                            disabled={!isEditable}
                                         // required
                                         // error="true"
                                         />
@@ -489,6 +566,7 @@ useEffect(() => {
                                             value={headerData.Status}
                                             label={"Status"}
                                             onChange={handleInputChange}
+                                            disabled={!isEditable}
                                         />
                                     </FormControl>
                                 </Grid>
@@ -514,6 +592,7 @@ useEffect(() => {
                             setItems={setItems}
                             removeItem={() => removeItem(index)}
                             errors={errors.item}
+                            isEditable={isEditable}
                         />
                     ))}
 
@@ -525,11 +604,14 @@ useEffect(() => {
                         discount={headerData.Discount}
                         tax={headerData.Tax}
                         handleInputChange={(e) => handleInputChange(e)}
+                        isEditable={isEditable}
                     />
                     <Stack direction="row" justifyContent="flex-end" mb={2} mt={2}>
-                        <Button variant="contained" color='success' size='large' onClick={handleSave}>
-                            Create Invoice
-                        </Button>
+                        {isEditable && (
+                            <Button variant="contained" color={isEditMode ? 'warning' : 'success'} size='large' onClick={handleSave}>
+                                {isEditMode ? 'Update Invoice' : 'Create Invoice'}
+                            </Button>
+                        )}
                     </Stack>
                 </Stack>
             </Card>

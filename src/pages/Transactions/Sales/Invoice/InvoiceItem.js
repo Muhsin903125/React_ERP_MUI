@@ -13,7 +13,7 @@ import { GetSingleListResult, PostCommonSp, PostMultiSp } from '../../../../hook
 
 
 
-export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, removeItem, setItems, items, errors }) {
+export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, removeItem, setItems, items, errors, isEditable }) {
 
     const [products, setProducts] = useState([]);
     function calculateItemTotal() {
@@ -105,6 +105,8 @@ export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, rem
                     filterOptions={filterOptions}
                     onChange={handleItemCodeChange}
                     getOptionLabel={() => code}
+                    value={items[Propkey].name}
+                    disabled={!isEditable}
                     renderOption={(props, option) => (
                         <Box component="li" sx={{ borderBottom: '1px solid blue' }} {...props}>
                             <Grid container >
@@ -131,31 +133,34 @@ export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, rem
                     size="small"
                     value={desc}
                     multiline
-                    // inputRef={descRef}
-                    fullWidth label="Description"
+                    fullWidth 
+                    label="Description"
                     onChange={handleChange}
+                    disabled={!isEditable}
                 />
             </Grid>
             <Grid item xs={6} sm={3} md={1}>
                 <TextField
                     fullWidth
                     name={`ItemUnit_${Propkey}`}
-                    disabled
                     value={unit}
-                    size="small" label="Unit"
+                    size="small" 
+                    label="Unit"
                     onChange={handleChange}
+                    disabled={!isEditable}
                 />
             </Grid>
             <Grid item xs={6} sm={3} md={2}>
                 <TextField
                     fullWidth
-                    //  inputRef={priceRef}
                     name={`ItemPrice_${Propkey}`}
                     type={'number'}
                     inputProps={{ min: "0", style: { textAlign: 'right' } }}
-                    size="small" label="Price"
+                    size="small" 
+                    label="Price"
                     value={price}
                     onChange={handleChange}
+                    disabled={!isEditable}
                 />
             </Grid>
             <Grid item xs={6} sm={3} md={1}>
@@ -164,9 +169,11 @@ export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, rem
                     fullWidth
                     name={`ItemQty_${Propkey}`}
                     inputProps={{ min: "1" }}
-                    size="small" label="Quantity"
+                    size="small" 
+                    label="Quantity"
                     onChange={handleChange}
                     value={qty}
+                    disabled={!isEditable}
                 />
             </Grid>
             <Grid item xs={6} sm={3} md={2}>
@@ -181,7 +188,7 @@ export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, rem
                     name="itemTotal" />
             </Grid>
             <Grid item xs={6} sm={3} md={1}>
-                <IconButton aria-label="delete" onClick={removeItem}>
+                <IconButton aria-label="delete" onClick={removeItem} disabled={!isEditable}>
                     <Delete color="error" />
                 </IconButton>
             </Grid>

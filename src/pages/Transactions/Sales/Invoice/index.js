@@ -1,11 +1,9 @@
 import { Helmet } from 'react-helmet-async';
 import React, { useContext, useEffect, useState } from 'react'
-
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 // @mui
 import {
-
     Stack,
     Button,
     Typography,
@@ -83,6 +81,7 @@ const columns = [
 
 
 export default function SalesInvoice() {
+    const navigate = useNavigate();
     const { setLoadingFull } = useContext(AuthContext);
     const { showToast } = useToast();
     const [SalesInvoice, setSalesInvoice] = useState([]);
@@ -142,10 +141,7 @@ export default function SalesInvoice() {
     };
 
     const handleView = (rowData) => {
-        console.log('View clicked:', rowData);
-        // You can navigate to a view page or open a modal here
-        // Example:
-        // navigate(`/invoice/view/${rowData.InvNo}`);
+        navigate(`/salesentry/${rowData.InvNo}`);
     };
 
     return (
@@ -185,6 +181,7 @@ export default function SalesInvoice() {
                                 variant="text"
                                 onClick={() => handleView(row.original)}
                                 color="primary"
+                                title="View/Edit Invoice"
                             >
                                 <Iconify icon="mdi:eye" />
                             </Button>
