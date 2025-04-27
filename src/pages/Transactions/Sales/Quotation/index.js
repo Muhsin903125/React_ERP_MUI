@@ -21,13 +21,13 @@ import Iconify from '../../../../components/iconify';
 
 const columns = [
     {
-        accessorKey: 'InvNo',
+        accessorKey: 'QuotNo',
         header: 'Code',
         enableEditing: false,
         size: 0
     },
     {
-        accessorKey: 'InvDate',
+        accessorKey: 'QuotDate',
         header: 'Date',
         cell: info => {
             const rawDate = info.getValue();
@@ -73,12 +73,13 @@ const columns = [
 ];
 
 
-export default function SalesInvoice() {
+export default function SalesQuotation() {
     const navigate = useNavigate();
     const { setLoadingFull } = useContext(AuthContext);
     const { showToast } = useToast();
-    const [SalesInvoice, setSalesInvoice] = useState([]);
+    const [SalesQuotation, setSalesQuotation] = useState([]);
     const [validationErrors, setValidationErrors] = useState({});
+    const [isQuotation, setIsQuotation] = useState(true);
 
 
 
@@ -89,11 +90,11 @@ export default function SalesInvoice() {
             try {
                 setLoadingFull(false);
                 const { Success, Data, Message } = await GetSingleListResult({
-                    "key": "INVOICE_CRUD",
+                    "key": isQuotation ? "QUOT_CRUD" : "INVOICE_CRUD",
                     "TYPE": "GET_ALL",
                 })
                 if (Success) {
-                    setSalesInvoice(Data)
+                    setSalesQuotation(Data)
                     //  showToast(Message, 'success');
                 }
                 else {
@@ -106,20 +107,20 @@ export default function SalesInvoice() {
         }
         fetchList();
 
-    }, [])
+    }, [isQuotation])
 
 
     // for edit Save
     const handleSaveRowEdits = async ({ exitEditingMode, row, values }) => {
         if (!Object.keys(validationErrors).length) {
-            SalesInvoice[row.index] = values;
+            SalesQuotation[row.index] = values;
             // send/receive api updates here, then refetch or update local table data for re-render
             const response = await PostCommonSp({
                 "json": values,
                 "key": "CUSTOMER_EDIT"
             })
             if (response.Success) {
-                setSalesInvoice([...SalesInvoice]);
+                setSalesQuotation([...SalesQuotation]);
                 exitEditingMode(); // required to exit editing mode and close modal
             }
             else {
@@ -134,30 +135,30 @@ export default function SalesInvoice() {
     };
 
     const handleView = (rowData) => {
-        navigate(`/salesentry/${rowData.InvNo}`);
+        navigate(`/quotation-entry/${rowData.QuotNo}`);
     };
 
     return (
         <>
             <Helmet>
-                <title>Sale Invoice </title>
+                <title>Sales Quotation </title>
             </Helmet>
             <Box component="main" sx={{ m: 1, p: 1 }}>
 
                 <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
                     <Typography variant="h4" gutterBottom>
-                        Sale Invoice List
+                        Sales Quotation List
                     </Typography>
-                    <Link to="/salesentry" style={{ textDecoration: 'none' }}>
+                    <Link to="/quotation-entry" style={{ textDecoration: 'none' }}>
                         <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-                            New Sales Invoice Entry
+                            New Sales Quotation Entry
                         </Button>
                     </Link>
                 </Stack>
 
                 <MaterialReactTable
                     columns={columns}
-                    data={SalesInvoice}
+                    data={SalesQuotation}
                     initialState={{
                         density: 'compact',
                         expanded: true,
@@ -174,7 +175,7 @@ export default function SalesInvoice() {
                                 variant="text"
                                 onClick={() => handleView(row.original)}
                                 color="primary"
-                                title="View/Edit Invoice"
+                                title="View/Edit Quotation"
                             >
                                 <Iconify icon="mdi:eye" />
                             </Button>

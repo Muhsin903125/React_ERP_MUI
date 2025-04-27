@@ -10,20 +10,20 @@ import LoginPage from './pages/LoginPage';
 import Page404 from './pages/Page404';
 import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
-import ChangePassword from './pages/User/ChangePassword'; 
+import ChangePassword from './pages/User/ChangePassword';
 import SalesList from './pages/Invoice/SalesList';
 import CustomerMaster from './pages/Masters/CustomerMaster';
-import { LoginForm } from './sections/auth/login'; 
+import { LoginForm } from './sections/auth/login';
 import ForgotPassword from './pages/User/ForgotPassword';
 import ResetPassword from './pages/User/ResetPassword';
-import {Post} from './hooks/axios';
+import { Post } from './hooks/axios';
 import { RequireAuth } from './hooks/RequireAuth';
 import CustomerMasterV2 from './pages/Masters/CustomerMasterV2';
 import RegisterUser from './pages/User/RegisterUser';
 import UserList from './pages/User/UserList';
-import UserRoleList from './pages/User/Roles/UserRoleList'; 
-import ProductList from './pages/Masters/Inventory/Product/ProductList'; 
-import UnitList from './pages/Masters/Inventory/Unit/UnitList'; 
+import UserRoleList from './pages/User/Roles/UserRoleList';
+import ProductList from './pages/Masters/Inventory/Product/ProductList';
+import UnitList from './pages/Masters/Inventory/Unit/UnitList';
 import Settings from './pages/Settings';
 import InvoicePrint from './pages/Invoice/InvoicePrint';
 import ChartOfAccount from './pages/Masters/Finance/ChartOfAccount';
@@ -39,6 +39,8 @@ import Location from './pages/Masters/Inventory/Location';
 import SalesInvoice2 from './pages/Invoice/SalesInvoice';
 import SalesInvoice from './pages/Transactions/Sales/Invoice';
 import SalesEntry from './pages/Transactions/Sales/Invoice/SalesEntry';
+import SalesQuotation from './pages/Transactions/Sales/Quotation';
+import QuotationEntry from './pages/Transactions/Sales/Quotation/QuotationEntry';
 
 // ----------------------------------------------------------------------
 const RequiredRolesContext = createContext();
@@ -61,7 +63,7 @@ const ProtectedRoute = ({ children }) => {
     return <div>Loading...</div>; // or display a loading indicator
   }
 
-  const userRoles ='admin' /* Get user roles from state or context */;
+  const userRoles = 'admin' /* Get user roles from state or context */;
 
   if (!canAccess(userRoles, requiredRoles)) {
     return <Navigate to="/unauthorized" replace />;
@@ -79,7 +81,7 @@ export default function Router() {
       const roles = await fetchRequiredRoles(window.location.pathname);
       setRequiredRoles(roles);
     };
-console.log("pathh- ",window.location.pathname);
+    console.log("pathh- ", window.location.pathname);
 
     fetchRoles();
   }, []);
@@ -92,29 +94,31 @@ console.log("pathh- ",window.location.pathname);
     { path: 'customermasterv2', element: <CustomerMasterV2 /> },
     { path: 'SalesList', element: <SalesList /> },
   ]
- const AdminMenus = [
+  const AdminMenus = [
     { path: 'userlist', element: <UserList /> },
     { path: 'registeruser', element: <RegisterUser /> },
-    { path: 'rolelist', element: <UserRoleList /> }, 
+    { path: 'rolelist', element: <UserRoleList /> },
     { path: 'product', element: <Product /> },
     { path: 'productlist', element: <ProductList /> },
     { path: 'unit', element: <Unit /> },
     { path: 'location', element: <Location /> },
     { path: 'unitlist', element: <UnitList /> },
     { path: 'coa', element: <ChartOfAccount /> },
-    { path: 'supplier', element: <Supplier /> },   
+    { path: 'supplier', element: <Supplier /> },
     { path: 'salesman', element: <Salesman /> },
     { path: 'customer', element: <Customer /> },
-      { path: 'lastno', element: <LastNumber /> },
-      { path: 'screens', element: <Screens /> },
-      { path: 'permissions', element: <Permissions /> },
+    { path: 'lastno', element: <LastNumber /> },
+    { path: 'screens', element: <Screens /> },
+    { path: 'permissions', element: <Permissions /> },
     { path: 'invoiceprint', element: <InvoicePrint /> },
 
     { path: 'salesinvoice', element: <SalesInvoice /> },
     { path: 'salesentry', element: <SalesEntry /> },
     { path: 'salesentry/:id', element: <SalesEntry /> },
 
-
+    { path: 'quotation', element: <SalesQuotation /> },
+    { path: 'quotation-entry', element: <QuotationEntry /> },
+    { path: 'quotation-entry/:id', element: <QuotationEntry /> },
   ]
   const routes = useRoutes([
     {
@@ -123,8 +127,8 @@ console.log("pathh- ",window.location.pathname);
       children: [
         { element: <Navigate to="/app" />, index: true },
         { path: 'app', element: <DashboardAppPage /> },
-        { path: 'changepassword', element: <ChangePassword/> },
-        { path: 'salesinvoice', element: <SalesInvoice/> },
+        { path: 'changepassword', element: <ChangePassword /> },
+        { path: 'salesinvoice', element: <SalesInvoice /> },
         { path: 'salesentry', element: <SalesEntry /> },
         { path: 'salesentry/:id', element: <SalesEntry /> },
         { path: 'user', element: <UserPage /> },
@@ -141,19 +145,19 @@ console.log("pathh- ",window.location.pathname);
     },
     {
       path: '/login',
-      element: <LoginPage Page={LoginForm}  />,
+      element: <LoginPage Page={LoginForm} />,
     },
     {
       path: '/testt',
-      element: <Post  />,
+      element: <Post />,
     },
-     {
+    {
       path: '/forgotpassword',
-      element: <LoginPage Page={ForgotPassword}  />,
-    }, 
+      element: <LoginPage Page={ForgotPassword} />,
+    },
     {
       path: '/resetpassword',
-      element: <LoginPage Page={ResetPassword}  />,
+      element: <LoginPage Page={ResetPassword} />,
     },
     {
       element: <SimpleLayout />,
@@ -169,7 +173,7 @@ console.log("pathh- ",window.location.pathname);
     },
   ]);
 
-   return routes;
+  return routes;
   // return (
   //   <RequiredRolesContext.Provider value={requiredRoles}>
   //     <Routes>
