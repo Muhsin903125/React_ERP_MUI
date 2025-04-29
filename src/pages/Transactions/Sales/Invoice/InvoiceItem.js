@@ -13,9 +13,8 @@ import { GetSingleListResult, PostCommonSp, PostMultiSp } from '../../../../hook
 
 
 
-export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, removeItem, setItems, items, errors, isEditable }) {
-
-    const [products, setProducts] = useState([]);
+export default function InvoiceItem({ Propkey, code, products, desc, qty, price, unit, removeItem, setItems, items, errors, isEditable }) {
+ 
     function calculateItemTotal() {
         return qty * price;
     }
@@ -35,23 +34,9 @@ export default function InvoiceItem({ Propkey, code, desc, qty, price, unit, rem
     // ] 
 
 
-    const getProducts = async () => {
-        try {
-            const { Success, Data, Message } = await GetSingleListResult({
-                "key": "ITEM_CRUD",
-                "TYPE": "GET_ALL",
-            });
-            if (Success) {
-                setProducts(Data);
-            }
-        } catch (error) {
-            console.error("Error:", error); // More informative error handling
-        }
-    };
+  
 
-    useEffect(() => {
-        getProducts(); // Fetch products when the component mounts
-    }, []);
+
 
     const [hasErrors, setHasErrors] = useState(false); // state variable to trigger re-render
 

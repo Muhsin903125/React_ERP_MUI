@@ -113,8 +113,8 @@ export default function Router() {
     { path: 'invoiceprint', element: <InvoicePrint /> },
 
     { path: 'salesinvoice', element: <SalesInvoice /> },
-    { path: 'salesentry', element: <SalesEntry /> },
-    { path: 'salesentry/:id', element: <SalesEntry /> },
+    { path: 'sales-entry', element: <SalesEntry /> },
+    { path: 'sales-entry/:id', element: <SalesEntry /> },
 
     { path: 'quotation', element: <SalesQuotation /> },
     { path: 'quotation-entry', element: <QuotationEntry /> },
@@ -129,8 +129,8 @@ export default function Router() {
         { path: 'app', element: <DashboardAppPage /> },
         { path: 'changepassword', element: <ChangePassword /> },
         { path: 'salesinvoice', element: <SalesInvoice /> },
-        { path: 'salesentry', element: <SalesEntry /> },
-        { path: 'salesentry/:id', element: <SalesEntry /> },
+        { path: 'sales-entry', element: <SalesEntry /> },
+        { path: 'sales-entry/:id', element: <SalesEntry /> },
         { path: 'user', element: <UserPage /> },
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },

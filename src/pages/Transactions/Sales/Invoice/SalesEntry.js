@@ -14,6 +14,7 @@ import {
     DialogContent,
     DialogActions,
     DialogTitle,
+    Autocomplete,
 } from '@mui/material';
 import validator from 'validator';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -66,10 +67,9 @@ export default function SalesEntry() {
     const [isEditable, setIsEditable] = useState(true);
     const [showPrintView, setShowPrintView] = useState(false);
     const [printDialogOpen, setPrintDialogOpen] = useState(false);
-
-
-
-
+    const [salesmenList, setSalesmenList] = useState([]);
+    const [salesmanLoading, setSalesmanLoading] = useState(false);
+ 
 
     const [headerData, setheaderData] = useState(
         {
@@ -114,6 +114,7 @@ export default function SalesEntry() {
     };
 
     useEffect(() => {
+       
         // if (headerData.InvDate && headerData.CrDays) {
         if (!id) {
             const dueDate = new Date(headerData.InvDate);
@@ -122,16 +123,18 @@ export default function SalesEntry() {
         }
     }, [headerData.InvDate, headerData.CrDays]);
 
-    useEffect(() => { 
+    useEffect(() => {
         const dueDate = new Date(selectedInvDate);
         dueDate.setDate(dueDate.getDate() + Number(headerData.CrDays));
         setselectedDueDate(dueDate);
         setheaderData({
             ...headerData,
             'InvDate': selectedInvDate
-        }); 
+        });
     }, [selectedInvDate]);
-
+    useEffect(() => {
+        getProducts();
+    }, []);
     const handleInputChange = event => {
         const { type, name, value } = event.target;
         if (type === 'number' && Object.keys(value).length > 1)
@@ -309,13 +312,20 @@ export default function SalesEntry() {
                     })
                 }));
 
-                const { Success, Message } = await GetSingleResult({
+                const { Success, Message, Data } = await GetSingleResult({
                     "json": base64Data
                 });
 
                 if (Success) {
-                    navigate('/salesinvoice', { replace: true });
-                    showToast(Message, 'success');
+                    if (id) {
+                        setIsEditMode(false);
+                        navigate(`/sales-entry/${Data.id}`, { replace: true });
+
+                    } else {
+                        setIsEditMode(false);
+                        navigate(`/sales-entry/${Data.id}`, { replace: true });
+                    }
+                    showToast(Data.Message, 'success');
                 }
                 else {
                     showToast(Message, "error");
@@ -326,7 +336,20 @@ export default function SalesEntry() {
             }
         });
     };
-
+    const [products, setProducts] = useState([]);
+    const getProducts = async () => {
+        try {
+            const { Success, Data, Message } = await GetSingleListResult({
+                "key": "ITEM_CRUD",
+                "TYPE": "GET_ALL",
+            });
+            if (Success) {
+                setProducts(Data);
+            }
+        } catch (error) {
+            console.error("Error:", error); // More informative error handling
+        }
+    };
     const loadInvoiceDetails = async (invoiceId) => {
         try {
             setLoadingFull(true);
@@ -472,7 +495,33 @@ export default function SalesEntry() {
         setIsEditable(true);
         setIsEditMode(false);
         getCode(); // Get new invoice number
-        navigate('/salesentry');
+        navigate('/sales-entry');
+    };
+
+    const fetchSalesmen = async () => {
+        try {
+            setSalesmanLoading(true);
+            const { Success, Data, Message } = await GetSingleListResult({
+                "key": "SMAN_CRUD",
+                "TYPE": "GET_ALL"
+            });
+            if (Success) {
+                setSalesmenList(Data);
+            }
+        } catch (error) {
+            showToast("Error fetching salesmen", "error");
+            console.error('Error fetching salesmen:', error);
+        } finally {
+            setSalesmanLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchSalesmen();
+    }, []);
+
+    const handleSubmit = async (e) => {
+        // ... existing code ...
     };
 
     return (
@@ -641,7 +690,7 @@ export default function SalesEntry() {
                                         />
                                     </FormControl>
                                 </Grid>
-                            
+
                                 <Grid item xs={6} md={4} >
                                     <FormControl fullWidth>
                                         <TextField
@@ -655,7 +704,27 @@ export default function SalesEntry() {
                                         />
                                     </FormControl>
                                 </Grid>
-                                <Grid item xs={6} md={4}  mt={1}    >
+                                <Grid item xs={6} md={4} mt={1} >
+                                    <FormControl fullWidth>
+                                        <Autocomplete
+                                            disabled={!isEditable}
+                                            options={salesmenList}
+                                            value={salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode) || null}
+                                            getOptionLabel={(option) =>
+                                                option ? `${option.SMAN_DESC} (${option.SMAN_DOCNO})` : ''
+                                            }
+                                            loading={salesmanLoading}
+                                            renderInput={(params) => <TextField {...params} label="Sales Person" size="small" />}
+                                            onChange={(event, value) => {
+                                                setheaderData({
+                                                    ...headerData,
+                                                    SManCode: value?.SMAN_DOCNO || ''
+                                                });
+                                            }}
+                                        />
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={6} md={4} mt={1}    >
                                     <FormControl fullWidth>
                                         <Dropdownlist options={PaymentModeOptions}
                                             name="PaymentMode"
@@ -665,20 +734,8 @@ export default function SalesEntry() {
                                             disable={!isEditable}
                                         />
                                     </FormControl>
-                                </Grid> 
-                                <Grid item xs={6} md={4} mt={1} >
-                                    <FormControl fullWidth>
-                                        <TextField
-                                            id="Ref-no"
-                                            label="Reference"
-                                            name="RefNo"
-                                            value={headerData.RefNo}
-                                            onChange={handleInputChange}
-                                            size="small"
-                                            disabled={!isEditable}
-                                        />
-                                    </FormControl>
                                 </Grid>
+                            
                                 <Grid item xs={6} md={4} mt={1} >
                                     <FormControl fullWidth>
                                         <Dropdownlist options={InvoiceStatusOptions}
@@ -721,6 +778,7 @@ export default function SalesEntry() {
                         <InvoiceItem
                             key={index}
                             Propkey={index}
+                            products={products}
                             code={items[index].name}
                             desc={items[index].desc}
                             qty={items[index].qty}
@@ -773,7 +831,15 @@ export default function SalesEntry() {
                 </DialogTitle>
                 <DialogContent>
                     <Box id="print-content" sx={{ p: 2 }}>
-                        <InvoicePrint headerData={headerData} items={items} />
+                        <InvoicePrint 
+                            headerData={{
+                                ...headerData,
+                                SalesmanName: salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode)?.SMAN_DESC ? 
+                                    `${salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode).SMAN_DESC} (${headerData.SManCode})` : 
+                                    headerData.SManCode || ''
+                            }} 
+                            items={items} 
+                        />
                     </Box>
                 </DialogContent>
                 <DialogActions>

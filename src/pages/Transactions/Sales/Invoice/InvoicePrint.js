@@ -53,6 +53,7 @@ const PrintHeader = ({ headerData }) => (
                     {headerData.LPONo && <Typography variant="body2">LPO: {headerData.LPONo}</Typography>}
                     {headerData.RefNo && <Typography variant="body2">Reference: {headerData.RefNo}</Typography>}
                     {headerData.PaymentMode && <Typography variant="body2">Payment Mode: {headerData.PaymentMode}</Typography>}
+                    {headerData.SalesmanName && <Typography variant="body2">Sales Person: {headerData.SalesmanName}</Typography>}
                 </Box>
             </Grid>
             <Grid item xs={12}>

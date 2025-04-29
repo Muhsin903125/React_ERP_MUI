@@ -134,7 +134,7 @@ export default function SalesInvoice() {
     };
 
     const handleView = (rowData) => {
-        navigate(`/salesentry/${rowData.InvNo}`);
+        navigate(`/sales-entry/${rowData.InvNo}`);
     };
 
     return (
@@ -148,7 +148,7 @@ export default function SalesInvoice() {
                     <Typography variant="h4" gutterBottom>
                         Sale Invoice List
                     </Typography>
-                    <Link to="/salesentry" style={{ textDecoration: 'none' }}>
+                    <Link to="/sales-entry" style={{ textDecoration: 'none' }}>
                         <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
                             New Sales Invoice Entry
                         </Button>
