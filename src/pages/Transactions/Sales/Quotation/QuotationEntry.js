@@ -10,6 +10,11 @@ import {
     TextField,
     FormControl,
     Box,
+    Autocomplete,
+    Dialog,
+    DialogContent,
+    DialogActions,
+    DialogTitle,
 } from '@mui/material';
 import validator from 'validator';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -52,18 +57,60 @@ export default function QuotationEntry() {
     const { setLoadingFull } = useContext(AuthContext);
     const [code, setCode] = useState('');
     // const [selectedDate, setSelectedDate] = useState(new Date());
-    const [selectedDueDate, setselectedDueDate] = useState(new Date());
+    const [selectedQuotDate, setselectedQuotDate] = useState(new Date());
+    const [products, setProducts] = useState([]);
+    const [selectedValidityDate, setselectedValidityDate] = useState(new Date());
     const [IsAlertDialog, setAlertDialog] = useState(false);
-    const [disableFutureDate] = useState(true);
     // const [status, setStatus] = useState('draft');
     const [errors, setErrors] = useState({});
     const [isEditMode, setIsEditMode] = useState(false);
     const [isEditable, setIsEditable] = useState(true);
     const [showPrintView, setShowPrintView] = useState(false);
+    const [salesmenList, setSalesmenList] = useState([]);
+    const [salesmanLoading, setSalesmanLoading] = useState(false);
+    const [printDialogOpen, setPrintDialogOpen] = useState(false);
 
 
 
+    const getProducts = async () => {
+        try {
+            const { Success, Data, Message } = await GetSingleListResult({
+                "key": "ITEM_CRUD",
+                "TYPE": "GET_ALL",
+            });
+            if (Success) {
+                setProducts(Data);
+            }
+        } catch (error) {
+            console.error("Error:", error); // More informative error handling
+        }
+    };
 
+    useEffect(() => {
+        getProducts();
+    }, []);
+
+    const fetchSalesmen = async () => {
+        try {
+            setSalesmanLoading(true);
+            const { Success, Data, Message } = await GetSingleListResult({
+                "key": "SMAN_CRUD",
+                "TYPE": "GET_ALL"
+            });
+            if (Success) {
+                setSalesmenList(Data);
+            }
+        } catch (error) {
+            showToast("Error fetching salesmen", "error");
+            console.error('Error fetching salesmen:', error);
+        } finally {
+            setSalesmanLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchSalesmen();
+    }, []);
 
     const [headerData, setheaderData] = useState(
         {
@@ -79,52 +126,98 @@ export default function QuotationEntry() {
             LPONo: '',
             RefNo: '',
             PaymentMode: 'CASH',
-            CrDays: 0,
+            ValidityDate: new Date(),
             Discount: 0,
             Tax: 5,
             GrossAmount: 0,
             TaxAmount: 0,
-            NetAmount: 0
+            NetAmount: 0,
+            SManCode: '',
+            Remarks: ''
         })
     const validate = () => {
         const errors = {};
+        let hasError = false;
 
+        // Customer validation
         if (validator.isEmpty(headerData.CustomerCode)) {
             errors.CustomerCode = 'Customer is required';
             showToast('Customer is required', "error");
+            hasError = true;
         }
-        if (items.some((item) => validator.isEmpty(item.name))) {
-            errors.item = 'Item Should not be blank'
-            // showToast(errors.item, "error");
+
+        // Salesman validation
+        if (!headerData.SManCode) {
+            errors.SManCode = 'Salesman is required';
+            showToast('Salesman is required', "error");
+            hasError = true;
         }
-        if ((!validator.isEmail(headerData.Email) && Object.keys(headerData.Email).length > 0)) {
-            errors.Email = 'Not a valid Email'
+
+        // Validity date validation
+        if (!selectedValidityDate) {
+            errors.ValidityDate = 'Validity date is required';
+            showToast('Validity date is required', "error");
+            hasError = true;
         }
+
+        // Quotation date validation
+        if (!selectedQuotDate) {
+            errors.QuotDate = 'Quotation date is required';
+            showToast('Quotation date is required', "error");
+            hasError = true;
+        }
+
+        // Email validation (if provided)
+        if (headerData.Email && !validator.isEmail(headerData.Email)) {
+            errors.Email = 'Invalid email address';
+            showToast('Invalid email address', "error");
+            hasError = true;
+        }
+
+        // Contact number validation (if provided)
+        if (headerData.ContactNo && !validator.isMobilePhone(headerData.ContactNo)) {
+            errors.ContactNo = 'Invalid contact number';
+            showToast('Invalid contact number', "error");
+            hasError = true;
+        }
+
+        // Items validation
+        if (items.length === 0) {
+            errors.items = 'At least one item is required';
+            showToast('At least one item is required', "error");
+            hasError = true;
+        }
+
+        // Validate each item
+        const itemErrors = items.map((item, index) => {
+            const itemError = {};
+            if (!item.name) {
+                itemError.name = 'Item name is required';
+                hasError = true;
+            }
+            if (!item.qty || item.qty <= 0) {
+                itemError.qty = 'Valid quantity is required';
+                hasError = true;
+            }
+            if (!item.price || item.price <= 0) {
+                itemError.price = 'Valid price is required';
+                hasError = true;
+            }
+            return Object.keys(itemError).length > 0 ? itemError : null;
+        }).filter(Boolean);
+
+        if (itemErrors.length > 0) {
+            errors.items = itemErrors;
+            showToast('Please check all item details', "error");
+        }
+
         setErrors(errors);
-        console.log(errors);
-        return Object.keys(errors).length === 0;
+        return !hasError;
     };
 
-    useEffect(() => {
-        // if (headerData.QuotDate && headerData.CrDays) {
-        if (!id) {
-            const dueDate = new Date(headerData.QuotDate);
-            dueDate.setDate(dueDate.getDate() + Number(headerData.CrDays));
-            setselectedDueDate(dueDate);
-        }
-    }, [headerData.QuotDate, headerData.CrDays]);
 
-    useEffect(() => {
-        // if (invoiceDate && dueDate) {
-        const creditDays = Math.round(
-            (new Date(selectedDueDate) - new Date(headerData.QuotDate)) / (1000 * 60 * 60 * 24));
-        setheaderData({
-            ...headerData,
-            'CrDays': creditDays
-        });
-        // }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedDueDate]);
+
+
 
     const handleInputChange = event => {
         const { type, name, value } = event.target;
@@ -144,9 +237,6 @@ export default function QuotationEntry() {
                     ...headerData,
                     [name]: value
                 });
-        console.log(headerData)
-        // console.log(selectedDate)
-        console.log(selectedDueDate.$d)
 
     };
 
@@ -155,7 +245,7 @@ export default function QuotationEntry() {
             ...headerData,
             [name]: event.$d
         });
-        
+
     };
 
     const handleSave = () => {
@@ -247,8 +337,8 @@ export default function QuotationEntry() {
             "Address": value.CUS_ADDRESS,
             "TRN": value.CUS_TRN,
             "CustomerCode": value.CUS_DOCNO,
-            "ContactNo":value.CUS_MOB,
-            "Email":value.CUS_EMAIL
+            "ContactNo": value.CUS_MOB,
+            "Email": value.CUS_EMAIL
 
         });
         // setSelectedValue(value.name);
@@ -280,7 +370,7 @@ export default function QuotationEntry() {
                 const base64Data = encodeJsonToBase64(JSON.stringify({
                     "key": "QUOT_CRUD",
                     "TYPE": isEditMode ? "UPDATE" : "INSERT",
-                    "DOC_NO":id,
+                    "DOC_NO": id,
                     "headerData": {
                         ...headerData,
                         "GrossAmount": calculateTotal(items),
@@ -332,10 +422,12 @@ export default function QuotationEntry() {
                     ...headerData,
                     QuotNo: headerData?.QuotNo,
                     Status: headerData?.Status,
-                    CustomerCode: headerData?.CustomerCode,  
-                    QuotDate: new Date(headerData.QuotDate)
+                    CustomerCode: headerData?.CustomerCode,
+                    QuotDate: new Date(headerData.QuotDate),
+                    ValidityDate: new Date(headerData.ValidityDate)
                 });
-                setselectedDueDate(new Date(headerData.QuotDate));
+                setselectedQuotDate(new Date(headerData.QuotDate));
+                setselectedValidityDate(new Date(headerData.ValidityDate));
                 setItems(itemsData || []);
             } else {
                 showToast(Message, "error");
@@ -348,11 +440,83 @@ export default function QuotationEntry() {
     };
 
     const handlePrint = () => {
-        setShowPrintView(true);
+        console.log('Opening print dialog');
+        setPrintDialogOpen(true);
+    };
+
+    const handleClosePrintDialog = () => {
+        console.log('Closing print dialog');
+        setPrintDialogOpen(false);
+    };
+
+    useEffect(() => {
+        console.log(selectedQuotDate, selectedValidityDate);
+        setheaderData({
+            ...headerData,
+            QuotDate: selectedQuotDate,
+            ValidityDate: selectedValidityDate
+        });
+    }, [selectedQuotDate, selectedValidityDate]);
+
+    const handlePrintFromDialog = () => {
+        const printContent = document.getElementById('print-content');
+        if (!printContent) {
+            console.error('Print content not found');
+            return;
+        }
+
+        const printWindow = window.open('', '', 'width=800,height=600');
+        if (!printWindow) {
+            console.error('Could not open print window');
+            return;
+        }
+
+        const styles = Array.from(document.styleSheets)
+            .map(styleSheet => {
+                try {
+                    return Array.from(styleSheet.cssRules)
+                        .map(rule => rule.cssText)
+                        .join('\n');
+                } catch (e) {
+                    return '';
+                }
+            })
+            .join('\n');
+
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+                <head>
+                    <title>Print Quotation</title>
+                    <style>
+                        ${styles}
+                        body {
+                            padding: 20px;
+                        }
+                        @media print {
+                            body {
+                                padding: 0;
+                            }
+                            @page {
+                                size: A4;
+                                margin: 1cm;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${printContent.innerHTML}
+                </body>
+            </html>
+        `);
+
+        printWindow.document.close();
+        printWindow.focus();
+
         setTimeout(() => {
-            window.print();
-            setShowPrintView(false);
-        }, 100);
+            printWindow.print();
+            printWindow.close();
+        }, 500);
     };
 
     const toggleEditMode = () => {
@@ -374,12 +538,14 @@ export default function QuotationEntry() {
             LPONo: '',
             RefNo: '',
             PaymentMode: 'CASH',
-            CrDays: 0,
+            ValidityDate: new Date(),
             Discount: 0,
             Tax: 5,
             GrossAmount: 0,
             TaxAmount: 0,
-            NetAmount: 0
+            NetAmount: 0,
+            SManCode: '',
+            Remarks: ''
         });
         setItems([{
             name: "",
@@ -391,444 +557,363 @@ export default function QuotationEntry() {
         setErrors({});
         setIsEditable(true);
         setIsEditMode(false);
+        setselectedQuotDate(new Date());
+        setselectedValidityDate(new Date());
         getCode(); // Get new invoice number
-        navigate('/');
+        navigate('/quotation-entry');
     };
 
     return (
         <>
             <Helmet>
-                <title> Sales Invoice </title>
+                <title> Sales Quotation </title>
             </Helmet>
 
-            {!showPrintView ? (
-                <>
-                    <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-                        <Typography variant="h4" gutterBottom>
-                            {isEditMode ? 'Edit Sales Quotation' : 'New Sales Quotation'}
-                        </Typography>
-                        <Stack direction="row" spacing={2}>
-                            {!isEditable && (
-                                <Button variant="outlined" startIcon={<Iconify icon="eva:printer-fill" />} onClick={handlePrint}>
-                                    Print
-                                </Button>
-                            )}
-                            {isEditMode && !isEditable && (
-                                <Button variant="contained" color="primary" startIcon={<Iconify icon="eva:edit-fill" />} onClick={toggleEditMode}>
-                                    Enable Edit
-                                </Button>
-                            )}
-                            {isEditable && (
-                                <Button variant="contained" color="secondary" startIcon={<Iconify icon="eva:close-fill" />} onClick={toggleEditMode}>
-                                    Cancel Edit
-                                </Button>
-                            )}
-                            <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleNewInvoice}>
-                                New Quotation
-                            </Button>
-                        </Stack>
-                    </Stack>
-                    <Card  >
-                        <Stack maxwidth={'lg'} padding={2.5} style={{ backgroundColor: '#e8f0fa', boxShadow: '#dbdbdb4f -1px 9px 20px 0px' }}>
-                            <Grid container spacing={2} mt={1}  >
-                                <Grid item xs={12} md={5}>
-                                    <Grid container spacing={2} mt={1}>
-                                        <Grid items xs={8} md={8}>
-                                            <Typography variant="subtitle1" ml={2} mb={1} style={{ color: "gray" }} >
-                                                Customer :   {headerData.CustomerCode}
-                                            </Typography>
-                                        </Grid>
-                                        <Grid items xs={4} md={4} align='right'>
-                                            {isEditable && (
-                                                <Button size="small" startIcon={<Iconify icon={headerData?.CustomerCode ? "eva:edit-fill" : "eva:person-add-fill"} />} onClick={handleClickOpen}>
-                                                    {headerData?.CustomerCode ? 'change' : 'Add'}
-                                                </Button>
-                                            )}
-                                            <CustomerDialog
-                                                open={open}
-                                                onClose={handleClose}
-                                                onSelect={handleSelect}
-                                            />
-                                        </Grid>
-                                        <Grid items xs={12} md={12}>
-                                            <Typography variant="body2" ml={2} style={{ color: "black" }} >
-                                                {headerData.Customer}
-                                            </Typography>
-                                        </Grid>
-                                        <Grid items xs={12} md={12}>
-                                            <Typography variant="body2" ml={2} style={{ color: "gray" }} >
-                                                {headerData.TRN}
-                                            </Typography>
-                                            <Typography variant="body2" ml={2} mb={2} style={{ color: "gray" }} >
-                                                {headerData.Address}
-                                            </Typography>
-                                        </Grid>
-                                    </Grid>
+            <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
+                <Typography variant="h4" gutterBottom>
+                    {isEditMode ? 'Edit Sales Quotation' : 'New Sales Quotation'}
+                </Typography>
+                <Stack direction="row" spacing={2}>
+                    {!isEditable && (
+                        <Button variant="outlined" startIcon={<Iconify icon="eva:printer-fill" />} onClick={handlePrint}>
+                            Print
+                        </Button>
+                    )}
+                    {isEditMode && !isEditable && (
+                        <Button variant="contained" color="primary" startIcon={<Iconify icon="eva:edit-fill" />} onClick={toggleEditMode}>
+                            Enable Edit
+                        </Button>
+                    )}
+                    {isEditable && (
+                        <Button variant="contained" color="secondary" startIcon={<Iconify icon="eva:close-fill" />} onClick={toggleEditMode}>
+                            Cancel Edit
+                        </Button>
+                    )}
+                    <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleNewInvoice}>
+                        New Quotation
+                    </Button>
+                </Stack>
+            </Stack>
+            <Card  >
+                <Stack maxwidth={'lg'} padding={2.5} style={{ backgroundColor: '#e8f0fa', boxShadow: '#dbdbdb4f -1px 9px 20px 0px' }}>
+                    <Grid container spacing={2} mt={1}  >
+                        <Grid item xs={12} md={5}>
+                            <Grid container spacing={2} mt={1}>
+                                <Grid items xs={8} md={8}>
+                                    <Typography variant="subtitle1" ml={2} mb={1} style={{ color: "gray" }} >
+                                        Customer :   {headerData.CustomerCode}
+                                    </Typography>
                                 </Grid>
-                                <Grid item xs={12} md={7}>
-                                    <Grid container spacing={1}>
-                                        <Grid item xs={6} md={2}  >
-                                            <FormControl fullWidth>
-                                                <TextField
-                                                    id="invoice-no"
-                                                    label="Invoice#"
-                                                    name="QuotNo"
-                                                    value={headerData.QuotNo}
-                                                    onChange={handleInputChange}
-                                                    size="small"
-                                                    inputProps={{
-                                                        readOnly: true
-                                                    }}
-                                                    disabled={!isEditable}
-                                                />
-                                            </FormControl>
-                                        </Grid>
-                                        <Grid item xs={6} md={4} >
-                                            <FormControl fullWidth>
-                                                <DateSelector
-                                                    label="Date"
-                                                    size="small"
-                                                    disableFuture={disableFutureDate}
-                                                    value={headerData.QuotDate}
-                                                    onChange={(e) => {
-                                                        handleDateChange(e, "QuotDate")
-                                                    }}
-                                                    disabled={!isEditable}
-                                                />
-                                            </FormControl>
-                                        </Grid>
-                                        <Grid item xs={6} md={2}  >
-                                            <FormControl fullWidth>
-                                                <TextField
-                                                    id="credit-days"
-                                                    label="Credit Days"
-                                                    name="CrDays"
-                                                    type='number'
-                                                    value={headerData.CrDays}
-                                                    onChange={handleInputChange}
-                                                    size="small"
-                                                    inputProps={{
-                                                        style: {
-                                                            textAlign: 'right',
-                                                        },
-                                                        min: 0,
-                                                    }}
-                                                    disabled={!isEditable}
-                                                />
-                                            </FormControl>
-                                        </Grid>
-                                        <Grid item xs={6} md={4} >
-                                            <FormControl fullWidth>
-                                                <DateSelector
-                                                    size="small"
-                                                    label="Due Date"
-                                                    disableFuture={!disableFutureDate}
-                                                    value={selectedDueDate}
-                                                    onChange={setselectedDueDate}
-                                                    disabled={!isEditable}
-                                                />
-                                            </FormControl>
-                                        </Grid>
-                                    </Grid>
-                                    <Grid container spacing={1} mt={1}>
-                                        <Grid item xs={6} md={6}  >
-                                            <FormControl fullWidth>
-                                                <TextField
-                                                    id="mob-no"
-                                                    label="Mobile#"
-                                                    name="ContactNo"
-                                                    size="small"
-                                                    type="tel"
-                                                    value={headerData.ContactNo}
-                                                    onChange={handleInputChange}
-                                                    disabled={!isEditable}
-                                                // inputProps={{
-                                                //   pattern: '^\\+(?:[0-9] ?){6,14}[0-9]$',
-                                                // }}
-                                                />
-                                            </FormControl>
-                                        </Grid>
-                                        <Grid item xs={6} md={6} >
-                                            <FormControl fullWidth>
-                                                <TextField
-                                                    id="email"
-                                                    label="Email Id"
-                                                    name="Email"
-                                                    size="small"
-                                                    type="email"
-                                                    value={headerData.Email}
-                                                    onChange={handleInputChange}
-                                                    error={errors.Email !== undefined}
-                                                    helperText={errors.Email}
-                                                    disabled={!isEditable}
-                                                // inputProps={{
-                                                //   pattern: '^\\+(?:[0-9] ?){6,14}[0-9]$',
-                                                // }}
-                                                />
-                                            </FormControl>
-                                        </Grid>
-                                    </Grid>
-                                    {/* <Grid container spacing={1} mt={1}>
-                                        <Grid item xs={6} md={8} >
-                                            <FormControl fullWidth>
-                                                <TextField
-                                                    id="lpo-no"
-                                                    label="Cus.LPO No"
-                                                    name="LPONo"
-                                                    size="small"
-                                                    value={headerData.LPONo}
-                                                    onChange={handleInputChange}
-                                                    disabled={!isEditable}
-                                                />
-                                            </FormControl>
-                                        </Grid>
-                                        <Grid item xs={6} md={4}  >
-                                            <FormControl fullWidth>
-                                                <Dropdownlist options={PaymentModeOptions}
-                                                    name="PaymentMode"
-                                                    value={headerData.PaymentMode}
-                                                    label={"Payment Mode"}
-                                                    onChange={handleInputChange}
-                                                    disabled={!isEditable}
-                                                />
-                                            </FormControl>
-                                        </Grid>
-                                    </Grid>
-                                    <Grid container spacing={1} mt={1}>
-                                        <Grid item xs={6} md={8} >
-                                            <FormControl fullWidth>
-                                                <TextField
-                                                    id="Ref-no"
-                                                    label="Reference"
-                                                    name="RefNo"
-                                                    value={headerData.RefNo}
-                                                    onChange={handleInputChange}
-                                                    size="small"
-                                                    disabled={!isEditable}
-                                                // required
-                                                // error="true"
-                                                />
-                                            </FormControl>
-                                        </Grid>
-                                        <Grid item xs={6} md={4}  >
-                                            <FormControl fullWidth>
-                                                <Dropdownlist options={InvoiceStatusOptions}
-                                                    name="Status"
-                                                    value={headerData.Status}
-                                                    label={"Status"}
-                                                    onChange={handleInputChange}
-                                                    disabled={!isEditable}
-                                                />
-                                            </FormControl>
-                                        </Grid>
-                                    </Grid> */}
+                                <Grid items xs={4} md={4} align='right'>
+                                    {isEditable && (
+                                        <Button size="small" startIcon={<Iconify icon={headerData?.CustomerCode ? "eva:edit-fill" : "eva:person-add-fill"} />} onClick={handleClickOpen}>
+                                            {headerData?.CustomerCode ? 'change' : 'Add'}
+                                        </Button>
+                                    )}
+                                    <CustomerDialog
+                                        open={open}
+                                        onClose={handleClose}
+                                        onSelect={handleSelect}
+                                    />
+                                </Grid>
+                                <Grid items xs={12} md={12}>
+                                    <Typography variant="body2" ml={2} style={{ color: "black" }} >
+                                        {headerData.Customer}
+                                    </Typography>
+                                </Grid>
+                                <Grid items xs={12} md={12}>
+                                    <Typography variant="body2" ml={2} style={{ color: "gray" }} >
+                                        {headerData.TRN}
+                                    </Typography>
+                                    <Typography variant="body2" ml={2} mb={2} style={{ color: "gray" }} >
+                                        {headerData.Address}
+                                    </Typography>
                                 </Grid>
                             </Grid>
-                        </Stack>
-                        <Stack m={2.5} maxwidth={'lg'}  >
+                        </Grid>
+                        <Grid item xs={12} md={7}>
+                            <Grid container spacing={1}>
+                                <Grid item xs={6} md={2}  >
+                                    <FormControl fullWidth>
+                                        <TextField
+                                            id="invoice-no"
+                                            label="Invoice#"
+                                            name="QuotNo"
+                                            value={headerData.QuotNo}
+                                            onChange={handleInputChange}
+                                            size="small"
+                                            inputProps={{
+                                                readOnly: true
+                                            }}
+                                            disabled={!isEditable}
+                                        />
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={6} md={4} >
+                                    <FormControl fullWidth error={Boolean(errors.QuotDate)}>
+                                        <DateSelector
+                                            label="Quotation Date"
+                                            size="small"
+                                            value={selectedQuotDate}
+                                            onChange={setselectedQuotDate}
+                                            disable={!isEditable}
+                                            error={Boolean(errors.QuotDate)}
+                                            helperText={errors.QuotDate}
+                                            required
+                                        />
+                                    </FormControl>
+                                </Grid>
 
-                            <Typography variant="h6" mb={2} >
-                                Item Details
-                            </Typography>
-                            {items.map((field, index) => (
-                                <QuotationItem
-                                    key={index}
-                                    Propkey={index}
-                                    code={items[index].name}
-                                    desc={items[index].desc}
-                                    qty={items[index].qty}
-                                    price={items[index].price}
-                                    unit={items[index].unit}
-                                    items={items}
-                                    setItems={setItems}
-                                    removeItem={() => removeItem(index)}
-                                    errors={errors.item}
-                                    isEditable={isEditable}
-                                />
-                            ))}
+                                <Grid item xs={6} md={6} >
+                                    <FormControl fullWidth error={Boolean(errors.ValidityDate)}>
+                                        <DateSelector
+                                            size="small"
+                                            label="Validity Date"
+                                            disableFuture={false}
+                                            value={selectedValidityDate}
+                                            onChange={setselectedValidityDate}
+                                            disable={!isEditable}
+                                            error={Boolean(errors.ValidityDate)}
+                                            helperText={errors.ValidityDate}
+                                            required
+                                        />
+                                    </FormControl>
+                                </Grid>
+                            </Grid>
+                            <Grid container spacing={1} mt={1}>
+                                <Grid item xs={6} md={6}  >
+                                    <FormControl fullWidth>
+                                        <TextField
+                                            id="mob-no"
+                                            label="Mobile#"
+                                            name="ContactNo"
+                                            size="small"
+                                            type="tel"
+                                            value={headerData.ContactNo}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditable}
+                                            error={Boolean(errors.ContactNo)}
+                                            helperText={errors.ContactNo}
+                                        />
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={6} md={6} >
+                                    <FormControl fullWidth>
+                                        <TextField
+                                            id="email"
+                                            label="Email Id"
+                                            name="Email"
+                                            size="small"
+                                            type="email"
+                                            value={headerData.Email}
+                                            onChange={handleInputChange}
+                                            error={Boolean(errors.Email)}
+                                            helperText={errors.Email}
+                                            disabled={!isEditable}
+                                        />
+                                    </FormControl>
+                                </Grid>
+                            </Grid>
+                            <Grid container spacing={1} mt={1}>
+                                <Grid item xs={12} md={6}>
+                                    <FormControl fullWidth error={Boolean(errors.SManCode)}>
+                                        <Autocomplete
+                                            disabled={!isEditable}
+                                            options={salesmenList}
+                                            value={salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode) || null}
+                                            getOptionLabel={(option) =>
+                                                option ? `${option.SMAN_DESC} (${option.SMAN_DOCNO})` : ''
+                                            }
+                                            loading={salesmanLoading}
+                                            renderInput={(params) => (
+                                                <TextField 
+                                                    {...params} 
+                                                    label="Sales Person" 
+                                                    size="small"
+                                                    error={Boolean(errors.SManCode)}
+                                                    helperText={errors.SManCode}
+                                                    required 
+                                                />
+                                            )}
+                                            onChange={(event, value) => {
+                                                setheaderData({
+                                                    ...headerData,
+                                                    SManCode: value?.SMAN_DOCNO || ''
+                                                });
+                                            }}
+                                        />
+                                    </FormControl>
+                                </Grid>
+                            </Grid>
+                            <Grid container spacing={1} mt={1}>
+                                <Grid item xs={12} md={12}>
+                                    <FormControl fullWidth>
+                                        <TextField
+                                            id="remarks"
+                                            label="Remarks"
+                                            name="Remarks"
+                                            size="small"
+                                            multiline
+                                            rows={2}
+                                            value={headerData.Remarks}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditable}
+                                            placeholder="Enter any additional notes or remarks"
+                                        />
+                                    </FormControl>
+                                </Grid>
+                            </Grid>
+                            {/* <Grid container spacing={1} mt={1}>
+                                <Grid item xs={6} md={8} >
+                                    <FormControl fullWidth>
+                                        <TextField
+                                            id="lpo-no"
+                                            label="Cus.LPO No"
+                                            name="LPONo"
+                                            size="small"
+                                            value={headerData.LPONo}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditable}
+                                        />
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={6} md={4}  >
+                                    <FormControl fullWidth>
+                                        <Dropdownlist options={PaymentModeOptions}
+                                            name="PaymentMode"
+                                            value={headerData.PaymentMode}
+                                            label={"Payment Mode"}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditable}
+                                        />
+                                    </FormControl>
+                                </Grid>
+                            </Grid>
+                            <Grid container spacing={1} mt={1}>
+                                <Grid item xs={6} md={8} >
+                                    <FormControl fullWidth>
+                                        <TextField
+                                            id="Ref-no"
+                                            label="Reference"
+                                            name="RefNo"
+                                            value={headerData.RefNo}
+                                            onChange={handleInputChange}
+                                            size="small"
+                                            disabled={!isEditable}
+                                        // required
+                                        // error="true"
+                                        />
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={6} md={4}  >
+                                    <FormControl fullWidth>
+                                        <Dropdownlist options={InvoiceStatusOptions}
+                                            name="Status"
+                                            value={headerData.Status}
+                                            label={"Status"}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditable}
+                                        />
+                                    </FormControl>
+                                </Grid>
+                            </Grid> */}
+                        </Grid>
+                    </Grid>
+                </Stack>
+                <Stack m={2.5} maxwidth={'lg'}  >
+
+                    <Typography variant="h6" mb={2} >
+                        Item Details
+                    </Typography>
+                    {items.map((field, index) => (
+                        <QuotationItem
+                            key={index}
+                            Propkey={index}
+                            products={products}
+                            code={items[index].name}
+                            desc={items[index].desc}
+                            qty={items[index].qty}
+                            price={items[index].price}
+                            unit={items[index].unit}
+                            items={items}
+                            setItems={setItems}
+                            removeItem={() => removeItem(index)}
+                            errors={errors.item}
+                            isEditable={isEditable}
+                        />
+                    ))}
 
 
 
-                            <SubTotalSec
-                                addItem={addItem}
-                                calculateTotal={calculateTotal(items)}
-                                discount={headerData.Discount}
-                                tax={headerData.Tax}
-                                handleInputChange={(e) => handleInputChange(e)}
-                                isEditable={isEditable}
-                            />
-                            <Stack direction="row" justifyContent="flex-end" mb={2} mt={2}>
-                                {isEditable && (
-                                    <Button variant="contained" color={isEditMode ? 'warning' : 'success'} size='large' onClick={handleSave}>
-                                        {isEditMode ? 'Update Quotation' : 'Create Quotation'}
-                                    </Button>
-                                )}
-                            </Stack>
-                        </Stack>
-                    </Card>
-                </>
-            ) : (
-                <QuotationPrint headerData={headerData} items={items} />
+                    <SubTotalSec
+                        addItem={addItem}
+                        calculateTotal={calculateTotal(items)}
+                        discount={headerData.Discount}
+                        tax={headerData.Tax}
+                        handleInputChange={(e) => handleInputChange(e)}
+                        isEditable={isEditable}
+                    />
+                    <Stack direction="row" justifyContent="flex-end" mb={2} mt={2}>
+                        {isEditable && (
+                            <Button variant="contained" color={isEditMode ? 'warning' : 'success'} size='large' onClick={handleSave}>
+                                {isEditMode ? 'Update Quotation' : 'Create Quotation'}
+                            </Button>
+                        )}
+                    </Stack>
+                </Stack>
+            </Card>
+
+            {/* Print Dialog */}
+            <Dialog
+                open={printDialogOpen}
+                onClose={() => setPrintDialogOpen(false)}
+                maxWidth="lg"
+                fullWidth
+                PaperProps={{
+                    sx: {
+                        minHeight: '80vh',
+                        maxHeight: '90vh',
+                        overflowY: 'auto'
+                    }
+                }}
+            >
+                <DialogTitle>
+                    <Typography variant="h6">Print Preview</Typography>
+                </DialogTitle>
+                <DialogContent>
+                    <Box id="print-content" sx={{ p: 2 }}>
+                        <QuotationPrint
+                            headerData={{
+                                ...headerData,
+                                SalesmanName: salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode)?.SMAN_DESC ?
+                                    `${salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode).SMAN_DESC} (${headerData.SManCode})` :
+                                    headerData.SManCode || ''
+                            }}
+                            items={items}
+                        />
+                    </Box>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setPrintDialogOpen(false)}>
+                        Close
+                    </Button>
+                    <Button
+                        onClick={handlePrintFromDialog}
+                        variant="contained"
+                        color="primary"
+                        startIcon={<Iconify icon="eva:printer-fill" />}
+                    >
+                        Print
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {IsAlertDialog && (
+                <AlertDialog
+                    Message="Are you sure you want to proceed?"
+                    OnSuccess={setAlertDialog}
+                />
             )}
-            <style>
-                {`
-                    @media print {
-                        body * {
-                            visibility: hidden;
-                        }
-                        .container, .container * {
-                            visibility: visible;
-                        }
-                        .container {
-                            position: absolute;
-                            left: 0;
-                            top: 0;
-                            width: 100%;
-                        }
-                        .page-break {
-                            page-break-before: always;
-                        }
-                        .no-break {
-                            page-break-inside: avoid;
-                        }
-                    }
-                    .container {
-                        max-width: 800px;
-                        margin: 0 auto;
-                        background-color: #fff;
-                        padding: 15px;
-                        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-                        border-radius: 8px;
-                        font-size: 12px;
-                    }
-                    .header {
-                        display: flex;
-                        justify-content: space-between;
-                        margin-bottom: 20px;
-                        background-color: #f8f9fa;
-                        padding: 15px;
-                        border-radius: 8px;
-                        page-break-inside: avoid;
-                    }
-                    .company-info {
-                        display: flex;
-                        align-items: center;
-                    }
-                    .company-logo {
-                        height: 60px;
-                        margin-right: 15px;
-                        border-radius: 4px;
-                    }
-                    .invoice-title {
-                        text-align: right;
-                        color: #113160;
-                        font-size: 24px;
-                        font-weight: bold;
-                        margin-bottom: 8px;
-                        text-transform: uppercase;
-                        letter-spacing: 2px;
-                        border-bottom: 2px solid #113160;
-                        padding-bottom: 8px;
-                    }
-                    .customer-details {
-                        display: flex;
-                        justify-content: space-between;
-                        margin-bottom: 20px;
-                        page-break-inside: avoid;
-                    }
-                    .customer-box {
-                        background-color: #f8f9fa;
-                        padding: 15px;
-                        border-radius: 8px;
-                        flex: 1;
-                        margin: 0 8px;
-                    }
-                    table {
-                        width: 100%;
-                        border-collapse: collapse;
-                        margin-bottom: 20px;
-                        background-color: #fff;
-                        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-                        border-radius: 8px;
-                        font-size: 11px;
-                    }
-                    th {
-                        background-color: #113160;
-                        color: #fff;
-                        padding: 8px;
-                        text-align: left;
-                        font-size: 11px;
-                    }
-                    td {
-                        padding: 8px;
-                        border-bottom: 1px solid #eee;
-                    }
-                    tr:nth-child(even) {
-                        background-color: #f8f9fa;
-                    }
-                    .totals {
-                        width: 250px;
-                        margin-left: auto;
-                        background-color: #fff;
-                        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-                        border-radius: 8px;
-                        page-break-inside: avoid;
-                    }
-                    .totals tr:last-child {
-                        background-color: #113160;
-                        color: #fff;
-                    }
-                    .footer {
-                        text-align: center;
-                        margin-top: 20px;
-                        padding: 15px;
-                        background-color: #f8f9fa;
-                        border-radius: 8px;
-                        border-top: 2px solid #113160;
-                        page-break-inside: avoid;
-                    }
-                    .section-title {
-                        color: #113160;
-                        font-size: 14px;
-                        font-weight: bold;
-                        margin-bottom: 8px;
-                        border-bottom: 2px solid #113160;
-                        padding-bottom: 4px;
-                    }
-                    .value-text {
-                        font-weight: 500;
-                        color: #113160;
-                    }
-                    .status-badge {
-                        display: inline-block;
-                        padding: 4px 8px;
-                        border-radius: 4px;
-                        font-size: 11px;
-                        font-weight: bold;
-                    }
-                    .status-paid {
-                        background-color: #e8f5e9;
-                        color: #2e7d32;
-                    }
-                    .status-unpaid {
-                        background-color: #ffebee;
-                        color: #d32f2f;
-                    }
-                    .status-overdue {
-                        background-color: #fff3e0;
-                        color: #ed6c02;
-                    }
-                    .status-draft {
-                        background-color: #e3f2fd;
-                        color: #113160;
-                    }
-                `}
-            </style>
-            {IsAlertDialog && (<AlertDialog
-                Message="Are you sure you want to proceed?"
-                OnSuccess={setAlertDialog}
-            />)}
-
         </>
     );
 }

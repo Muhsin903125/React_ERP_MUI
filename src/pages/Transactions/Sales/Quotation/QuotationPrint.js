@@ -1,249 +1,339 @@
-import { Box } from '@mui/material';
+import React from 'react';
+import { Box, Grid, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Stack, Divider } from '@mui/material';
+
+// Helper to add days to a date
+function addDays(date, days) {
+    const result = new Date(date);
+    result.setDate(result.getDate() + Number(days));
+    return result;
+}
+
+// A4 size constants (in mm converted to px at 96 DPI)
+const MM_TO_PX = 3.7795275591; // 1mm = 3.7795275591px at 96 DPI
+const A4_WIDTH_MM = 210;
+const A4_HEIGHT_MM = 297;
+const PAGE_WIDTH = Math.floor(A4_WIDTH_MM * MM_TO_PX); // ~794px
+const PAGE_HEIGHT = Math.floor(A4_HEIGHT_MM * MM_TO_PX); // ~1123px
+const MARGIN_MM = 5;
+const MARGIN = Math.floor(MARGIN_MM * MM_TO_PX); // ~57px
+const HEADER_HEIGHT = 180;
+const ITEMS_PER_PAGE = 15; // Fixed number of items per page
+
+// Split items into pages of 10 items each
+function paginateItems(items) {
+    const pages = [];
+    for (let i = 0; i < items.length; i += ITEMS_PER_PAGE) {
+        pages.push(items.slice(i, Math.min(i + ITEMS_PER_PAGE, items.length)));
+    }
+    return pages;
+}
+
+const PrintHeader = ({ headerData }) => (
+    <Box className="print-header">
+        <Grid container spacing={2}>
+            <Grid item xs={6}>
+                <Stack spacing={1}>
+                    <Box>
+                        <img src="../../../assets/logo.png" alt="Logo" style={{ height: 60, marginBottom: 8 }} />
+                        <Typography variant="subtitle1" fontWeight={700}>Your Company Name</Typography>
+                        <Typography variant="body2">123 Business Street</Typography>
+                        <Typography variant="body2">City, Country</Typography>
+                        <Typography variant="body2">Phone: +1234567890</Typography>
+                    </Box>
+                </Stack>
+            </Grid>
+            <Grid item xs={6}>
+                <Box sx={{ textAlign: 'right' }}>
+                    <Typography variant="h5" color="primary" fontWeight={700} gutterBottom>QUOTATION</Typography>
+                    <Typography variant="body2">Quotation #: {headerData.QuotNo}</Typography>
+                    <Typography variant="body2">Date: {new Date(headerData.QuotDate).toLocaleDateString()}</Typography>
+                    <Typography variant="body2">
+                        Valid Until: {new Date(headerData.ValidityDate).toLocaleDateString()}
+                    </Typography>
+                    {headerData.LPONo && <Typography variant="body2">LPO: {headerData.LPONo}</Typography>}
+                    {headerData.RefNo && <Typography variant="body2">Reference: {headerData.RefNo}</Typography>}
+                </Box>
+            </Grid>
+            <Grid item xs={12}>
+                <Box sx={{ 
+                    background: '#f0f7ff', 
+                    p: 1.5, 
+                    borderRadius: 1, 
+                    mt: 1,
+                    textAlign: 'right',
+                    border: '1px solid #e3f2fd'
+                }}>
+                    <Typography variant="subtitle2" fontWeight={700}>Bill To:</Typography>
+                    <Typography variant="body2">{headerData.Customer}</Typography>
+                    <Typography variant="body2">{headerData.Address}</Typography>
+                    <Typography variant="body2">TRN: {headerData.TRN}</Typography>
+                    <Typography variant="body2">Phone: {headerData.ContactNo}</Typography>
+                    <Typography variant="body2">Email: {headerData.Email}</Typography>
+                </Box>
+            </Grid>
+        </Grid>
+    </Box>
+);
 
 export default function QuotationPrint({ headerData, items }) {
+    // Split items into pages
+    const pages = paginateItems(items);
+
     return (
-        <Box sx={{ p: 2, maxWidth: '800px', margin: '0 auto' }}>
-            <div className="container">
-                <div className="header">
-                    <div className="company-info">
-                        <div>
-                            <h2 style={{ color: '#113160', marginBottom: '8px', fontSize: '16px' }}>
-                                <img src="/assets/logo.png" alt="Company Logo" className="company-logo" />
-                            </h2>
-                            <p style={{ margin: '3px 0', fontSize: '11px' }}>Address Line 1</p>
-                            <p style={{ margin: '3px 0', fontSize: '11px' }}>City, State, Country</p>
-                            <p style={{ margin: '3px 0', fontSize: '11px' }}>Phone: +1234567890</p>
-                        </div>
-                    </div>
-                    <div>
-                        <div className="invoice-title">QUOTATION</div>
-                        <p style={{ margin: '3px 0', fontSize: '12px' }}>Quot #: <span className="value-text">{headerData.InvNo}</span></p>
-                        <p style={{ margin: '3px 0', fontSize: '12px' }}>Date: <span className="value-text">{new Date(headerData.InvDate).toLocaleString()}</span></p>
-                        {/* <p style={{ margin: '3px 0', fontSize: '12px',textTransform:"capitalize" }}>Status: <span className={`status-badge status-${headerData.Status.toLowerCase()}`}>{headerData.Status.toUpperCase()}</span></p> */}
-                    </div>
-                </div>
+        <Box className="print-container">
+            {pages.map((pageItems, pageIndex) => (
+                <Box key={pageIndex} className="print-page">
+                    <PrintHeader headerData={headerData} />
+                    
+                    <Box className="content-section">
+                        <TableContainer component={Paper} elevation={0}>
+                            <Table size="small">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell width="50px">No.</TableCell>
+                                        <TableCell width="10%">Code</TableCell>
+                                        <TableCell width="40%">Description</TableCell>
+                                        <TableCell width="50px" align="right">Qty</TableCell>
+                                        <TableCell width="10%">Unit</TableCell>
+                                        <TableCell width="12.5%" align="right">Price</TableCell>
+                                        <TableCell width="12.5%" align="right">Total</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {pageItems.map((item, idx) => (
+                                        <TableRow key={idx}>
+                                            <TableCell>{idx + 1 + (pageIndex * ITEMS_PER_PAGE)}</TableCell>
+                                            <TableCell>{item.name}</TableCell>
+                                            <TableCell>{item.desc}</TableCell>
+                                            <TableCell align="right">{item.qty}</TableCell>
+                                            <TableCell>{item.unit}</TableCell>
+                                            <TableCell align="right">{item.price.toFixed(2)}</TableCell>
+                                            <TableCell align="right">{(item.qty * item.price).toFixed(2)}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
 
-                <div className="customer-details">
-                    <div className="customer-box">
-                        <div className="section-title">Quotation To:</div>
-                        <p style={{ margin: '3px 0', fontSize: '11px' }}><span className="value-text">{headerData.Customer}</span></p>
-                        <p style={{ margin: '3px 0', fontSize: '11px' }}>{headerData.Address}</p>
-                        <p style={{ margin: '3px 0', fontSize: '11px' }}>TRN: {headerData.TRN}</p>
-                        <p style={{ margin: '3px 0', fontSize: '11px' }}>Phone: {headerData.ContactNo}</p>
-                        <p style={{ margin: '3px 0', fontSize: '11px' }}>Email: {headerData.Email}</p>
-                    </div>
-                    <div className="customer-box">
-                        <p style={{ margin: '3px 0', fontSize: '11px' }}>  </p>
-                        </div>
-                </div>
+                        {pageIndex === pages.length - 1 && (
+                            <>
+                                <Box className="summary-section">
+                                    <Box sx={{ 
+                                        width: 250, 
+                                        ml: 'auto', 
+                                        mt: 2,
+                                        p: 2,
+                                        backgroundColor: '#f0f7ff',
+                                        borderRadius: 1,
+                                        border: '1px solid #e3f2fd'
+                                    }}>
+                                        <Stack spacing={1}>
+                                            <Stack direction="row" justifyContent="space-between">
+                                                <Typography variant="body2">Gross Amount:</Typography>
+                                                <Typography variant="body2">{headerData.GrossAmount.toFixed(2)}</Typography>
+                                            </Stack>
+                                            <Stack direction="row" justifyContent="space-between">
+                                                <Typography variant="body2">Discount:</Typography>
+                                                <Typography variant="body2">{headerData.Discount.toFixed(2)}</Typography>
+                                            </Stack>
+                                            <Stack direction="row" justifyContent="space-between">
+                                                <Typography variant="body2">Tax ({headerData.Tax}%):</Typography>
+                                                <Typography variant="body2">{headerData.TaxAmount.toFixed(2)}</Typography>
+                                            </Stack>
+                                            <Divider />
+                                            <Stack direction="row" justifyContent="space-between">
+                                                <Typography variant="subtitle2" fontWeight={700}>Net Amount:</Typography>
+                                                <Typography variant="subtitle2" fontWeight={700}>{headerData.NetAmount.toFixed(2)}</Typography>
+                                            </Stack>
+                                        </Stack>
+                                    </Box>
+                                </Box>
 
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Sr No</th>
-                            <th>Item Code</th>
-                            <th>Description</th>
-                            <th>Unit</th>
-                            <th style={{ textAlign: 'right' }}>Quantity</th>
-                            <th style={{ textAlign: 'right' }}>Price</th>
-                            <th style={{ textAlign: 'right' }}>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {items.map((item, index) => (
-                            <tr key={index}>
-                                <td>{index + 1}</td>
-                                <td>{item.name}</td>
-                                <td>{item.desc}</td>
-                                <td>{item.unit}</td>
-                                <td style={{ textAlign: 'right' }}>{item.qty}</td>
-                                <td style={{ textAlign: 'right' }}>{item.price.toFixed(2)}</td>
-                                <td style={{ textAlign: 'right' }}>{(item.qty * item.price).toFixed(2)}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                                {headerData.Remarks && (
+                                    <Box className="remarks-section" sx={{ 
+                                        mt: 3, 
+                                        p: 1.5, 
+                                        backgroundColor: '#fff8e1', 
+                                        borderRadius: 1,
+                                        border: '1px solid #ffecb3'
+                                    }}>
+                                        <Typography variant="subtitle2" fontWeight={700} gutterBottom>Remarks:</Typography>
+                                        <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                                            {headerData.Remarks}
+                                        </Typography>
+                                    </Box>
+                                )}
+                            </>
+                        )}
+                    </Box>
+                </Box>
+            ))}
 
-                <div className="totals">
-                    <table>
-                        <tr>
-                            <td>Gross Amount</td>
-                            <td style={{ textAlign: 'right' }}>{headerData.GrossAmount.toFixed(2)}</td>
-                        </tr>
-                        <tr>
-                            <td>Discount</td>
-                            <td style={{ textAlign: 'right' }}>{headerData.Discount.toFixed(2)}</td>
-                        </tr>
-                        <tr>
-                            <td>Tax ({headerData.Tax}%)</td>
-                            <td style={{ textAlign: 'right' }}>{headerData.TaxAmount.toFixed(2)}</td>
-                        </tr>
-                        <tr>
-                            <td style={{ fontWeight: 'bold' }}>Net Amount</td>
-                            <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{headerData.NetAmount.toFixed(2)}</td>
-                        </tr>
-                    </table>
-                </div>
-
-                <div className="footer">
-                    <p style={{ color: '#113160', fontWeight: 'bold', marginBottom: '3px', fontSize: '11px' }}>We look forward to serving you again!</p>
-                    <p style={{ color: '#666', fontSize: '10px' }}>This is a computer-generated quotation, no signature required.</p>
-                </div>
-            </div>
-            <style>
-                {`
-                    @media print {
-                        body * {
-                            visibility: hidden;
-                        }
-                        .container, .container * {
-                            visibility: visible;
-                        }
-                        .container {
-                            position: absolute;
-                            left: 0;
-                            top: 0;
-                            width: 100%;
-                        }
-                        .page-break {
-                            page-break-before: always;
-                        }
-                        .no-break {
-                            page-break-inside: avoid;
-                        }
+            <style>{`
+                @media print {
+                    @page {
+                        size: A4 portrait;
+                        margin: 0;
                     }
-                    .container {
-                        max-width: 800px;
+
+                    html, body {
+                        width: 210mm;
+                        height: 297mm;
+                        margin: 0;
+                        padding: 0;
+                    }
+
+                    .print-container {
+                        width: 210mm !important;
+                        margin: 0 auto !important;
+                        padding: 0 !important;
+                        background: white !important;
+                    }
+
+                    .print-page {
+                        width: 210mm;
+                        min-height: 297mm;
+                        padding: 20px;
                         margin: 0 auto;
-                        background-color: #fff;
-                        padding: 15px;
-                        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-                        border-radius: 8px;
-                        font-size: 12px;
+                        page-break-after: always;
+                        position: relative;
+                        background: white;
+                        box-shadow: none;
                     }
-                    .header {
-                        display: flex;
-                        justify-content: space-between;
+
+                    .print-page:last-child {
+                        page-break-after: auto;
+                    }
+
+                    .print-header {
+                        position: relative;
+                        padding-bottom: 15px;
                         margin-bottom: 20px;
-                        background-color: #f8f9fa;
-                        padding: 15px;
-                        border-radius: 8px;
-                        page-break-inside: avoid;
-                    }
-                    .company-info {
-                        display: flex;
-                        align-items: center;
-                    }
-                    .company-logo {
-                        height: 60px;
-                        margin-right: 15px;
+                        border-bottom: 1px solid #e3f2fd;
+                        background-color: #fafafa;
+                        padding: 20px;
                         border-radius: 4px;
                     }
-                    .invoice-title {
-                        text-align: right;
-                        color: #113160;
-                        font-size: 24px;
-                        font-weight: bold;
-                        margin-bottom: 8px;
-                        text-transform: uppercase;
-                        letter-spacing: 2px;
-                        border-bottom: 2px solid #113160;
-                        padding-bottom: 8px;
+
+                    .content-section {
+                        position: relative;
+                        padding-top: 10px;
                     }
-                    .customer-details {
-                        display: flex;
-                        justify-content: space-between;
-                        margin-bottom: 20px;
+
+                    .summary-section {
+                        margin-top: 20px;
+                        break-inside: avoid;
                         page-break-inside: avoid;
+                        background-color: #f0f7ff !important;
+                        border: 1px solid #e3f2fd !important;
+                        border-radius: 4px;
+                        -webkit-print-color-adjust: exact;
+                        print-color-adjust: exact;
                     }
-                    .customer-box {
-                        background-color: #f8f9fa;
-                        padding: 15px;
-                        border-radius: 8px;
-                        flex: 1;
-                        margin: 0 8px;
+
+                    .remarks-section {
+                        margin-top: 20px;
+                        break-inside: avoid;
+                        page-break-inside: avoid;
+                        background-color: #fff8e1 !important;
+                        border: 1px solid #ffecb3 !important;
+                        -webkit-print-color-adjust: exact;
+                        print-color-adjust: exact;
                     }
+
                     table {
                         width: 100%;
                         border-collapse: collapse;
-                        margin-bottom: 20px;
-                        background-color: #fff;
-                        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-                        border-radius: 8px;
-                        font-size: 11px;
+                        table-layout: fixed;
+                        margin-bottom: 0;
+                        background-color: white;
                     }
-                    th {
-                        background-color: #113160;
-                        color: #fff;
-                        padding: 8px;
-                        text-align: left;
-                        font-size: 11px;
+
+                    thead {
+                        display: table-header-group;
                     }
-                    td {
-                        padding: 8px;
-                        border-bottom: 1px solid #eee;
+
+                    tr {
+                        page-break-inside: avoid;
+                        break-inside: avoid;
                     }
+
                     tr:nth-child(even) {
-                        background-color: #f8f9fa;
+                        background-color: #fafafa !important;
                     }
-                    .totals {
-                        width: 250px;
-                        margin-left: auto;
-                        background-color: #fff;
-                        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-                        border-radius: 8px;
-                        page-break-inside: avoid;
-                    }
-                    .totals tr:last-child {
-                        background-color: #113160;
-                        color: #fff;
-                    }
-                    .footer {
-                        text-align: center;
-                        margin-top: 20px;
-                        padding: 15px;
-                        background-color: #f8f9fa;
-                        border-radius: 8px;
-                        border-top: 2px solid #113160;
-                        page-break-inside: avoid;
-                    }
-                    .section-title {
-                        color: #113160;
-                        font-size: 14px;
-                        font-weight: bold;
-                        margin-bottom: 8px;
-                        border-bottom: 2px solid #113160;
-                        padding-bottom: 4px;
-                    }
-                    .value-text {
-                        font-weight: 500;
-                        color: #113160;
-                    }
-                    .status-badge {
-                        display: inline-block;
-                        padding: 4px 8px;
-                        border-radius: 4px;
+
+                    th {
+                        background-color: #e3f2fd !important;
+                        -webkit-print-color-adjust: exact;
+                        print-color-adjust: exact;
+                        font-weight: 600;
+                        padding: 5px;
+                        border: 1px solid #bbdefb;
                         font-size: 11px;
-                        font-weight: bold;
+                        color: #1976d2;
                     }
-                    .status-paid {
-                        background-color: #e8f5e9;
-                        color: #2e7d32;
+
+                    td {
+                        padding: 5px;
+                        border: 1px solid #e3f2fd;
+                        font-size: 10px;
+                        vertical-align: top;
                     }
-                    .status-unpaid {
-                        background-color: #ffebee;
-                        color: #d32f2f;
+
+                    img {
+                        -webkit-print-color-adjust: exact;
+                        print-color-adjust: exact;
                     }
-                    .status-overdue {
-                        background-color: #fff3e0;
-                        color: #ed6c02;
+
+                    * {
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
                     }
-                    .status-draft {
-                        background-color: #e3f2fd;
-                        color: #113160;
+
+                    @-moz-document url-prefix() {
+                        .print-page {
+                            margin: 0;
+                        }
                     }
-                `}
-            </style>
+
+                    ::-webkit-scrollbar {
+                        display: none;
+                    }
+
+                    td.description-cell {
+                        white-space: normal;
+                        word-wrap: break-word;
+                    }
+
+                    tr.empty-row td {
+                        border: 1px solid #e3f2fd;
+                        height: 30px;
+                    }
+
+                    .summary-section .MuiStack-root {
+                        margin-bottom: 4px;
+                    }
+
+                    .MuiDivider-root {
+                        border-color: #e3f2fd !important;
+                        margin: 8px 0 !important;
+                    }
+                }
+
+                /* Preview styling (non-print) */
+                .print-container {
+                    background: white;
+                    min-height: 297mm;
+                    width: 210mm;
+                    margin: 20px auto;
+                    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                }
+
+                .print-page {
+                    padding: 20px;
+                    background: white;
+                }
+            `}</style>
         </Box>
     );
 }
