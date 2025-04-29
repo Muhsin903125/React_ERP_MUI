@@ -385,16 +385,22 @@ export default function QuotationEntry() {
                     })
                 }));
 
-                const { Success, Message } = await GetSingleResult({
+                const { Success, Message, Data } = await GetSingleResult({
                     "json": base64Data
                 });
 
                 if (Success) {
-                    navigate('/quotation', { replace: true });
-                    showToast(Message, 'success');
+                    setIsEditMode(true);
+                    setIsEditable(false);
+                    if (isEditMode) {
+                        navigate(`/quotation-entry/${Data.id}`, { replace: true });
+                    } else {
+                        navigate(`/quotation-entry/${Data.id}`, { replace: true });
+                    }
+                    showToast(Data.Message, 'success');
                 }
                 else {
-                    showToast(Message, "error");
+                    showToast(`${Data.Message}`, "error");
                 }
             }
             finally {

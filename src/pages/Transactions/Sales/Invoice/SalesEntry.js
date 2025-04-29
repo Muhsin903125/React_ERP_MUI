@@ -96,21 +96,89 @@ export default function SalesEntry() {
         })
     const validate = () => {
         const errors = {};
+        let hasError = false;
 
+        // Customer validation
         if (validator.isEmpty(headerData.CustomerCode)) {
             errors.CustomerCode = 'Customer is required';
             showToast('Customer is required', "error");
+            hasError = true;
         }
-        if (items.some((item) => validator.isEmpty(item.name))) {
-            errors.item = 'Item Should not be blank'
-            // showToast(errors.item, "error");
+
+        // Salesman validation
+        if (!headerData.SManCode) {
+            errors.SManCode = 'Salesman is required';
+            showToast('Salesman is required', "error");
+            hasError = true;
         }
-        if ((!validator.isEmail(headerData.Email) && Object.keys(headerData.Email).length > 0)) {
-            errors.Email = 'Not a valid Email'
+
+        // Invoice date validation
+        if (!selectedInvDate) {
+            errors.InvDate = 'Invoice date is required';
+            showToast('Invoice date is required', "error");
+            hasError = true;
         }
+
+        // Credit Days validation
+        if (headerData.CrDays < 0) {
+            errors.CrDays = 'Credit days cannot be negative';
+            showToast('Credit days cannot be negative', "error");
+            hasError = true;
+        }
+
+        // Email validation (if provided)
+        if (headerData.Email && !validator.isEmail(headerData.Email)) {
+            errors.Email = 'Invalid email address';
+            showToast('Invalid email address', "error");
+            hasError = true;
+        }
+
+        // Contact number validation (if provided)
+        if (headerData.ContactNo && !validator.isMobilePhone(headerData.ContactNo)) {
+            errors.ContactNo = 'Invalid contact number';
+            showToast('Invalid contact number', "error");
+            hasError = true;
+        }
+
+        // Items validation
+        if (items.length === 0) {
+            errors.items = 'At least one item is required';
+            showToast('At least one item is required', "error");
+            hasError = true;
+        }
+
+        // Validate each item
+        const itemErrors = items.map((item, index) => {
+            const itemError = {};
+            if (!item.name) {
+                itemError.name = 'Item name is required';
+                hasError = true;
+            }
+            if (!item.qty || item.qty <= 0) {
+                itemError.qty = 'Valid quantity is required';
+                hasError = true;
+            }
+            if (!item.price || item.price <= 0) {
+                itemError.price = 'Valid price is required';
+                hasError = true;
+            }
+            return Object.keys(itemError).length > 0 ? itemError : null;
+        }).filter(Boolean);
+
+        if (itemErrors.length > 0) {
+            errors.items = itemErrors;
+            showToast('Please check all item details', "error");
+        }
+
+        // Payment validation
+        if (!headerData.PaymentMode) {
+            errors.PaymentMode = 'Payment mode is required';
+            showToast('Payment mode is required', "error");
+            hasError = true;
+        }
+
         setErrors(errors);
-        console.log(errors);
-        return Object.keys(errors).length === 0;
+        return !hasError;
     };
 
     useEffect(() => {
@@ -616,7 +684,7 @@ export default function SalesEntry() {
                                     </FormControl>
                                 </Grid>
                                 <Grid item xs={6} md={4} >
-                                    <FormControl fullWidth>
+                                    <FormControl fullWidth error={Boolean(errors.InvDate)}>
                                         <DateSelector
                                             label="Date"
                                             size="small"
@@ -624,11 +692,14 @@ export default function SalesEntry() {
                                             value={headerData.InvDate}
                                             onChange={setselectedInvDate}
                                             disable={!isEditable}
+                                            error={Boolean(errors.InvDate)}
+                                            helperText={errors.InvDate}
+                                            required
                                         />
                                     </FormControl>
                                 </Grid>
                                 <Grid item xs={6} md={2}  >
-                                    <FormControl fullWidth>
+                                    <FormControl fullWidth error={Boolean(errors.CrDays)}>
                                         <TextField
                                             id="credit-days"
                                             label="Credit Days"
@@ -644,6 +715,8 @@ export default function SalesEntry() {
                                                 min: 0,
                                             }}
                                             disabled={!isEditable}
+                                            error={Boolean(errors.CrDays)}
+                                            helperText={errors.CrDays}
                                         />
                                     </FormControl>
                                 </Grid>
@@ -671,6 +744,8 @@ export default function SalesEntry() {
                                             value={headerData.ContactNo}
                                             onChange={handleInputChange}
                                             disabled={!isEditable}
+                                            error={Boolean(errors.ContactNo)}
+                                            helperText={errors.ContactNo}
                                         />
                                     </FormControl>
                                 </Grid>
@@ -684,7 +759,7 @@ export default function SalesEntry() {
                                             type="email"
                                             value={headerData.Email}
                                             onChange={handleInputChange}
-                                            error={errors.Email !== undefined}
+                                            error={Boolean(errors.Email)}
                                             helperText={errors.Email}
                                             disabled={!isEditable}
                                         />
@@ -705,7 +780,7 @@ export default function SalesEntry() {
                                     </FormControl>
                                 </Grid>
                                 <Grid item xs={6} md={4} mt={1} >
-                                    <FormControl fullWidth>
+                                    <FormControl fullWidth error={Boolean(errors.SManCode)}>
                                         <Autocomplete
                                             disabled={!isEditable}
                                             options={salesmenList}
@@ -714,7 +789,16 @@ export default function SalesEntry() {
                                                 option ? `${option.SMAN_DESC} (${option.SMAN_DOCNO})` : ''
                                             }
                                             loading={salesmanLoading}
-                                            renderInput={(params) => <TextField {...params} label="Sales Person" size="small" />}
+                                            renderInput={(params) => (
+                                                <TextField 
+                                                    {...params} 
+                                                    label="Sales Person" 
+                                                    size="small"
+                                                    error={Boolean(errors.SManCode)}
+                                                    helperText={errors.SManCode}
+                                                    required 
+                                                />
+                                            )}
                                             onChange={(event, value) => {
                                                 setheaderData({
                                                     ...headerData,
@@ -725,13 +809,17 @@ export default function SalesEntry() {
                                     </FormControl>
                                 </Grid>
                                 <Grid item xs={6} md={4} mt={1}    >
-                                    <FormControl fullWidth>
-                                        <Dropdownlist options={PaymentModeOptions}
+                                    <FormControl fullWidth error={Boolean(errors.PaymentMode)}>
+                                        <Dropdownlist 
+                                            options={PaymentModeOptions}
                                             name="PaymentMode"
                                             value={headerData.PaymentMode}
-                                            label={"Payment Mode"}
+                                            label="Payment Mode"
                                             onChange={handleInputChange}
                                             disable={!isEditable}
+                                            error={Boolean(errors.PaymentMode)}
+                                            helperText={errors.PaymentMode}
+                                            required
                                         />
                                     </FormControl>
                                 </Grid>
