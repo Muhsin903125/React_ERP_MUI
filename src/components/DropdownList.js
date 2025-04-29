@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { InputLabel, MenuItem, Select } from '@mui/material';
 
-const Dropdownlist = ({ name, label, options, value, onChange }) => {
+const Dropdownlist = ({ name, label, options, value, onChange, disable = false }) => {
     return (
         <>         
          <InputLabel id="demo-simple-select-label">{label}</InputLabel >
@@ -14,6 +14,7 @@ const Dropdownlist = ({ name, label, options, value, onChange }) => {
                 label={label}
                 onChange={onChange}
                 size="small"
+                disabled={disable}
             >
                 {/* <MenuItem value="">
             <em>None</em>

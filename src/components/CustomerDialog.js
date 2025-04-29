@@ -81,9 +81,8 @@ export default function CustomerDialog(props) {
       </div>
       <List sx={{ pt: 0 }} >
         {filteredCustomer.map((customer) => (
-          <ListItem disableGutters>
-            <ListItemButton onClick={() => handleListItemClick(customer)} key={customer.CUS_DESC}>
-
+          <ListItem disableGutters key={customer.CUS_DOCNO}>
+            <ListItemButton onClick={() => handleListItemClick(customer)}>
               <ListItemText
                 primary={
                   <Typography ml={1} variant="subtitle1" component="span" style={{ fontWeight: 'bold' }}>
