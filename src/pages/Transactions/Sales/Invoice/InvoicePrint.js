@@ -58,11 +58,12 @@ const PrintHeader = ({ headerData }) => (
             </Grid>
             <Grid item xs={12}>
                 <Box sx={{ 
-                    background: '#f8f9fa', 
+                    background: '#f0f7ff', // Light blue background
                     p: 1.5, 
                     borderRadius: 1, 
                     mt: 1,
-                    textAlign: 'right' 
+                    textAlign: 'right',
+                    border: '1px solid #e3f2fd'
                 }}>
                     <Typography variant="subtitle2" fontWeight={700}>Bill To:</Typography>
                     <Typography variant="body2">{headerData.Customer}</Typography>
@@ -92,12 +93,12 @@ export default function InvoicePrint({ headerData, items }) {
                                 <TableHead>
                                     <TableRow>
                                         <TableCell width="50px">No.</TableCell>
-                                        <TableCell width="15%">Item</TableCell>
+                                        <TableCell width="10%">Code</TableCell>
                                         <TableCell width="40%">Description</TableCell>
-                                        <TableCell width="40px" align="right">Qty</TableCell>
+                                        <TableCell width="50px" align="right">Qty</TableCell>
                                         <TableCell width="10%">Unit</TableCell>
-                                        <TableCell width="10%" align="right">Price</TableCell>
-                                        <TableCell width="10%" align="right">Total</TableCell>
+                                        <TableCell width="12.5%" align="right">Price</TableCell>
+                                        <TableCell width="12.5%" align="right">Total</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -127,7 +128,15 @@ export default function InvoicePrint({ headerData, items }) {
                         {pageIndex === pages.length - 1 && (
                             <>
                                 <Box className="summary-section">
-                                    <Box sx={{ width: 250, ml: 'auto', mt: 2 }}>
+                                    <Box sx={{ 
+                                        width: 250, 
+                                        ml: 'auto', 
+                                        mt: 2,
+                                        p: 2,
+                                        backgroundColor: '#f0f7ff',
+                                        borderRadius: 1,
+                                        border: '1px solid #e3f2fd'
+                                    }}>
                                         <Stack spacing={1}>
                                             <Stack direction="row" justifyContent="space-between">
                                                 <Typography variant="body2">Gross Amount:</Typography>
@@ -151,7 +160,13 @@ export default function InvoicePrint({ headerData, items }) {
                                 </Box>
 
                                 {headerData.Remarks && (
-                                    <Box className="remarks-section" sx={{ mt: 3, p: 1.5, backgroundColor: '#f8f9fa', borderRadius: 1 }}>
+                                    <Box className="remarks-section" sx={{ 
+                                        mt: 3, 
+                                        p: 1.5, 
+                                        backgroundColor: '#fff8e1', 
+                                        borderRadius: 1,
+                                        border: '1px solid #ffecb3'
+                                    }}>
                                         <Typography variant="subtitle2" fontWeight={700} gutterBottom>Remarks:</Typography>
                                         <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
                                             {headerData.Remarks}
@@ -161,10 +176,6 @@ export default function InvoicePrint({ headerData, items }) {
                             </>
                         )}
                     </Box>
-
-                    <Box className="page-number" sx={{ position: 'absolute', bottom: MARGIN, right: MARGIN }}>
-                        <Typography variant="body2">Page {pageIndex + 1} of {pages.length}</Typography>
-                    </Box>
                 </Box>
             ))}
 
@@ -172,7 +183,7 @@ export default function InvoicePrint({ headerData, items }) {
                 @media print {
                     @page {
                         size: A4 portrait;
-                        margin: ${MARGIN_MM}mm;
+                        margin: 0;
                     }
 
                     html, body {
@@ -183,21 +194,21 @@ export default function InvoicePrint({ headerData, items }) {
                     }
 
                     .print-container {
-                        width: 100% !important;
-                        height: 100% !important;
-                        margin: 0 !important;
+                        width: 210mm !important;
+                        margin: 0 auto !important;
                         padding: 0 !important;
                         background: white !important;
                     }
 
                     .print-page {
-                        width: 100%;
+                        width: 210mm;
                         min-height: 297mm;
-                        padding: ${MARGIN_MM}mm;
-                        margin: 0;
+                        padding: 20px;
+                        margin: 0 auto;
                         page-break-after: always;
                         position: relative;
                         background: white;
+                        box-shadow: none;
                     }
 
                     .print-page:last-child {
@@ -208,7 +219,10 @@ export default function InvoicePrint({ headerData, items }) {
                         position: relative;
                         padding-bottom: 15px;
                         margin-bottom: 20px;
-                        border-bottom: 1px solid #eee;
+                        border-bottom: 1px solid #e3f2fd;
+                        background-color: #fafafa;
+                        padding: 20px;
+                        border-radius: 4px;
                     }
 
                     .content-section {
@@ -220,13 +234,19 @@ export default function InvoicePrint({ headerData, items }) {
                         margin-top: 20px;
                         break-inside: avoid;
                         page-break-inside: avoid;
+                        background-color: #f0f7ff !important;
+                        border: 1px solid #e3f2fd !important;
+                        border-radius: 4px;
+                        -webkit-print-color-adjust: exact;
+                        print-color-adjust: exact;
                     }
 
                     .remarks-section {
                         margin-top: 20px;
                         break-inside: avoid;
                         page-break-inside: avoid;
-                        background-color: #f8f9fa !important;
+                        background-color: #fff8e1 !important;
+                        border: 1px solid #ffecb3 !important;
                         -webkit-print-color-adjust: exact;
                         print-color-adjust: exact;
                     }
@@ -236,6 +256,7 @@ export default function InvoicePrint({ headerData, items }) {
                         border-collapse: collapse;
                         table-layout: fixed;
                         margin-bottom: 0;
+                        background-color: white;
                     }
 
                     thead {
@@ -247,35 +268,26 @@ export default function InvoicePrint({ headerData, items }) {
                         break-inside: avoid;
                     }
 
+                    tr:nth-child(even) {
+                        background-color: #fafafa !important;
+                    }
+
                     th {
-                        background-color: #f8f9fa !important;
+                        background-color: #e3f2fd !important;
                         -webkit-print-color-adjust: exact;
                         print-color-adjust: exact;
                         font-weight: 600;
-                        padding: 8px;
-                        border: 1px solid #ddd;
+                        padding: 5px;
+                        border: 1px solid #bbdefb;
                         font-size: 11px;
-                        white-space: nowrap;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
+                        color: #1976d2;
                     }
 
                     td {
-                        padding: 8px;
-                        border: 1px solid #ddd;
-                        font-size: 11px;
-                        // white-space: nowrap;
-                        // overflow: hidden;
-                        // text-overflow: ellipsis;
-                        vertical-align: top;
-                    }
-
-                    .page-number {
-                        position: absolute;
-                        bottom: ${MARGIN_MM}mm;
-                        right: ${MARGIN_MM}mm;
+                        padding: 5px;
+                        border: 1px solid #e3f2fd;
                         font-size: 10px;
-                        color: #666;
+                        vertical-align: top;
                     }
 
                     img {
@@ -335,7 +347,7 @@ export default function InvoicePrint({ headerData, items }) {
                 }
 
                 .print-page {
-                    padding: ${MARGIN_MM}mm;
+                    padding: 20px;
                     background: white;
                 }
             `}</style>

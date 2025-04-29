@@ -452,8 +452,8 @@ export default function SalesEntry() {
 
         setTimeout(() => {
             printWindow.print();
-            printWindow.close();
-        }, 500);
+            // printWindow.close();
+        }, 100);
     };
 
     const toggleEditMode = () => {
