@@ -176,6 +176,22 @@ export default function InvoicePrint({ headerData, items }) {
                             </>
                         )}
                     </Box>
+                    
+                    {/* Page Number Footer */}
+                    <Box className="page-footer" sx={{ 
+                        position: 'absolute', 
+                        bottom: 10, 
+                        left: 0, 
+                        right: 0, 
+                        textAlign: 'center',
+                        borderTop: '1px solid #e3f2fd',
+                        paddingTop: 5,
+                        marginTop: 20
+                    }}>
+                        <Typography variant="caption" color="text.secondary">
+                            Page {pageIndex + 1} of {pages.length}
+                        </Typography>
+                    </Box>
                 </Box>
             ))}
 
@@ -188,9 +204,11 @@ export default function InvoicePrint({ headerData, items }) {
 
                     html, body {
                         width: 210mm;
-                        height: 297mm;
+                        height: auto !important;
                         margin: 0;
                         padding: 0;
+                        overflow: visible !important;
+                        position: static !important;
                     }
 
                     .print-container {
@@ -198,21 +216,38 @@ export default function InvoicePrint({ headerData, items }) {
                         margin: 0 auto !important;
                         padding: 0 !important;
                         background: white !important;
+                        overflow: visible !important;
+                        page-break-after: avoid !important;
+                        break-after: avoid !important;
                     }
 
                     .print-page {
                         width: 210mm;
-                        min-height: 297mm;
+                        height: auto !important;
                         padding: 20px;
                         margin: 0 auto;
-                        page-break-after: always;
                         position: relative;
                         background: white;
                         box-shadow: none;
+                        break-after: avoid !important;
+                        page-break-after: avoid !important;
+                        overflow: visible !important;
+                        min-height: 297mm;
                     }
 
+                    /* Essential fix for Chrome (breaks trailing blank page) */
                     .print-page:last-child {
-                        page-break-after: auto;
+                        page-break-after: avoid !important; 
+                        break-after: avoid !important;
+                        height: auto !important;
+                        position: relative !important;
+                    }
+
+                    .print-page:last-child::after {
+                        content: "";
+                        display: block;
+                        height: 0;
+                        clear: both;
                     }
 
                     .print-header {
@@ -228,6 +263,17 @@ export default function InvoicePrint({ headerData, items }) {
                     .content-section {
                         position: relative;
                         padding-top: 10px;
+                        margin-bottom: 40px; /* Add space for footer */
+                    }
+
+                    .page-footer {
+                        position: absolute;
+                        bottom: 10px;
+                        left: 0;
+                        right: 0;
+                        text-align: center;
+                        border-top: 1px solid #e3f2fd;
+                        padding-top: 5px;
                     }
 
                     .summary-section {
@@ -295,52 +341,95 @@ export default function InvoicePrint({ headerData, items }) {
                         print-color-adjust: exact;
                     }
 
-                    /* Ensure background colors print */
                     * {
                         -webkit-print-color-adjust: exact !important;
                         print-color-adjust: exact !important;
                     }
 
-                    /* Fix for Chrome's print margins */
-                    @-moz-document url-prefix() {
+                    /* Critical fix for Chrome */
+                    @media print and (-webkit-min-device-pixel-ratio:0) {
+                        html, body {
+                            width: 100% !important;
+                            height: auto !important;
+                            overflow: visible !important;
+                            position: static !important;
+                        }
+                        
+                        .print-container {
+                            width: 100% !important;
+                            height: auto !important;
+                            break-after: avoid !important;
+                            page-break-after: avoid !important;
+                            overflow: visible !important;
+                        }
+                        
                         .print-page {
-                            margin: 0;
+                            break-after: avoid !important;
+                            page-break-after: avoid !important;
+                            break-inside: avoid !important;
+                            page-break-inside: avoid !important;
+                        }
+                        
+                        .print-page:last-child {
+                            page-break-after: auto !important;
+                        }
+                        
+                        body::after {
+                            content: "";
+                            display: block;
+                            height: 0;
+                            page-break-after: avoid;
+                            margin-bottom: -100px;
                         }
                     }
 
-                    /* Hide scrollbars in print */
-                    ::-webkit-scrollbar {
-                        display: none;
+                    /* Enhanced fix for Safari */
+                    @media not all and (min-resolution:.001dpcm) {
+                        @supports (-webkit-appearance:none) {
+                            body {
+                                height: auto !important;
+                            }
+                            .print-page:last-child {
+                                margin-bottom: -1px !important;
+                                border-bottom: none !important;
+                            }
+                            
+                            /* Force minimum height for single items */
+                            .print-container {
+                                min-height: 0 !important;
+                                height: auto !important;
+                            }
+                        }
                     }
 
-                    /* Ensure proper line breaks in cells */
-                    td.description-cell {
-                        white-space: normal;
-                        word-wrap: break-word;
-                    }
-
-                    /* Empty row styling */
-                    tr.empty-row td {
-                        border: 1px solid #ddd;
-                        height: 30px;
-                    }
-
-                    /* Summary section styling */
-                    .summary-section .MuiStack-root {
-                        margin-bottom: 4px;
-                    }
-
-                    /* Divider styling */
-                    .MuiDivider-root {
-                        border-color: #ddd !important;
-                        margin: 8px 0 !important;
+                    /* Fix for Firefox */
+                    @-moz-document url-prefix() {
+                        body {
+                            size: auto;
+                            margin: 0mm;
+                        }
+                        
+                        /* Specific Fix for Firefox blank page */
+                        html, body {
+                            height: auto !important;
+                        }
+                        
+                        .print-container, .print-page {
+                            height: auto !important;
+                            position: static !important;
+                        }
+                        
+                        .print-page:last-child {
+                            page-break-after: avoid !important;
+                            break-after: avoid !important;
+                        }
                     }
                 }
 
                 /* Preview styling (non-print) */
                 .print-container {
                     background: white;
-                    min-height: 297mm;
+                    min-height: auto;
                     width: 210mm;
                     margin: 20px auto;
                     box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -349,6 +438,8 @@ export default function InvoicePrint({ headerData, items }) {
                 .print-page {
                     padding: 20px;
                     background: white;
+                    position: relative;
+                    min-height: 297mm;
                 }
             `}</style>
         </Box>

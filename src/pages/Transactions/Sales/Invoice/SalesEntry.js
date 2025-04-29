@@ -520,8 +520,8 @@ export default function SalesEntry() {
 
         setTimeout(() => {
             printWindow.print();
-            // printWindow.close();
-        }, 100);
+            printWindow.close();
+        }, 500);
     };
 
     const toggleEditMode = () => {

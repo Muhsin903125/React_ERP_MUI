@@ -357,7 +357,8 @@ export default function CreditNoteEntry() {
     };
 
     const handlePrint = () => {
-        setPrintDialogOpen(true);
+        // Instead of opening a dialog, directly trigger print
+        window.print();
     };
 
     const handleNewCreditNote = () => {
@@ -404,294 +405,331 @@ export default function CreditNoteEntry() {
                 <title> Credit Note Entry </title>
             </Helmet>
 
-            <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-                <Typography variant="h4" gutterBottom>
-                    {isEditMode ? 'Edit Credit Note' : 'New Credit Note'}
-                </Typography>
-                <Stack direction="row" spacing={2}>
-                    {!isEditable && (
-                        <Button
-                            variant="outlined"
-                            startIcon={<Iconify icon="eva:printer-fill" />}
-                            onClick={handlePrint}
-                        >
-                            Print
-                        </Button>
-                    )}
-                    {isEditMode && !isEditable && (
-                        <>
-                            <Button 
-                                variant="contained" 
-                                color="error" 
-                                startIcon={<Iconify icon="eva:trash-2-fill" />} 
-                                onClick={handleDelete}
-                            >
-                                Delete
-                            </Button>
-                            <Button 
-                                variant="contained" 
-                                color="primary" 
-                                startIcon={<Iconify icon="eva:edit-fill" />} 
-                                onClick={toggleEditMode}
-                            >
-                                Enable Edit
-                            </Button>
-                        </>
-                    )}
-                    {isEditable && (
-                        <Button 
-                            variant="contained" 
-                            color="secondary" 
-                            startIcon={<Iconify icon="eva:close-fill" />} 
-                            onClick={toggleEditMode}
-                        >
-                            Cancel Edit
-                        </Button>
-                    )}
-                    <Button 
-                        variant="contained" 
-                        startIcon={<Iconify icon="eva:plus-fill" />} 
-                        onClick={handleNewCreditNote}
-                    >
-                        New Credit Note
-                    </Button>
-                </Stack>
-            </Stack>
-
-            <Card>
-                <Stack maxwidth={'lg'} padding={2.5} style={{ backgroundColor: '#e8f0fa', boxShadow: '#dbdbdb4f -1px 9px 20px 0px' }}>
-                    <Grid container spacing={2} mt={1}>
-                        <Grid item xs={12} md={5}>
-                            <Grid container spacing={2} mt={1}>
-                                <Grid item xs={8} md={8}>
-                                    <Typography variant="subtitle1" ml={2} mb={1} style={{ color: "gray" }} >
-                                        Customer: {headerData.CustomerCode}
-                                    </Typography>
-                                </Grid>
-                                <Grid item xs={4} md={4} align='right'>
-                                    {isEditable && (
-                                        <Button 
-                                            size="small" 
-                                            startIcon={<Iconify icon={headerData?.CustomerCode ? "eva:edit-fill" : "eva:person-add-fill"} />} 
-                                            onClick={handleClickOpen}
-                                        >
-                                            {headerData?.CustomerCode ? 'Change' : 'Add'}
-                                        </Button>
-                                    )}
-                                    <CustomerDialog
-                                        open={open}
-                                        onClose={handleClose}
-                                        onSelect={handleSelect}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} md={12}>
-                                    <Typography variant="body2" ml={2} style={{ color: "black" }} >
-                                        {headerData.Customer}
-                                    </Typography>
-                                </Grid>
-                                <Grid item xs={12} md={12}>
-                                    <Typography variant="body2" ml={2} style={{ color: "gray" }} >
-                                        {headerData.TRN}
-                                    </Typography>
-                                    <Typography variant="body2" ml={2} mb={2} style={{ color: "gray" }} >
-                                        {headerData.Address}
-                                    </Typography>
-                                </Grid>
-                            </Grid>
-                        </Grid>
-
-                        <Grid item xs={12} md={7}>
-                            <Grid container spacing={1}>
-                                <Grid item xs={6} md={3}>
-                                    <FormControl fullWidth>
-                                        <TextField
-                                            label="Credit Note#"
-                                            name="CNNo"
-                                            value={headerData.CNNo}
-                                            onChange={handleInputChange}
-                                            size="small"
-                                            inputProps={{
-                                                readOnly: true
-                                            }}
-                                            disabled={!isEditable}
-                                        />
-                                    </FormControl>
-                                </Grid>
-                                <Grid item xs={6} md={3}>
-                                    <FormControl fullWidth error={Boolean(errors.CNDate)}>
-                                        <DateSelector
-                                            label="Date"
-                                            size="small"
-                                            value={selectedCNDate}
-                                            onChange={setSelectedCNDate}
-                                            disable={!isEditable}
-                                            error={Boolean(errors.CNDate)}
-                                            helperText={errors.CNDate}
-                                            required
-                                        />
-                                    </FormControl>
-                                </Grid>
-                                <Grid item xs={6} md={6}>
-                                    <FormControl fullWidth error={Boolean(errors.InvoiceNo)}>
-                                        <Autocomplete
-                                            disabled={!isEditable}
-                                            options={salesInvoices}
-                                            value={salesInvoices.find(inv => inv.INV_NO === headerData.InvoiceNo) || null}
-                                            getOptionLabel={(option) => 
-                                                option ? `${option.INV_NO} (${new Date(option.INV_DATE).toLocaleDateString()})` : ''
-                                            }
-                                            loading={invoiceLoading}
-                                            renderInput={(params) => (
-                                                <TextField 
-                                                    {...params} 
-                                                    label="Original Invoice" 
-                                                    size="small"
-                                                    error={Boolean(errors.InvoiceNo)}
-                                                    helperText={errors.InvoiceNo}
-                                                    required 
-                                                />
-                                            )}
-                                            onChange={(event, value) => {
-                                                setheaderData({
-                                                    ...headerData,
-                                                    InvoiceNo: value?.INV_NO || ''
-                                                });
-                                            }}
-                                        />
-                                    </FormControl>
-                                </Grid>
-                            </Grid>
-
-                            <Grid container spacing={1} mt={1}>
-                                <Grid item xs={6} md={6}>
-                                    <FormControl fullWidth error={Boolean(errors.ReturnReason)}>
-                                        <Dropdownlist 
-                                            options={ReturnReasonOptions}
-                                            name="ReturnReason"
-                                            value={headerData.ReturnReason}
-                                            label="Return Reason"
-                                            onChange={handleInputChange}
-                                            disable={!isEditable}
-                                            error={Boolean(errors.ReturnReason)}
-                                            helperText={errors.ReturnReason}
-                                            required
-                                        />
-                                    </FormControl>
-                                </Grid>
-                                <Grid item xs={6} md={6}>
-                                    <FormControl fullWidth>
-                                        <Dropdownlist 
-                                            options={CreditNoteStatusOptions}
-                                            name="Status"
-                                            value={headerData.Status}
-                                            label="Status"
-                                            onChange={handleInputChange}
-                                            disable={!isEditable}
-                                        />
-                                    </FormControl>
-                                </Grid>
-                            </Grid>
-
-                            <Grid container spacing={1} mt={1}>
-                                <Grid item xs={6} md={6}>
-                                    <FormControl fullWidth>
-                                        <TextField
-                                            label="Mobile#"
-                                            name="ContactNo"
-                                            size="small"
-                                            type="tel"
-                                            value={headerData.ContactNo}
-                                            onChange={handleInputChange}
-                                            disabled={!isEditable}
-                                            error={Boolean(errors.ContactNo)}
-                                            helperText={errors.ContactNo}
-                                        />
-                                    </FormControl>
-                                </Grid>
-                                <Grid item xs={6} md={6}>
-                                    <FormControl fullWidth>
-                                        <TextField
-                                            label="Email"
-                                            name="Email"
-                                            size="small"
-                                            type="email"
-                                            value={headerData.Email}
-                                            onChange={handleInputChange}
-                                            error={Boolean(errors.Email)}
-                                            helperText={errors.Email}
-                                            disabled={!isEditable}
-                                        />
-                                    </FormControl>
-                                </Grid>
-                            </Grid>
-
-                            <Grid container spacing={1} mt={1}>
-                                <Grid item xs={12} md={12}>
-                                    <FormControl fullWidth>
-                                        <TextField
-                                            label="Remarks"
-                                            name="Remarks"
-                                            size="small"
-                                            multiline
-                                            rows={2}
-                                            value={headerData.Remarks}
-                                            onChange={handleInputChange}
-                                            disabled={!isEditable}
-                                            placeholder="Enter any additional notes or remarks"
-                                        />
-                                    </FormControl>
-                                </Grid>
-                            </Grid>
-                        </Grid>
-                    </Grid>
-                </Stack>
-
-                <Stack m={2.5} maxwidth={'lg'}>
-                    <Typography variant="h6" mb={2}>
-                        Item Details
+            {/* Visible UI */}
+            <div className="screen-only">
+                <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
+                    <Typography variant="h4" gutterBottom>
+                        {isEditMode ? 'Edit Credit Note' : 'New Credit Note'}
                     </Typography>
-                    {items.map((field, index) => (
-                        <CreditNoteItem
-                            key={index}
-                            Propkey={index}
-                            code={items[index].name}
-                            desc={items[index].desc}
-                            qty={items[index].qty}
-                            price={items[index].price}
-                            unit={items[index].unit}
-                            items={items}
-                            setItems={setItems}
-                            removeItem={() => removeItem(index)}
-                            errors={errors.items}
-                            isEditable={isEditable}
-                        />
-                    ))}
-
-                    <SubTotalSec
-                        addItem={addItem}
-                        calculateTotal={calculateTotal(items)}
-                        discount={headerData.Discount}
-                        tax={headerData.Tax}
-                        handleInputChange={handleInputChange}
-                        isEditable={isEditable}
-                    />
-
-                    <Stack direction="row" justifyContent="flex-end" mb={2} mt={2}>
+                    <Stack direction="row" spacing={2}>
+                        {!isEditable && (
+                            <Button
+                                variant="outlined"
+                                startIcon={<Iconify icon="eva:printer-fill" />}
+                                onClick={handlePrint}
+                            >
+                                Print
+                            </Button>
+                        )}
+                        {isEditMode && !isEditable && (
+                            <>
+                                <Button 
+                                    variant="contained" 
+                                    color="error" 
+                                    startIcon={<Iconify icon="eva:trash-2-fill" />} 
+                                    onClick={handleDelete}
+                                >
+                                    Delete
+                                </Button>
+                                <Button 
+                                    variant="contained" 
+                                    color="primary" 
+                                    startIcon={<Iconify icon="eva:edit-fill" />} 
+                                    onClick={toggleEditMode}
+                                >
+                                    Enable Edit
+                                </Button>
+                            </>
+                        )}
                         {isEditable && (
                             <Button 
                                 variant="contained" 
-                                color={isEditMode ? 'warning' : 'success'} 
-                                size='large' 
-                                onClick={handleSave}
+                                color="secondary" 
+                                startIcon={<Iconify icon="eva:close-fill" />} 
+                                onClick={toggleEditMode}
                             >
-                                {isEditMode ? 'Update Credit Note' : 'Create Credit Note'}
+                                Cancel Edit
                             </Button>
                         )}
+                        <Button 
+                            variant="contained" 
+                            startIcon={<Iconify icon="eva:plus-fill" />} 
+                            onClick={handleNewCreditNote}
+                        >
+                            New Credit Note
+                        </Button>
                     </Stack>
                 </Stack>
-            </Card>
 
-            {/* Print Dialog */}
+                <Card>
+                    <Stack maxwidth={'lg'} padding={2.5} style={{ backgroundColor: '#e8f0fa', boxShadow: '#dbdbdb4f -1px 9px 20px 0px' }}>
+                        <Grid container spacing={2} mt={1}>
+                            <Grid item xs={12} md={5}>
+                                <Grid container spacing={2} mt={1}>
+                                    <Grid item xs={8} md={8}>
+                                        <Typography variant="subtitle1" ml={2} mb={1} style={{ color: "gray" }} >
+                                            Customer: {headerData.CustomerCode}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item xs={4} md={4} align='right'>
+                                        {isEditable && (
+                                            <Button 
+                                                size="small" 
+                                                startIcon={<Iconify icon={headerData?.CustomerCode ? "eva:edit-fill" : "eva:person-add-fill"} />} 
+                                                onClick={handleClickOpen}
+                                            >
+                                                {headerData?.CustomerCode ? 'Change' : 'Add'}
+                                            </Button>
+                                        )}
+                                        <CustomerDialog
+                                            open={open}
+                                            onClose={handleClose}
+                                            onSelect={handleSelect}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={12}>
+                                        <Typography variant="body2" ml={2} style={{ color: "black" }} >
+                                            {headerData.Customer}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item xs={12} md={12}>
+                                        <Typography variant="body2" ml={2} style={{ color: "gray" }} >
+                                            {headerData.TRN}
+                                        </Typography>
+                                        <Typography variant="body2" ml={2} mb={2} style={{ color: "gray" }} >
+                                            {headerData.Address}
+                                        </Typography>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+
+                            <Grid item xs={12} md={7}>
+                                <Grid container spacing={1}>
+                                    <Grid item xs={6} md={3}>
+                                        <FormControl fullWidth>
+                                            <TextField
+                                                label="Credit Note#"
+                                                name="CNNo"
+                                                value={headerData.CNNo}
+                                                onChange={handleInputChange}
+                                                size="small"
+                                                inputProps={{
+                                                    readOnly: true
+                                                }}
+                                                disabled={!isEditable}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item xs={6} md={3}>
+                                        <FormControl fullWidth error={Boolean(errors.CNDate)}>
+                                            <DateSelector
+                                                label="Date"
+                                                size="small"
+                                                value={selectedCNDate}
+                                                onChange={setSelectedCNDate}
+                                                disable={!isEditable}
+                                                error={Boolean(errors.CNDate)}
+                                                helperText={errors.CNDate}
+                                                required
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item xs={6} md={6}>
+                                        <FormControl fullWidth error={Boolean(errors.InvoiceNo)}>
+                                            <Autocomplete
+                                                disabled={!isEditable}
+                                                options={salesInvoices}
+                                                value={salesInvoices.find(inv => inv.INV_NO === headerData.InvoiceNo) || null}
+                                                getOptionLabel={(option) => 
+                                                    option ? `${option.INV_NO} (${new Date(option.INV_DATE).toLocaleDateString()})` : ''
+                                                }
+                                                loading={invoiceLoading}
+                                                renderInput={(params) => (
+                                                    <TextField 
+                                                        {...params} 
+                                                        label="Original Invoice" 
+                                                        size="small"
+                                                        error={Boolean(errors.InvoiceNo)}
+                                                        helperText={errors.InvoiceNo}
+                                                        required 
+                                                    />
+                                                )}
+                                                onChange={(event, value) => {
+                                                    setheaderData({
+                                                        ...headerData,
+                                                        InvoiceNo: value?.INV_NO || ''
+                                                    });
+                                                }}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                </Grid>
+
+                                <Grid container spacing={1} mt={1}>
+                                    <Grid item xs={6} md={6}>
+                                        <FormControl fullWidth error={Boolean(errors.ReturnReason)}>
+                                            <Dropdownlist 
+                                                options={ReturnReasonOptions}
+                                                name="ReturnReason"
+                                                value={headerData.ReturnReason}
+                                                label="Return Reason"
+                                                onChange={handleInputChange}
+                                                disable={!isEditable}
+                                                error={Boolean(errors.ReturnReason)}
+                                                helperText={errors.ReturnReason}
+                                                required
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item xs={6} md={6}>
+                                        <FormControl fullWidth>
+                                            <Dropdownlist 
+                                                options={CreditNoteStatusOptions}
+                                                name="Status"
+                                                value={headerData.Status}
+                                                label="Status"
+                                                onChange={handleInputChange}
+                                                disable={!isEditable}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                </Grid>
+
+                                <Grid container spacing={1} mt={1}>
+                                    <Grid item xs={6} md={6}>
+                                        <FormControl fullWidth>
+                                            <TextField
+                                                label="Mobile#"
+                                                name="ContactNo"
+                                                size="small"
+                                                type="tel"
+                                                value={headerData.ContactNo}
+                                                onChange={handleInputChange}
+                                                disabled={!isEditable}
+                                                error={Boolean(errors.ContactNo)}
+                                                helperText={errors.ContactNo}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item xs={6} md={6}>
+                                        <FormControl fullWidth>
+                                            <TextField
+                                                label="Email"
+                                                name="Email"
+                                                size="small"
+                                                type="email"
+                                                value={headerData.Email}
+                                                onChange={handleInputChange}
+                                                error={Boolean(errors.Email)}
+                                                helperText={errors.Email}
+                                                disabled={!isEditable}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                </Grid>
+
+                                <Grid container spacing={1} mt={1}>
+                                    <Grid item xs={12} md={12}>
+                                        <FormControl fullWidth>
+                                            <TextField
+                                                label="Remarks"
+                                                name="Remarks"
+                                                size="small"
+                                                multiline
+                                                rows={2}
+                                                value={headerData.Remarks}
+                                                onChange={handleInputChange}
+                                                disabled={!isEditable}
+                                                placeholder="Enter any additional notes or remarks"
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </Stack>
+
+                    <Stack m={2.5} maxwidth={'lg'}>
+                        <Typography variant="h6" mb={2}>
+                            Item Details
+                        </Typography>
+                        {items.map((field, index) => (
+                            <CreditNoteItem
+                                key={index}
+                                Propkey={index}
+                                code={items[index].name}
+                                desc={items[index].desc}
+                                qty={items[index].qty}
+                                price={items[index].price}
+                                unit={items[index].unit}
+                                items={items}
+                                setItems={setItems}
+                                removeItem={() => removeItem(index)}
+                                errors={errors.items}
+                                isEditable={isEditable}
+                            />
+                        ))}
+
+                        <SubTotalSec
+                            addItem={addItem}
+                            calculateTotal={calculateTotal(items)}
+                            discount={headerData.Discount}
+                            tax={headerData.Tax}
+                            handleInputChange={handleInputChange}
+                            isEditable={isEditable}
+                        />
+
+                        <Stack direction="row" justifyContent="flex-end" mb={2} mt={2}>
+                            {isEditable && (
+                                <Button 
+                                    variant="contained" 
+                                    color={isEditMode ? 'warning' : 'success'} 
+                                    size='large' 
+                                    onClick={handleSave}
+                                >
+                                    {isEditMode ? 'Update Credit Note' : 'Create Credit Note'}
+                                </Button>
+                            )}
+                        </Stack>
+                    </Stack>
+                </Card>
+            </div>
+
+            {/* Hidden printable section */}
+            <div className="print-only">
+                <CreditNotePrint 
+                    headerData={headerData} 
+                    items={items} 
+                />
+            </div>
+
+            {/* Add print-specific styles */}
+            <style>
+                {`
+                    @media screen {
+                        .print-only {
+                            display: none !important;
+                        }
+                    }
+                    @media print {
+                        .screen-only {
+                            display: none !important;
+                        }
+                        .print-only {
+                            display: block !important;
+                        }
+                        body {
+                            margin: 0;
+                            padding: 0;
+                        }
+                        .MuiDialog-root {
+                            display: none !important;
+                        }
+                    }
+                `}
+            </style>
+
+            {/* Dialog should be kept for compatibility but we'll hide it */}
             <Dialog
                 open={printDialogOpen}
                 onClose={() => setPrintDialogOpen(false)}
