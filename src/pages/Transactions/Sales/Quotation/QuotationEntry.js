@@ -569,6 +569,34 @@ export default function QuotationEntry() {
         navigate('/quotation-entry');
     };
 
+    const handleConvertToSales = async () => {
+        Confirm('Do you want to convert this quotation to sales invoice?').then(async () => {
+            try {
+                setLoadingFull(true);
+
+                
+                const { Success, Message, Data } = await GetSingleResult({
+                    "key": "QUOT_CRUD",
+                    "TYPE": "CONVERT_TO_SALES",
+                    "DOC_NO": id
+                });
+
+                if (Success) {
+                    showToast('Successfully converted to sales invoice', 'success');
+                    // Redirect to sales entry page with the new invoice ID
+                    navigate(`/sales-entry/${Data.id}`, { replace: true });
+                } else {
+                    showToast(Message || 'Failed to convert quotation', "error");
+                }
+            } catch (error) {
+                console.error('Error converting quotation:', error);
+                showToast('Error converting quotation to sales invoice', "error");
+            } finally {
+                setLoadingFull(false);
+            }
+        });
+    };
+
     return (
         <>
             <Helmet>
@@ -581,9 +609,23 @@ export default function QuotationEntry() {
                 </Typography>
                 <Stack direction="row" spacing={2}>
                     {!isEditable && (
-                        <Button variant="outlined" startIcon={<Iconify icon="eva:printer-fill" />} onClick={handlePrint}>
-                            Print
-                        </Button>
+                        <>
+                            <Button
+                                variant="outlined"
+                                startIcon={<Iconify icon="eva:printer-fill" />}
+                                onClick={handlePrint}
+                            >
+                                Print
+                            </Button>
+                            <Button
+                                variant="contained"
+                                color="info"
+                                startIcon={<Iconify icon="eva:swap-fill" />}
+                                onClick={handleConvertToSales}
+                            >
+                                Convert to Sales
+                            </Button>
+                        </>
                     )}
                     {isEditMode && !isEditable && (
                         <Button variant="contained" color="primary" startIcon={<Iconify icon="eva:edit-fill" />} onClick={toggleEditMode}>

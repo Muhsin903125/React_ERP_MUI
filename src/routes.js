@@ -41,6 +41,8 @@ import SalesInvoice from './pages/Transactions/Sales/Invoice';
 import SalesEntry from './pages/Transactions/Sales/Invoice/SalesEntry';
 import SalesQuotation from './pages/Transactions/Sales/Quotation';
 import QuotationEntry from './pages/Transactions/Sales/Quotation/QuotationEntry';
+import CreditNote from './pages/Transactions/Sales/CreditNote';
+import CreditNoteEntry from './pages/Transactions/Sales/CreditNote/CreditNoteEntry';
 
 // ----------------------------------------------------------------------
 const RequiredRolesContext = createContext();
@@ -119,6 +121,10 @@ export default function Router() {
     { path: 'quotation', element: <SalesQuotation /> },
     { path: 'quotation-entry', element: <QuotationEntry /> },
     { path: 'quotation-entry/:id', element: <QuotationEntry /> },
+
+    { path: 'creditnote', element: <CreditNote /> },  
+    { path: 'creditnote-entry', element: <CreditNoteEntry /> },
+    { path: 'creditnote-entry/:id', element: <CreditNoteEntry /> },
   ]
   const routes = useRoutes([
     {

@@ -129,7 +129,7 @@ const navConfig = [
           },
           {
             title: 'Credit Note',
-            path: '/customermasterv2',
+            path: '/creditnote',
             icon: subIcon()
           },
         ]
