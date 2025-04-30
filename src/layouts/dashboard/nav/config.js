@@ -352,6 +352,11 @@ const navConfig = [
             path: '/lastno', 
             icon: subIcon()
           }, 
+          {
+            title: 'Documents',
+            path: '/documents', 
+            icon: subIcon()
+          }, 
         ]
       }
 
