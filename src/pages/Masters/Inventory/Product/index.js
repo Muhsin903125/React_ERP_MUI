@@ -46,6 +46,10 @@ export default function Product() {
       header: 'Price',
     },  
     {
+      accessorKey: 'IM_CLSQTY',
+    header: 'In Stock Qty',
+    }, 
+    {
       header: 'Acitons',
       Cell: ({ row }) => (
         <div>
