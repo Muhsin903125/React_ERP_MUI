@@ -18,7 +18,7 @@ import {
 } from '@mui/material';
 import validator from 'validator';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getLastNumber } from '../../../../utils/CommonServices';
+import { getLastNumber, getLocationList } from '../../../../utils/CommonServices';
 import Confirm from '../../../../components/Confirm';
 import Iconify from '../../../../components/iconify';
 import DateSelector from '../../../../components/DateSelector';
@@ -69,13 +69,14 @@ export default function SalesEntry() {
     const [printDialogOpen, setPrintDialogOpen] = useState(false);
     const [salesmenList, setSalesmenList] = useState([]);
     const [salesmanLoading, setSalesmanLoading] = useState(false);
- 
+    const [locations, setLocations] = useState([]);
+
 
     const [headerData, setheaderData] = useState(
         {
             InvNo: code,
             InvDate: selectedInvDate,
-            Status: 'draft',
+            Status: 'PAID',
             CustomerCode: '',
             Customer: 'Customer Name',
             Address: '',
@@ -85,6 +86,7 @@ export default function SalesEntry() {
             LPONo: '',
             RefNo: '',
             PaymentMode: 'CASH',
+            Location: '',
             CrDays: 0,
             Discount: 0,
             Tax: 5,
@@ -182,7 +184,7 @@ export default function SalesEntry() {
     };
 
     useEffect(() => {
-       
+
         // if (headerData.InvDate && headerData.CrDays) {
         if (!id) {
             const dueDate = new Date(headerData.InvDate);
@@ -338,18 +340,15 @@ export default function SalesEntry() {
         // setSelectedValue(value.name);
     };
 
-    // const [fields, setFields] = useState([{ value: '' }]);
-    // const codeRef = useRef({});
-    // const descRef = useRef({});
-    // const unitRef = useRef({});
-    // const priceRef = useRef({});
-    // const qtyRef = useRef({});
-    // const handleChange = (index, event) => {
-    //   console.log(index);
-    //   const values = [...items];
-    //   values[index].value = event.target.value;
-    //   setFields(values);
-    // };
+    const getLocations = async () => {
+        const Data = await getLocationList();
+        setLocations(Data);
+        console.log("locationList", locations);
+    };
+    useEffect(() => {
+        getLocations();
+    }, []);
+
     const CreateInvoice = async () => {
         Confirm('Do you want to save?').then(async () => {
             try {
@@ -362,7 +361,7 @@ export default function SalesEntry() {
                 };
 
                 const base64Data = encodeJsonToBase64(JSON.stringify({
-                    "key": "INVOICE_CRUD",
+                    "key": "SALE_INV_CRUD",
                     "TYPE": isEditMode ? "UPDATE" : "INSERT",
                     "DOC_NO": id,
                     "headerData": {
@@ -422,7 +421,7 @@ export default function SalesEntry() {
         try {
             setLoadingFull(true);
             const { Success, Data, Message } = await GetMultipleResult({
-                "key": "INVOICE_CRUD",
+                "key": "SALE_INV_CRUD",
                 "TYPE": "GET",
                 "DOC_NO": invoiceId
             });
@@ -436,7 +435,7 @@ export default function SalesEntry() {
                 setheaderData({
                     ...headerData,
                     InvNo: headerData?.InvNo,
-                    Status: headerData?.Status,
+                    // Status: headerData?.Status,
                     CustomerCode: headerData?.CustomerCode,
                     InvDate: new Date(headerData.InvDate)
                 });
@@ -525,6 +524,9 @@ export default function SalesEntry() {
     };
 
     const toggleEditMode = () => {
+        if (isEditable) {
+            loadInvoiceDetails(id);
+        }
         setIsEditable(!isEditable);
     };
 
@@ -533,10 +535,11 @@ export default function SalesEntry() {
         setheaderData({
             InvNo: '',
             InvDate: selectedInvDate,
-            Status: 'draft',
+            Status: 'PAID',
             CustomerCode: '',
             Customer: 'Customer Name',
             Address: '',
+            Location: '',
             TRN: '',
             ContactNo: '',
             Email: '',
@@ -588,9 +591,6 @@ export default function SalesEntry() {
         fetchSalesmen();
     }, []);
 
-    const handleSubmit = async (e) => {
-        // ... existing code ...
-    };
 
     return (
         <>
@@ -733,7 +733,7 @@ export default function SalesEntry() {
                                 </Grid>
                             </Grid>
                             <Grid container spacing={1} mt={1}>
-                                <Grid item xs={6} md={4}  >
+                                <Grid item xs={6} md={6}  >
                                     <FormControl fullWidth>
                                         <TextField
                                             id="mob-no"
@@ -749,7 +749,7 @@ export default function SalesEntry() {
                                         />
                                     </FormControl>
                                 </Grid>
-                                <Grid item xs={6} md={4} >
+                                <Grid item xs={6} md={6} >
                                     <FormControl fullWidth>
                                         <TextField
                                             id="email"
@@ -766,7 +766,7 @@ export default function SalesEntry() {
                                     </FormControl>
                                 </Grid>
 
-                                <Grid item xs={6} md={4} >
+                                <Grid item xs={6} md={6} >
                                     <FormControl fullWidth>
                                         <TextField
                                             id="lpo-no"
@@ -779,7 +779,7 @@ export default function SalesEntry() {
                                         />
                                     </FormControl>
                                 </Grid>
-                                <Grid item xs={6} md={4} mt={1} >
+                                <Grid item xs={6} md={6} mt={1} >
                                     <FormControl fullWidth error={Boolean(errors.SManCode)}>
                                         <Autocomplete
                                             disabled={!isEditable}
@@ -790,13 +790,13 @@ export default function SalesEntry() {
                                             }
                                             loading={salesmanLoading}
                                             renderInput={(params) => (
-                                                <TextField 
-                                                    {...params} 
-                                                    label="Sales Person" 
+                                                <TextField
+                                                    {...params}
+                                                    label="Sales Person"
                                                     size="small"
                                                     error={Boolean(errors.SManCode)}
                                                     helperText={errors.SManCode}
-                                                    required 
+                                                    required
                                                 />
                                             )}
                                             onChange={(event, value) => {
@@ -808,9 +808,36 @@ export default function SalesEntry() {
                                         />
                                     </FormControl>
                                 </Grid>
-                                <Grid item xs={6} md={4} mt={1}    >
+                              
+                                <Grid item xs={6} md={6} mt={1}    >
+                                    <FormControl size='small' fullWidth error={Boolean(errors.Location)}>                                      
+                                        <Autocomplete
+                                            size='small'
+                                            disabled={!isEditable}
+                                            options={locations}
+                                            getOptionLabel={(option) => `${option.LM_LOCATION_CODE} - ${option.LM_LOCATION_NAME}`}
+                                            value={locations.find(l => l.LM_LOCATION_CODE === headerData.Location) || null}
+                                            onChange={(_, newValue) => {
+                                                setheaderData(prev => ({
+                                                    ...prev,
+                                                    Location: newValue?.LM_LOCATION_CODE || ''
+                                                }));
+                                            }}
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    label="Location"
+                                                    required
+                                                    error={Boolean(errors.Location)}
+                                                    helperText={errors.Location}
+                                                />
+                                            )}
+                                        />
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={6} md={6} mt={1}    >
                                     <FormControl fullWidth error={Boolean(errors.PaymentMode)}>
-                                        <Dropdownlist 
+                                        <Dropdownlist
                                             options={PaymentModeOptions}
                                             name="PaymentMode"
                                             value={headerData.PaymentMode}
@@ -823,8 +850,7 @@ export default function SalesEntry() {
                                         />
                                     </FormControl>
                                 </Grid>
-                            
-                                <Grid item xs={6} md={4} mt={1} >
+                                {/* <Grid item xs={6} md={6} mt={1} >
                                     <FormControl fullWidth>
                                         <Dropdownlist options={InvoiceStatusOptions}
                                             name="Status"
@@ -834,7 +860,7 @@ export default function SalesEntry() {
                                             disable={!isEditable}
                                         />
                                     </FormControl>
-                                </Grid>
+                                </Grid> */}
                             </Grid>
                             <Grid container spacing={1} mt={1}>
                                 <Grid item xs={12} md={12}>
@@ -919,14 +945,14 @@ export default function SalesEntry() {
                 </DialogTitle>
                 <DialogContent>
                     <Box id="print-content" sx={{ p: 2 }}>
-                        <InvoicePrint 
+                        <InvoicePrint
                             headerData={{
                                 ...headerData,
-                                SalesmanName: salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode)?.SMAN_DESC ? 
-                                    `${salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode).SMAN_DESC} (${headerData.SManCode})` : 
+                                SalesmanName: salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode)?.SMAN_DESC ?
+                                    `${salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode).SMAN_DESC} (${headerData.SManCode})` :
                                     headerData.SManCode || ''
-                            }} 
-                            items={items} 
+                            }}
+                            items={items}
                         />
                     </Box>
                 </DialogContent>

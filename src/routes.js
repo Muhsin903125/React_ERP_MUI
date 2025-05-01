@@ -44,6 +44,8 @@ import QuotationEntry from './pages/Transactions/Sales/Quotation/QuotationEntry'
 import CreditNote from './pages/Transactions/Sales/CreditNote';
 import CreditNoteEntry from './pages/Transactions/Sales/CreditNote/CreditNoteEntry';
 import Documents from './pages/Settings/ERP/Documents';
+import PurchaseInvoice from './pages/Transactions/Purchase/Invoice';
+import PurchaseEntry from './pages/Transactions/Purchase/Invoice/PurchaseEntry';
 
 // ----------------------------------------------------------------------
 const RequiredRolesContext = createContext();
@@ -127,6 +129,10 @@ export default function Router() {
     { path: 'creditnote-entry', element: <CreditNoteEntry /> },
     { path: 'creditnote-entry/:id', element: <CreditNoteEntry /> },
     { path: 'documents', element: <Documents /> },
+
+    { path: 'purchase', element: <PurchaseInvoice /> },
+    { path: 'purchase-entry', element: <PurchaseEntry /> },
+    { path: 'purchase-entry/:id', element: <PurchaseEntry /> },
   ]
   const routes = useRoutes([
     {

@@ -102,7 +102,7 @@ const navConfig = [
           },
           {
             title: 'Invoice',
-            path: '/customermasterv2',
+            path: '/purchase',
             icon: subIcon()
           },
           {

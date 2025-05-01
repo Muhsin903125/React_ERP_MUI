@@ -368,7 +368,7 @@ export default function QuotationEntry() {
                 };
 
                 const base64Data = encodeJsonToBase64(JSON.stringify({
-                    "key": "QUOT_CRUD",
+                    "key": "SALE_QUOT_CRUD",
                     "TYPE": isEditMode ? "UPDATE" : "INSERT",
                     "DOC_NO": id,
                     "headerData": {
@@ -413,7 +413,7 @@ export default function QuotationEntry() {
         try {
             setLoadingFull(true);
             const { Success, Data, Message } = await GetMultipleResult({
-                "key": "QUOT_CRUD",
+                "key": "SALE_QUOT_CRUD",
                 "TYPE": "GET",
                 "DOC_NO": invoiceId
             });
@@ -576,7 +576,7 @@ export default function QuotationEntry() {
 
                 
                 const { Success, Message, Data } = await GetSingleResult({
-                    "key": "QUOT_CRUD",
+                    "key": "SALE_QUOT_CRUD",
                     "TYPE": "CONVERT_TO_SALES",
                     "DOC_NO": id
                 });

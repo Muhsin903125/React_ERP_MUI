@@ -250,7 +250,7 @@ export default function SalesInvoice2() {
         };
       
         const base64Data = encodeJsonToBase64(JSON.stringify({
-            "key": "INVOICE_CRUD",
+            "key": "SALE_INV_CRUD",
             "TYPE": "INSERT",
             "headerData": {
                 ...headerData,

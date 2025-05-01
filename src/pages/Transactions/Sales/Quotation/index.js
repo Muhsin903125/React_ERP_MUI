@@ -90,7 +90,7 @@ export default function SalesQuotation() {
             try {
                 setLoadingFull(false);
                 const { Success, Data, Message } = await GetSingleListResult({
-                    "key": isQuotation ? "QUOT_CRUD" : "INVOICE_CRUD",
+                    "key": isQuotation ? "SALE_QUOT_CRUD" : "SALE_INV_CRUD",
                     "TYPE": "GET_ALL",
                 })
                 if (Success) {

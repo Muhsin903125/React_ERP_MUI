@@ -17,8 +17,6 @@ import { useToast } from '../../../../hooks/Common';
 import { AuthContext } from '../../../../App';
 import Iconify from '../../../../components/iconify';
 
-
-
 const columns = [
     {
         accessorKey: 'InvNo',
@@ -37,11 +35,9 @@ const columns = [
         },
         enableEditing: false,
     },
-
-
     {
-        accessorKey: 'CustomerDisplay',
-        header: 'Customer',
+        accessorKey: 'SupplierDisplay',
+        header: 'Supplier',
     },
     {
         accessorKey: 'LPONo',
@@ -60,7 +56,6 @@ const columns = [
         header: 'Status',
     },
     {
-
         accessorKey: 'GrossAmount',
         header: 'Gross Amount',
         enableEditing: false,
@@ -72,29 +67,23 @@ const columns = [
     },
 ];
 
-
-export default function SalesInvoice() {
+export default function PurchaseInvoice() {
     const navigate = useNavigate();
     const { setLoadingFull } = useContext(AuthContext);
     const { showToast } = useToast();
-    const [SalesInvoice, setSalesInvoice] = useState([]);
+    const [PurchaseInvoice, setPurchaseInvoice] = useState([]);
     const [validationErrors, setValidationErrors] = useState({});
 
-
-
     useEffect(() => {
-
         async function fetchList() {
-
             try {
-                setLoadingFull(false);
+                setLoadingFull(true);
                 const { Success, Data, Message } = await GetSingleListResult({
-                    "key": "SALE_INV_CRUD",
-                    "TYPE": "GET_ALL",
+                    key: "PURCHASE_INV_CRUD",
+                    TYPE: "GET_ALL",
                 })
                 if (Success) {
-                    setSalesInvoice(Data)
-                    //  showToast(Message, 'success');
+                    setPurchaseInvoice(Data)
                 }
                 else {
                     showToast(Message, "error");
@@ -105,22 +94,19 @@ export default function SalesInvoice() {
             }
         }
         fetchList();
-
     }, [])
-
 
     // for edit Save
     const handleSaveRowEdits = async ({ exitEditingMode, row, values }) => {
         if (!Object.keys(validationErrors).length) {
-            SalesInvoice[row.index] = values;
-            // send/receive api updates here, then refetch or update local table data for re-render
+            PurchaseInvoice[row.index] = values;
             const response = await PostCommonSp({
-                "json": values,
-                "key": "CUSTOMER_EDIT"
+                json: values,
+                key: "PURCHASE_INV_EDIT"
             })
             if (response.Success) {
-                setSalesInvoice([...SalesInvoice]);
-                exitEditingMode(); // required to exit editing mode and close modal
+                setPurchaseInvoice([...PurchaseInvoice]);
+                exitEditingMode();
             }
             else {
                 showToast(response.Message, "error");
@@ -134,30 +120,29 @@ export default function SalesInvoice() {
     };
 
     const handleView = (rowData) => {
-        navigate(`/sales-entry/${rowData.InvNo}`);
+        navigate(`/purchase-entry/${rowData.InvNo}`);
     };
 
     return (
         <>
             <Helmet>
-                <title>Sale Invoice </title>
+                <title>Purchase Invoice</title>
             </Helmet>
             <Box component="main" sx={{ m: 1, p: 1 }}>
-
                 <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
                     <Typography variant="h4" gutterBottom>
-                        Sale Invoice List
+                        Purchase Invoice List
                     </Typography>
-                    <Link to="/sales-entry" style={{ textDecoration: 'none' }}>
+                    <Link to="/purchase-entry" style={{ textDecoration: 'none' }}>
                         <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-                            New Sales Invoice Entry
+                            New Purchase Invoice Entry
                         </Button>
                     </Link>
                 </Stack>
 
                 <MaterialReactTable
                     columns={columns}
-                    data={SalesInvoice}
+                    data={PurchaseInvoice}
                     initialState={{
                         density: 'compact',
                         expanded: true,
@@ -167,7 +152,6 @@ export default function SalesInvoice() {
                     onEditingRowSave={handleSaveRowEdits}
                     onEditingRowCancel={handleCancelRowEdits}
                     enableRowActions
-                    // 👇 Add this
                     renderRowActions={({ row }) => (
                         <Stack direction="row" spacing={1}>
                             <Button
