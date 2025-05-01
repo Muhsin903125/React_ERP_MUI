@@ -39,3 +39,23 @@ export async function getLocationList() {
     }
     return null; // Return null if not successful
 };
+
+
+export async function getSupplierList() {
+    try {
+        const { Success, Data, Message } = await GetSingleListResult({
+            "key": "SUP_CRUD",
+            "TYPE": "GET_ALL",
+        });
+
+        if (Success) {
+            console.log("Data", Data);
+            // Safely grab the FIRST object’s LAST_NO
+            return Data;
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        return null; // Return null in case of an error  
+    }
+    return null; // Return null if not successful
+};

@@ -19,6 +19,7 @@ import { GetSingleListResult, GetSingleResult, PostCommonSp } from '../../../../
 import { useToast } from '../../../../hooks/Common';
 import { AuthContext } from '../../../../App';
 import Iconify from '../../../../components/iconify';
+import { getLocationList, getSupplierList } from '../../../../utils/CommonServices';
 
 export default function PurchaseEntry() {
     const { id } = useParams();
@@ -59,8 +60,8 @@ export default function PurchaseEntry() {
         try {
             setLoadingFull(true);
             const { Success, Data, Message } = await GetSingleResult({
-                key: "PURCHASE_INVOICE_CRUD",
-                TYPE: "GET_SINGLE",
+                key: "PURCHASE_CRUD",
+                TYPE: "GET",
                 InvNo: id
             });
             if (Success) {
@@ -74,19 +75,12 @@ export default function PurchaseEntry() {
     };
 
     const fetchSuppliers = async () => {
-        try {
-            const { Success, Data, Message } = await GetSingleListResult({
-                key: "SUPPLIER_CRUD",
-                TYPE: "GET_ALL"
-            });
-            if (Success) {
-                setSuppliers(Data);
-            } else {
-                showToast(Message, "error");
-            }
-        } catch (error) {
-            console.error("Error fetching suppliers:", error);
+
+        const data = await getSupplierList();
+        if (data) {
+            setSuppliers(data);
         }
+
     };
 
     const fetchItems = async () => {
@@ -106,19 +100,12 @@ export default function PurchaseEntry() {
     };
 
     const fetchLocations = async () => {
-        try {
-            const { Success, Data, Message } = await GetSingleListResult({
-                key: "LOCATION_CRUD",
-                TYPE: "GET_ALL"
-            });
-            if (Success) {
-                setLocations(Data);
-            } else {
-                showToast(Message, "error");
-            }
-        } catch (error) {
-            console.error("Error fetching locations:", error);
+
+        const data = await getLocationList();
+        if (data) {
+            setLocations(data);
         }
+
     };
 
     const handleSubmit = async (e) => {
@@ -126,7 +113,7 @@ export default function PurchaseEntry() {
         try {
             setLoadingFull(true);
             const { Success, Message } = await PostCommonSp({
-                key: "PURCHASE_INVOICE_CRUD",
+                key: "PURCHASE_CRUD",
                 TYPE: isNew ? "ADD" : "UPDATE",
                 ...formData
             });
@@ -144,12 +131,12 @@ export default function PurchaseEntry() {
     const handleItemChange = (index, field, value) => {
         const newItems = [...formData.Items];
         newItems[index] = { ...newItems[index], [field]: value };
-        
+
         // Calculate line total
         if (field === 'Qty' || field === 'Price') {
             newItems[index].Total = newItems[index].Qty * newItems[index].Price;
         }
-        
+
         setFormData(prev => ({
             ...prev,
             Items: newItems,
@@ -219,13 +206,14 @@ export default function PurchaseEntry() {
                         <Grid item xs={12} sm={6}>
                             <Autocomplete
                                 options={suppliers}
-                                getOptionLabel={(option) => `${option.Code} - ${option.Name}`}
-                                value={suppliers.find(s => s.Code === formData.SupplierCode) || null}
+                                getOptionLabel={(option) => `${option.SUP_DOCNO} - ${option.SUP_DESC}`}
+                                value={suppliers.find(s => s.SUP_DOCNO === formData.SupplierCode) || null}
                                 onChange={(_, newValue) => {
                                     setFormData(prev => ({
                                         ...prev,
-                                        SupplierCode: newValue?.Code || '',
-                                        TRN: newValue?.TRN || ''
+                                        Supplier: newValue?.SUP_DESC || '',
+                                        SupplierCode: newValue?.SUP_DOCNO || '',
+                                        TRN: newValue?.SUP_TRN || ''
                                     }));
                                 }}
                                 renderInput={(params) => (

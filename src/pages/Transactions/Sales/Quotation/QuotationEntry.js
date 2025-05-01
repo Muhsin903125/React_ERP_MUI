@@ -18,7 +18,7 @@ import {
 } from '@mui/material';
 import validator from 'validator';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getLastNumber } from '../../../../utils/CommonServices';
+import { getLastNumber, getLocationList } from '../../../../utils/CommonServices';
 import Confirm from '../../../../components/Confirm';
 import Iconify from '../../../../components/iconify';
 import DateSelector from '../../../../components/DateSelector';
@@ -110,8 +110,17 @@ export default function QuotationEntry() {
 
     useEffect(() => {
         fetchSalesmen();
+        getLocations();
     }, []);
 
+    const [locations, setLocations] = useState([]);
+    const getLocations = async () => {
+       const data = await getLocationList();
+        if (data) {
+            setLocations(data);
+        }
+    };
+ 
     const [headerData, setheaderData] = useState(
         {
             QuotNo: code,
@@ -123,6 +132,7 @@ export default function QuotationEntry() {
             TRN: '',
             ContactNo: '',
             Email: '',
+            Location: '',
             LPONo: '',
             RefNo: '',
             PaymentMode: 'CASH',
@@ -427,7 +437,7 @@ export default function QuotationEntry() {
                 setheaderData({
                     ...headerData,
                     QuotNo: headerData?.QuotNo,
-                    Status: headerData?.Status,
+                    // Status: headerData?.Status,
                     CustomerCode: headerData?.CustomerCode,
                     QuotDate: new Date(headerData.QuotDate),
                     ValidityDate: new Date(headerData.ValidityDate)
@@ -541,6 +551,7 @@ export default function QuotationEntry() {
             TRN: '',
             ContactNo: '',
             Email: '',
+            Location: '',
             LPONo: '',
             RefNo: '',
             PaymentMode: 'CASH',
@@ -789,6 +800,32 @@ export default function QuotationEntry() {
                                                     SManCode: value?.SMAN_DOCNO || ''
                                                 });
                                             }}
+                                        />
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={6} md={6} mt={1}    >
+                                    <FormControl size='small' fullWidth error={Boolean(errors.Location)}>                                      
+                                        <Autocomplete
+                                            size='small'
+                                            disabled={!isEditable}
+                                            options={locations}
+                                            getOptionLabel={(option) => `${option.LM_LOCATION_CODE} - ${option.LM_LOCATION_NAME}`}
+                                            value={locations.find(l => l.LM_LOCATION_CODE === headerData.Location) || null}
+                                            onChange={(_, newValue) => {
+                                                setheaderData(prev => ({
+                                                    ...prev,
+                                                    Location: newValue?.LM_LOCATION_CODE || ''
+                                                }));
+                                            }}
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    label="Location"
+                                                    required
+                                                    error={Boolean(errors.Location)}
+                                                    helperText={errors.Location}
+                                                />
+                                            )}
                                         />
                                     </FormControl>
                                 </Grid>
