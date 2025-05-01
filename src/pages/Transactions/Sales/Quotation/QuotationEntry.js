@@ -586,7 +586,7 @@ export default function QuotationEntry() {
                 setLoadingFull(true);
 
                 
-                const { Success, Message, Data } = await GetSingleResult({
+                const { Success, Message, Data } = await GetMultipleResult({
                     "key": "SALE_QUOT_CRUD",
                     "TYPE": "CONVERT_TO_SALES",
                     "DOC_NO": id
@@ -595,7 +595,13 @@ export default function QuotationEntry() {
                 if (Success) {
                     showToast('Successfully converted to sales invoice', 'success');
                     // Redirect to sales entry page with the new invoice ID
-                    navigate(`/sales-entry/${Data.id}`, { replace: true });
+                    const headerData = Data[0][0]; // First array's first element
+                    const itemsData = Data[1]; 
+                    const invoiceData = {
+                        ...headerData,
+                        items: itemsData
+                    };
+                    navigate(`/sales-entry`, { state: { invoiceData }, replace: true });
                 } else {
                     showToast(Message || 'Failed to convert quotation', "error");
                 }
