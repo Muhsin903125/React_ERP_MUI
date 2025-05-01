@@ -72,7 +72,7 @@ export default function SalesEntry() {
     const [locations, setLocations] = useState([]);
     const { state } = useLocation();
     const { invoiceData } = state || {};
-    
+
     const [headerData, setheaderData] = useState(
         {
             InvNo: invoiceData?.InvNo || code,
@@ -98,13 +98,13 @@ export default function SalesEntry() {
             Remarks: invoiceData?.Remarks || ''
         })
 
-        const [items, setItems] = useState(invoiceData?.items || [{
-            name: "",
-            price: 0,
-            desc: "",
-            qty: 0,
-            unit: "Unit"    
-        }]);
+    const [items, setItems] = useState(invoiceData?.items || [{
+        name: "",
+        price: 0,
+        desc: "",
+        qty: 0,
+        unit: "Unit"
+    }]);
     const validate = () => {
         const errors = {};
         let hasError = false;
@@ -279,7 +279,7 @@ export default function SalesEntry() {
         }));
     };
 
-   
+
 
     const addItem = (event) => {
         if (validate()) {
@@ -353,7 +353,7 @@ export default function SalesEntry() {
     }, []);
 
     const CreateInvoice = async () => {
-        Confirm('Do you want to save?').then(async () => {
+        Confirm(`Do you want to ${isEditMode ? 'update' : 'save'}?`).then(async () => {
             try {
                 setLoadingFull(false);
 
@@ -387,14 +387,9 @@ export default function SalesEntry() {
                 });
 
                 if (Success) {
-                    if (id) {
-                        setIsEditMode(false);
-                        navigate(`/sales-entry/${Data.id}`, { replace: true });
-
-                    } else {
-                        setIsEditMode(false);
-                        navigate(`/sales-entry/${Data.id}`, { replace: true });
-                    }
+                    setIsEditMode(false);
+                    setIsEditable(false);
+                    navigate(`/sales-entry/${Data.id}`, { replace: true });
                     showToast(Data.Message, 'success');
                 }
                 else {
@@ -741,7 +736,7 @@ export default function SalesEntry() {
                                         <TextField
                                             id="mob-no"
                                             label="Mobile#"
-                                            name="ContactNo" 
+                                            name="ContactNo"
                                             size="small"
                                             type="tel"
                                             value={headerData.ContactNo}
@@ -781,8 +776,8 @@ export default function SalesEntry() {
                                             disabled={!isEditable}
                                         />
                                     </FormControl>
-                                </Grid>  
-                                 <Grid item xs={6} md={3} b >
+                                </Grid>
+                                <Grid item xs={6} md={3} b >
                                     <FormControl fullWidth>
                                         <TextField
                                             id="ref-no"
@@ -824,9 +819,9 @@ export default function SalesEntry() {
                                         />
                                     </FormControl>
                                 </Grid>
-                              
+
                                 <Grid item xs={6} md={4} mt={1}    >
-                                    <FormControl size='small' fullWidth error={Boolean(errors.Location)}>                                      
+                                    <FormControl size='small' fullWidth error={Boolean(errors.Location)}>
                                         <Autocomplete
                                             size='small'
                                             disabled={!isEditable}
