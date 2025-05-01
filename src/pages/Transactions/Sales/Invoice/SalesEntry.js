@@ -631,7 +631,7 @@ export default function SalesEntry() {
             <Card>
                 <Stack maxwidth={'lg'} padding={2.5} style={{ backgroundColor: '#e8f0fa', boxShadow: '#dbdbdb4f -1px 9px 20px 0px' }}>
                     <Grid container spacing={2} mt={1}  >
-                        <Grid item xs={12} md={5}>
+                        <Grid item xs={12} md={4}>
                             <Grid container spacing={2} mt={1}>
                                 <Grid item xs={8} md={8}>
                                     <Typography variant="subtitle1" ml={2} mb={1} style={{ color: "gray" }} >
@@ -665,7 +665,7 @@ export default function SalesEntry() {
                                 </Grid>
                             </Grid>
                         </Grid>
-                        <Grid item xs={12} md={7}>
+                        <Grid item xs={12} md={8}>
                             <Grid container spacing={1}>
                                 <Grid item xs={6} md={2}  >
                                     <FormControl fullWidth>
@@ -733,12 +733,12 @@ export default function SalesEntry() {
                                 </Grid>
                             </Grid>
                             <Grid container spacing={1} mt={1}>
-                                <Grid item xs={6} md={6}  >
+                                <Grid item xs={6} md={3}  >
                                     <FormControl fullWidth>
                                         <TextField
                                             id="mob-no"
                                             label="Mobile#"
-                                            name="ContactNo"
+                                            name="ContactNo" 
                                             size="small"
                                             type="tel"
                                             value={headerData.ContactNo}
@@ -749,7 +749,7 @@ export default function SalesEntry() {
                                         />
                                     </FormControl>
                                 </Grid>
-                                <Grid item xs={6} md={6} >
+                                <Grid item xs={6} md={3} >
                                     <FormControl fullWidth>
                                         <TextField
                                             id="email"
@@ -766,7 +766,7 @@ export default function SalesEntry() {
                                     </FormControl>
                                 </Grid>
 
-                                <Grid item xs={6} md={6} >
+                                <Grid item xs={6} md={3} >
                                     <FormControl fullWidth>
                                         <TextField
                                             id="lpo-no"
@@ -778,8 +778,21 @@ export default function SalesEntry() {
                                             disabled={!isEditable}
                                         />
                                     </FormControl>
+                                </Grid>  
+                                 <Grid item xs={6} md={3} b >
+                                    <FormControl fullWidth>
+                                        <TextField
+                                            id="ref-no"
+                                            label="Ref.No"
+                                            name="RefNo"
+                                            size="small"
+                                            value={headerData.RefNo}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditable}
+                                        />
+                                    </FormControl>
                                 </Grid>
-                                <Grid item xs={6} md={6} mt={1} >
+                                <Grid item xs={6} md={4} mt={1} >
                                     <FormControl fullWidth error={Boolean(errors.SManCode)}>
                                         <Autocomplete
                                             disabled={!isEditable}
@@ -809,7 +822,7 @@ export default function SalesEntry() {
                                     </FormControl>
                                 </Grid>
                               
-                                <Grid item xs={6} md={6} mt={1}    >
+                                <Grid item xs={6} md={4} mt={1}    >
                                     <FormControl size='small' fullWidth error={Boolean(errors.Location)}>                                      
                                         <Autocomplete
                                             size='small'
@@ -835,7 +848,7 @@ export default function SalesEntry() {
                                         />
                                     </FormControl>
                                 </Grid>
-                                <Grid item xs={6} md={6} mt={1}    >
+                                <Grid item xs={6} md={4} mt={1}    >
                                     <FormControl fullWidth error={Boolean(errors.PaymentMode)}>
                                         <Dropdownlist
                                             options={PaymentModeOptions}
