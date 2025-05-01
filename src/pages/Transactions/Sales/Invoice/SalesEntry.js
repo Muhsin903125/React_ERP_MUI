@@ -522,10 +522,15 @@ export default function SalesEntry() {
     };
 
     const toggleEditMode = () => {
-        if (isEditable) {
+        if (id) {
             loadInvoiceDetails(id);
         }
+        if (invoiceData && isEditable)
+            handleNewInvoice();
+
+
         setIsEditable(!isEditable);
+
     };
 
     const handleNewInvoice = () => {
@@ -601,7 +606,7 @@ export default function SalesEntry() {
                     {isEditMode ? 'Edit Sales Invoice' : 'New Sales Invoice'}
                 </Typography>
                 <Stack direction="row" spacing={2}>
-                    {!isEditable && (
+                    {!isEditable && (id) && (
                         <Button
                             variant="outlined"
                             startIcon={<Iconify icon="eva:printer-fill" />}

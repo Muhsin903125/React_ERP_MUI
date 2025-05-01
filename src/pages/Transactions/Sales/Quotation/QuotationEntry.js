@@ -593,7 +593,7 @@ export default function QuotationEntry() {
                 });
 
                 if (Success) {
-                    showToast('Successfully converted to sales invoice', 'success');
+                    showToast('converted to sales invoice', 'success');
                     // Redirect to sales entry page with the new invoice ID
                     const headerData = Data[0][0]; // First array's first element
                     const itemsData = Data[1]; 
