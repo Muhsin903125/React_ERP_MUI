@@ -738,7 +738,7 @@ export default function SalesEntry() {
                                         <TextField
                                             id="mob-no"
                                             label="Mobile#"
-                                            name="ContactNo"
+                                            name="ContactNo" 
                                             size="small"
                                             type="tel"
                                             value={headerData.ContactNo}
