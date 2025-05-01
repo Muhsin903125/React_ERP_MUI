@@ -27,9 +27,9 @@ const ModalForm = ({ open, onClose, initialValues }) => {
   const validationSchema = yup.object().shape({
     docCode: yup.string().required('Doc Code is required'),
     desc: yup.string().required('Description is required'),
-    debitAccount: yup.string().required('Debit Account is required'),
-    creditAccount: yup.string().required('Credit Account is required'),
-    taxTreatment: yup.string().required('Tax Treatment is required'),
+    // debitAccount: yup.string().required('Debit Account is required'),
+    // creditAccount: yup.string().required('Credit Account is required'),
+    // taxTreatment: yup.string().required('Tax Treatment is required'),
     // stockUpDown: yup.string().when('stockImpact', {
     //   is: true,
     //   then: yup.string().required('Stock Up or Down is required'),
@@ -192,8 +192,8 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                       onChange={handleChange} // This will now work correctly 
                     >
                       {account?.map((item) => (
-                        <MenuItem key={`${item.ACMST_CODE} debit`} value={item.ACMST_CODE}>
-                          {item.ACMST_ACCNO} - {item.ACMST_DESC}
+                        <MenuItem key={`${item.AC_CODE} debit`} value={item.AC_CODE}>
+                          {item.AC_CODE} - {item.AC_DESC}
                         </MenuItem>
                       ))}
                     </Field>
@@ -210,8 +210,8 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                       onChange={handleChange} // This will now work correctly 
                     >
                       {account?.map((item) => (
-                        <MenuItem key={`${item.ACMST_CODE} credit`} value={item.ACMST_CODE}>
-                          {item.ACMST_ACCNO} - {item.ACMST_DESC}
+                        <MenuItem key={`${item.AC_CODE} credit`} value={item.AC_CODE}>
+                          {item.AC_CODE} - {item.AC_DESC}
                         </MenuItem>
                       ))}
                     </Field>
