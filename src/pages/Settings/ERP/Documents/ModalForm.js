@@ -193,7 +193,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                     >
                       {account?.map((item) => (
                         <MenuItem key={`${item.ACMST_CODE} debit`} value={item.ACMST_CODE}>
-                          {item.ACMST_ACCNO} - {item.ACMST_DESC}
+                          {item.ACMST_CODE} - {item.ACMST_DESC}
                         </MenuItem>
                       ))}
                     </Field>
