@@ -23,20 +23,20 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Iconify from '../../../../components/iconify/Iconify';
 import { AuthContext } from '../../../../App';
-import { deleteRole, GetRoleList, GetSingleListResult, PostCommonSp, saveRole } from '../../../../hooks/Api';
+import { deleteRole, GetRoleList, GetSingleListResult, GetSingleResult, PostCommonSp, saveRole } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 import DataTable from '../../../../components/DataTable';
 import Confirm from '../../../../components/Confirm';
 import ModalForm from './ModalForm';
 
 export default function Documents() {
-//     DM_CODE,
-// DM_DESC,
-// DM_ACCOUNT_IMPACT,
-// DM_STOCK_IMPACT,
-// DM_DEBIT_ACCOUNT,
-// DM_CREDIT_ACCOUNT,
-// DM_TAX_TREATMENT these are the fields
+    //     DM_CODE,
+    // DM_DESC,
+    // DM_ACCOUNT_IMPACT,
+    // DM_STOCK_IMPACT,
+    // DM_DEBIT_ACCOUNT,
+    // DM_CREDIT_ACCOUNT,
+    // DM_TAX_TREATMENT these are the fields
     const columns = [
 
         {
@@ -51,7 +51,7 @@ export default function Documents() {
         {
             accessorKey: 'DM_ACCOUNT_IMPACT',
             header: 'Account Impact',
-            Cell: ({ row }) => (    
+            Cell: ({ row }) => (
                 <div>
                     {row.original.DM_ACCOUNT_IMPACT === 1 ? 'Yes' : 'No'}
                 </div>
@@ -66,7 +66,7 @@ export default function Documents() {
                 </div>
             ),
         },
-       
+
         {
             accessorKey: 'DM_TAX_TREATMENT',
             header: 'Tax Treatment',
@@ -88,17 +88,18 @@ export default function Documents() {
                             <EditIcon />
                         </IconButton>
                     </Tooltip>
-                    {/* <Tooltip title="Delete">
-                        <IconButton onClick={() => handleDelete(row.original.R_CODE)}>
+                    <Tooltip title="Delete">
+                        <IconButton onClick={() => handleDelete(row.original.DM_CODE)}>
                             <DeleteIcon />
                         </IconButton>
-                    </Tooltip> */}
+                    </Tooltip>
 
                 </div>
             ),
             size: 100
         }
     ];
+
 
     const { showToast } = useToast();
     const [data, setData] = useState(null);
@@ -108,6 +109,29 @@ export default function Documents() {
     useEffect(() => {
         fetchList();
     }, [])
+
+    const handleDelete = async (code) => {
+        Confirm('Are you sure you want to delete this document?').then(async () => {
+            try {
+                const { Success, Message } = await GetSingleResult({
+                    key: "DOC_CRUD",
+                    TYPE: "DELETE",
+                    DM_CODE: code
+                });
+
+                if (Success) {
+                    showToast("Document deleted successfully", "success");
+                    fetchList();
+                }
+                else {
+                    showToast(Message, "error");
+                }
+            }
+            catch (error) {
+                showToast(error.message, "error");
+            }
+        });
+    }
 
     async function fetchList() {
         try {
