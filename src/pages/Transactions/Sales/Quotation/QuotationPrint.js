@@ -31,7 +31,7 @@ function paginateItems(items) {
 const PrintHeader = ({ headerData }) => (
     <Box className="print-header">
         <Grid container spacing={2}>
-            <Grid item xs={6}>
+        <Grid item xs={6}>
                 <Stack spacing={1}>
                     <Box>
                         <img src="../../../assets/logo.png" alt="Logo" style={{ height: 60, marginBottom: 8 }} />
@@ -42,9 +42,35 @@ const PrintHeader = ({ headerData }) => (
                     </Box>
                 </Stack>
             </Grid>
-            <Grid item xs={6}>
+        
+              <Grid item xs={6}>
                 <Box sx={{ textAlign: 'right' }}>
-                    <Typography variant="h5" color="primary" fontWeight={700} gutterBottom>QUOTATION</Typography>
+                    <Typography variant="h3" color="primary" fontWeight={700} gutterBottom>QUOTATION</Typography>
+                  
+                </Box>
+            </Grid>  
+       
+            <Grid item xs={6}>
+                <Box sx={{ 
+                    background: '#f0f7ff', 
+                    p: 1.5, 
+                    borderRadius: 1, 
+                    mt: 1,
+                    mb: 1,
+                    textAlign: 'left',
+                    border: '1px solid #e3f2fd'
+                }}>
+                    <Typography variant="subtitle2" fontWeight={700}>Bill To:</Typography>
+                    <Typography variant="body2">{headerData.Customer}</Typography>
+                    {headerData.Address && <Typography variant="body2">{headerData.Address}</Typography>}
+                    {headerData.TRN && <Typography variant="body2">TRN: {headerData.TRN}</Typography>}
+                    {headerData.ContactNo && <Typography variant="body2">Phone: {headerData.ContactNo}</Typography>}
+                    {headerData.Email && <Typography variant="body2">Email: {headerData.Email}</Typography>}
+                </Box>
+            </Grid>
+            
+            <Grid item xs={6}>
+                <Box sx={{ textAlign: 'right',alignContent:'flex-end',alignItems:'flex-end', }}> 
                     <Typography variant="body2">Quotation #: {headerData.QuotNo}</Typography>
                     <Typography variant="body2">Date: {new Date(headerData.QuotDate).toLocaleDateString()}</Typography>
                     <Typography variant="body2">
@@ -53,24 +79,7 @@ const PrintHeader = ({ headerData }) => (
                     {headerData.LPONo && <Typography variant="body2">LPO: {headerData.LPONo}</Typography>}
                     {headerData.RefNo && <Typography variant="body2">Reference: {headerData.RefNo}</Typography>}
                 </Box>
-            </Grid>
-            <Grid item xs={12}>
-                <Box sx={{ 
-                    background: '#f0f7ff', 
-                    p: 1.5, 
-                    borderRadius: 1, 
-                    mt: 1,
-                    textAlign: 'right',
-                    border: '1px solid #e3f2fd'
-                }}>
-                    <Typography variant="subtitle2" fontWeight={700}>Bill To:</Typography>
-                    <Typography variant="body2">{headerData.Customer}</Typography>
-                    <Typography variant="body2">{headerData.Address}</Typography>
-                    <Typography variant="body2">TRN: {headerData.TRN}</Typography>
-                    <Typography variant="body2">Phone: {headerData.ContactNo}</Typography>
-                    <Typography variant="body2">Email: {headerData.Email}</Typography>
-                </Box>
-            </Grid>
+            </Grid>  
         </Grid>
     </Box>
 );

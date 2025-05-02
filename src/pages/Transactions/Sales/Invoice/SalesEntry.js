@@ -17,7 +17,7 @@ import {
     Autocomplete,
 } from '@mui/material';
 import validator from 'validator';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { getLastNumber, getLocationList } from '../../../../utils/CommonServices';
 import Confirm from '../../../../components/Confirm';
 import Iconify from '../../../../components/iconify';
@@ -70,32 +70,41 @@ export default function SalesEntry() {
     const [salesmenList, setSalesmenList] = useState([]);
     const [salesmanLoading, setSalesmanLoading] = useState(false);
     const [locations, setLocations] = useState([]);
-
+    const { state } = useLocation();
+    const { invoiceData } = state || {};
 
     const [headerData, setheaderData] = useState(
         {
-            InvNo: code,
-            InvDate: selectedInvDate,
-            Status: 'PAID',
-            CustomerCode: '',
-            Customer: 'Customer Name',
-            Address: '',
-            TRN: '',
-            ContactNo: '',
-            Email: '',
-            LPONo: '',
-            RefNo: '',
-            PaymentMode: 'CASH',
-            Location: '',
-            CrDays: 0,
-            Discount: 0,
-            Tax: 5,
-            GrossAmount: 0,
-            TaxAmount: 0,
-            NetAmount: 0,
-            SManCode: '',
-            Remarks: ''
+            InvNo: invoiceData?.InvNo || code,
+            InvDate: invoiceData?.InvDate || selectedInvDate,
+            Status: invoiceData?.Status || 'PAID',
+            CustomerCode: invoiceData?.CustomerCode || '',
+            Customer: invoiceData?.Customer || 'Customer Name',
+            Address: invoiceData?.Address || '',
+            TRN: invoiceData?.TRN || '',
+            ContactNo: invoiceData?.ContactNo || '',
+            Email: invoiceData?.Email || '',
+            LPONo: invoiceData?.LPONo || '',
+            RefNo: invoiceData?.RefNo || '',
+            PaymentMode: invoiceData?.PaymentMode || 'CASH',
+            Location: invoiceData?.Location || '',
+            CrDays: invoiceData?.CrDays || 0,
+            Discount: invoiceData?.Discount || 0,
+            Tax: invoiceData?.Tax || 5,
+            GrossAmount: invoiceData?.GrossAmount || 0,
+            TaxAmount: invoiceData?.TaxAmount || 0,
+            NetAmount: invoiceData?.NetAmount || 0,
+            SManCode: invoiceData?.SManCode || '',
+            Remarks: invoiceData?.Remarks || ''
         })
+
+    const [items, setItems] = useState(invoiceData?.items || [{
+        name: "",
+        price: 0,
+        desc: "",
+        qty: 0,
+        unit: "Unit"
+    }]);
     const validate = () => {
         const errors = {};
         let hasError = false;
@@ -270,13 +279,7 @@ export default function SalesEntry() {
         }));
     };
 
-    const [items, setItems] = useState([{
-        name: "",
-        price: 0,
-        desc: "",
-        qty: 0,
-        unit: "Unit"
-    }]);
+
 
     const addItem = (event) => {
         if (validate()) {
@@ -350,7 +353,7 @@ export default function SalesEntry() {
     }, []);
 
     const CreateInvoice = async () => {
-        Confirm('Do you want to save?').then(async () => {
+        Confirm(`Do you want to ${isEditMode ? 'update' : 'save'}?`).then(async () => {
             try {
                 setLoadingFull(false);
 
@@ -384,14 +387,9 @@ export default function SalesEntry() {
                 });
 
                 if (Success) {
-                    if (id) {
-                        setIsEditMode(false);
-                        navigate(`/sales-entry/${Data.id}`, { replace: true });
-
-                    } else {
-                        setIsEditMode(false);
-                        navigate(`/sales-entry/${Data.id}`, { replace: true });
-                    }
+                    setIsEditMode(false);
+                    setIsEditable(false);
+                    navigate(`/sales-entry/${Data.id}`, { replace: true });
                     showToast(Data.Message, 'success');
                 }
                 else {
@@ -524,10 +522,15 @@ export default function SalesEntry() {
     };
 
     const toggleEditMode = () => {
-        if (isEditable) {
+        if (id) {
             loadInvoiceDetails(id);
         }
+        if (invoiceData && isEditable)
+            handleNewInvoice();
+
+
         setIsEditable(!isEditable);
+
     };
 
     const handleNewInvoice = () => {
@@ -603,7 +606,7 @@ export default function SalesEntry() {
                     {isEditMode ? 'Edit Sales Invoice' : 'New Sales Invoice'}
                 </Typography>
                 <Stack direction="row" spacing={2}>
-                    {!isEditable && (
+                    {!isEditable && (id) && (
                         <Button
                             variant="outlined"
                             startIcon={<Iconify icon="eva:printer-fill" />}
@@ -738,7 +741,7 @@ export default function SalesEntry() {
                                         <TextField
                                             id="mob-no"
                                             label="Mobile#"
-                                            name="ContactNo" 
+                                            name="ContactNo"
                                             size="small"
                                             type="tel"
                                             value={headerData.ContactNo}
@@ -778,8 +781,8 @@ export default function SalesEntry() {
                                             disabled={!isEditable}
                                         />
                                     </FormControl>
-                                </Grid>  
-                                 <Grid item xs={6} md={3} b >
+                                </Grid>
+                                <Grid item xs={6} md={3} b >
                                     <FormControl fullWidth>
                                         <TextField
                                             id="ref-no"
@@ -821,9 +824,9 @@ export default function SalesEntry() {
                                         />
                                     </FormControl>
                                 </Grid>
-                              
+
                                 <Grid item xs={6} md={4} mt={1}    >
-                                    <FormControl size='small' fullWidth error={Boolean(errors.Location)}>                                      
+                                    <FormControl size='small' fullWidth error={Boolean(errors.Location)}>
                                         <Autocomplete
                                             size='small'
                                             disabled={!isEditable}
