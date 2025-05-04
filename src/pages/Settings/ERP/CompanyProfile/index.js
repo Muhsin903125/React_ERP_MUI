@@ -14,11 +14,10 @@ import {
     Paper,
 } from '@mui/material';
 import { Formik, Form } from 'formik';
-import * as yup from 'yup';
-import { GetSingleResult, PostCommonSp } from '../../../hooks/Api';
-import { useToast } from '../../../hooks/Common';
-import { AuthContext } from '../../../App';
-import Iconify from '../../../components/iconify';
+import * as yup from 'yup'; 
+import { useToast } from '../../../../hooks/Common';
+import { AuthContext } from '../../../../App';
+import Iconify from '../../../../components/iconify';
 import {
     StyledRoot,
     StyledCard,
@@ -26,6 +25,7 @@ import {
     StyledAvatar,
     AvatarOverlay,
 } from './styles';
+import { GetSingleResult } from '../../../../hooks/Api';
 
 const validationSchema = yup.object().shape({
     CP_NAME: yup.string().required('Company name is required'),

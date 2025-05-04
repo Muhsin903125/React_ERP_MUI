@@ -46,7 +46,7 @@ import PurchaseEntry from './pages/Transactions/Purchase/Invoice/PurchaseEntry';
 import PurchaseOrder from './pages/Transactions/Purchase/Order';
 import PurchaseOrderEntry from './pages/Transactions/Purchase/Order/OrderEntry';
 import Lookups from './pages/Settings/ERP/Lookups';
-import CompanyProfile from './pages/Settings/CompanyProfile';
+import CompanyProfile from './pages/Settings/ERP/CompanyProfile';
 // ----------------------------------------------------------------------
 const RequiredRolesContext = createContext();
 

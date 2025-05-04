@@ -12,6 +12,7 @@ import Searchbar from './Searchbar';
 import AccountPopover from './AccountPopover';
 import LanguagePopover from './LanguagePopover';
 import NotificationsPopover from './NotificationsPopover';
+import useAuth from '../../../hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -44,19 +45,8 @@ Header.propTypes = {
 };
 
 export default   function Header({ onOpenNav }) {
-
-  const [companyLogo, setCompanyLogo] = useState("");
-  const [companyName, setCompanyName] = useState("");
-  useEffect(() => {
-    getCompanyLogoUrl();
-  }, []);
-
-  async function getCompanyLogoUrl() {
-    const companyLogoUrl = await sessionStorage.getItem("companyLogoUrl");
-    const companyName = await sessionStorage.getItem("companyName");
-    setCompanyLogo(companyLogoUrl);
-    setCompanyName(companyName);
-  }
+  const { companyWebsite, companyLogoUrl, companyName } = useAuth();
+  
 
   return (
     <StyledRoot>
@@ -81,13 +71,16 @@ export default   function Header({ onOpenNav }) {
           spacing={{
             xs: 0.5,
             sm: 1,
-          }}
-        >
-          {companyLogo ? <img src={companyLogo} alt="Company Logo" style={{ width: 'auto', height: '50px',padding:"5px",marginRight:"10px",
+          }}          
+        >      
+        <Box sx={{display:"flex",alignItems:"center"}} onClick={() => window.open(companyWebsite, '_blank')}>
+          {companyLogoUrl ? <img  src={companyLogoUrl} alt="Company Logo" style={{ width: 'auto', height: '50px',padding:"5px",marginRight:"10px",
             borderRadius:"5px",
             border:"1px solid #e0e0e0",
            }} /> :
-            <Typography variant="h6" sx={{ ml: 1 }}>{companyName}</Typography>}
+            <Typography  variant="h6" sx={{ ml: 1 }}>{companyName}</Typography>}
+          </Box>
+
           {/* <LanguagePopover />
           <NotificationsPopover /> */}
           <AccountPopover />

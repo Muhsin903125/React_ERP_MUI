@@ -5,6 +5,7 @@ import { Box, Divider, Typography, Stack, MenuItem, Avatar, IconButton, Popover 
 // mocks_
 import account from '../../../_mock/account';
 import useAuth from '../../../hooks/useAuth';
+import StringAvatar from '../../../components/StringAvatar';
 
 // ----------------------------------------------------------------------
 
@@ -12,14 +13,17 @@ const MENU_OPTIONS = [
   {
     label: 'Home',
     icon: 'eva:home-fill',
+    path: '/',
   },
-  {
-    label: 'Profile',
-    icon: 'eva:person-fill',
-  },
+  // {
+  //   label: 'Profile',
+  //   icon: 'eva:person-fill',
+  //   path: '/profile',
+  // },
   {
     label: 'Settings',
     icon: 'eva:settings-2-fill',
+    path: '/settings',
   },
 ];
 
@@ -27,7 +31,7 @@ const MENU_OPTIONS = [
 
 export default function AccountPopover() {
   const [open, setOpen] = useState(null);
-  const { logout, displayName, username, profileImg } = useAuth()
+  const { logout, displayName, username, profileImg, companyName } = useAuth()
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
   };
@@ -39,6 +43,7 @@ export default function AccountPopover() {
     logout();
     setOpen(null);
   };
+
   return (
     <>
       <IconButton
@@ -58,10 +63,7 @@ export default function AccountPopover() {
           }),
         }}
       >
-        <Avatar
-          alt="photoURL"
-          src={`data:image/png;base64,${profileImg}`}
-        />
+        <StringAvatar string={displayName} />
       </IconButton>
 
       <Popover
@@ -75,7 +77,7 @@ export default function AccountPopover() {
             p: 0,
             mt: 1.5,
             ml: 0.75,
-            width: 180,
+            width: 230,
             '& .MuiMenuItem-root': {
               typography: 'body2',
               borderRadius: 0.75,
@@ -90,6 +92,9 @@ export default function AccountPopover() {
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap  >
             {username}
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap  >
+            {companyName}
           </Typography>
         </Box>
 

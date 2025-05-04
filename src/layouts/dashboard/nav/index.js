@@ -16,6 +16,7 @@ import { NavSection } from '../../../components/nav-section';
 import useAuth from '../../../hooks/useAuth';
 //
 import navConfig from './config';
+import StringAvatar from '../../../components/StringAvatar';
 
 // ----------------------------------------------------------------------
 
@@ -62,10 +63,7 @@ export default function Nav({ openNav, onCloseNav }) {
       <Box sx={{ mb: 2, mx: 1 }}>
         <Link underline="none">
           <StyledAccount>
-          <Avatar
-  alt="photoURL"
-  src={`data:image/png;base64,${profileImg}`}
-/>
+          <StringAvatar string={displayName} />
 
             <Box sx={{ ml: 2 }}>
               <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>

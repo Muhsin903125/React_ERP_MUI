@@ -24,6 +24,13 @@ export default function useAuth() {
     const [profileImg, setprofileImg] = useState(sessionStorage.getItem("profileImg"));
     const [expiry, setExpiry] = useState(sessionStorage.getItem("expiry"));
     const [role, setRole] = useState(sessionStorage.getItem("role"));
+    const [companyName, setCompanyName] = useState(sessionStorage.getItem("companyName"));
+    const [companyLogo, setCompanyLogo] = useState(sessionStorage.getItem("companyLogo"));
+    const [companyLogoUrl, setCompanyLogoUrl] = useState(sessionStorage.getItem("companyLogoUrl"));
+    const [companyAddress, setCompanyAddress] = useState(sessionStorage.getItem("companyAddress"));
+    const [companyPhone, setCompanyPhone] = useState(sessionStorage.getItem("companyPhone"));
+    const [companyEmail, setCompanyEmail] = useState(sessionStorage.getItem("companyEmail"));
+    const [companyWebsite, setCompanyWebsite] = useState(sessionStorage.getItem("companyWebsite"));
 
     useEffect(() => {
         // const storeduToken = sessionStorage.getItem("uToken");
@@ -60,7 +67,7 @@ export default function useAuth() {
     //    // }
     // }
 
-    function login(username, token, refreshToken, expiry, firstName, lastName, profileImg, email,role,companyCode,companyName,companyLogo,companyLogoUrl,companyAddress,companyPhone,companyEmail,companyWebsite) {
+    function login(username, token, refreshToken, expiry, firstName, lastName, profileImg, email, role, companyCode, companyName, companyLogo, companyLogoUrl, companyAddress, companyPhone, companyEmail, companyWebsite) {
         // Make a request to your API to authenticate the user
         // const user = { id: 1, username: "example_user" };
         // const token = "your_jwt_token";
@@ -72,12 +79,12 @@ export default function useAuth() {
         // ).toString();
 
         // localStorage.setItem("uToken", encryptedToken);
-       
+
         sessionStorage.setItem("uToken", token);
         sessionStorage.setItem("rToken", refreshToken);
         sessionStorage.setItem("username", username);
         sessionStorage.setItem("expiry", expiry);
-        sessionStorage.setItem("displayName", `${firstName} ${lastName}`);  
+        sessionStorage.setItem("displayName", `${firstName} ${lastName}`);
         sessionStorage.setItem("profileImg", profileImg);
         sessionStorage.setItem("role", role);
         sessionStorage.setItem("companyCode", companyCode);
@@ -87,7 +94,16 @@ export default function useAuth() {
         sessionStorage.setItem("companyAddress", companyAddress);
         sessionStorage.setItem("companyPhone", companyPhone);
         sessionStorage.setItem("companyEmail", companyEmail);
+        sessionStorage.setItem("companyWebsite", companyWebsite);
         setUserToken(token);
+
+        setCompanyName(companyName);
+        setCompanyLogo(companyLogo);
+        setCompanyLogoUrl(companyLogoUrl);
+        setCompanyAddress(companyAddress);
+        setCompanyPhone(companyPhone);
+        setCompanyEmail(companyEmail);
+        setCompanyWebsite(companyWebsite);      
         setRefreshToken(refreshToken);
         setUsername(username);
         setExpiry(expiry);
@@ -102,13 +118,26 @@ export default function useAuth() {
         sessionStorage.removeItem("rToken");
         sessionStorage.removeItem("username");
         sessionStorage.removeItem("displayName");
-        sessionStorage.removeItem("profileImg"); 
-        sessionStorage.removeItem("role"); 
-
+        sessionStorage.removeItem("profileImg");
+        sessionStorage.removeItem("role");
+        sessionStorage.removeItem("companyName");
+        sessionStorage.removeItem("companyLogo");
+        sessionStorage.removeItem("companyLogoUrl");
+        sessionStorage.removeItem("companyAddress");
+        sessionStorage.removeItem("companyPhone");
+        sessionStorage.removeItem("companyEmail");
+        sessionStorage.removeItem("companyWebsite");
 
         setUserToken(null);
         setRefreshToken(null);
         setUsername(null);
+        setCompanyName(null);
+        setCompanyLogo(null);
+        setCompanyLogoUrl(null);
+        setCompanyAddress(null);
+        setCompanyPhone(null);
+        setCompanyEmail(null);
+        setCompanyWebsite(null);
         setExpiry(null);
         setDisplayName(null);
         setprofileImg(null);
@@ -117,7 +146,10 @@ export default function useAuth() {
         navigate("/login", { replace: true })
     };
 
-    return { userToken, refreshToken, username, expiry,displayName,profileImg,role, login, logout };
+    return {
+        userToken, refreshToken, username, expiry, displayName, profileImg, role,
+        companyName, companyLogo, companyLogoUrl, companyAddress, companyPhone, companyEmail, companyWebsite, login, logout
+    };
 };
 
 // // export default useAuth;
@@ -125,7 +157,7 @@ export default function useAuth() {
 // import { useSelector, useDispatch } from 'react-redux';
 // import { login, logout } from './authSlice';
 
-// export default function useAuth() {   
+// export default function useAuth() {
 //   const { userToken, refreshToken, username, expiry, displayName, profileImg, role } = useSelector(state => state.auth);
 //   const dispatch = useDispatch();
 

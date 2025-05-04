@@ -8,7 +8,7 @@
     <title>Exapp - Modern Enterprise Resource Planning & Inventory Management System</title>
     <meta name="title" content="Exapp - Modern Enterprise Resource Planning & Inventory Management System">
     <meta name="description" content="Transform your business with Exapp's comprehensive ERP solution. Features include easy account management, inventory control, real-time analytics, and AI-powered automation. Start your free trial today!">
-    <meta name="keywords" content="ERP system, inventory management, account management, business software, enterprise resource planning, inventory control, business automation, accounting software, cloud ERP">
+    <meta name="keywords" content="ERP system, inventory management, account management, business software, enterprise resource planning, inventory control, business automation, accounting software, cloud ERP, Dubai ERP, UAE business software">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
@@ -25,14 +25,19 @@
     <meta property="twitter:image" content="https://exapp.site/assets/og-image.jpg">
 
     <!-- Additional SEO Meta Tags -->
-    <meta name="robots" content="index, follow">
+    <meta name="robots" content="index, follow, max-image-preview:large">
     <meta name="language" content="English">
     <meta name="revisit-after" content="7 days">
     <meta name="author" content="Exapp">
+    <meta name="geo.region" content="AE">
+    <meta name="geo.placename" content="Dubai">
     <link rel="canonical" href="https://exapp.site/">
+    <link rel="alternate" hreflang="en" href="https://exapp.site/">
 
     <!-- Favicon -->
-    <link rel="icon" href="./exapp-icon.png">
+    <link rel="icon" href="./exapp-icon.png" type="image/png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+    <link rel="manifest" href="./site.webmanifest">
      
     <!-- Structured Data -->
     <script type="application/ld+json">
@@ -685,65 +690,190 @@
                 font-size: 1.7rem;
             }
         }
+
+        /* Mobile Menu Styles */
+        .mobile-menu-button {
+            display: none;
+            background: none;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            position: relative;
+            z-index: 1000;
+        }
+
+        .menu-icon {
+            display: block;
+            width: 25px;
+            height: 2px;
+            background-color: var(--text-primary);
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .menu-icon::before,
+        .menu-icon::after {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 2px;
+            background-color: var(--text-primary);
+            transition: var(--transition);
+        }
+
+        .menu-icon::before {
+            top: -8px;
+        }
+
+        .menu-icon::after {
+            bottom: -8px;
+        }
+
+        .mobile-menu-button[aria-expanded="true"] .menu-icon {
+            background-color: transparent;
+        }
+
+        .mobile-menu-button[aria-expanded="true"] .menu-icon::before {
+            transform: rotate(45deg);
+            top: 0;
+        }
+
+        .mobile-menu-button[aria-expanded="true"] .menu-icon::after {
+            transform: rotate(-45deg);
+            bottom: 0;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Focus Styles for Accessibility */
+        a:focus,
+        button:focus {
+            outline: 2px solid var(--primary);
+            outline-offset: 3px;
+        }
+
+        .btn:focus {
+            outline: 2px solid white;
+            outline-offset: 3px;
+        }
+
+        /* Skip to main content link */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--primary);
+            color: white;
+            padding: 8px;
+            z-index: 1001;
+            transition: top 0.3s;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-button {
+                display: block;
+            }
+
+            .nav-menu {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 80%;
+                max-width: 300px;
+                height: 100vh;
+                background: var(--surface);
+                flex-direction: column;
+                padding: 80px 20px 20px;
+                transition: right 0.3s ease;
+                gap: 1rem;
+            }
+
+            .nav-menu.active {
+                right: 0;
+            }
+
+            .nav-menu a {
+                display: block;
+                padding: 10px;
+                font-size: 1.2rem;
+            }
+        }
     </style>
 </head>
 <body>
     <!-- Header -->
-    <header>
+    <header role="banner">
         <div class="container nav-container">
-            <a href="#" class="logo">
-                <img src="./exapp-logo.png" alt="Exapp Logo" style="height: 35px; display: block;" />
+            <a href="/" class="logo" aria-label="Exapp Home">
+                <img src="./exapp-logo.png" alt="Exapp Logo" width="35" height="35" />
             </a>
-            <nav class="nav-links">
-                <a href="#features">Features</a>
-                <a href="#statistics">Statistics</a>
-                <a href="#testimonials">Testimonials</a>
-                <a href="#pricing">Pricing</a>
-                <a href="#contact">Contact</a>
+            <nav class="nav-links" role="navigation" aria-label="Main navigation">
+                <button class="mobile-menu-button" aria-label="Toggle menu" aria-expanded="false" aria-controls="main-menu">
+                    <span class="menu-icon"></span>
+                </button>
+                <ul id="main-menu" class="nav-menu">
+                    <li><a href="#features" aria-label="View Features">Features</a></li>
+                    <li><a href="#statistics" aria-label="View Statistics">Statistics</a></li>
+                    <li><a href="#testimonials" aria-label="View Testimonials">Testimonials</a></li>
+                    <li><a href="#pricing" aria-label="View Pricing">Pricing</a></li>
+                    <li><a href="#contact" aria-label="Contact Us">Contact</a></li>
+                </ul>
             </nav>
         </div>
     </header>
 
     <!-- Hero Section -->
-    <section class="hero">
-        <div class="container hero-content">
-            <div class="hero-text animate">
-                <h1>Transform Your Business with Smart Solutions</h1>
-                <p>Experience the next generation of enterprise resource planning. Streamline operations, boost productivity, and drive growth with our comprehensive suite of business tools.</p>
-                <div class="cta-buttons">
-                    <a href="#" class="btn btn-primary">
-                        <i class="fas fa-rocket"></i>
-                        Get Started
-                    </a>
-                    <a href="#" class="btn btn-secondary">
-                        <i class="fas fa-play"></i>
-                        Watch Demo
-                    </a>
+    <main role="main">
+        <section class="hero" aria-labelledby="hero-title">
+            <div class="container hero-content">
+                <div class="hero-text animate">
+                    <h1 id="hero-title">Transform Your Business with Smart Solutions</h1>
+                    <p>Experience the next generation of enterprise resource planning. Streamline operations, boost productivity, and drive growth with our comprehensive suite of business tools.</p>
+                    <div class="cta-buttons" role="group" aria-label="Call to action buttons">
+                        <a href="/signup" class="btn btn-primary" role="button" aria-label="Get Started with Exapp">
+                            <i class="fas fa-rocket" aria-hidden="true"></i>
+                            Get Started
+                        </a>
+                        <a href="/demo" class="btn btn-secondary" role="button" aria-label="Watch Demo Video">
+                            <i class="fas fa-play" aria-hidden="true"></i>
+                            Watch Demo
+                        </a>
+                    </div>
+                </div>
+                <div class="hero-image animate delay-1">
+                    <img src="https://www.creative-tim.com/blog/content/images/2021/08/dashboard-template-for-react-nodejs.png" alt="Exapp Dashboard">
+                    <div class="floating-card stats">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line" style="font-size: 2rem; color: var(--primary);"></i>
+                        </div>
+                        <div>
+                            <div class="stat-number">+145%</div>
+                            <div class="stat-label">Growth Rate</div>
+                        </div>
+                    </div>
+                    <div class="floating-card users">
+                        <div class="stat-icon">
+                            <i class="fas fa-users" style="font-size: 2rem; color: var(--secondary);"></i>
+                        </div>
+                        <div>
+                            <div class="stat-number">10K+</div>
+                            <div class="stat-label">Active Users</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="hero-image animate delay-1">
-                <img src="https://www.creative-tim.com/blog/content/images/2021/08/dashboard-template-for-react-nodejs.png" alt="Exapp Dashboard">
-                <div class="floating-card stats">
-                    <div class="stat-icon">
-                        <i class="fas fa-chart-line" style="font-size: 2rem; color: var(--primary);"></i>
-                    </div>
-                    <div>
-                        <div class="stat-number">+145%</div>
-                        <div class="stat-label">Growth Rate</div>
-                    </div>
-                </div>
-                <div class="floating-card users">
-                    <div class="stat-icon">
-                        <i class="fas fa-users" style="font-size: 2rem; color: var(--secondary);"></i>
-                    </div>
-                    <div>
-                        <div class="stat-number">10K+</div>
-                        <div class="stat-label">Active Users</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+        </section>
+    </main>
 
     <!-- Features Section -->
     <section class="features" id="features">
@@ -859,8 +989,8 @@
             <div class="cta-content animate">
                 <h2>Ready to Transform Your Business?</h2>
                 <p>Join thousands of businesses already using Exapp to drive their growth</p>
-                <a href="#" class="btn btn-secondary">
-                    <i class="fas fa-rocket"></i>
+                <a href="/signup" class="btn btn-secondary" role="button" aria-label="Start Free Trial">
+                    <i class="fas fa-rocket" aria-hidden="true"></i>
                     Start Free Trial
                 </a>
             </div>
