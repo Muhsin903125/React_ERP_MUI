@@ -10,8 +10,7 @@ import LoginPage from './pages/LoginPage';
 import Page404 from './pages/Page404';
 import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
-import ChangePassword from './pages/User/ChangePassword';
-import SalesList from './pages/Invoice/SalesList';
+import ChangePassword from './pages/User/ChangePassword'; 
 import CustomerMaster from './pages/Masters/CustomerMaster';
 import { LoginForm } from './sections/auth/login';
 import ForgotPassword from './pages/User/ForgotPassword';
@@ -24,8 +23,7 @@ import UserList from './pages/User/UserList';
 import UserRoleList from './pages/User/Roles/UserRoleList';
 import ProductList from './pages/Masters/Inventory/Product/ProductList';
 import UnitList from './pages/Masters/Inventory/Unit/UnitList';
-import Settings from './pages/Settings';
-import InvoicePrint from './pages/Invoice/InvoicePrint';
+import Settings from './pages/Settings'; 
 import ChartOfAccount from './pages/Masters/Finance/ChartOfAccount';
 import Supplier from './pages/Masters/Finance/Supplier';
 import Salesman from './pages/Masters/Finance/Salesman';
@@ -35,8 +33,7 @@ import Screens from './pages/Settings/Menu/Screens';
 import Permissions from './pages/Settings/Menu/Permissions';
 import Product from './pages/Masters/Inventory/Product';
 import Unit from './pages/Masters/Inventory/Unit';
-import Location from './pages/Masters/Inventory/Location';
-import SalesInvoice2 from './pages/Invoice/SalesInvoice';
+import Location from './pages/Masters/Inventory/Location'; 
 import SalesInvoice from './pages/Transactions/Sales/Invoice';
 import SalesEntry from './pages/Transactions/Sales/Invoice/SalesEntry';
 import SalesQuotation from './pages/Transactions/Sales/Quotation';
@@ -48,6 +45,8 @@ import PurchaseInvoice from './pages/Transactions/Purchase/Invoice';
 import PurchaseEntry from './pages/Transactions/Purchase/Invoice/PurchaseEntry';
 import PurchaseOrder from './pages/Transactions/Purchase/Order';
 import PurchaseOrderEntry from './pages/Transactions/Purchase/Order/OrderEntry';
+import Lookups from './pages/Settings/ERP/Lookups';
+import CompanyProfile from './pages/Settings/CompanyProfile';
 // ----------------------------------------------------------------------
 const RequiredRolesContext = createContext();
 
@@ -98,10 +97,11 @@ export default function Router() {
 
   const userMenus = [
     { path: 'customermasterv2', element: <CustomerMasterV2 /> },
-    { path: 'SalesList', element: <SalesList /> },
+   
   ]
   const AdminMenus = [
     { path: 'userlist', element: <UserList /> },
+
     { path: 'registeruser', element: <RegisterUser /> },
     { path: 'rolelist', element: <UserRoleList /> },
     { path: 'product', element: <Product /> },
@@ -115,8 +115,7 @@ export default function Router() {
     { path: 'customer', element: <Customer /> },
     { path: 'lastno', element: <LastNumber /> },
     { path: 'screens', element: <Screens /> },
-    { path: 'permissions', element: <Permissions /> },
-    { path: 'invoiceprint', element: <InvoicePrint /> },
+    { path: 'permissions', element: <Permissions /> }, 
 
     { path: 'salesinvoice', element: <SalesInvoice /> },
     { path: 'sales-entry', element: <SalesEntry /> },
@@ -137,6 +136,9 @@ export default function Router() {
     { path: 'purchase-order', element: <PurchaseOrder /> }, 
     { path: 'purchase-order-entry', element: <PurchaseOrderEntry /> },
     { path: 'purchase-order-entry/:id', element: <PurchaseOrderEntry /> },
+
+    { path: 'lookups', element: <Lookups /> },
+    { path: 'companyprofile', element: <CompanyProfile /> },
   ]
   const routes = useRoutes([
     {
@@ -154,6 +156,7 @@ export default function Router() {
         { path: 'blog', element: <BlogPage /> },
         { path: 'customermaster', element: <CustomerMaster /> },
         { path: 'settings', element: <Settings /> },
+        { path: 'lookups', element: <Lookups /> },
 
         ...userMenus,
         ...AdminMenus

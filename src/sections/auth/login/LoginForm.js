@@ -47,7 +47,15 @@ export default function LoginForm() {
         const expiry = Data?.expiration;
         const username = Data?.userName;
         const role = Data?.role;
-        login(username, accessToken, refreshToken, expiry,firstName,lastName,profileImg,email,role);
+        const companyCode = Data?.companyCode;
+        const companyName = Data?.companyName;
+        const companyLogo = Data?.companyLogo;
+        const companyLogoUrl = Data?.companyLogoURL;
+        const companyAddress = Data?.companyAddress;
+        const companyPhone = Data?.companyPhone;
+        const companyEmail = Data?.companyEmail;
+        const companyWebsite = Data?.companyWebsite; 
+        login(username, accessToken, refreshToken, expiry,firstName,lastName,profileImg,email,role,companyCode,companyName,companyLogo,companyLogoUrl,companyAddress,companyPhone,companyEmail,companyWebsite);
 
         navigate("/", { replace: true })
         showToast(Message, 'success');

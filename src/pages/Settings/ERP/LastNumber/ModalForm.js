@@ -155,7 +155,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                         onClick={onClose}>
                         Cancel
                       </Button>
-                      <Button type="submit" variant="contained" color={isNew ? "success" : "warning"} startIcon={<Iconify icon="basil:save-outline" />}>
+                      <Button type="submit" variant="contained"  color={isNew ? "success" : "warning"} startIcon={<Iconify icon="basil:save-outline" />}>
                         {isNew ? "Save" : "Update"} Last Number
                       </Button>
                     </Stack>

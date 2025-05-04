@@ -60,7 +60,7 @@ export default function useAuth() {
     //    // }
     // }
 
-    function login(username, token, refreshToken, expiry, firstName, lastName, profileImg, email,role) {
+    function login(username, token, refreshToken, expiry, firstName, lastName, profileImg, email,role,companyCode,companyName,companyLogo,companyLogoUrl,companyAddress,companyPhone,companyEmail,companyWebsite) {
         // Make a request to your API to authenticate the user
         // const user = { id: 1, username: "example_user" };
         // const token = "your_jwt_token";
@@ -80,7 +80,13 @@ export default function useAuth() {
         sessionStorage.setItem("displayName", `${firstName} ${lastName}`);  
         sessionStorage.setItem("profileImg", profileImg);
         sessionStorage.setItem("role", role);
-
+        sessionStorage.setItem("companyCode", companyCode);
+        sessionStorage.setItem("companyName", companyName);
+        sessionStorage.setItem("companyLogo", companyLogo);
+        sessionStorage.setItem("companyLogoUrl", companyLogoUrl);
+        sessionStorage.setItem("companyAddress", companyAddress);
+        sessionStorage.setItem("companyPhone", companyPhone);
+        sessionStorage.setItem("companyEmail", companyEmail);
         setUserToken(token);
         setRefreshToken(refreshToken);
         setUsername(username);

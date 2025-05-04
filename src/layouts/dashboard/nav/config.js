@@ -343,8 +343,13 @@ const navConfig = [
             icon: subIcon()
           }, 
           {
+            title: 'Company',
+            path: '/companyprofile', 
+            icon: subIcon()
+          }, 
+          {
             title: 'Lookups',
-            path: '/settings', 
+            path: '/lookups', 
             icon: subIcon()
           }, 
           {
@@ -361,35 +366,7 @@ const navConfig = [
       }
 
     ]
-  },
-
-  {
-    title: 'Invoice',
-    path: '',
-    icon: icon('ic_file'),
-    childern: [
-      {
-        title: 'Create Invoice',
-        path: '/salesinvoice',
-        icon: <span style={{
-          width: "4px", height: "4px", borderRadius: "50%", backgroundColor: "rgb(145, 158, 171)", display: "inline-block", marginRight: "5px"
-        }} />,
-      }, {
-        title: 'Sales List',
-        path: '/SalesList',
-        icon: <span style={{
-          width: "4px", height: "4px", borderRadius: "50%", backgroundColor: "rgb(145, 158, 171)", display: "inline-block", marginRight: "5px"
-        }} />,
-      }
-      , {
-        title: 'Invoice Print',
-        path: '/invoiceprint',
-        icon: <span style={{
-          width: "4px", height: "4px", borderRadius: "50%", backgroundColor: "rgb(145, 158, 171)", display: "inline-block", marginRight: "5px"
-        }} />,
-      }
-    ]
-  },
+  } 
     
   
 ];

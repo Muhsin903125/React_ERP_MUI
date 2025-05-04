@@ -1,7 +1,8 @@
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 // @mui
 import { styled } from '@mui/material/styles';
-import { Box, Stack, AppBar, Toolbar, IconButton } from '@mui/material';
+import { Box, Stack, AppBar, Toolbar, IconButton, Typography } from '@mui/material';
 // utils
 import { bgBlur } from '../../../utils/cssStyles';
 // components
@@ -42,7 +43,21 @@ Header.propTypes = {
   onOpenNav: PropTypes.func,
 };
 
-export default function Header({ onOpenNav }) {
+export default   function Header({ onOpenNav }) {
+
+  const [companyLogo, setCompanyLogo] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  useEffect(() => {
+    getCompanyLogoUrl();
+  }, []);
+
+  async function getCompanyLogoUrl() {
+    const companyLogoUrl = await sessionStorage.getItem("companyLogoUrl");
+    const companyName = await sessionStorage.getItem("companyName");
+    setCompanyLogo(companyLogoUrl);
+    setCompanyName(companyName);
+  }
+
   return (
     <StyledRoot>
       <StyledToolbar>
@@ -68,8 +83,13 @@ export default function Header({ onOpenNav }) {
             sm: 1,
           }}
         >
-          <LanguagePopover />
-          <NotificationsPopover />
+          {companyLogo ? <img src={companyLogo} alt="Company Logo" style={{ width: 'auto', height: '50px',padding:"5px",marginRight:"10px",
+            borderRadius:"5px",
+            border:"1px solid #e0e0e0",
+           }} /> :
+            <Typography variant="h6" sx={{ ml: 1 }}>{companyName}</Typography>}
+          {/* <LanguagePopover />
+          <NotificationsPopover /> */}
           <AccountPopover />
         </Stack>
       </StyledToolbar>
