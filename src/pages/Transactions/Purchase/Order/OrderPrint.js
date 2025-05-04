@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Grid, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Stack, Divider } from '@mui/material';
- 
+
 // Helper to add days to a date
 function addDays(date, days) {
     const result = new Date(date);
@@ -31,10 +31,10 @@ function paginateItems(items) {
 const PrintHeader = ({ headerData }) => (
     <Box className="print-header">
         <Grid container spacing={2}>
-        <Grid item xs={6}>
+            <Grid item xs={6}>
                 <Stack spacing={1}>
-                    <Box>
-                        <img src="../../../assets/logo.png" alt="Logo" style={{ height: 60, marginBottom: 8 }} />
+                    <Box sx={{ px: 1.5 }}>
+                        <img src="../../../assets/logo.png" alt="Logo" style={{ height: 60, marginBottom: 8, marginLeft: -5 }} />
                         <Typography variant="subtitle1" fontWeight={700}>Your Company Name</Typography>
                         <Typography variant="body2">123 Business Street</Typography>
                         <Typography variant="body2">City, Country</Typography>
@@ -42,50 +42,48 @@ const PrintHeader = ({ headerData }) => (
                     </Box>
                 </Stack>
             </Grid>
-        
-              <Grid item xs={6}>
-                <Box sx={{ textAlign: 'right' }}>
-                    <Typography variant="h3" color="primary" fontWeight={700} gutterBottom>QUOTATION</Typography>
-                  
-                </Box>
-            </Grid>  
-       
             <Grid item xs={6}>
-                <Box sx={{ 
-                    background: '#f0f7ff', 
-                    p: 1.5, 
-                    borderRadius: 1, 
-                    mt: 1,
+                <Box sx={{ textAlign: 'right' }}>
+                    <Typography variant="h3" color="primary" fontWeight={700} gutterBottom>PURCHASE ORDER</Typography>
+                </Box>
+            </Grid>
+
+            <Grid item xs={6}>
+                <Box sx={{
+                    background: '#f0f7ff', // Light blue background
+                    p: 1.5,
+                    borderRadius: 1,
+
                     mb: 1,
                     textAlign: 'left',
                     border: '1px solid #e3f2fd'
                 }}>
                     <Typography variant="subtitle2" fontWeight={700}>Bill To:</Typography>
-                    <Typography variant="body2">{headerData.Customer}</Typography>
+                    <Typography variant="body2">{headerData.SupplierDisplay}</Typography>
                     {headerData.Address && <Typography variant="body2">{headerData.Address}</Typography>}
                     {headerData.TRN && <Typography variant="body2">TRN: {headerData.TRN}</Typography>}
                     {headerData.ContactNo && <Typography variant="body2">Phone: {headerData.ContactNo}</Typography>}
                     {headerData.Email && <Typography variant="body2">Email: {headerData.Email}</Typography>}
                 </Box>
             </Grid>
-            
             <Grid item xs={6}>
-                <Box sx={{ textAlign: 'right',alignContent:'flex-end',alignItems:'flex-end', }}> 
-                    <Typography variant="body2">Quotation #: {headerData.QuotNo}</Typography>
-                    <Typography variant="body2">Date: {headerData.QuotDate.toLocaleString()}</Typography>
+                <Box sx={{ textAlign: 'right' }}>
+                    <Typography variant="body2">Order #: {headerData.OrderNo}</Typography>
+                    <Typography variant="body2">Date: {headerData.OrderDate.toLocaleString()}</Typography>
                     <Typography variant="body2">
-                        Valid Until: {new Date(headerData.ValidityDate).toLocaleDateString()}
+                        Order Validity:  {headerData.OrderValidity.toLocaleString()}
                     </Typography>
-                    {headerData.LPONo && <Typography variant="body2">LPO: {headerData.LPONo}</Typography>}
-                    {headerData.RefNo && <Typography variant="body2">Reference: {headerData.RefNo}</Typography>}
+                    {headerData.RefNo && <Typography variant="body2">Reference: {headerData.RefNo}</Typography>} 
+                    {headerData.SalesmanName && <Typography variant="body2">Sales Person: {headerData.SalesmanName}</Typography>}
                 </Box>
-            </Grid>  
+            </Grid>
+
         </Grid>
     </Box>
 );
 
-export default function QuotationPrint({ headerData, items }) {
-    // Split items into pages
+export default function OrderPrint({ headerData, items }) {
+    // Split items into pages of 10 items each
     const pages = paginateItems(items);
 
     return (
@@ -93,10 +91,10 @@ export default function QuotationPrint({ headerData, items }) {
             {pages.map((pageItems, pageIndex) => (
                 <Box key={pageIndex} className="print-page">
                     <PrintHeader headerData={headerData} />
-                    
+
                     <Box className="content-section">
                         <TableContainer component={Paper} elevation={0}>
-                        <Table size="small">
+                            <Table size="small">
                                 <TableHead>
                                     <TableRow>
                                         <TableCell width="50px">No.</TableCell>
@@ -130,15 +128,15 @@ export default function QuotationPrint({ headerData, items }) {
                                     })}
                                    
                                 </TableBody>
-                            </Table> 
+                            </Table>
                         </TableContainer>
 
                         {pageIndex === pages.length - 1 && (
                             <>
                                 <Box className="summary-section">
-                                    <Box sx={{ 
-                                        width: 250, 
-                                        ml: 'auto', 
+                                    <Box sx={{
+                                        width: 250,
+                                        ml: 'auto',
                                         mt: 2,
                                         p: 2,
                                         backgroundColor: '#f0f7ff',
@@ -168,10 +166,10 @@ export default function QuotationPrint({ headerData, items }) {
                                 </Box>
 
                                 {headerData.Remarks && (
-                                    <Box className="remarks-section" sx={{ 
-                                        mt: 3, 
-                                        p: 1.5, 
-                                        backgroundColor: '#fff8e1', 
+                                    <Box className="remarks-section" sx={{
+                                        mt: 3,
+                                        p: 1.5,
+                                        backgroundColor: '#fff8e1',
                                         borderRadius: 1,
                                         border: '1px solid #ffecb3'
                                     }}>
@@ -184,13 +182,13 @@ export default function QuotationPrint({ headerData, items }) {
                             </>
                         )}
                     </Box>
-                    
+
                     {/* Page Number Footer */}
-                    <Box className="page-footer" sx={{ 
-                        position: 'absolute', 
-                        bottom: 10, 
-                        left: 0, 
-                        right: 0, 
+                    <Box className="page-footer" sx={{
+                        position: 'absolute',
+                        bottom: 10,
+                        left: 0,
+                        right: 0,
                         textAlign: 'center',
                         borderTop: '1px solid #e3f2fd',
                         paddingTop: 5,
@@ -204,7 +202,7 @@ export default function QuotationPrint({ headerData, items }) {
             ))}
 
             <style>{`
-                    @media print {
+                @media print {
                     @page {
                         size: A4 portrait;
                         margin: 0;
@@ -452,4 +450,4 @@ export default function QuotationPrint({ headerData, items }) {
             `}</style>
         </Box>
     );
-}
+} 

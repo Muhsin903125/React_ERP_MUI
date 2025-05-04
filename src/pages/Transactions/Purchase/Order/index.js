@@ -19,22 +19,28 @@ import Iconify from '../../../../components/iconify';
 
 const columns = [
     {
-        accessorKey: 'InvNo',
+        accessorKey: 'OrderNo',
         header: 'Code',
         enableEditing: false,
         size: 0
     },
     {
-        accessorKey: 'InvDate',
+        accessorKey: 'OrderDate',
         header: 'Date',
         cell: ({ row }) => {
             console.log("Row data:", row.original);
-            const rawDate = row.original?.InvDate;
+            const rawDate = row.original?.OrderDate;
             console.log("Raw date:", rawDate);
             if (!rawDate) return '';
-            const formattedDate = moment(rawDate).format('DD-MMM-YYYY hh:mm A');
-            console.log("Formatted date:", formattedDate);
-            return formattedDate;
+            // Parse SQL datetime and format
+            try {
+                const formattedDate = moment(rawDate).format('DD-MMM-YYYY hh:mm A');
+                console.log("Formatted date:", formattedDate);
+                return formattedDate;
+            } catch (error) {
+                console.error("Date parsing error:", error);
+                return rawDate;
+            }
         },
         enableEditing: false,
     },
@@ -46,14 +52,10 @@ const columns = [
     {
         accessorKey: 'TRN',
         header: 'TRN',
-    },
+    }, 
     {
-        accessorKey: 'PaymentMode',
-        header: 'Payment Mode',
-    },
-    {
-        accessorKey: 'Status',
-        header: 'Status',
+        accessorKey: 'OrderValidity',
+        header: 'Validity',
     },
     {
         accessorKey: 'GrossAmount',
@@ -67,11 +69,11 @@ const columns = [
     },
 ];
 
-export default function PurchaseInvoice() {
+export default function PurchaseOrder() {
     const navigate = useNavigate();
     const { setLoadingFull } = useContext(AuthContext);
     const { showToast } = useToast();
-    const [PurchaseInvoice, setPurchaseInvoice] = useState([]);
+    const [PurchaseOrder, setPurchaseOrder] = useState([]);
     const [validationErrors, setValidationErrors] = useState({});
 
     useEffect(() => {
@@ -79,12 +81,12 @@ export default function PurchaseInvoice() {
             try {
                 setLoadingFull(true);
                 const { Success, Data, Message } = await GetSingleListResult({
-                    key: "PURCH_INV_CRUD",
+                    key: "PURCH_ORD_CRUD",
                     TYPE: "GET_ALL",
                 })
                 if (Success) {
-                    console.log("Purchase Invoice Data:", Data);
-                    setPurchaseInvoice(Data)
+                    console.log("Purchase Order Data:", Data);
+                    setPurchaseOrder(Data)
                 }
                 else {
                     showToast(Message, "error");
@@ -98,52 +100,33 @@ export default function PurchaseInvoice() {
     }, [])
 
     // for edit Save
-    const handleSaveRowEdits = async ({ exitEditingMode, row, values }) => {
-        if (!Object.keys(validationErrors).length) {
-            PurchaseInvoice[row.index] = values;
-            const response = await PostCommonSp({
-                json: values,
-                key: "PURCH_INV_EDIT"
-            })
-            if (response.Success) {
-                setPurchaseInvoice([...PurchaseInvoice]);
-                exitEditingMode();
-            }
-            else {
-                showToast(response.Message, "error");
-            }
-        }
-    };
-
-    // for cancel edit
-    const handleCancelRowEdits = () => {
-        setValidationErrors({});
-    };
+  
+ 
 
     const handleView = (rowData) => {
-        navigate(`/purchase-entry/${rowData.InvNo}`);
+        navigate(`/purchase-order-entry/${rowData.OrderNo}`);
     };
 
     return (
         <>
             <Helmet>
-                <title>Purchase Invoice</title>
+                <title>Purchase Order</title>
             </Helmet>
             <Box component="main" sx={{ m: 1, p: 1 }}>
                 <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
                     <Typography variant="h4" gutterBottom>
-                        Purchase Invoice List
+                        Purchase Order List
                     </Typography>
-                    <Link to="/purchase-entry" style={{ textDecoration: 'none' }}>
+                    <Link to="/purchase-order-entry" style={{ textDecoration: 'none' }}>
                         <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-                            New Purchase Invoice Entry
+                            New Purchase Order Entry
                         </Button>
                     </Link>
                 </Stack>
 
                 <MaterialReactTable
                     columns={columns}
-                    data={PurchaseInvoice}
+                    data={PurchaseOrder}
                     initialState={{
                         density: 'compact',
                         expanded: true,
@@ -158,8 +141,6 @@ export default function PurchaseInvoice() {
                             tableLayout: 'fixed'
                         }
                     }}
-                    onEditingRowSave={handleSaveRowEdits}
-                    onEditingRowCancel={handleCancelRowEdits}
                     enableRowActions
                     renderRowActions={({ row }) => (
                         <Stack direction="row" spacing={1}>
@@ -167,7 +148,7 @@ export default function PurchaseInvoice() {
                                 variant="text"
                                 onClick={() => handleView(row.original)}
                                 color="primary"
-                                title="View/Edit Invoice"
+                                title="View/Edit Order"
                             >
                                 <Iconify icon="mdi:eye" />
                             </Button>

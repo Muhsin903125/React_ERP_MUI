@@ -13,10 +13,19 @@ import { GetSingleListResult, PostCommonSp, PostMultiSp } from '../../../../hook
 
 
 
-export default function InvoiceItem({ Propkey, code, products, desc, qty, price, unit, removeItem, setItems, items, errors, isEditable }) {
+export default function InvoiceItem({ Propkey, code, products, desc, qty, price, unit, tax, removeItem, setItems, items, errors, isEditable }) {
  
-    function calculateItemTotal() {
+    function calculateSubTotal() {
         return qty * price;
+    }
+
+    function calculateTaxAmount() {
+        const subtotal = calculateSubTotal();
+        return (subtotal * (tax || 0)) / 100;
+    }
+
+    function calculateItemTotal() {
+        return calculateSubTotal() + calculateTaxAmount();
     }
 
     // const products = // useLookupData("PRODUCT");
@@ -77,6 +86,9 @@ export default function InvoiceItem({ Propkey, code, products, desc, qty, price,
         else if (event.target.name === `ItemUnit_${Propkey}`) {
             newItems[Propkey].unit = event.target.value;
         }
+        else if (event.target.name === `ItemTax_${Propkey}`) {
+            newItems[Propkey].tax = event.target.value;
+        }
         setItems(newItems);
     }
     return (
@@ -135,7 +147,7 @@ export default function InvoiceItem({ Propkey, code, products, desc, qty, price,
                     disabled={!isEditable}
                 />
             </Grid>
-            <Grid item xs={6} sm={3} md={2}>
+            <Grid item xs={6} sm={3} md={1}>
                 <TextField
                     fullWidth
                     name={`ItemPrice_${Propkey}`}
@@ -161,10 +173,33 @@ export default function InvoiceItem({ Propkey, code, products, desc, qty, price,
                     disabled={!isEditable}
                 />
             </Grid>
-            <Grid item xs={6} sm={3} md={2}>
+         
+            <Grid item xs={6} sm={3} md={1}>
                 <TextField
                     type={'number'}
-                    inputProps={{ min: "0", style: { textAlign: 'right' } }}
+                    inputProps={{ style: { textAlign: 'right' } }}
+                    disabled
+                    fullWidth
+                    size="small"
+                    value={calculateSubTotal()}
+                    label="Subtotal"
+                    name="itemSubtotal" />
+            </Grid>
+            <Grid item xs={6} sm={3} md={1}>
+                <TextField
+                    type={'number'}
+                    inputProps={{ style: { textAlign: 'right' } }}
+                    disabled
+                    fullWidth
+                    size="small"
+                    value={calculateTaxAmount()}
+                    label={`Tax (${tax || 0}%)`}
+                    name="itemTaxAmount" />
+            </Grid>
+            <Grid item xs={6} sm={3} md={1.5}>
+                <TextField
+                    type={'number'}
+                    inputProps={{ style: { textAlign: 'right' } }}
                     disabled
                     fullWidth
                     size="small"
@@ -172,7 +207,7 @@ export default function InvoiceItem({ Propkey, code, products, desc, qty, price,
                     label="Total"
                     name="itemTotal" />
             </Grid>
-            <Grid item xs={6} sm={3} md={1}>
+            <Grid item xs={6} sm={3} md={0.5}>
                 <IconButton aria-label="delete" onClick={removeItem} disabled={!isEditable}>
                     <Delete color="error" />
                 </IconButton>

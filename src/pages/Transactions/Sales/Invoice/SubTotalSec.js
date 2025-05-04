@@ -8,7 +8,7 @@ import {
 import {  useState  } from 'react';
 
 
-export default function SubTotalSec({addItem,calculateTotal,discount,tax,handleInputChange}) {
+export default function SubTotalSec({addItem,calculateTotal,discount,tax,handleInputChange,isEditable}) {
 
 //   const [discount, setDiscount] = useState(0);
 
@@ -34,7 +34,7 @@ export default function SubTotalSec({addItem,calculateTotal,discount,tax,handleI
     return (<>
         <Grid container spacing={3.5} direction="row"   >
             <Grid item xs={12} md={4} justifyContent={"flex-start"}   >
-                <Button   onClick={addItem}>Add Item</Button>
+                <Button   onClick={addItem} disabled={!isEditable}>Add Item</Button>
             </Grid>
 
             <Grid item container md={8} spacing={3.5} mt={1} justifyContent="flex-end">
@@ -48,6 +48,7 @@ export default function SubTotalSec({addItem,calculateTotal,discount,tax,handleI
                         name="Discount"
                         value={discount}
                         onChange={handleInputChange}
+                        disabled={!isEditable}
                     />
                 </Grid>
                 <Grid item xs={6} md={4}>
@@ -60,6 +61,7 @@ export default function SubTotalSec({addItem,calculateTotal,discount,tax,handleI
                         name="Tax"
                         value={tax}
                         onChange={handleInputChange}
+                        disabled={!isEditable}
                     />
                 </Grid>
            

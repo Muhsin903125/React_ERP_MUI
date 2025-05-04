@@ -34,7 +34,7 @@ export default function SubTotalSec({addItem,calculateTotal,discount,tax,handleI
     return (<>
         <Grid container spacing={3.5} direction="row"   >
             <Grid item xs={12} md={4} justifyContent={"flex-start"}   >
-                <Button   onClick={addItem}>Add Item</Button>
+                <Button   onClick={addItem} disabled={!isEditable}>Add Item</Button>
             </Grid>
 
             <Grid item container md={8} spacing={3.5} mt={1} justifyContent="flex-end">

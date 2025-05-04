@@ -23,14 +23,14 @@ import Confirm from '../../../../components/Confirm';
 import Iconify from '../../../../components/iconify';
 import DateSelector from '../../../../components/DateSelector';
 import Dropdownlist from '../../../../components/DropdownList';
-import InvoiceItem from './InvoiceItem';
+import InvoiceItem from './OrderItem';
 import SubTotalSec from './SubTotalSec';
 import AlertDialog from '../../../../components/AlertDialog';
-import CustomerDialog from '../../../../components/CustomerDialog';
 import { GetSingleResult, GetSingleListResult, GetMultipleResult } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 import { AuthContext } from '../../../../App';
-import InvoicePrint from './InvoicePrint';
+import InvoicePrint from './OrderPrint';
+import SupplierDialog from '../../../../components/SupplierDialog';
 // import { head } from 'lodash';
 
 // ----------------------------------------------------------------------
@@ -50,15 +50,15 @@ const PaymentModeOptions = [
 ];
 
 
-export default function SalesEntry() {
+export default function OrderEntry() {
     const navigate = useNavigate();
     const { id } = useParams();
     const { showToast } = useToast();
     const { setLoadingFull } = useContext(AuthContext);
     const [code, setCode] = useState('');
     // const [selectedDate, setSelectedDate] = useState(new Date());
-    const [selectedDueDate, setselectedDueDate] = useState(new Date());
-    const [selectedInvDate, setselectedInvDate] = useState(new Date());
+    const [selectedValidityDate, setselectedValidityDate] = useState(new Date());
+    const [selectedOrderDate, setselectedOrderDate] = useState(new Date());
     const [IsAlertDialog, setAlertDialog] = useState(false);
     const [disableFutureDate] = useState(true);
     // const [status, setStatus] = useState('draft');
@@ -70,35 +70,33 @@ export default function SalesEntry() {
     const [salesmenList, setSalesmenList] = useState([]);
     const [salesmanLoading, setSalesmanLoading] = useState(false);
     const [locations, setLocations] = useState([]);
-    const { state } = useLocation();
-    const { invoiceData } = state || {};
+
 
     const [headerData, setheaderData] = useState(
         {
-            InvNo: invoiceData?.InvNo || code,
-            InvDate: invoiceData?.InvDate || selectedInvDate,
-            Status: invoiceData?.Status || 'PAID',
-            CustomerCode: invoiceData?.CustomerCode || '',
-            Customer: invoiceData?.Customer || 'Customer Name',
-            Address: invoiceData?.Address || '',
-            TRN: invoiceData?.TRN || '',
-            ContactNo: invoiceData?.ContactNo || '',
-            Email: invoiceData?.Email || '',
-            LPONo: invoiceData?.LPONo || '',
-            RefNo: invoiceData?.RefNo || '',
-            PaymentMode: invoiceData?.PaymentMode || 'CASH',
-            Location: invoiceData?.Location || '',
-            CrDays: invoiceData?.CrDays || 0,
-            Discount: invoiceData?.Discount || 0,
-            Tax: invoiceData?.Tax || 5,
-            GrossAmount: invoiceData?.GrossAmount || 0,
-            TaxAmount: invoiceData?.TaxAmount || 0,
-            NetAmount: invoiceData?.NetAmount || 0,
-            SManCode: invoiceData?.SManCode || '',
-            Remarks: invoiceData?.Remarks || ''
+            OrderNo: code,
+            OrderDate: selectedOrderDate,
+            OrderValidity: selectedValidityDate,
+            Status: 'PAID',
+            SupplierCode: '',
+            Supplier: 'Supplier Name',
+            Location: '',
+            Address: '',
+            TRN: '',
+            ContactNo: '',
+            Email: '',
+            RefNo: '',
+            CrDays: 0,
+            Discount: 0,
+            Tax: 5,
+            GrossAmount: 0,
+            TaxAmount: 0,
+            NetAmount: 0,
+            SManCode: '',
+            Remarks: ''
         })
 
-    const [items, setItems] = useState(invoiceData?.items || [{
+    const [items, setItems] = useState([{
         name: "",
         price: 0,
         desc: "",
@@ -110,9 +108,9 @@ export default function SalesEntry() {
         let hasError = false;
 
         // Customer validation
-        if (validator.isEmpty(headerData.CustomerCode)) {
-            errors.CustomerCode = 'Customer is required';
-            showToast('Customer is required', "error");
+        if (validator.isEmpty(headerData.SupplierCode)) {
+            errors.SupplierCode = 'Supplier is required';
+            showToast('Supplier is required', "error");
             hasError = true;
         }
 
@@ -124,18 +122,17 @@ export default function SalesEntry() {
         }
 
         // Invoice date validation
-        if (!selectedInvDate) {
-            errors.InvDate = 'Invoice date is required';
-            showToast('Invoice date is required', "error");
+        if (!selectedOrderDate) {
+            errors.OrderDate = 'Order date is required';
+            showToast('Order date is required', "error");
+            hasError = true;
+        }
+        if (!selectedOrderDate) {
+            errors.OrderValidity = 'Order validity is required';
+            showToast('Order validity is required', "error");
             hasError = true;
         }
 
-        // Credit Days validation
-        if (headerData.CrDays < 0) {
-            errors.CrDays = 'Credit days cannot be negative';
-            showToast('Credit days cannot be negative', "error");
-            hasError = true;
-        }
 
         // Email validation (if provided)
         if (headerData.Email && !validator.isEmail(headerData.Email)) {
@@ -181,36 +178,22 @@ export default function SalesEntry() {
             showToast('Please check all item details', "error");
         }
 
-        // Payment validation
-        if (!headerData.PaymentMode) {
-            errors.PaymentMode = 'Payment mode is required';
-            showToast('Payment mode is required', "error");
-            hasError = true;
-        }
+
 
         setErrors(errors);
         return !hasError;
     };
 
     useEffect(() => {
-
-        // if (headerData.InvDate && headerData.CrDays) {
-        if (!id) {
-            const dueDate = new Date(headerData.InvDate);
-            dueDate.setDate(dueDate.getDate() + Number(headerData.CrDays));
-            setselectedDueDate(dueDate);
+        if (selectedOrderDate > selectedValidityDate) {
+            setselectedValidityDate(selectedOrderDate);
         }
-    }, [headerData.InvDate, headerData.CrDays]);
-
-    useEffect(() => {
-        const dueDate = new Date(selectedInvDate);
-        dueDate.setDate(dueDate.getDate() + Number(headerData.CrDays));
-        setselectedDueDate(dueDate);
         setheaderData({
             ...headerData,
-            'InvDate': selectedInvDate
+            'OrderValidity': selectedValidityDate,
+            'OrderDate': selectedOrderDate
         });
-    }, [selectedInvDate]);
+    }, [selectedOrderDate, selectedValidityDate]);
     useEffect(() => {
         getProducts();
     }, []);
@@ -234,24 +217,6 @@ export default function SalesEntry() {
                 });
     };
 
-    const handleDateChange = (event, name) => {
-        const newDate = event.$d;
-        setheaderData(prev => {
-            const updatedData = {
-                ...prev,
-                [name]: newDate
-            };
-
-            // Calculate new due date whenever invoice date changes
-            if (name === 'InvDate') {
-                const dueDate = new Date(newDate);
-                dueDate.setDate(dueDate.getDate() + Number(updatedData.CrDays));
-                setselectedDueDate(dueDate);
-            }
-
-            return updatedData;
-        });
-    };
 
     const handleSave = () => {
         if (validate()) {
@@ -260,7 +225,7 @@ export default function SalesEntry() {
     };
     useEffect(() => {
         if (id) {
-            loadInvoiceDetails(id);
+            loadOrderDetails(id);
             setIsEditMode(true);
             setIsEditable(false);
         } else {
@@ -271,11 +236,11 @@ export default function SalesEntry() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
     const getCode = async () => {
-        const { lastNo, IsEditable } = await getLastNumber('INV');
+        const { lastNo, IsEditable } = await getLastNumber('PORD');
         setCode(lastNo);
         setheaderData(prev => ({
             ...prev,
-            InvNo: lastNo
+            OrderNo: lastNo
         }));
     };
 
@@ -332,12 +297,12 @@ export default function SalesEntry() {
         setOpen(false);
         setheaderData({
             ...headerData,
-            "Customer": value.CUS_DESC,
-            "Address": value.CUS_ADDRESS,
-            "TRN": value.CUS_TRN,
-            "CustomerCode": value.CUS_DOCNO,
-            "ContactNo": value.CUS_MOB,
-            "Email": value.CUS_EMAIL
+            "Supplier": value.SUP_DESC,
+            "Address": value.SUP_ADDRESS,
+            "TRN": value.SUP_TRN,
+            "SupplierCode": value.SUP_DOCNO,
+            "ContactNo": value.SUP_MOB,
+            "Email": value.SUP_EMAIL
 
         });
         // setSelectedValue(value.name);
@@ -364,7 +329,7 @@ export default function SalesEntry() {
                 };
 
                 const base64Data = encodeJsonToBase64(JSON.stringify({
-                    "key": "SALE_INV_CRUD",
+                    "key": "PURCH_ORD_CRUD",
                     "TYPE": isEditMode ? "UPDATE" : "INSERT",
                     "DOC_NO": id,
                     "headerData": {
@@ -389,7 +354,7 @@ export default function SalesEntry() {
                 if (Success) {
                     setIsEditMode(false);
                     setIsEditable(false);
-                    navigate(`/sales-entry/${Data.id}`, { replace: true });
+                    navigate(`/purchase-order-entry/${Data.id}`, { replace: true });
                     showToast(Data.Message, 'success');
                 }
                 else {
@@ -415,13 +380,13 @@ export default function SalesEntry() {
             console.error("Error:", error); // More informative error handling
         }
     };
-    const loadInvoiceDetails = async (invoiceId) => {
+    const loadOrderDetails = async (orderId) => {
         try {
             setLoadingFull(true);
             const { Success, Data, Message } = await GetMultipleResult({
-                "key": "SALE_INV_CRUD",
+                "key": "PURCH_ORD_CRUD",
                 "TYPE": "GET",
-                "DOC_NO": invoiceId
+                "DOC_NO": orderId
             });
 
             if (Success) {
@@ -432,12 +397,13 @@ export default function SalesEntry() {
 
                 setheaderData({
                     ...headerData,
-                    InvNo: headerData?.InvNo,
+                    OrderNo: headerData?.OrderNo,
                     // Status: headerData?.Status,
-                    CustomerCode: headerData?.CustomerCode,
-                    InvDate: new Date(headerData.InvDate)
+                    SupplierCode: headerData?.SupplierCode,
+                    OrderDate: new Date(headerData.OrderDate)
                 });
-                setselectedInvDate(new Date(headerData.InvDate));
+                setselectedOrderDate(new Date(headerData.OrderDate));
+                setselectedValidityDate(new Date(headerData.OrderValidity));
                 setItems(itemsData || []);
             } else {
                 showToast(Message, "error");
@@ -522,34 +488,24 @@ export default function SalesEntry() {
     };
 
     const toggleEditMode = () => {
-        if (id) {
-            loadInvoiceDetails(id);
-        }
-        if (invoiceData && isEditable)
-            handleNewInvoice();
-
-
         setIsEditable(!isEditable);
-
     };
 
     const handleNewInvoice = () => {
         // Reset all data
         setheaderData({
-            InvNo: '',
-            InvDate: selectedInvDate,
+            OrderNo: '',
+            OrderDate: selectedOrderDate,
+            OrderValidity: selectedValidityDate,
             Status: 'PAID',
-            CustomerCode: '',
-            Customer: 'Customer Name',
+            SupplierCode: '',
+            Supplier: 'Supplier Name',
             Address: '',
             Location: '',
             TRN: '',
             ContactNo: '',
             Email: '',
-            LPONo: '',
             RefNo: '',
-            PaymentMode: 'CASH',
-            CrDays: 0,
             Discount: 0,
             Tax: 5,
             GrossAmount: 0,
@@ -569,9 +525,41 @@ export default function SalesEntry() {
         setIsEditable(true);
         setIsEditMode(false);
         getCode(); // Get new invoice number
-        navigate('/sales-entry');
+        navigate('/purchase-order-entry');
     };
+    const handleConvertToPurchase = async () => {
+        Confirm('Do you want to convert this purchase order to purchase invoice?').then(async () => {
+            try {
+                setLoadingFull(true);
 
+
+                const { Success, Message, Data } = await GetMultipleResult({
+                    "key": "PURCH_ORD_CRUD",
+                    "TYPE": "CONVERT_TO_PURCHASE",
+                    "DOC_NO": id
+                });
+
+                if (Success) {
+                    showToast('converted to purchase invoice', 'success');
+                    // Redirect to sales entry page with the new invoice ID
+                    const headerData = Data[0][0]; // First array's first element
+                    const itemsData = Data[1];
+                    const invoiceData = {
+                        ...headerData,
+                        items: itemsData
+                    };
+                    navigate(`/purchase-entry`, { state: { invoiceData }, replace: true });
+                } else {
+                    showToast(Message || 'Failed to convert purchase order', "error");
+                }
+            } catch (error) {
+                console.error('Error converting purchase order:', error);
+                showToast('Error converting purchase order to purchase invoice', "error");
+            } finally {
+                setLoadingFull(false);
+            }
+        });
+    };
     const fetchSalesmen = async () => {
         try {
             setSalesmanLoading(true);
@@ -598,22 +586,27 @@ export default function SalesEntry() {
     return (
         <>
             <Helmet>
-                <title> Sales Invoice </title>
+                <title> Purchase Order </title>
             </Helmet>
 
             <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
                 <Typography variant="h4" gutterBottom>
-                    {isEditMode ? 'Edit Sales Invoice' : 'New Sales Invoice'}
+                    {isEditMode ? 'Edit Purchase Order' : 'New Purchase Order'}
                 </Typography>
                 <Stack direction="row" spacing={2}>
                     {!isEditable && (id) && (
-                        <Button
-                            variant="outlined"
-                            startIcon={<Iconify icon="eva:printer-fill" />}
-                            onClick={handlePrint}
-                        >
-                            Print
-                        </Button>
+                        <>
+                            <Button
+                                variant="outlined"
+                                startIcon={<Iconify icon="eva:printer-fill" />}
+                                onClick={handlePrint}
+                            >
+                                Print
+                            </Button>
+                            <Button variant="contained" color="primary" startIcon={<Iconify icon="eva:swap-fill" />} onClick={handleConvertToPurchase}>
+                                Convert to Purchase
+                            </Button>
+                        </>
                     )}
                     {isEditMode && !isEditable && (
                         <Button variant="contained" color="primary" startIcon={<Iconify icon="eva:edit-fill" />} onClick={toggleEditMode}>
@@ -626,7 +619,7 @@ export default function SalesEntry() {
                         </Button>
                     )}
                     <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleNewInvoice}>
-                        New Invoice
+                        New Order
                     </Button>
                 </Stack>
             </Stack>
@@ -634,20 +627,20 @@ export default function SalesEntry() {
             <Card>
                 <Stack maxwidth={'lg'} padding={2.5} style={{ backgroundColor: '#e8f0fa', boxShadow: '#dbdbdb4f -1px 9px 20px 0px' }}>
                     <Grid container spacing={2} mt={1}  >
-                        <Grid item xs={12} md={4}>
+                        <Grid item xs={12} md={5}>
                             <Grid container spacing={2} mt={1}>
                                 <Grid item xs={8} md={8}>
                                     <Typography variant="subtitle1" ml={2} mb={1} style={{ color: "gray" }} >
-                                        Customer :   {headerData.CustomerCode}
+                                        Supplier :   {headerData.SupplierCode}
                                     </Typography>
                                 </Grid>
                                 <Grid item xs={4} md={4} align='right'>
                                     {isEditable && (
-                                        <Button size="small" startIcon={<Iconify icon={headerData?.CustomerCode ? "eva:edit-fill" : "eva:person-add-fill"} />} onClick={handleClickOpen}>
-                                            {headerData?.CustomerCode ? 'change' : 'Add'}
+                                        <Button size="small" startIcon={<Iconify icon={headerData?.SupplierCode ? "eva:edit-fill" : "eva:person-add-fill"} />} onClick={handleClickOpen}>
+                                            {headerData?.SupplierCode ? 'change' : 'Add'}
                                         </Button>
                                     )}
-                                    <CustomerDialog
+                                    <SupplierDialog
                                         open={open}
                                         onClose={handleClose}
                                         onSelect={handleSelect}
@@ -655,7 +648,7 @@ export default function SalesEntry() {
                                 </Grid>
                                 <Grid item xs={12} md={12}>
                                     <Typography variant="body2" ml={2} style={{ color: "black" }} >
-                                        {headerData.Customer}
+                                        {headerData.Supplier}
                                     </Typography>
                                 </Grid>
                                 <Grid item xs={12} md={12}>
@@ -668,15 +661,15 @@ export default function SalesEntry() {
                                 </Grid>
                             </Grid>
                         </Grid>
-                        <Grid item xs={12} md={8}>
+                        <Grid item xs={12} md={7}>
                             <Grid container spacing={1}>
                                 <Grid item xs={6} md={2}  >
                                     <FormControl fullWidth>
                                         <TextField
-                                            id="invoice-no"
-                                            label="Invoice#"
-                                            name="InvNo"
-                                            value={headerData.InvNo}
+                                            id="order-no"
+                                            label="Order#"
+                                            name="OrderNo"
+                                            value={headerData.OrderNo}
                                             onChange={handleInputChange}
                                             size="small"
                                             inputProps={{
@@ -686,49 +679,28 @@ export default function SalesEntry() {
                                         />
                                     </FormControl>
                                 </Grid>
-                                <Grid item xs={6} md={4} >
-                                    <FormControl fullWidth error={Boolean(errors.InvDate)}>
+                                <Grid item xs={6} md={5} >
+                                    <FormControl fullWidth error={Boolean(errors.OrderDate)}>
                                         <DateSelector
                                             label="Date"
                                             size="small"
                                             disableFuture={disableFutureDate}
-                                            value={headerData.InvDate}
-                                            onChange={setselectedInvDate}
+                                            value={headerData.OrderDate}
+                                            onChange={setselectedOrderDate}
                                             disable={!isEditable}
-                                            error={Boolean(errors.InvDate)}
-                                            helperText={errors.InvDate}
+                                            error={Boolean(errors.OrderDate)}
+                                            helperText={errors.OrderDate}
                                             required
                                         />
                                     </FormControl>
                                 </Grid>
-                                <Grid item xs={6} md={2}  >
-                                    <FormControl fullWidth error={Boolean(errors.CrDays)}>
-                                        <TextField
-                                            id="credit-days"
-                                            label="Credit Days"
-                                            name="CrDays"
-                                            type='number'
-                                            value={headerData.CrDays}
-                                            onChange={handleInputChange}
-                                            size="small"
-                                            inputProps={{
-                                                style: {
-                                                    textAlign: 'right',
-                                                },
-                                                min: 0,
-                                            }}
-                                            disabled={!isEditable}
-                                            error={Boolean(errors.CrDays)}
-                                            helperText={errors.CrDays}
-                                        />
-                                    </FormControl>
-                                </Grid>
-                                <Grid item xs={6} md={4} >
+
+                                <Grid item xs={6} md={5} >
                                     <FormControl fullWidth>
                                         <DateSelector
                                             size="small"
-                                            label="Due Date"
-                                            value={selectedDueDate}
+                                            label="Validity"
+                                            value={selectedValidityDate}
                                             disable={!!true}
                                             disableFuture={false}
                                         />
@@ -736,7 +708,7 @@ export default function SalesEntry() {
                                 </Grid>
                             </Grid>
                             <Grid container spacing={1} mt={1}>
-                                <Grid item xs={6} md={3}  >
+                                <Grid item xs={6} md={4}  >
                                     <FormControl fullWidth>
                                         <TextField
                                             id="mob-no"
@@ -752,7 +724,7 @@ export default function SalesEntry() {
                                         />
                                     </FormControl>
                                 </Grid>
-                                <Grid item xs={6} md={3} >
+                                <Grid item xs={6} md={4} >
                                     <FormControl fullWidth>
                                         <TextField
                                             id="email"
@@ -769,20 +741,7 @@ export default function SalesEntry() {
                                     </FormControl>
                                 </Grid>
 
-                                <Grid item xs={6} md={3} >
-                                    <FormControl fullWidth>
-                                        <TextField
-                                            id="lpo-no"
-                                            label="Cus.LPO No"
-                                            name="LPONo"
-                                            size="small"
-                                            value={headerData.LPONo}
-                                            onChange={handleInputChange}
-                                            disabled={!isEditable}
-                                        />
-                                    </FormControl>
-                                </Grid>
-                                <Grid item xs={6} md={3} b >
+                                <Grid item xs={6} md={4} b >
                                     <FormControl fullWidth>
                                         <TextField
                                             id="ref-no"
@@ -795,7 +754,7 @@ export default function SalesEntry() {
                                         />
                                     </FormControl>
                                 </Grid>
-                                <Grid item xs={6} md={4} mt={1} >
+                                <Grid item xs={6} md={6} mt={1} >
                                     <FormControl fullWidth error={Boolean(errors.SManCode)}>
                                         <Autocomplete
                                             disabled={!isEditable}
@@ -825,7 +784,7 @@ export default function SalesEntry() {
                                     </FormControl>
                                 </Grid>
 
-                                <Grid item xs={6} md={4} mt={1}    >
+                                <Grid item xs={6} md={6} mt={1}    >
                                     <FormControl size='small' fullWidth error={Boolean(errors.Location)}>
                                         <Autocomplete
                                             size='small'
@@ -851,32 +810,7 @@ export default function SalesEntry() {
                                         />
                                     </FormControl>
                                 </Grid>
-                                <Grid item xs={6} md={4} mt={1}    >
-                                    <FormControl fullWidth error={Boolean(errors.PaymentMode)}>
-                                        <Dropdownlist
-                                            options={PaymentModeOptions}
-                                            name="PaymentMode"
-                                            value={headerData.PaymentMode}
-                                            label="Payment Mode"
-                                            onChange={handleInputChange}
-                                            disable={!isEditable}
-                                            error={Boolean(errors.PaymentMode)}
-                                            helperText={errors.PaymentMode}
-                                            required
-                                        />
-                                    </FormControl>
-                                </Grid>
-                                {/* <Grid item xs={6} md={6} mt={1} >
-                                    <FormControl fullWidth>
-                                        <Dropdownlist options={InvoiceStatusOptions}
-                                            name="Status"
-                                            value={headerData.Status}
-                                            label={"Status"}
-                                            onChange={handleInputChange}
-                                            disable={!isEditable}
-                                        />
-                                    </FormControl>
-                                </Grid> */}
+
                             </Grid>
                             <Grid container spacing={1} mt={1}>
                                 <Grid item xs={12} md={12}>
@@ -931,12 +865,12 @@ export default function SalesEntry() {
                         discount={headerData.Discount}
                         tax={headerData.Tax}
                         handleInputChange={(e) => handleInputChange(e)}
-                        isEditable={isEditable} 
+                        isEditable={isEditable}
                     />
                     <Stack direction="row" justifyContent="flex-end" mb={2} mt={2}>
                         {isEditable && (
                             <Button variant="contained" color={isEditMode ? 'warning' : 'success'} size='large' onClick={handleSave}>
-                                {isEditMode ? 'Update Invoice' : 'Create Invoice'}
+                                {isEditMode ? 'Update Order' : 'Create Order'}
                             </Button>
                         )}
                     </Stack>

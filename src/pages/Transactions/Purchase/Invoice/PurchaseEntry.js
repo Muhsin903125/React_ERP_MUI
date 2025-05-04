@@ -1,432 +1,999 @@
 import { Helmet } from 'react-helmet-async';
-import React, { useContext, useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useContext, useState, useEffect } from 'react';
+// @mui
 import {
+    Card,
     Stack,
     Button,
     Typography,
-    Container,
-    Box,
     Grid,
     TextField,
     FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
+    Box,
+    Dialog,
+    DialogContent,
+    DialogActions,
+    DialogTitle,
     Autocomplete,
 } from '@mui/material';
-import { GetSingleListResult, GetSingleResult, PostCommonSp } from '../../../../hooks/Api';
+import validator from 'validator';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { getLastNumber, getLocationList } from '../../../../utils/CommonServices';
+import Confirm from '../../../../components/Confirm';
+import Iconify from '../../../../components/iconify';
+import DateSelector from '../../../../components/DateSelector';
+import Dropdownlist from '../../../../components/DropdownList';
+import InvoiceItem from './InvoiceItem';
+import SubTotalSec from './SubTotalSec';
+import AlertDialog from '../../../../components/AlertDialog'; 
+import { GetSingleResult, GetSingleListResult, GetMultipleResult } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 import { AuthContext } from '../../../../App';
-import Iconify from '../../../../components/iconify';
-import { getLocationList, getSupplierList } from '../../../../utils/CommonServices';
+import InvoicePrint from './InvoicePrint';
+import SupplierDialog from '../../../../components/SupplierDialog';
+// import { head } from 'lodash';
+
+// ----------------------------------------------------------------------
+
+const InvoiceStatusOptions = [
+    { value: 'paid', label: 'Paid' },
+    { value: 'unpaid', label: 'Unpaid' },
+    { value: 'overdue', label: 'Overdue' },
+    { value: 'draft', label: 'Draft' },
+];
+
+const PaymentModeOptions = [
+    { value: 'CASH', label: 'Cash' },
+    { value: 'CHEQUE', label: 'Cheque' },
+    { value: 'TT', label: 'TT' },
+    { value: 'OTHER', label: 'Others' },
+];
+
 
 export default function PurchaseEntry() {
-    const { id } = useParams();
     const navigate = useNavigate();
-    const { setLoadingFull } = useContext(AuthContext);
+    const { id } = useParams();
     const { showToast } = useToast();
-    const [isNew, setIsNew] = useState(!id);
-    const [suppliers, setSuppliers] = useState([]);
-    const [items, setItems] = useState([]);
+    const { setLoadingFull } = useContext(AuthContext);
+    const [code, setCode] = useState('');
+    // const [selectedDate, setSelectedDate] = useState(new Date());
+    const [selectedDueDate, setselectedDueDate] = useState(new Date());
+    const [selectedInvDate, setselectedInvDate] = useState(new Date());
+    const [IsAlertDialog, setAlertDialog] = useState(false);
+    const [disableFutureDate] = useState(true);
+    // const [status, setStatus] = useState('draft');
+    const [errors, setErrors] = useState({});
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [isEditable, setIsEditable] = useState(true);
+    const [showPrintView, setShowPrintView] = useState(false);
+    const [printDialogOpen, setPrintDialogOpen] = useState(false);
+    const [salesmenList, setSalesmenList] = useState([]);
+    const [salesmanLoading, setSalesmanLoading] = useState(false);
     const [locations, setLocations] = useState([]);
-    const [formData, setFormData] = useState({
-        InvNo: '',
-        InvDate: new Date().toISOString().split('T')[0],
-        SupplierCode: '',
-        LPONo: '',
-        TRN: '',
-        PaymentMode: '',
-        Location: '',
-        Items: [],
-        GrossAmount: 0,
-        Discount: 0,
-        Tax: 0,
-        TaxAmount: 0,
-        NetAmount: 0,
-        Remarks: '',
-    });
+    const { state } = useLocation();
+    const { invoiceData } = state || {};
+
+    const [headerData, setheaderData] = useState(
+        {
+            InvNo: invoiceData?.InvNo || code,
+            InvDate: invoiceData?.InvDate || selectedInvDate,
+            Status: invoiceData?.Status || 'PAID',
+            SupplierCode: invoiceData?.SupplierCode || '',
+            Supplier: invoiceData?.Supplier || 'Supplier Name',
+            Location: invoiceData?.Location || '',
+            Address: invoiceData?.Address || '',
+            TRN: invoiceData?.TRN || '',
+            ContactNo: invoiceData?.ContactNo || '',
+            Email: invoiceData?.Email || '',
+            RefNo: invoiceData?.RefNo || '',
+            SuppInvNo: invoiceData?.SuppInvNo || '',
+            PaymentMode: invoiceData?.PaymentMode || 'CASH',
+            CrDays: invoiceData?.CrDays || 0,
+            Discount: invoiceData?.Discount || 0,
+            Tax: invoiceData?.Tax || 5,
+            GrossAmount: invoiceData?.GrossAmount || 0,
+            TaxAmount: invoiceData?.TaxAmount || 0,
+            NetAmount: invoiceData?.NetAmount || 0,
+            SManCode: invoiceData?.SManCode || '',
+            Remarks: invoiceData?.Remarks || ''
+        })
+
+    const [items, setItems] = useState(invoiceData?.items || [{
+        name: "",
+        price: 0,
+        desc: "",
+        qty: 0,
+        unit: "Unit"
+    }]);
+    const validate = () => {
+        const errors = {};
+        let hasError = false;
+
+        // Customer validation
+        if (validator.isEmpty(headerData.SupplierCode)) {
+            errors.SupplierCode = 'Supplier is required';
+            showToast('Supplier is required', "error");
+            hasError = true;
+        }
+
+        // Salesman validation
+        if (!headerData.SManCode) {
+            errors.SManCode = 'Salesman is required';
+            showToast('Salesman is required', "error");
+            hasError = true;
+        }
+
+        // Invoice date validation
+        if (!selectedInvDate) {
+            errors.InvDate = 'Invoice date is required';
+            showToast('Invoice date is required', "error");
+            hasError = true;
+        }
+
+        // Credit Days validation
+        if (headerData.CrDays < 0) {
+            errors.CrDays = 'Credit days cannot be negative';
+            showToast('Credit days cannot be negative', "error");
+            hasError = true;
+        }
+
+        // Email validation (if provided)
+        if (headerData.Email && !validator.isEmail(headerData.Email)) {
+            errors.Email = 'Invalid email address';
+            showToast('Invalid email address', "error");
+            hasError = true;
+        }
+
+        // Contact number validation (if provided)
+        if (headerData.ContactNo && !validator.isMobilePhone(headerData.ContactNo)) {
+            errors.ContactNo = 'Invalid contact number';
+            showToast('Invalid contact number', "error");
+            hasError = true;
+        }
+
+        // Items validation
+        if (items.length === 0) {
+            errors.items = 'At least one item is required';
+            showToast('At least one item is required', "error");
+            hasError = true;
+        }
+
+        // Validate each item
+        const itemErrors = items.map((item, index) => {
+            const itemError = {};
+            if (!item.name) {
+                itemError.name = 'Item name is required';
+                hasError = true;
+            }
+            if (!item.qty || item.qty <= 0) {
+                itemError.qty = 'Valid quantity is required';
+                hasError = true;
+            }
+            if (!item.price || item.price <= 0) {
+                itemError.price = 'Valid price is required';
+                hasError = true;
+            }
+            return Object.keys(itemError).length > 0 ? itemError : null;
+        }).filter(Boolean);
+
+        if (itemErrors.length > 0) {
+            errors.items = itemErrors;
+            showToast('Please check all item details', "error");
+        }
+
+        // Payment validation
+        if (!headerData.PaymentMode) {
+            errors.PaymentMode = 'Payment mode is required';
+            showToast('Payment mode is required', "error");
+            hasError = true;
+        }
+
+        setErrors(errors);
+        return !hasError;
+    };
 
     useEffect(() => {
-        if (id) {
-            fetchInvoiceDetails();
-        }
-        fetchSuppliers();
-        fetchItems();
-        fetchLocations();
-    }, [id]);
 
-    const fetchInvoiceDetails = async () => {
-        try {
-            setLoadingFull(true);
-            const { Success, Data, Message } = await GetSingleResult({
-                key: "PURCHASE_CRUD",
-                TYPE: "GET",
-                InvNo: id
+        // if (headerData.InvDate && headerData.CrDays) {
+        if (!id) {
+            const dueDate = new Date(headerData.InvDate);
+            dueDate.setDate(dueDate.getDate() + Number(headerData.CrDays));
+            setselectedDueDate(dueDate);
+        }
+    }, [headerData.InvDate, headerData.CrDays]);
+
+    useEffect(() => {
+        const dueDate = new Date(selectedInvDate);
+        dueDate.setDate(dueDate.getDate() + Number(headerData.CrDays));
+        setselectedDueDate(dueDate);
+        setheaderData({
+            ...headerData,
+            'InvDate': selectedInvDate
+        });
+    }, [selectedInvDate]);
+    useEffect(() => {
+        getProducts();
+    }, []);
+    const handleInputChange = event => {
+        const { type, name, value } = event.target;
+        if (type === 'number' && Object.keys(value).length > 1)
+            setheaderData({
+                ...headerData,
+                [name]: value.replace(/^0+/, '')
             });
-            if (Success) {
-                setFormData(Data);
-            } else {
-                showToast(Message, "error");
+        else
+            if (name === 'CrDays' && value === '')
+                setheaderData({
+                    ...headerData,
+                    [name]: 0
+                });
+            else
+                setheaderData({
+                    ...headerData,
+                    [name]: value
+                });
+    };
+
+    const handleDateChange = (event, name) => {
+        const newDate = event.$d;
+        setheaderData(prev => {
+            const updatedData = {
+                ...prev,
+                [name]: newDate
+            };
+
+            // Calculate new due date whenever invoice date changes
+            if (name === 'InvDate') {
+                const dueDate = new Date(newDate);
+                dueDate.setDate(dueDate.getDate() + Number(updatedData.CrDays));
+                setselectedDueDate(dueDate);
             }
-        } finally {
-            setLoadingFull(false);
+
+            return updatedData;
+        });
+    };
+
+    const handleSave = () => {
+        if (validate()) {
+            CreateInvoice();
+        }
+    };
+    useEffect(() => {
+        if (id) {
+            loadInvoiceDetails(id);
+            setIsEditMode(true);
+            setIsEditable(false);
+        } else {
+            getCode();
+            setIsEditMode(false);
+            setIsEditable(true);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [id]);
+    const getCode = async () => {
+        const { lastNo, IsEditable } = await getLastNumber('PUR');
+        setCode(lastNo);
+        setheaderData(prev => ({
+            ...prev,
+            InvNo: lastNo
+        }));
+    };
+
+
+
+    const addItem = (event) => {
+        if (validate()) {
+            event.preventDefault();
+            // console.log(ItemNewLength);
+            setItems([...items, {
+                name: "",
+                price: 0,
+                desc: "",
+                qty: 0,
+                unit: ""
+            }]);
         }
     };
 
-    const fetchSuppliers = async () => {
 
-        const data = await getSupplierList();
-        if (data) {
-            setSuppliers(data);
-        }
+    // const editItem = (index, event) => {
+    //   event.preventDefault();
+    //   const newItems = [...items];
+    //   newItems[index] = { name: event.target.itemName.value, price: event.target.itemPrice.value };
+    //   setItems(newItems);
+    // };
 
+    const removeItem = (index) => {
+        const newItems = [...items];
+        console.log(index);
+        newItems.splice(index, 1);
+        setItems(newItems);
+        console.log(newItems);
     };
 
-    const fetchItems = async () => {
+
+    function calculateTotal(items) {
+        return items.reduce((total, item) => total + item.price * item.qty, 0);
+    }
+
+    // For Customer Dialog
+    const [open, setOpen] = useState(false);
+    // const [selectedValue, setSelectedValue] = useState("Customer Name");
+
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    const handleSelect = (value) => {
+        setOpen(false);
+        setheaderData({
+            ...headerData,
+            "Supplier": value.SUP_DESC,
+            "Address": value.SUP_ADDRESS,
+            "TRN": value.SUP_TRN,
+            "SupplierCode": value.SUP_DOCNO,
+            "ContactNo": value.SUP_MOB,
+            "Email": value.SUP_EMAIL
+
+        });
+        // setSelectedValue(value.name);
+    };
+
+    const getLocations = async () => {
+        const Data = await getLocationList();
+        setLocations(Data);
+        console.log("locationList", locations);
+    };
+    useEffect(() => {
+        getLocations();
+    }, []);
+
+    const CreateInvoice = async () => {
+        Confirm(`Do you want to ${isEditMode ? 'update' : 'save'}?`).then(async () => {
+            try {
+                setLoadingFull(false);
+
+                const encodeJsonToBase64 = (json) => {
+                    // Step 1: Convert the string to Base64
+                    const base64Encoded = btoa(json);
+                    return base64Encoded;
+                };
+
+                const base64Data = encodeJsonToBase64(JSON.stringify({
+                    "key": "PURCH_INV_CRUD",
+                    "TYPE": isEditMode ? "UPDATE" : "INSERT",
+                    "DOC_NO": id,
+                    "headerData": {
+                        ...headerData,
+                        "GrossAmount": calculateTotal(items),
+                        "TaxAmount": (calculateTotal(items) - headerData.Discount) * headerData.Tax / 100.00,
+                        "NetAmount": (calculateTotal(items) - headerData.Discount) * (1 + headerData.Tax / 100.00),
+                        "Remarks": headerData.Remarks || ''
+                    },
+                    "detailData": items.map((item, index) => {
+                        return {
+                            ...item,
+                            srno: index + 1
+                        };
+                    })
+                }));
+
+                const { Success, Message, Data } = await GetSingleResult({
+                    "json": base64Data
+                });
+
+                if (Success) {
+                    setIsEditMode(false);
+                    setIsEditable(false);
+                    navigate(`/purchase-entry/${Data.id}`, { replace: true });
+                    showToast(Data.Message, 'success');
+                }
+                else {
+                    showToast(Message, "error");
+                }
+            }
+            finally {
+                setLoadingFull(false);
+            }
+        });
+    };
+    const [products, setProducts] = useState([]);
+    const getProducts = async () => {
         try {
             const { Success, Data, Message } = await GetSingleListResult({
-                key: "ITEM_CRUD",
-                TYPE: "GET_ALL"
+                "key": "ITEM_CRUD",
+                "TYPE": "GET_ALL",
             });
             if (Success) {
-                setItems(Data);
+                setProducts(Data);
+            }
+        } catch (error) {
+            console.error("Error:", error); // More informative error handling
+        }
+    };
+    const loadInvoiceDetails = async (invoiceId) => {
+        try {
+            setLoadingFull(true);
+            const { Success, Data, Message } = await GetMultipleResult({
+                "key": "PURCH_INV_CRUD",
+                "TYPE": "GET",
+                "DOC_NO": invoiceId
+            });
+
+            if (Success) {
+                // Data[0] contains header data, Data[1] contains items
+                const headerData = Data[0][0]; // First array's first element
+                const itemsData = Data[1]; // Second array contains all items
+                console.log("asdas--", itemsData, Data);
+
+                setheaderData({
+                    ...headerData,
+                    InvNo: headerData?.InvNo,
+                    // Status: headerData?.Status,
+                    SupplierCode: headerData?.SupplierCode,
+                    InvDate: new Date(headerData.InvDate)
+                });
+                setselectedInvDate(new Date(headerData.InvDate));
+                setItems(itemsData || []);
             } else {
                 showToast(Message, "error");
             }
         } catch (error) {
-            console.error("Error fetching items:", error);
-        }
-    };
-
-    const fetchLocations = async () => {
-
-        const data = await getLocationList();
-        if (data) {
-            setLocations(data);
-        }
-
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            setLoadingFull(true);
-            const { Success, Message } = await PostCommonSp({
-                key: "PURCHASE_CRUD",
-                TYPE: isNew ? "ADD" : "UPDATE",
-                ...formData
-            });
-            if (Success) {
-                showToast(Message, "success");
-                navigate('/purchase-invoice');
-            } else {
-                showToast(Message, "error");
-            }
+            showToast("Error loading invoice details", "error");
         } finally {
             setLoadingFull(false);
         }
     };
 
-    const handleItemChange = (index, field, value) => {
-        const newItems = [...formData.Items];
-        newItems[index] = { ...newItems[index], [field]: value };
+    const handlePrint = () => {
+        console.log('Opening print dialog');
+        setPrintDialogOpen(true);
+    };
 
-        // Calculate line total
-        if (field === 'Qty' || field === 'Price') {
-            newItems[index].Total = newItems[index].Qty * newItems[index].Price;
+    const handleClosePrintDialog = () => {
+        console.log('Closing print dialog');
+        setPrintDialogOpen(false);
+    };
+
+
+    const handlePrintFromDialog = () => {
+        const printContent = document.getElementById('print-content');
+        if (!printContent) {
+            console.error('Print content not found');
+            return;
         }
 
-        setFormData(prev => ({
-            ...prev,
-            Items: newItems,
-            GrossAmount: newItems.reduce((sum, item) => sum + (item.Total || 0), 0)
-        }));
+        const printWindow = window.open('', '', 'width=800,height=600');
+        if (!printWindow) {
+            console.error('Could not open print window');
+            return;
+        }
+
+        const styles = Array.from(document.styleSheets)
+            .map(styleSheet => {
+                try {
+                    return Array.from(styleSheet.cssRules)
+                        .map(rule => rule.cssText)
+                        .join('\n');
+                } catch (e) {
+                    return '';
+                }
+            })
+            .join('\n');
+
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+                <head>
+                    <title>Print Invoice</title>
+                    <style>
+                        ${styles}
+                        body {
+                            padding: 20px;
+                        }
+                        @media print {
+                            body {
+                                padding: 0;
+                            }
+                            @page {
+                                size: A4;
+                                margin: 1cm;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${printContent.innerHTML}
+                </body>
+            </html>
+        `);
+
+        printWindow.document.close();
+        printWindow.focus();
+
+        setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+        }, 500);
     };
 
-    const addItem = () => {
-        setFormData(prev => ({
-            ...prev,
-            Items: [...prev.Items, {
-                ItemCode: '',
-                Qty: 0,
-                Price: 0,
-                Total: 0
-            }]
-        }));
+    const toggleEditMode = () => {
+        if (id) {
+            loadInvoiceDetails(id);
+        }
+        if (invoiceData && isEditable)
+            handleNewInvoice();
+
+
+        setIsEditable(!isEditable);
+
     };
 
-    const removeItem = (index) => {
-        setFormData(prev => ({
-            ...prev,
-            Items: prev.Items.filter((_, i) => i !== index)
-        }));
+    const handleNewInvoice = () => {
+        // Reset all data
+        setheaderData({
+            InvNo: '',
+            InvDate: selectedInvDate,
+            Status: 'PAID',
+            SupplierCode: '',
+            Supplier: 'Supplier Name',
+            Address: '',
+            Location: '',
+            TRN: '',
+            ContactNo: '',
+            Email: '',
+            SuppInvNo: '',
+            RefNo: '',
+            PaymentMode: 'CASH',
+            CrDays: 0,
+            Discount: 0,
+            Tax: 5,
+            GrossAmount: 0,
+            TaxAmount: 0,
+            NetAmount: 0,
+            SManCode: '',
+            Remarks: ''
+        });
+        setItems([{
+            name: "",
+            price: 0,
+            desc: "",
+            qty: 0,
+            unit: "Unit"
+        }]);
+        setErrors({});
+        setIsEditable(true);
+        setIsEditMode(false);
+        getCode(); // Get new invoice number
+        navigate('/purchase-entry');
     };
+
+    const fetchSalesmen = async () => {
+        try {
+            setSalesmanLoading(true);
+            const { Success, Data, Message } = await GetSingleListResult({
+                "key": "SMAN_CRUD",
+                "TYPE": "GET_ALL"
+            });
+            if (Success) {
+                setSalesmenList(Data);
+            }
+        } catch (error) {
+            showToast("Error fetching salesmen", "error");
+            console.error('Error fetching salesmen:', error);
+        } finally {
+            setSalesmanLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchSalesmen();
+    }, []);
+
 
     return (
         <>
             <Helmet>
-                <title>{isNew ? 'New Purchase Invoice' : 'Edit Purchase Invoice'}</title>
+                <title> Purchase Invoice </title>
             </Helmet>
-            <Box component="main" sx={{ m: 1, p: 1 }}>
-                <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-                    <Typography variant="h4" gutterBottom>
-                        {isNew ? 'New Purchase Invoice' : 'Edit Purchase Invoice'}
-                    </Typography>
-                    <Button
-                        variant="outlined"
-                        startIcon={<Iconify icon="mdi:cancel" />}
-                        onClick={() => navigate('/purchase-invoice')}
-                    >
-                        Cancel
+
+            <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
+                <Typography variant="h4" gutterBottom>
+                    {isEditMode ? 'Edit Purchase Invoice' : 'New Purchase Invoice'}
+                </Typography>
+                <Stack direction="row" spacing={2}>
+                    {!isEditable && (id) && (
+                        <Button
+                            variant="outlined"
+                            startIcon={<Iconify icon="eva:printer-fill" />}
+                            onClick={handlePrint}
+                        >
+                            Print
+                        </Button>
+                    )}
+                    {isEditMode && !isEditable && (
+                        <Button variant="contained" color="primary" startIcon={<Iconify icon="eva:edit-fill" />} onClick={toggleEditMode}>
+                            Enable Edit
+                        </Button>
+                    )}
+                    {isEditable && (
+                        <Button variant="contained" color="secondary" startIcon={<Iconify icon="eva:close-fill" />} onClick={toggleEditMode}>
+                            Cancel Edit
+                        </Button>
+                    )}
+                    <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleNewInvoice}>
+                        New Invoice
                     </Button>
                 </Stack>
+            </Stack>
 
-                <form onSubmit={handleSubmit}>
-                    <Grid container spacing={3}>
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                label="Invoice Number"
-                                value={formData.InvNo}
-                                onChange={(e) => setFormData(prev => ({ ...prev, InvNo: e.target.value }))}
-                                disabled={!isNew}
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                label="Date"
-                                type="date"
-                                value={formData.InvDate}
-                                onChange={(e) => setFormData(prev => ({ ...prev, InvDate: e.target.value }))}
-                                InputLabelProps={{ shrink: true }}
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <Autocomplete
-                                options={suppliers}
-                                getOptionLabel={(option) => `${option.SUP_DOCNO} - ${option.SUP_DESC}`}
-                                value={suppliers.find(s => s.SUP_DOCNO === formData.SupplierCode) || null}
-                                onChange={(_, newValue) => {
-                                    setFormData(prev => ({
-                                        ...prev,
-                                        Supplier: newValue?.SUP_DESC || '',
-                                        SupplierCode: newValue?.SUP_DOCNO || '',
-                                        TRN: newValue?.SUP_TRN || ''
-                                    }));
-                                }}
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        label="Supplier"
-                                        required
+            <Card>
+                <Stack maxwidth={'lg'} padding={2.5} style={{ backgroundColor: '#e8f0fa', boxShadow: '#dbdbdb4f -1px 9px 20px 0px' }}>
+                    <Grid container spacing={2} mt={1}  >
+                        <Grid item xs={12} md={4}>
+                            <Grid container spacing={2} mt={1}>
+                                <Grid item xs={8} md={8}>
+                                    <Typography variant="subtitle1" ml={2} mb={1} style={{ color: "gray" }} >
+                                        Supplier :   {headerData.SupplierCode}
+                                    </Typography>
+                                </Grid>
+                                <Grid item xs={4} md={4} align='right'>
+                                    {isEditable && (
+                                        <Button size="small" startIcon={<Iconify icon={headerData?.SupplierCode ? "eva:edit-fill" : "eva:person-add-fill"} />} onClick={handleClickOpen}>
+                                            {headerData?.SupplierCode ? 'change' : 'Add'}
+                                        </Button>
+                                    )}
+                                    <SupplierDialog
+                                        open={open}
+                                        onClose={handleClose}
+                                        onSelect={handleSelect}
                                     />
-                                )}
-                            />
+                                </Grid>
+                                <Grid item xs={12} md={12}>
+                                    <Typography variant="body2" ml={2} style={{ color: "black" }} >
+                                        {headerData.Supplier}
+                                    </Typography>
+                                </Grid>
+                                <Grid item xs={12} md={12}>
+                                    <Typography variant="body2" ml={2} style={{ color: "gray" }} >
+                                        {headerData.TRN}
+                                    </Typography>
+                                    <Typography variant="body2" ml={2} mb={2} style={{ color: "gray" }} >
+                                        {headerData.Address}
+                                    </Typography>
+                                </Grid>
+                            </Grid>
                         </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                label="LPO Number"
-                                value={formData.LPONo}
-                                onChange={(e) => setFormData(prev => ({ ...prev, LPONo: e.target.value }))}
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                label="TRN"
-                                value={formData.TRN}
-                                onChange={(e) => setFormData(prev => ({ ...prev, TRN: e.target.value }))}
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <FormControl fullWidth>
-                                <InputLabel>Payment Mode</InputLabel>
-                                <Select
-                                    value={formData.PaymentMode}
-                                    label="Payment Mode"
-                                    onChange={(e) => setFormData(prev => ({ ...prev, PaymentMode: e.target.value }))}
-                                >
-                                    <MenuItem value="Cash">Cash</MenuItem>
-                                    <MenuItem value="Credit">Credit</MenuItem>
-                                    <MenuItem value="Bank Transfer">Bank Transfer</MenuItem>
-                                </Select>
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <Autocomplete
-                                options={locations}
-                                getOptionLabel={(option) => `${option.LM_LOCATION_CODE} - ${option.LM_LOCATION_NAME}`}
-                                value={locations.find(l => l.LM_LOCATION_CODE === formData.Location) || null}
-                                onChange={(_, newValue) => {
-                                    setFormData(prev => ({
-                                        ...prev,
-                                        Location: newValue?.LM_LOCATION_CODE || ''
-                                    }));
-                                }}
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        label="Location"
-                                        required
-                                    />
-                                )}
-                            />
-                        </Grid>
+                        <Grid item xs={12} md={8}>
+                            <Grid container spacing={1}>
+                                <Grid item xs={6} md={2}  >
+                                    <FormControl fullWidth>
+                                        <TextField
+                                            id="invoice-no"
+                                            label="Invoice#"
+                                            name="InvNo"
+                                            value={headerData.InvNo}
+                                            onChange={handleInputChange}
+                                            size="small"
+                                            inputProps={{
+                                                readOnly: true
+                                            }}
+                                            disabled={!isEditable}
+                                        />
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={6} md={4} >
+                                    <FormControl fullWidth error={Boolean(errors.InvDate)}>
+                                        <DateSelector
+                                            label="Date"
+                                            size="small"
+                                            disableFuture={disableFutureDate}
+                                            value={headerData.InvDate}
+                                            onChange={setselectedInvDate}
+                                            disable={!isEditable}
+                                            error={Boolean(errors.InvDate)}
+                                            helperText={errors.InvDate}
+                                            required
+                                        />
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={6} md={2}  >
+                                    <FormControl fullWidth error={Boolean(errors.CrDays)}>
+                                        <TextField
+                                            id="credit-days"
+                                            label="Credit Days"
+                                            name="CrDays"
+                                            type='number'
+                                            value={headerData.CrDays}
+                                            onChange={handleInputChange}
+                                            size="small"
+                                            inputProps={{
+                                                style: {
+                                                    textAlign: 'right',
+                                                },
+                                                min: 0,
+                                            }}
+                                            disabled={!isEditable}
+                                            error={Boolean(errors.CrDays)}
+                                            helperText={errors.CrDays}
+                                        />
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={6} md={4} >
+                                    <FormControl fullWidth>
+                                        <DateSelector
+                                            size="small"
+                                            label="Due Date"
+                                            value={selectedDueDate}
+                                            disable={!!true}
+                                            disableFuture={false}
+                                        />
+                                    </FormControl>
+                                </Grid>
+                            </Grid>
+                            <Grid container spacing={1} mt={1}>
+                                <Grid item xs={6} md={3}  >
+                                    <FormControl fullWidth>
+                                        <TextField
+                                            id="mob-no"
+                                            label="Mobile#"
+                                            name="ContactNo"
+                                            size="small"
+                                            type="tel"
+                                            value={headerData.ContactNo}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditable}
+                                            error={Boolean(errors.ContactNo)}
+                                            helperText={errors.ContactNo}
+                                        />
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={6} md={3} >
+                                    <FormControl fullWidth>
+                                        <TextField
+                                            id="email"
+                                            label="Email Id"
+                                            name="Email"
+                                            size="small"
+                                            type="email"
+                                            value={headerData.Email}
+                                            onChange={handleInputChange}
+                                            error={Boolean(errors.Email)}
+                                            helperText={errors.Email}
+                                            disabled={!isEditable}
+                                        />
+                                    </FormControl>
+                                </Grid>
 
-                        {/* Items Section */}
-                        <Grid item xs={12}>
-                            <Typography variant="h6" gutterBottom>
-                                Items
-                            </Typography>
-                            <Button
-                                variant="outlined"
-                                startIcon={<Iconify icon="eva:plus-fill" />}
-                                onClick={addItem}
-                                sx={{ mb: 2 }}
-                            >
-                                Add Item
-                            </Button>
-                            {formData.Items.map((item, index) => (
-                                <Grid container spacing={2} key={index} sx={{ mb: 2 }}>
-                                    <Grid item xs={12} sm={3}>
+                                <Grid item xs={6} md={3} >
+                                    <FormControl fullWidth>
+                                        <TextField
+                                            id="supplier-inv-no"
+                                            label="Supplier Inv.No"
+                                            name="SuppInvNo"
+                                            size="small"
+                                            value={headerData.SuppInvNo}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditable}
+                                        />
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={6} md={3} b >
+                                    <FormControl fullWidth>
+                                        <TextField
+                                            id="ref-no"
+                                            label="Ref.No"
+                                            name="RefNo"
+                                            size="small"
+                                            value={headerData.RefNo}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditable}
+                                        />
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={6} md={4} mt={1} >
+                                    <FormControl fullWidth error={Boolean(errors.SManCode)}>
                                         <Autocomplete
-                                            options={items}
-                                            getOptionLabel={(option) => `${option.Code} - ${option.Name}`}
-                                            value={items.find(i => i.Code === item.ItemCode) || null}
+                                            disabled={!isEditable}
+                                            options={salesmenList}
+                                            value={salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode) || null}
+                                            getOptionLabel={(option) =>
+                                                option ? `${option.SMAN_DESC} (${option.SMAN_DOCNO})` : ''
+                                            }
+                                            loading={salesmanLoading}
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    label="Sales Person"
+                                                    size="small"
+                                                    error={Boolean(errors.SManCode)}
+                                                    helperText={errors.SManCode}
+                                                    required
+                                                />
+                                            )}
+                                            onChange={(event, value) => {
+                                                setheaderData({
+                                                    ...headerData,
+                                                    SManCode: value?.SMAN_DOCNO || ''
+                                                });
+                                            }}
+                                        />
+                                    </FormControl>
+                                </Grid>
+
+                                <Grid item xs={6} md={4} mt={1}    >
+                                    <FormControl size='small' fullWidth error={Boolean(errors.Location)}>
+                                        <Autocomplete
+                                            size='small'
+                                            disabled={!isEditable}
+                                            options={locations}
+                                            getOptionLabel={(option) => `${option.LM_LOCATION_CODE} - ${option.LM_LOCATION_NAME}`}
+                                            value={locations.find(l => l.LM_LOCATION_CODE === headerData.Location) || null}
                                             onChange={(_, newValue) => {
-                                                handleItemChange(index, 'ItemCode', newValue?.Code || '');
+                                                setheaderData(prev => ({
+                                                    ...prev,
+                                                    Location: newValue?.LM_LOCATION_CODE || ''
+                                                }));
                                             }}
                                             renderInput={(params) => (
                                                 <TextField
                                                     {...params}
-                                                    label="Item"
+                                                    label="Location"
                                                     required
+                                                    error={Boolean(errors.Location)}
+                                                    helperText={errors.Location}
                                                 />
                                             )}
                                         />
-                                    </Grid>
-                                    <Grid item xs={12} sm={2}>
-                                        <TextField
-                                            fullWidth
-                                            label="Quantity"
-                                            type="number"
-                                            value={item.Qty}
-                                            onChange={(e) => handleItemChange(index, 'Qty', parseFloat(e.target.value))}
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={6} md={4} mt={1}    >
+                                    <FormControl fullWidth error={Boolean(errors.PaymentMode)}>
+                                        <Dropdownlist
+                                            options={PaymentModeOptions}
+                                            name="PaymentMode"
+                                            value={headerData.PaymentMode}
+                                            label="Payment Mode"
+                                            onChange={handleInputChange}
+                                            disable={!isEditable}
+                                            error={Boolean(errors.PaymentMode)}
+                                            helperText={errors.PaymentMode}
+                                            required
                                         />
-                                    </Grid>
-                                    <Grid item xs={12} sm={2}>
-                                        <TextField
-                                            fullWidth
-                                            label="Price"
-                                            type="number"
-                                            value={item.Price}
-                                            onChange={(e) => handleItemChange(index, 'Price', parseFloat(e.target.value))}
+                                    </FormControl>
+                                </Grid>
+                                {/* <Grid item xs={6} md={6} mt={1} >
+                                    <FormControl fullWidth>
+                                        <Dropdownlist options={InvoiceStatusOptions}
+                                            name="Status"
+                                            value={headerData.Status}
+                                            label={"Status"}
+                                            onChange={handleInputChange}
+                                            disable={!isEditable}
                                         />
-                                    </Grid>
-                                    <Grid item xs={12} sm={2}>
+                                    </FormControl>
+                                </Grid> */}
+                            </Grid>
+                            <Grid container spacing={1} mt={1}>
+                                <Grid item xs={12} md={12}>
+                                    <FormControl fullWidth>
                                         <TextField
-                                            fullWidth
-                                            label="Total"
-                                            value={item.Total || 0}
-                                            disabled
+                                            id="remarks"
+                                            label="Remarks"
+                                            name="Remarks"
+                                            size="small"
+                                            multiline
+                                            rows={2}
+                                            value={headerData.Remarks}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditable}
+                                            placeholder="Enter any additional notes or remarks "
                                         />
-                                    </Grid>
-                                    <Grid item xs={12} sm={2}>
-                                        <Button
-                                            variant="outlined"
-                                            color="error"
-                                            onClick={() => removeItem(index)}
-                                            startIcon={<Iconify icon="mdi:delete" />}
-                                        >
-                                            Remove
-                                        </Button>
-                                    </Grid>
-                                </Grid>
-                            ))}
-                        </Grid>
-
-                        {/* Summary Section */}
-                        <Grid item xs={12}>
-                            <Grid container spacing={2}>
-                                <Grid item xs={12} sm={3}>
-                                    <TextField
-                                        fullWidth
-                                        label="Gross Amount"
-                                        value={formData.GrossAmount}
-                                        disabled
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={3}>
-                                    <TextField
-                                        fullWidth
-                                        label="Discount"
-                                        type="number"
-                                        value={formData.Discount}
-                                        onChange={(e) => setFormData(prev => ({
-                                            ...prev,
-                                            Discount: parseFloat(e.target.value),
-                                            NetAmount: prev.GrossAmount - parseFloat(e.target.value) + prev.TaxAmount
-                                        }))}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={3}>
-                                    <TextField
-                                        fullWidth
-                                        label="Tax %"
-                                        type="number"
-                                        value={formData.Tax}
-                                        onChange={(e) => {
-                                            const tax = parseFloat(e.target.value);
-                                            const taxAmount = (formData.GrossAmount - formData.Discount) * (tax / 100);
-                                            setFormData(prev => ({
-                                                ...prev,
-                                                Tax: tax,
-                                                TaxAmount: taxAmount,
-                                                NetAmount: prev.GrossAmount - prev.Discount + taxAmount
-                                            }));
-                                        }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={3}>
-                                    <TextField
-                                        fullWidth
-                                        label="Net Amount"
-                                        value={formData.NetAmount}
-                                        disabled
-                                    />
+                                    </FormControl>
                                 </Grid>
                             </Grid>
                         </Grid>
-
-                        <Grid item xs={12}>
-                            <TextField
-                                fullWidth
-                                label="Remarks"
-                                multiline
-                                rows={4}
-                                value={formData.Remarks}
-                                onChange={(e) => setFormData(prev => ({ ...prev, Remarks: e.target.value }))}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12}>
-                            <Stack direction="row" spacing={2} justifyContent="flex-end">
-                                <Button
-                                    type="submit"
-                                    variant="contained"
-                                    color="primary"
-                                    startIcon={<Iconify icon="mdi:content-save" />}
-                                >
-                                    {isNew ? 'Save' : 'Update'}
-                                </Button>
-                            </Stack>
-                        </Grid>
                     </Grid>
-                </form>
-            </Box>
+                </Stack>
+                <Stack m={2.5} maxwidth={'lg'}  >
+
+                    <Typography variant="h6" mb={2} >
+                        Item Details
+                    </Typography>
+                    {items.map((field, index) => (
+                        <InvoiceItem
+                            key={index}
+                            Propkey={index}
+                            tax={headerData.Tax}
+                            products={products}
+                            code={items[index].name}
+                            desc={items[index].desc}
+                            qty={items[index].qty}
+                            price={items[index].price}
+                            unit={items[index].unit}
+                            items={items}
+                            setItems={setItems}
+                            removeItem={() => removeItem(index)}
+                            errors={errors.item}
+                            isEditable={isEditable}
+                        />
+                    ))}
+
+
+
+                    <SubTotalSec
+                        addItem={addItem}
+                        calculateTotal={calculateTotal(items)}
+                        discount={headerData.Discount}
+                        tax={headerData.Tax}
+                        handleInputChange={(e) => handleInputChange(e)}
+                        isEditable={isEditable} 
+                    />
+                    <Stack direction="row" justifyContent="flex-end" mb={2} mt={2}>
+                        {isEditable && (
+                            <Button variant="contained" color={isEditMode ? 'warning' : 'success'} size='large' onClick={handleSave}>
+                                {isEditMode ? 'Update Invoice' : 'Create Invoice'}
+                            </Button>
+                        )}
+                    </Stack>
+                </Stack>
+            </Card>
+
+            {/* Print Dialog */}
+            <Dialog
+                open={printDialogOpen}
+                onClose={() => setPrintDialogOpen(false)}
+                maxWidth="lg"
+                fullWidth
+                PaperProps={{
+                    sx: {
+                        minHeight: '80vh',
+                        maxHeight: '90vh',
+                        overflowY: 'auto'
+                    }
+                }}
+            >
+                <DialogTitle>
+                    <Typography variant="h6">Print Preview</Typography>
+                </DialogTitle>
+                <DialogContent>
+                    <Box id="print-content" sx={{ p: 2 }}>
+                        <InvoicePrint
+                            headerData={{
+                                ...headerData,
+                                SalesmanName: salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode)?.SMAN_DESC ?
+                                    `${salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode).SMAN_DESC} (${headerData.SManCode})` :
+                                    headerData.SManCode || ''
+                            }}
+                            items={items}
+                        />
+                    </Box>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setPrintDialogOpen(false)}>
+                        Close
+                    </Button>
+                    <Button
+                        onClick={handlePrintFromDialog}
+                        variant="contained"
+                        color="primary"
+                        startIcon={<Iconify icon="eva:printer-fill" />}
+                    >
+                        Print
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {IsAlertDialog && (
+                <AlertDialog
+                    Message="Are you sure you want to proceed?"
+                    OnSuccess={setAlertDialog}
+                />
+            )}
         </>
     );
-} 
+}

@@ -33,8 +33,8 @@ const PrintHeader = ({ headerData }) => (
         <Grid container spacing={2}>
             <Grid item xs={6}>
                 <Stack spacing={1}>
-                    <Box>
-                        <img src="../../../assets/logo.png" alt="Logo" style={{ height: 60, marginBottom: 8 }} />
+                    <Box sx={{ px: 1.5 }}>
+                        <img src="../../../assets/logo.png" alt="Logo" style={{ height: 60, marginBottom: 8, marginLeft: -5 }} />
                         <Typography variant="subtitle1" fontWeight={700}>Your Company Name</Typography>
                         <Typography variant="body2">123 Business Street</Typography>
                         <Typography variant="body2">City, Country</Typography>
@@ -44,35 +44,42 @@ const PrintHeader = ({ headerData }) => (
             </Grid>
             <Grid item xs={6}>
                 <Box sx={{ textAlign: 'right' }}>
-                    <Typography variant="h5" color="primary" fontWeight={700} gutterBottom>INVOICE</Typography>
+                    <Typography variant="h3" color="primary" fontWeight={700} gutterBottom>PURCHASE INVOICE</Typography>
+                </Box>
+            </Grid>
+
+            <Grid item xs={6}>
+                <Box sx={{
+                    background: '#f0f7ff', // Light blue background
+                    p: 1.5,
+                    borderRadius: 1,
+
+                    mb: 1,
+                    textAlign: 'left',
+                    border: '1px solid #e3f2fd'
+                }}>
+                    <Typography variant="subtitle2" fontWeight={700}>Bill To:</Typography>
+                    <Typography variant="body2">{headerData.SupplierDisplay}</Typography>
+                    {headerData.Address && <Typography variant="body2">{headerData.Address}</Typography>}
+                    {headerData.TRN && <Typography variant="body2">TRN: {headerData.TRN}</Typography>}
+                    {headerData.ContactNo && <Typography variant="body2">Phone: {headerData.ContactNo}</Typography>}
+                    {headerData.Email && <Typography variant="body2">Email: {headerData.Email}</Typography>}
+                </Box>
+            </Grid>
+            <Grid item xs={6}>
+                <Box sx={{ textAlign: 'right' }}>
                     <Typography variant="body2">Invoice #: {headerData.InvNo}</Typography>
-                    <Typography variant="body2">Date: {new Date(headerData.InvDate).toLocaleDateString()}</Typography>
+                    <Typography variant="body2">Date: {headerData.InvDate.toLocaleString()}</Typography>
                     <Typography variant="body2">
                         Due Date: {addDays(headerData.InvDate, headerData.CrDays).toLocaleDateString()}
                     </Typography>
-                    {headerData.LPONo && <Typography variant="body2">LPO: {headerData.LPONo}</Typography>}
+                    {headerData.SuppInvNo && <Typography variant="body2">Supplier Inv.No: {headerData.SuppInvNo}</Typography>}
                     {headerData.RefNo && <Typography variant="body2">Reference: {headerData.RefNo}</Typography>}
                     {headerData.PaymentMode && <Typography variant="body2">Payment Mode: {headerData.PaymentMode}</Typography>}
                     {headerData.SalesmanName && <Typography variant="body2">Sales Person: {headerData.SalesmanName}</Typography>}
                 </Box>
             </Grid>
-            <Grid item xs={12}>
-                <Box sx={{ 
-                    background: '#f0f7ff', // Light blue background
-                    p: 1.5, 
-                    borderRadius: 1, 
-                    mt: 1,
-                    textAlign: 'right',
-                    border: '1px solid #e3f2fd'
-                }}>
-                    <Typography variant="subtitle2" fontWeight={700}>Bill To:</Typography>
-                    <Typography variant="body2">{headerData.Customer}</Typography>
-                    <Typography variant="body2">{headerData.Address}</Typography>
-                    <Typography variant="body2">TRN: {headerData.TRN}</Typography>
-                    <Typography variant="body2">Phone: {headerData.ContactNo}</Typography>
-                    <Typography variant="body2">Email: {headerData.Email}</Typography>
-                </Box>
-            </Grid>
+
         </Grid>
     </Box>
 );
@@ -86,7 +93,7 @@ export default function InvoicePrint({ headerData, items }) {
             {pages.map((pageItems, pageIndex) => (
                 <Box key={pageIndex} className="print-page">
                     <PrintHeader headerData={headerData} />
-                    
+
                     <Box className="content-section">
                         <TableContainer component={Paper} elevation={0}>
                             <Table size="small">
@@ -94,33 +101,34 @@ export default function InvoicePrint({ headerData, items }) {
                                     <TableRow>
                                         <TableCell width="50px">No.</TableCell>
                                         <TableCell width="10%">Code</TableCell>
-                                        <TableCell width="40%">Description</TableCell>
+                                        <TableCell width="35%">Description</TableCell>
                                         <TableCell width="50px" align="right">Qty</TableCell>
-                                        <TableCell width="10%">Unit</TableCell>
-                                        <TableCell width="12.5%" align="right">Price</TableCell>
-                                        <TableCell width="12.5%" align="right">Total</TableCell>
+                                        <TableCell width="8%">Unit</TableCell>
+                                        <TableCell width="13%" align="right">Price</TableCell> 
+                                        <TableCell width="12%" align="right">Tax({headerData.Tax}%)</TableCell>
+                                        <TableCell width="13%" align="right">Total</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {pageItems.map((item, idx) => (
-                                        <TableRow key={idx}>
-                                            <TableCell>{idx + 1 + (pageIndex * ITEMS_PER_PAGE)}</TableCell>
-                                            <TableCell>{item.name}</TableCell>
-                                            <TableCell>{item.desc}</TableCell>
-                                            <TableCell align="right">{item.qty}</TableCell>
-                                            <TableCell>{item.unit}</TableCell>
-                                            <TableCell align="right">{item.price.toFixed(2)}</TableCell>
-                                            <TableCell align="right">{(item.qty * item.price).toFixed(2)}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                    {/* Add empty rows to maintain consistent page height */}
-                                    {/* {[...Array(ITEMS_PER_PAGE - pageItems.length)].map((_, idx) => (
-                                        <TableRow key={`empty-${idx}`}>
-                                            {Array(7).fill(0).map((_, cellIdx) => (
-                                                <TableCell key={`empty-cell-${cellIdx}`}>&nbsp;</TableCell>
-                                            ))}
-                                        </TableRow>
-                                    ))} */}
+                                    {pageItems.map((item, idx) => {
+                                        const subtotal = item.qty * item.price;
+                                        const taxAmount = (subtotal * (headerData.Tax || 0)) / 100;
+                                        const total = subtotal + taxAmount;
+                                        
+                                        return (
+                                            <TableRow key={idx}>
+                                                <TableCell>{idx + 1 + (pageIndex * ITEMS_PER_PAGE)}</TableCell>
+                                                <TableCell>{item.name}</TableCell>
+                                                <TableCell>{item.desc}</TableCell>
+                                                <TableCell align="right">{item.qty}</TableCell>
+                                                <TableCell>{item.unit}</TableCell>
+                                                <TableCell align="right">{item.price.toFixed(2)}</TableCell> 
+                                                <TableCell align="right">{taxAmount.toFixed(2)}</TableCell>
+                                                <TableCell align="right">{total.toFixed(2)}</TableCell>
+                                            </TableRow>
+                                        );
+                                    })}
+                                   
                                 </TableBody>
                             </Table>
                         </TableContainer>
@@ -128,9 +136,9 @@ export default function InvoicePrint({ headerData, items }) {
                         {pageIndex === pages.length - 1 && (
                             <>
                                 <Box className="summary-section">
-                                    <Box sx={{ 
-                                        width: 250, 
-                                        ml: 'auto', 
+                                    <Box sx={{
+                                        width: 250,
+                                        ml: 'auto',
                                         mt: 2,
                                         p: 2,
                                         backgroundColor: '#f0f7ff',
@@ -160,10 +168,10 @@ export default function InvoicePrint({ headerData, items }) {
                                 </Box>
 
                                 {headerData.Remarks && (
-                                    <Box className="remarks-section" sx={{ 
-                                        mt: 3, 
-                                        p: 1.5, 
-                                        backgroundColor: '#fff8e1', 
+                                    <Box className="remarks-section" sx={{
+                                        mt: 3,
+                                        p: 1.5,
+                                        backgroundColor: '#fff8e1',
                                         borderRadius: 1,
                                         border: '1px solid #ffecb3'
                                     }}>
@@ -176,13 +184,13 @@ export default function InvoicePrint({ headerData, items }) {
                             </>
                         )}
                     </Box>
-                    
+
                     {/* Page Number Footer */}
-                    <Box className="page-footer" sx={{ 
-                        position: 'absolute', 
-                        bottom: 10, 
-                        left: 0, 
-                        right: 0, 
+                    <Box className="page-footer" sx={{
+                        position: 'absolute',
+                        bottom: 10,
+                        left: 0,
+                        right: 0,
                         textAlign: 'center',
                         borderTop: '1px solid #e3f2fd',
                         paddingTop: 5,

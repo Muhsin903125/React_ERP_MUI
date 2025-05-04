@@ -11,8 +11,10 @@ import {
 import { Delete } from '@mui/icons-material';
 import { GetSingleListResult, PostCommonSp, PostMultiSp } from '../../../../hooks/Api';
 
-export default function QuotationItem({ Propkey, products, code, desc, qty, price, unit, tax, removeItem, setItems, items, errors, isEditable }) {
 
+
+export default function OrderItem({ Propkey, code, products, desc, qty, price, unit, tax, removeItem, setItems, items, errors, isEditable }) {
+ 
     function calculateSubTotal() {
         return qty * price;
     }
@@ -25,24 +27,26 @@ export default function QuotationItem({ Propkey, products, code, desc, qty, pric
     function calculateItemTotal() {
         return calculateSubTotal() + calculateTaxAmount();
     }
+  
 
-    const [hasErrors, setHasErrors] = useState(false);
+
+    const [hasErrors, setHasErrors] = useState(false); // state variable to trigger re-render
 
     useEffect(() => {
         setHasErrors(errors !== undefined && errors !== null && Object.keys(errors).length > 0);
-    }, [errors]);
+    }, [errors]); // listen for changes to errors prop and update hasErrors accordingly
+
 
     const handleItemCodeChange = (event, newValue) => {
+
         const newItems = [...items];
         newItems[Propkey].name = newValue.code;
         newItems[Propkey].desc = newValue.desc;
         newItems[Propkey].unit = newValue.unit;
         newItems[Propkey].price = newValue.price;
         newItems[Propkey].qty = 1;
-        newItems[Propkey].tax = 0; // Initialize tax
         setItems(newItems);
     };
-
     const filterOptions = createFilterOptions({
         stringify: (option) => option.desc + option.code,
     });
@@ -70,7 +74,6 @@ export default function QuotationItem({ Propkey, products, code, desc, qty, pric
         }
         setItems(newItems);
     }
-
     return (
         <Grid key={Propkey} container spacing={1} mb={1} >
             <Grid item xs={12} md={2}>
@@ -102,6 +105,7 @@ export default function QuotationItem({ Propkey, products, code, desc, qty, pric
                             helperText={(items[Propkey].name == null || Object.keys(items[Propkey].name).length === 0) ? errors : ''}
                             onChange={handleItemCodeChange} name={`ItemCode_${Propkey}`} label="Code" />}
                 />}
+
             </Grid>
             <Grid item xs={12} md={3}>
                 <TextField
@@ -152,19 +156,7 @@ export default function QuotationItem({ Propkey, products, code, desc, qty, pric
                     disabled={!isEditable}
                 />
             </Grid>
-            {/* <Grid item xs={6} sm={3} md={1}>
-                <TextField
-                    type={'number'}
-                    fullWidth
-                    name={`ItemTax_${Propkey}`}
-                    inputProps={{ min: "0", max: "100", style: { textAlign: 'right' } }}
-                    size="small" 
-                    label="Tax %"
-                    onChange={handleChange}
-                    value={tax || 0}
-                    disabled={!isEditable}
-                />
-            </Grid> */}
+         
             <Grid item xs={6} sm={3} md={1}>
                 <TextField
                     type={'number'}
@@ -185,14 +177,14 @@ export default function QuotationItem({ Propkey, products, code, desc, qty, pric
                     size="small"
                     value={calculateTaxAmount()}
                     label={`Tax (${tax || 0}%)`}
-                    name="itemTaxAmount" />     
+                    name="itemTaxAmount" />
             </Grid>
             <Grid item xs={6} sm={3} md={1.5}>
                 <TextField
                     type={'number'}
                     inputProps={{ style: { textAlign: 'right' } }}
                     disabled
-                    fullWidth 
+                    fullWidth
                     size="small"
                     value={calculateItemTotal()}
                     label="Total"
@@ -204,5 +196,7 @@ export default function QuotationItem({ Propkey, products, code, desc, qty, pric
                 </IconButton>
             </Grid>
         </Grid>
+
+
     );
 }

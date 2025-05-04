@@ -69,7 +69,7 @@ const PrintHeader = ({ headerData }) => (
             <Grid item xs={6}>
                 <Box sx={{ textAlign: 'right' }}>
                     <Typography variant="body2">Invoice #: {headerData.InvNo}</Typography>
-                    <Typography variant="body2">Date: {new Date(headerData.InvDate).toLocaleDateString()}</Typography>
+                    <Typography variant="body2">Date: {headerData.InvDate.toLocaleString()}</Typography>
                     <Typography variant="body2">
                         Due Date: {addDays(headerData.InvDate, headerData.CrDays).toLocaleDateString()}
                     </Typography>
@@ -101,33 +101,34 @@ export default function InvoicePrint({ headerData, items }) {
                                     <TableRow>
                                         <TableCell width="50px">No.</TableCell>
                                         <TableCell width="10%">Code</TableCell>
-                                        <TableCell width="40%">Description</TableCell>
+                                        <TableCell width="35%">Description</TableCell>
                                         <TableCell width="50px" align="right">Qty</TableCell>
-                                        <TableCell width="10%">Unit</TableCell>
-                                        <TableCell width="12.5%" align="right">Price</TableCell>
-                                        <TableCell width="12.5%" align="right">Total</TableCell>
+                                        <TableCell width="8%">Unit</TableCell>
+                                        <TableCell width="13%" align="right">Price</TableCell> 
+                                        <TableCell width="12%" align="right">Tax({headerData.Tax}%)</TableCell>
+                                        <TableCell width="13%" align="right">Total</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {pageItems.map((item, idx) => (
-                                        <TableRow key={idx}>
-                                            <TableCell>{idx + 1 + (pageIndex * ITEMS_PER_PAGE)}</TableCell>
-                                            <TableCell>{item.name}</TableCell>
-                                            <TableCell>{item.desc}</TableCell>
-                                            <TableCell align="right">{item.qty}</TableCell>
-                                            <TableCell>{item.unit}</TableCell>
-                                            <TableCell align="right">{item.price.toFixed(2)}</TableCell>
-                                            <TableCell align="right">{(item.qty * item.price).toFixed(2)}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                    {/* Add empty rows to maintain consistent page height */}
-                                    {/* {[...Array(ITEMS_PER_PAGE - pageItems.length)].map((_, idx) => (
-                                        <TableRow key={`empty-${idx}`}>
-                                            {Array(7).fill(0).map((_, cellIdx) => (
-                                                <TableCell key={`empty-cell-${cellIdx}`}>&nbsp;</TableCell>
-                                            ))}
-                                        </TableRow>
-                                    ))} */}
+                                    {pageItems.map((item, idx) => {
+                                        const subtotal = item.qty * item.price;
+                                        const taxAmount = (subtotal * (headerData.Tax || 0)) / 100;
+                                        const total = subtotal + taxAmount;
+                                        
+                                        return (
+                                            <TableRow key={idx}>
+                                                <TableCell>{idx + 1 + (pageIndex * ITEMS_PER_PAGE)}</TableCell>
+                                                <TableCell>{item.name}</TableCell>
+                                                <TableCell>{item.desc}</TableCell>
+                                                <TableCell align="right">{item.qty}</TableCell>
+                                                <TableCell>{item.unit}</TableCell>
+                                                <TableCell align="right">{item.price.toFixed(2)}</TableCell> 
+                                                <TableCell align="right">{taxAmount.toFixed(2)}</TableCell>
+                                                <TableCell align="right">{total.toFixed(2)}</TableCell>
+                                            </TableRow>
+                                        );
+                                    })}
+                                   
                                 </TableBody>
                             </Table>
                         </TableContainer>

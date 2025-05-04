@@ -97,7 +97,7 @@ const navConfig = [
         childern: [
           {
             title: 'Order',
-            path: '/productlist',
+            path: '/purchase-order',
             icon: subIcon()
           },
           {
@@ -107,7 +107,7 @@ const navConfig = [
           },
           {
             title: 'Debit Note',
-            path: '/customermasterv2',
+            path: '/debitnote',
             icon: subIcon()
           },
         ]
