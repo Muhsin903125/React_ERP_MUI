@@ -201,11 +201,11 @@ const navConfig1 = [
             path: '/rolelist',
             icon: subIcon()
           },
-          {
-            title: 'Permissions',
-            path: '/customermasterv2',
-            icon: subIcon()
-          },
+          // {
+          //   title: 'Permissions',
+          //   path: '/customermasterv2',
+          //   icon: subIcon()
+          // },
 
 
         ]

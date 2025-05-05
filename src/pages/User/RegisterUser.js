@@ -1,6 +1,4 @@
 import React, { useContext, useEffect, useState } from 'react';
-
-
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import {
@@ -10,18 +8,15 @@ import {
   InputLabel,
   FormControl,
   Typography,
-  Container,
   Stack,
   Grid,
-  Card,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import validator from 'validator';
-import { GetRoleList, PostActiveUser, PostDeactiveUser, PostUpdateUserResgisterAdmin, PostUserRegister } from '../../hooks/Api';
+import { GetSingleListResult, PostCommonSp, PostUserRegister } from '../../hooks/Api';
 import { useToast } from '../../hooks/Common';
 import { AuthContext } from '../../App';
 import Confirm from '../../components/Confirm';
-import DateSelector from '../../components/DateSelector';
 import MyContainer from '../../components/MyContainer';
 
 const RegisterUser = () => {
@@ -32,41 +27,33 @@ const RegisterUser = () => {
   const { showToast } = useToast();
 
   const [roleList, setRoleList] = useState([]);
-  const [username, setUsername] = useState(user && user.email || '');
-  const [firstName, setfirstname] = useState(user && user.firstName || '');
-  const [lastName, setlastname] = useState(user && user.lastName || '');
-  const [isActive, setIsActive] = useState(user && user.isActive || '');
-  const [mobileNumber, setMobileNumber] = useState(user && user.mobileNumber || '');
-  const [password, setPassword] = useState(user && user.password || '');
-  const [loginId, setLoginId] = useState(user && user.loginId || '');
-  const [gender, setGender] = useState(user && user.gender || '');
-  const [role, setRole] = useState(user && user.roles || '');
-  const [dateOfBirth, setDateOfBirth] = useState(user && user.dob || new Date().toISOString().substr(0, 10));
-  const [avatar, setAvatar] = useState(null);
-  const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || null);
+  const [username, setUsername] = useState(user?.email || '');
+  const [firstName, setFirstname] = useState(user?.firstName || '');
+  const [lastName, setLastname] = useState(user?.lastName || '');
+  const [mobileNumber, setMobileNumber] = useState(user?.mobileNumber || '');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState(user?.roles || '');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
 
-  const isEditing = Boolean(user && user.id);
-  const formData = new FormData();
+  const isEditing = Boolean(user?.id);
+
   useEffect(() => {
-
-
     fetchRoleList();
-
-  }, [])
+  }, []);
 
   async function fetchRoleList() {
-    try {
-      setLoadingFull(false);
-      const { Success, Data, Message } = await GetRoleList()
+    try { 
+      const { Success, Data, Message } = await GetSingleListResult({
+        "key": "ROLE_CRUD",
+        "TYPE": "GET_ALL",
+      });
       if (Success) {
-        setRoleList(Data)
-      }
-      else {
+        setRoleList(Data);
+      } else {
         showToast(Message, "error");
       }
-    }
-    finally {
+    } finally {
       setLoadingFull(false);
     }
   }
@@ -75,7 +62,7 @@ const RegisterUser = () => {
     const errors = {};
 
     if (!validator.isEmail(username) || validator.isEmpty(username)) {
-      errors.username = 'Username should be either a valid email ';
+      errors.username = 'Username should be a valid email';
     }
 
     if (validator.isEmpty(firstName)) {
@@ -89,125 +76,110 @@ const RegisterUser = () => {
     if (!isEditing && validator.isEmpty(password)) {
       errors.password = 'Password is required';
     } else if (!isEditing && password.length < 6) {
-      errors.password = "Password Should have alteast 6 digits";
+      errors.password = "Password should have at least 6 characters";
     }
-    if (validator.isEmpty(gender)) {
-      errors.gender = 'Gender is required';
-    }
-    if (validator.isEmpty(role)) {
-      errors.gender = 'Role is required';
-    }
-    if (dateOfBirth == null) {
-      errors.dateOfBirth = 'Date of Birth is required';
-    }
-    else if (new Date(dateOfBirth) > new Date()) {
-      errors.dateOfBirth = 'Date of Birth cannot be a future date';
+
+    if (!isEditing && (!role || role === '')) {
+      errors.role = 'Role is required';
     }
 
     setErrors(errors);
-    console.log("errors", errors);
-
     return Object.keys(errors).length === 0;
   };
 
-  const handleAvatarChange = (event) => {
-    const file = event.target.files[0];
-    const url = URL.createObjectURL(file);
-    setAvatarUrl(url);
-    setAvatar(file);
-  };
-  const onSave = async (data) => {
-    Confirm('Are you sure?').then(async () => {
-      try {
-        setLoadingFull(true);
-        const { Success, Data, Message } = !isEditing ? await PostUserRegister(data) : await PostUpdateUserResgisterAdmin(data)
-        if (Success) {
-          navigate('/userlist')
-          showToast(Message, 'success');
-        }
-        else {
-          showToast(Message, "error");
-        }
+  const onSave = async (payload) => {
+    try {
+      setIsSubmitting(true);
+      setLoadingFull(true);
+      
+      const { Success, Message } =!isEditing ? 
+      await PostUserRegister(payload) :  await GetSingleListResult({
+        key: "USR_CRUD",
+        TYPE: isEditing ? "UPDATE" : "ADD",
+        USR_FNAME: payload.FirstName,
+        USR_LNAME: payload.LastName,
+        USR_EMAIL: payload.Email,
+          USR_MOBILE: payload.MobileNumber,
+          USR_CODE: isEditing ? user.id : null
+        })
+      
+      
+      if (Success) {
+        navigate('/userlist');
+        showToast((isEditing ? 'User updated successfully' : 'User added successfully'), 'success');
+      } else {
+        showToast(Message || 'Operation failed', "error");
       }
-      finally {
-        setLoadingFull(false);
-      }
-    }, () => {
-      // cancel case
-    });
-  }
-  const handleSave = (event) => {
-    event.preventDefault();
-    if (validate()) {
-      formData.append('Email', username);
-      formData.append('FirstName', firstName);
-      formData.append('LastName', lastName);
-      formData.append('MobileNumber', mobileNumber);
-      formData.append('LoginId', loginId);
-      formData.append('Password', password);
-      formData.append('Gender', gender);
-      formData.append('Image', avatar);
-      formData.append('DOB', dateOfBirth);
-      formData.append('Roles', role);
-      if (user)
-        formData.append('Id', user?.id);
-
-      onSave(formData);
-
+    } finally {
+      setIsSubmitting(false);
+      setLoadingFull(false);
     }
   };
 
-  const handleUnBlock = () => {
-    Confirm('Are you sure to Activate this User?').then(async () => {
-      try {
-        setLoadingFull(true);
-        const { Success, Data, Message } = await PostActiveUser(user?.id)
-        if (Success) {
-          navigate('/userlist')
-          showToast(Message, 'success');
-        }
-        else {
-          showToast(Message, "error");
-        }
+  const handleSave = async (event) => {
+    event.preventDefault();
+    if (validate()) {
+      const payload = {
+        "Email": username,
+        "FirstName": firstName,
+        "LastName": lastName,
+        "MobileNumber": mobileNumber,
+        "Password": password,
+        "Roles": role.toString(),
       }
-      finally {
-        setLoadingFull(false);
-      }
-    });
+      
+      Confirm('Are you sure?').then(() => onSave(payload)); 
+    }
   };
-  const handleBlock = () => {
-    Confirm('Are you sure to Block this User?').then(async () => {
-      try {
-        setLoadingFull(true);
-        const { Success, Data, Message } = await PostDeactiveUser(user?.id)
-        if (Success) {
-          navigate('/userlist')
-          showToast(Message, 'success');
-        }
-        else {
-          showToast(Message, "error");
-        }
-      }
-      finally {
-        setLoadingFull(false);
-      }
-    });
-  };
+
+  // const handleUnBlock = () => {
+  //   Confirm('Are you sure to Activate this User?').then(async () => {
+  //     try {
+  //       setLoadingFull(true);
+  //       const { Success, Message } = await PostActiveUser(user?.id);
+  //       if (Success) {
+  //         navigate('/userlist');
+  //         showToast(Message, 'success');
+  //       } else {
+  //         showToast(Message, "error");
+  //       }
+  //     } finally {
+  //       setLoadingFull(false);
+  //     }
+  //   });
+  // };
+
+  // const handleBlock = () => {
+  //   Confirm('Are you sure to Block this User?').then(async () => {
+  //     try {
+  //       setLoadingFull(true);
+  //       const { Success, Message } = await PostDeactiveUser(user?.id);
+  //       if (Success) {
+  //         navigate('/userlist');
+  //         showToast(Message, 'success');
+  //       } else {
+  //         showToast(Message, "error");
+  //       }
+  //     } finally {
+  //       setLoadingFull(false);
+  //     }
+  //   });
+  // };
+
   return (
     <>
       <Helmet>
-        <title>User Register </title>
+        <title>{isEditing ? 'Edit User' : 'New User'}</title>
       </Helmet>
-      <form onSubmit={handleSave} encType='multipart/form-data'>
-
+      <form onSubmit={handleSave}>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={3}>
           <Typography variant="h4" gutterBottom>
             {isEditing ? 'Edit User' : 'New User'}
           </Typography>
         </Stack>
         <MyContainer>
-          <Grid container p={3} spacing={1} >
-            <Grid item xs={12} md={6}  >
+          <Grid container p={3} spacing={1}>
+            <Grid item xs={12} md={6}>
               <TextField
                 label="First Name"
                 variant="outlined"
@@ -215,12 +187,12 @@ const RegisterUser = () => {
                 size='small'
                 margin="normal"
                 value={firstName}
-                onChange={(e) => setfirstname(e.target.value)}
-                error={errors.firstName !== undefined}
+                onChange={(e) => setFirstname(e.target.value)}
+                error={Boolean(errors.firstName)}
                 helperText={errors.firstName}
               />
             </Grid>
-            <Grid item xs={12} md={6}  >
+            <Grid item xs={12} md={6}>
               <TextField
                 label="Last Name"
                 variant="outlined"
@@ -228,12 +200,12 @@ const RegisterUser = () => {
                 size='small'
                 margin="normal"
                 value={lastName}
-                onChange={(e) => setlastname(e.target.value)}
-                error={errors.lastName !== undefined}
+                onChange={(e) => setLastname(e.target.value)}
+                error={Boolean(errors.lastName)}
                 helperText={errors.lastName}
               />
             </Grid>
-            <Grid item xs={12} md={6}  >
+            <Grid item xs={12} md={6}>
               <TextField
                 label="Email"
                 variant="outlined"
@@ -242,184 +214,69 @@ const RegisterUser = () => {
                 margin="normal"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                error={errors.username !== undefined}
+                error={Boolean(errors.username)}
                 helperText={errors.username}
               />
             </Grid>
-            <Grid item xs={12} md={6}  >
+            <Grid item xs={12} md={6}>
               <TextField
-                label="Login Id"
-                variant="outlined"
-                fullWidth
-                size='small'
-                margin="normal"
-                value={loginId}
-                onChange={(e) => setLoginId(e.target.value)}
-                error={errors.username !== undefined}
-                helperText={errors.username}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}  >
-              <TextField
-                fullWidth
-                variant="outlined"
                 label="Mobile Number"
-                margin="normal"
+                variant="outlined"
+                fullWidth
                 size='small'
-                inputProps={{ maxLength: 10 }}
+                margin="normal"
                 value={mobileNumber}
                 onChange={(e) => setMobileNumber(e.target.value)}
-                error={errors.mobileNumber !== undefined}
+                error={Boolean(errors.mobileNumber)}
                 helperText={errors.mobileNumber}
-                InputLabelProps={{
-                  shrink: true,
-                }}
               />
             </Grid>
-            <Grid item xs={12} md={6}  >
-              <FormControl variant="outlined" fullWidth margin="normal">
-                <InputLabel id="gender-label">Gender</InputLabel>
-                <Select
-                  labelId="gender-label"
-                  label="Gender"
-                  size='small'
-                  value={gender}
-                  onChange={(e) => setGender(e.target.value)}
-                  error={errors.gender !== undefined}
-                >
-                  <MenuItem value="male">Male</MenuItem>
-                  <MenuItem value="female">Female</MenuItem>
-                  <MenuItem value="other">Other</MenuItem>
-                </Select>
-                {errors.gender && (
-                  <Typography variant="caption" color="error">
-                    {errors.gender}
-                  </Typography>
-                )}
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} md={6}  >
-              <FormControl variant="outlined" fullWidth margin="normal">
-                <InputLabel id="role-label">Role</InputLabel>
-                <Select
-                  labelId="role-label"
-                  label="Role"
-                  size='small'
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  error={errors.role !== undefined}
-                >
-
-                  {roleList && roleList.map((role) => (
-                    <MenuItem value={role.name}>{role.name}</MenuItem>
-                  ))
-                  }
-                </Select>
-                {errors.role && (
-                  <Typography variant="caption" color="error">
-                    {errors.role}
-                  </Typography>
-                )}
-              </FormControl>
-            </Grid>
-            {
-              !isEditing &&
-              <Grid item xs={12} md={6}  >
+            {!isEditing && (
+              <Grid item xs={12} md={6}>
                 <TextField
-                  fullWidth
-                  variant="outlined"
-                  type="password"
                   label="Password"
-                  margin="normal"
+                  type="password"
+                  variant="outlined"
+                  fullWidth
                   size='small'
+                  margin="normal"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  error={errors.password !== undefined}
+                  error={Boolean(errors.password)}
                   helperText={errors.password}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
                 />
               </Grid>
-            }
-            <Grid item xs={12} md={6}  >
-              <FormControl variant="outlined" fullWidth margin="normal">
-                <DateSelector
-                  label="Date of Birth"
-                  variant="outlined"
-                  size='small'
-                  disableFuture
-                  value={dateOfBirth}
-                  onChange={(e) => setDateOfBirth(new Date(e.$d).toISOString().substr(0, 10))}
-                />
-                {errors.dateOfBirth && (
-                  <Typography variant="caption" color="error">
-                    {errors.dateOfBirth}
-                  </Typography>
-                )}
-              </FormControl>
-
-            </Grid>
-            <Grid item xs={12} md={12}  >
-              <Grid container spacing={3} >
-                <Grid item md={6}  >
-                  <input type="file" accept="image/*" onChange={handleAvatarChange} />
-                  {/* <TextField
-                    fullWidth
-                    variant="outlined"
-                    type="file"
-                    size='small'
-                    label="Image"
-                    margin="normal"
-
-                    onChange={handleAvatarChange}
-                  /> */}
-                </Grid>
-                <Grid item md={6}  >
-                  {avatarUrl && <img height={150} style={{ maxWidth: "200px" }} src={avatarUrl} alt="Avatar" />}
-                </Grid>
-              </Grid>
-            </Grid>
-
-            {/* <Grid item xs={12} md={6}  >
-              <FormControl variant="outlined" fullWidth margin="normal">
-                <InputLabel id="citizenship-label">Citizenship</InputLabel>
-                <Select
-                  labelId="citizenship-label"
-                  label="Citizenship"
-                  value={citizenship}
-                  onChange={(e) => setCitizenship(e.target.value)}
-                  error={errors.citizenship !== undefined}
+            )}
+            {!isEditing && (
+              <Grid item xs={12} md={6}>
+                <FormControl fullWidth size='small' margin="normal" error={Boolean(errors.role)}>
+                  <InputLabel>Role</InputLabel>
+                  <Select
+                  value={role}
+                  label="Role"
+                  onChange={(e) => setRole(e.target.value)}
                 >
-                  <MenuItem value="india">India</MenuItem>
-                  <MenuItem value="usa">USA</MenuItem>
-                  <MenuItem value="canada">Canada</MenuItem>
-                  {/* Add more countries here  
+                  {roleList.map((role) => (
+                    <MenuItem key={role.ROLE_CODE} value={role.ROLE_CODE}>
+                      {role.ROLE_NAME}
+                    </MenuItem>
+                  ))}
                 </Select>
-                {errors.citizenship && (
-                  <Typography variant="caption" color="error">
-                    {errors.citizenship}
-                  </Typography>
-                )}
               </FormControl>
-            </Grid> */}
-          </Grid>
-          <Grid container md={12} spacing={1} pl={3} pb={3}>
-            <Grid item xs={12} md={4}  >
-
-              <LoadingButton variant="contained" type='submit' color="primary" fullWidth size="large" // onClick={handleSave}
-              >
-                {isEditing ? 'Update' : 'Save'}
-              </LoadingButton>
             </Grid>
-            <Grid item xs={12} md={4}  >
-              {isEditing && (
-                <LoadingButton variant="outlined" color={isActive ? "error" : "success"} fullWidth size="large" onClick={isActive ? handleBlock : handleUnBlock}>
-                  {isActive ? "Block User" : "Unblock User"}
+            )}
+            <Grid item xs={12}>
+              <Stack direction="row" spacing={2} justifyContent="flex-end" mt={2}>
+                <LoadingButton
+                  loading={isSubmitting}
+                  type="submit"
+                  variant="contained"
+                >
+                  {isEditing ? 'Update User' : 'Save User'}
                 </LoadingButton>
-              )}
+              </Stack>
             </Grid>
-          </ Grid>
+          </Grid>
         </MyContainer>
       </form>
     </>

@@ -70,7 +70,7 @@ export async function PostUpdateUserResgisterAdmin(payload) {
 }
 
 export async function PostUserRegister(payload) {
-  return PostForm('/account/register',payload );
+  return Post('/account/UserRegister',payload );
 }
 export async function PostDeactiveUser(payload) {
   return Post(`/User/deactivateUser/${payload}`, );

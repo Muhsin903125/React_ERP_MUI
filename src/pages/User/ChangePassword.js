@@ -3,8 +3,9 @@ import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import validator from 'validator';
 // @mui 
-import { Grid, Card, Container, Typography, Stack, TextField, FormControl } from '@mui/material';
+import { Grid, Card, Container, Typography, Stack, TextField, FormControl, InputAdornment, IconButton } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useToast } from '../../hooks/Common';
 import { AuthContext } from '../../App';
 import { PostChangePassword } from '../../hooks/Api';
@@ -16,33 +17,50 @@ import MyContainer from '../../components/MyContainer';
 
 export default function ChangePassword() {
     const { showToast } = useToast();
-    const navigate = useNavigate()
-    const { setLoadingFull } = useContext(AuthContext)
-    const [oldPass, setOldPass] = useState(null)
-    const [newPass, setNewPass] = useState(null)
-    const [confirmPass, setConfirmPass] = useState(null)
+    const navigate = useNavigate();
+    const { setLoadingFull } = useContext(AuthContext);
+    const [oldPass, setOldPass] = useState('');
+    const [newPass, setNewPass] = useState('');
+    const [confirmPass, setConfirmPass] = useState('');
     const [errors, setErrors] = useState({});
+    const [showPassword, setShowPassword] = useState({
+        old: false,
+        new: false,
+        confirm: false
+    });
+
+    const handleClickShowPassword = (field) => {
+        setShowPassword(prev => ({
+            ...prev,
+            [field]: !prev[field]
+        }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         const errors = {};
-        if (validator.isEmpty(oldPass)) {
+
+        // Validation checks
+        if (!oldPass) {
             errors.oldPass = "Enter Current Password";
-        }   if (validator.isEmpty(newPass)) {
-            errors.newPass = "Enter New Password";
-        }   if (validator.isEmpty(confirmPass)) {
-            errors.confirmPass = "Enter Confirm Password";
-        } 
-        else if (newPass.length < 6) {
-            errors.newPass = "Password Should have alteast 6 digits";
-        } else if (validator.matches(newPass, confirmPass)) {
-            errors.confirmPass = "New Password and Confirm Password do not match";
-        } else if (validator.matches(oldPass, confirmPass)) {
-            errors.confirmPass = "Current Password and New Password are the same";
         }
-        setErrors(errors); 
+        if (!newPass) {
+            errors.newPass = "Enter New Password";
+        } else if (newPass.length < 6) {
+            errors.newPass = "Password should have at least 6 characters";
+        }
+        if (!confirmPass) {
+            errors.confirmPass = "Enter Confirm Password";
+        } else if (newPass !== confirmPass) {
+            errors.confirmPass = "New Password and Confirm Password do not match";
+        }
+        if (oldPass === newPass) {
+            errors.newPass = "New Password must be different from Current Password";
+        }
+
+        setErrors(errors);
         
-        if (!Object.keys(errors).length === 0) { 
+        if (Object.keys(errors).length > 0) {
             return;
         }
 
@@ -69,79 +87,131 @@ export default function ChangePassword() {
         }
     };
 
+    const passwordField = (value, setValue, error, label, showPass, field) => (
+        <TextField
+            variant="outlined"
+            fullWidth
+            size="small"
+            margin="dense"
+            type={showPass ? 'text' : 'password'}
+            onChange={(e) => setValue(e.target.value)}
+            value={value}
+            error={!!error}
+            helperText={error}
+            label={label}
+            InputProps={{
+                endAdornment: (
+                    <InputAdornment position="end">
+                        <IconButton
+                            onClick={() => handleClickShowPassword(field)}
+                            edge="end"
+                            size="small"
+                        >
+                            {showPass ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                        </IconButton>
+                    </InputAdornment>
+                ),
+            }}
+            sx={{
+                '& .MuiOutlinedInput-root': {
+                    '&:hover fieldset': {
+                        borderColor: 'primary.main',
+                    },
+                    '&.Mui-focused fieldset': {
+                        borderColor: 'primary.main',
+                        borderWidth: '2px',
+                    },
+                },
+                '& .MuiInputLabel-root.Mui-focused': {
+                    color: 'primary.main',
+                },
+                '& .MuiFormHelperText-root': {
+                    marginTop: 0.5,
+                    marginBottom: 0
+                }
+            }}
+        />
+    );
+
     return (
         <>
             <Helmet>
                 <title> Change Password </title>
             </Helmet>
 
-         
-                <Stack direction="row" alignItems="center" justifyContent="space-between" mb={3}>
-                    <Typography variant="h4" gutterBottom>
-                        Change Password
-                    </Typography>
-                </Stack>
-                <Grid container    >
-                    <Grid item xs={12} md={7}  >
+            <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
+                <Typography variant="h4" sx={{ 
+                    color: 'primary.main',
+                    fontWeight: 600,
+                    fontSize: '1.5rem',
+                    position: 'relative',
+                    '&::after': {
+                        content: '""',
+                        position: 'absolute',
+                        bottom: -4,
+                        left: 0,
+                        width: '40px',
+                        height: '3px',
+                        backgroundColor: 'primary.main',
+                        borderRadius: '2px',
+                    }
+                }}>
+                    Change Password
+                </Typography>
+            </Stack>
+
+            <Grid container>
+                <Grid item xs={12} md={6}>
                     <MyContainer>
-                            <Stack m={2.5} md={6} >
-                                <Grid container spacing={2} >
-                                    <Grid item xs={12} md={12}  >
-                                        <FormControl fullWidth>
-                                            <TextField  
-                                                 variant="outlined"
-                                                 fullWidth
-                                                 margin="normal"
-                                                onChange={(e) => setOldPass(e.target.value)}
-                                                value={oldPass}
-                                                error={errors.oldPass !== undefined}
-                                                helperText={errors.oldPass}
-                                                label="Current Password" />
-                                        </FormControl>
-                                    </Grid>
-                                    <Grid item xs={12} md={12}  >
-                                        <FormControl fullWidth>
-                                            <TextField 
-                                                 variant="outlined"
-                                                 fullWidth
-                                                 margin="normal"
-                                                onChange={(e) => setNewPass(e.target.value)}
-                                                value={newPass}
-                                                error={errors.newPass !== undefined}
-                                                helperText={errors.newPass}
-                                                label="New Password" />
-
-                                        </FormControl>
-                                    </Grid>
-                                    <Grid item xs={12} md={12}  >
-                                        <FormControl fullWidth>
-                                            <TextField  
-                                                variant="outlined"
-                                                fullWidth
-                                                margin="normal"
-                                                onChange={(e) => setConfirmPass(e.target.value)}
-                                                value={confirmPass}
-                                                error={errors.confirmPass !== undefined}
-                                                helperText={errors.confirmPass}
-                                                label="Confirm Password" />
-                                        </FormControl>
-                                    </Grid>
-                                    <Grid item xs={12} md={12}  >
-                                        <FormControl fullWidth>
-                                            <LoadingButton variant="contained" color="primary" fullWidth size="large" onClick={handleSubmit} >
-                                                Update Password
-                                            </LoadingButton>
-                                        </FormControl>
-                                    </Grid>
+                        <Stack 
+                            spacing={1} 
+                            component="form" 
+                            onSubmit={handleSubmit}
+                            sx={{ p: 2 }}
+                        >
+                            <Grid container spacing={1.5}>
+                                <Grid item xs={12}>
+                                    <FormControl fullWidth>
+                                        {passwordField(oldPass, setOldPass, errors.oldPass, "Current Password", showPassword.old, 'old')}
+                                    </FormControl>
                                 </Grid>
-                            </Stack>
-                            </MyContainer>
-                    </Grid>
+                                <Grid item xs={12}>
+                                    <FormControl fullWidth>
+                                        {passwordField(newPass, setNewPass, errors.newPass, "New Password", showPassword.new, 'new')}
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <FormControl fullWidth>
+                                        {passwordField(confirmPass, setConfirmPass, errors.confirmPass, "Confirm Password", showPassword.confirm, 'confirm')}
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <LoadingButton 
+                                        variant="contained" 
+                                        fullWidth 
+                                        size="medium" 
+                                        onClick={handleSubmit}
+                                        sx={{
+                                            mt: 1,
+                                            py: 1,
+                                            bgcolor: 'primary.main',
+                                            color: 'white',
+                                            '&:hover': {
+                                                bgcolor: 'primary.dark',
+                                                transform: 'translateY(-1px)',
+                                                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                            },
+                                            transition: 'all 0.2s',
+                                        }}
+                                    >
+                                        Update Password
+                                    </LoadingButton>
+                                </Grid>
+                            </Grid>
+                        </Stack>
+                    </MyContainer>
                 </Grid>
-
-          
-
-
+            </Grid>
         </>
     );
 }
