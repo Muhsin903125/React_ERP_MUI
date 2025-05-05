@@ -62,7 +62,7 @@ const Settings = () => {
                         />
                     ))}</Box>
             </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'left', alignContent: 'flex-center', marginTop: 2 }}>
+            {/* <Box sx={{ display: 'flex', justifyContent: 'left', alignContent: 'flex-center', marginTop: 2 }}>
                 <Button
                     sx={{ color: !isDarkMode ? 'white' : 'black', bgcolor: !isDarkMode ? 'black' : 'white',marginLeft: 1, marginRight: 1 }}
                     onClick={() => handleModeToggle(false)}
@@ -79,7 +79,7 @@ const Settings = () => {
                 >
                     Dark
                 </Button>
-            </Box>
+            </Box> */}
         </MyContainer></>
     );
 };

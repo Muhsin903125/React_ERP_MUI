@@ -386,7 +386,9 @@ export default function CreditNoteEntry() {
                     "TYPE": isEditMode ? "UPDATE" : "INSERT",
                     "DOC_NO": id,
                     "headerData": {
-                        ...headerData,
+                        ...headerData, 
+                        "InvDate": selectedCNDate,
+                        "InvNo": code,
                         "GrossAmount": calculateTotal(items),
                         "TaxAmount": (calculateTotal(items) - headerData.Discount) * headerData.Tax / 100.00,
                         "NetAmount": (calculateTotal(items) - headerData.Discount) * (1 + headerData.Tax / 100.00),
@@ -437,7 +439,7 @@ export default function CreditNoteEntry() {
         try {
             setLoadingFull(true);
             const { Success, Data, Message } = await GetMultipleResult({
-                "key": "SALE_INV_CRUD",
+                "key": "CN_CRUD",
                 "TYPE": "GET",
                 "DOC_NO": invoiceId
             });
@@ -982,7 +984,7 @@ export default function CreditNoteEntry() {
                     <Stack direction="row" justifyContent="flex-end" mb={2} mt={2}>
                         {isEditable && (
                             <Button variant="contained" color={isEditMode ? 'warning' : 'success'} size='large' onClick={handleSave}>
-                                {isEditMode ? 'Update Invoice' : 'Create Invoice'}
+                                {isEditMode ? 'Update Credit Note' : 'Create Credit Note'}
                             </Button>
                         )}
                     </Stack>
