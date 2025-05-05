@@ -1,4 +1,3 @@
-
 import { Helmet } from 'react-helmet-async';
 import React, { useContext, useEffect, useState } from 'react'
 
@@ -178,28 +177,39 @@ export default function ChartOfAccount() {
 
             <Stack m={5} >
 
-                <Grid container spacing={4}>
-                    <Grid item md={12}
-                    >
+                <Grid container spacing={4} sx={{ 
+                    height: 'calc(100vh - 200px)',
+                    position: 'relative'
+                }}>
+                    <Grid item md={12}>
                         <Typography variant="h4" gutterBottom>
                             Chart Of Account
                         </Typography>
                     </Grid>
-                    <Grid item sm={7} md={7}
+                    <Grid item sm={12} md={5}
                         sx={{
                             backgroundColor: 'white',
-
-                            borderRadius: '10px', padding: '10px'
+                            borderRadius: '10px', 
+                            padding: '10px',
+                            height: 'calc(100vh - 300px)',
+                            overflowY: 'auto',
+                            '&::-webkit-scrollbar': {
+                                display: 'none'
+                            },
+                            '-ms-overflow-style': 'none',
+                            'scrollbarWidth': 'none',
+                            '& .MuiTreeView-root': {
+                                width: '100%'
+                            }
                         }}
                     >
                         {data && <TreeView callbackFunction={handleItemClick} data={data} />}
                     </Grid>
-                    <Grid item sm={5} md={5} sx={{
+                    <Grid item sm={12} md={7} sx={{
                         background: 'linear-gradient(to right,rgba(255, 255, 255, 0.51),rgba(247, 247, 247, 0.38))',
-
-                        // boxShadow: '0px 0px 10px 0px rgba(36, 1, 1, 0.1)',
-                        borderRadius: '10px', padding: '20px',
-                        paddingRight: '20px'
+                        borderRadius: '10px', 
+                        padding: '20px',
+                        height: 'fit-content'
                     }}>
                         {accName && <Box display="flex" flexDirection="column" alignItems="flex-end" gap={2}>
                             <Typography variant="h4" gutterBottom>
