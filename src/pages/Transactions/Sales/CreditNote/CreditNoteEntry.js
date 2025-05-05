@@ -634,12 +634,12 @@ export default function CreditNoteEntry() {
     return (
         <>
             <Helmet>
-                <title> Sales Invoice </title>
+                <title> Sales Credit Note </title>
             </Helmet>
 
             <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
                 <Typography variant="h4" gutterBottom>
-                    {isEditMode ? 'Edit Sales Invoice' : 'New Sales Invoice'}
+                    {isEditMode ? 'Edit Sales Credit Note' : 'New Sales Credit Note'}
                 </Typography>
                 <Stack direction="row" spacing={2}>
                     {!isEditable && (id) && (
