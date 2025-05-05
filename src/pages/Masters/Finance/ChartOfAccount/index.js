@@ -14,7 +14,14 @@ import {
     Container, Card,
     CircularProgress,
     InputLabel,
-    Grid
+    Grid,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper
 } from '@mui/material';
 
 import EditIcon from '@mui/icons-material/Edit';
@@ -83,6 +90,9 @@ export default function ChartOfAccount() {
     const [showModal, SetShowModal] = useState(false)
     const [accId, setAccId] = useState(null);
     const [accCredit, setAccCredit] = useState(0.00);
+    const [showLedger, setShowLedger] = useState(false);
+    const [ledgerData, setLedgerData] = useState([]);
+    const [ledgerLoading, setLedgerLoading] = useState(false);
 
     useEffect(() => {
 
@@ -168,100 +178,170 @@ export default function ChartOfAccount() {
         // Do something with the clicked item
     };
 
+    const handleViewLedger = async (accountId) => {
+        setShowLedger(true);
+        setLedgerLoading(true);
+        try {
+            const { Success, Data, Message } = await GetSingleResult({
+                "key": "COA_CRUD",
+                "TYPE": "GET_LEDGER",
+                "ACMAIN_CODE": accountId
+            });
+            if (Success) {
+                setLedgerData(Data || []);
+            } else {
+                showToast(Message, "error");
+            }
+        } catch (error) {
+            showToast("Error fetching ledger data", "error");
+        } finally {
+            setLedgerLoading(false);
+        }
+    };
 
     return <>
         <Helmet>
-            <title> Customer </title>
+            <title> Chart of Account </title>
         </Helmet>
         <Card >
-
             <Stack m={5} >
-
                 <Grid container spacing={4} sx={{ 
                     height: 'calc(100vh - 200px)',
                     position: 'relative'
                 }}>
                     <Grid item md={12}>
                         <Typography variant="h4" gutterBottom>
-                            Chart Of Account
+                            Chart Of Account {showLedger && accName && `- ${accName} Ledger`}
                         </Typography>
                     </Grid>
-                    <Grid item sm={12} md={5}
-                        sx={{
-                            backgroundColor: 'white',
-                            borderRadius: '10px', 
-                            padding: '10px',
-                            height: 'calc(100vh - 300px)',
-                            overflowY: 'auto',
-                            '&::-webkit-scrollbar': {
-                                display: 'none'
-                            },
-                            '-ms-overflow-style': 'none',
-                            'scrollbarWidth': 'none',
-                            '& .MuiTreeView-root': {
-                                width: '100%'
-                            }
-                        }}
-                    >
-                        {data && <TreeView callbackFunction={handleItemClick} data={data} />}
-                    </Grid>
-                    <Grid item sm={12} md={7} sx={{
-                        background: 'linear-gradient(to right,rgba(255, 255, 255, 0.51),rgba(247, 247, 247, 0.38))',
-                        borderRadius: '10px', 
-                        padding: '20px',
-                        height: 'fit-content'
-                    }}>
-                        {accName && <Box display="flex" flexDirection="column" alignItems="flex-end" gap={2}>
-                            <Typography variant="h4" gutterBottom>
-                                {accName}
-                            </Typography>
-                            <Box display="flex" gap={2} justifyContent="flex-end" flexDirection="row">
-                                {accDetails?.ACMAIN_ACTYPE_DOCNO === 'GH' && accDetails?.IsAllowToCreateGH ? <Button variant="outlined"
+                    {!showLedger ? (
+                        <>
+                            <Grid item sm={12} md={5}
+                                sx={{
+                                    backgroundColor: 'white',
+                                    borderRadius: '10px', 
+                                    padding: '10px',
+                                    height: 'calc(100vh - 300px)',
+                                    overflowY: 'auto',
+                                    '&::-webkit-scrollbar': {
+                                        display: 'none'
+                                    },
+                                    '-ms-overflow-style': 'none',
+                                    'scrollbarWidth': 'none',
+                                    '& .MuiTreeView-root': {
+                                        width: '100%'
+                                    }
+                                }}
+                            >
+                                {data && <TreeView callbackFunction={handleItemClick} data={data} />}
+                            </Grid>
+                            <Grid item sm={12} md={7} sx={{
+                                background: 'linear-gradient(to right,rgba(255, 255, 255, 0.51),rgba(247, 247, 247, 0.38))',
+                                borderRadius: '10px', 
+                                padding: '20px',
+                                height: 'fit-content'
+                            }}>
+                                {accName && <Box display="flex" flexDirection="column" alignItems="flex-end" gap={2}>
+                                    <Typography variant="h4" gutterBottom>
+                                        {accName}
+                                    </Typography>
+                                    <Box display="flex" gap={2} justifyContent="flex-end" flexDirection="row">
+                                        {accDetails?.ACMAIN_ACTYPE_DOCNO === 'GH' && accDetails?.IsAllowToCreateGH ? <Button variant="outlined"
+                                            size="small"
+                                            onClick={() => handleNew(accId)}
+                                            startIcon={<Iconify icon="eva:plus-fill" />}>
+                                            Add Child
+                                        </Button> : <Button variant="outlined"
+                                            size="small"
+                                            onClick={() => handleNew(accId)}
+                                            startIcon={<Iconify icon="eva:plus-fill" />}>
+                                            Add Account
+                                        </Button>
+                                        }
+                                        <Button variant="outlined"
+                                            size="small"
+                                            onClick={() => handleEdit(accDetails)}
+                                            startIcon={<Iconify icon="eva:edit-fill" />}>
+                                            Edit
+                                        </Button>
+                                        {accDetails?.ACMAIN_ACTYPE_DOCNO !== 'GH' && <Button variant="outlined"
+                                            size="small"
+                                            onClick={() => handleViewLedger(accId)}
+                                            startIcon={<Iconify icon="eva:eye-fill" />}>
+                                            View Ledger
+                                        </Button>
+                                        }
+                                        {isDelete === 1 && <Button variant="outlined" color="error"
+                                            size="small"
+                                            startIcon={<Iconify icon="eva:trash-2-outline" />}
+                                            onClick={() => handleDelete(accId)}>
+                                            Delete
+                                        </Button>
+                                        }
+                                    </Box>
+                                    <Box display="flex" gap={2}>
+                                        <Typography variant="body1" gutterBottom>
+                                            Credit Limit
+                                        </Typography>
+                                        <Typography variant="body1" gutterBottom>
+                                            {accCredit}
+                                        </Typography>
+                                    </Box>
+                                </Box>}
+                            </Grid>
+                        </>
+                    ) : (
+                        <Grid item xs={12}>
+                            <Box sx={{ mb: 2 }}>
+                                <Button 
+                                    variant="outlined"
                                     size="small"
-                                    onClick={() => handleNew(accId)}
-                                    startIcon={<Iconify icon="eva:plus-fill" />}>
-                                    Add Child
-                                </Button> : <Button variant="outlined"
-                                    size="small"
-                                    onClick={() => handleNew(accId)}
-                                    startIcon={<Iconify icon="eva:plus-fill" />}>
-                                    Add Account
+                                    onClick={() => setShowLedger(false)}
+                                    startIcon={<Iconify icon="eva:arrow-back-fill" />}
+                                >
+                                    Back to Account
                                 </Button>
-                                }
-                                <Button variant="outlined"
-                                    size="small"
-                                    onClick={() => handleEdit(accDetails)}
-                                    startIcon={<Iconify icon="eva:edit-fill" />}>
-                                    Edit
-                                </Button>
-                                {accDetails?.ACMAIN_ACTYPE_DOCNO !== 'GH' && <Button variant="outlined"
-                                    size="small"
-                                    onClick={() => handleNew(accId)}
-                                    startIcon={<Iconify icon="eva:eye-fill" />}>
-                                    View Ledger
-                                </Button>
-                                }
-                                {isDelete === 1 && <Button variant="outlined" color="error"
-                                    size="small"
-                                    startIcon={<Iconify icon="eva:trash-2-outline" />}
-                                    onClick={() => handleDelete(accId)}>
-                                    Delete
-                                </Button>
-                                }
-
                             </Box>
-                            <Box display="flex" gap={2}>
-                                <Typography variant="body1" gutterBottom>
-                                    Credit Limit
-                                </Typography>
-                                <Typography variant="body1" gutterBottom>
-                                    {accCredit}
-                                </Typography>
-                            </Box>
-
-
-                        </Box>}
-                    </Grid>
+                            <TableContainer component={Paper}>
+                                <Table sx={{ minWidth: 650 }} aria-label="ledger table">
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell>Date</TableCell>
+                                            <TableCell>Description</TableCell>
+                                            <TableCell align="right">Debit</TableCell>
+                                            <TableCell align="right">Credit</TableCell>
+                                            <TableCell align="right">Balance</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {ledgerLoading ? (
+                                            <TableRow>
+                                                <TableCell colSpan={5} align="center">
+                                                    <CircularProgress />
+                                                </TableCell>
+                                            </TableRow>
+                                        ) : ledgerData.length === 0 ? (
+                                            <TableRow>
+                                                <TableCell colSpan={5} align="center">
+                                                    No ledger entries found
+                                                </TableCell>
+                                            </TableRow>
+                                        ) : (
+                                            ledgerData.map((row, index) => (
+                                                <TableRow key={index}>
+                                                    <TableCell>{row.date}</TableCell>
+                                                    <TableCell>{row.description}</TableCell>
+                                                    <TableCell align="right">{row.debit}</TableCell>
+                                                    <TableCell align="right">{row.credit}</TableCell>
+                                                    <TableCell align="right">{row.balance}</TableCell>
+                                                </TableRow>
+                                            ))
+                                        )}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </Grid>
+                    )}
                 </Grid>
                 {/* {
                     (!loader && data) ? <DataTable

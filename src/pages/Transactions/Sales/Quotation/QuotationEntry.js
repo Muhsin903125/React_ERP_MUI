@@ -662,7 +662,7 @@ export default function QuotationEntry() {
                     <Card  >
                         <Stack maxwidth={'lg'} padding={2.5} style={{ backgroundColor: '#e8f0fa', boxShadow: '#dbdbdb4f -1px 9px 20px 0px' }}>
                             <Grid container spacing={2} mt={1}  >
-                                <Grid item xs={12} md={5}>
+                                <Grid item xs={12} md={4}>
                                     <Grid container spacing={2} mt={1}>
                                         <Grid items xs={8} md={8}>
                                             <Typography variant="subtitle1" ml={2} mb={1} style={{ color: "gray" }} >
@@ -696,7 +696,7 @@ export default function QuotationEntry() {
                                         </Grid>
                                     </Grid>
                                 </Grid>
-                                <Grid item xs={12} md={7}>
+                                <Grid item xs={12} md={8}>
                                     <Grid container spacing={1}>
                                         <Grid item xs={6} md={2}  >
                                             <FormControl fullWidth>
@@ -927,6 +927,7 @@ export default function QuotationEntry() {
                                     price={items[index].price}
                                     unit={items[index].unit}
                                     tax={headerData.Tax}
+                                    discountPercent={1-(headerData.Discount / calculateTotal(items))}
                                     items={items}
                                     setItems={setItems}
                                     removeItem={() => removeItem(index)}

@@ -11,7 +11,7 @@ import {
 import { Delete } from '@mui/icons-material';
 import { GetSingleListResult, PostCommonSp, PostMultiSp } from '../../../../hooks/Api';
 
-export default function QuotationItem({ Propkey, products, code, desc, qty, price, unit, tax, removeItem, setItems, items, errors, isEditable }) {
+export default function QuotationItem({ Propkey, products, code, desc, qty, price, unit, tax, discountPercent, removeItem, setItems, items, errors, isEditable }) {
 
     function calculateSubTotal() {
         return qty * price;
@@ -19,11 +19,11 @@ export default function QuotationItem({ Propkey, products, code, desc, qty, pric
 
     function calculateTaxAmount() {
         const subtotal = calculateSubTotal();
-        return (subtotal * (tax || 0)) / 100;
+        return (subtotal*discountPercent * (tax || 0)) / 100;
     }
 
     function calculateItemTotal() {
-        return calculateSubTotal() + calculateTaxAmount();
+        return (calculateSubTotal() * discountPercent) + calculateTaxAmount();
     }
 
     const [hasErrors, setHasErrors] = useState(false);

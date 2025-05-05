@@ -842,6 +842,7 @@ export default function OrderEntry() {
                         <InvoiceItem
                             key={index}
                             Propkey={index}
+                            discountPercent={1-(headerData.Discount / calculateTotal(items))}
                             tax={headerData.Tax}
                             products={products}
                             code={items[index].name}
