@@ -111,9 +111,10 @@ export default function InvoicePrint({ headerData, items }) {
                                 </TableHead>
                                 <TableBody>
                                     {pageItems.map((item, idx) => {
+                                        const discountPercent = 1-(headerData.Discount / headerData.GrossAmount);
                                         const subtotal = item.qty * item.price;
-                                        const taxAmount = (subtotal * (headerData.Tax || 0)) / 100;
-                                        const total = subtotal + taxAmount;
+                                        const taxAmount = (subtotal * discountPercent * (headerData.Tax || 0)) / 100;
+                                        const total = (subtotal * discountPercent) + taxAmount;
                                         
                                         return (
                                             <TableRow key={idx}>
