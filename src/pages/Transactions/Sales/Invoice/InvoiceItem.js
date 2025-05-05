@@ -13,7 +13,7 @@ import { GetSingleListResult, PostCommonSp, PostMultiSp } from '../../../../hook
 
 
 
-export default function InvoiceItem({ Propkey, code, products, desc, qty, price, unit, tax, removeItem, setItems, items, errors, isEditable }) {
+export default function InvoiceItem({ Propkey, code, products, desc, qty, price, unit, tax,discountPercent, removeItem, setItems, items, errors, isEditable }) {
  
     function calculateSubTotal() {
         return qty * price;
@@ -21,11 +21,11 @@ export default function InvoiceItem({ Propkey, code, products, desc, qty, price,
 
     function calculateTaxAmount() {
         const subtotal = calculateSubTotal();
-        return (subtotal * (tax || 0)) / 100;
+        return (subtotal*discountPercent * (tax || 0)) / 100;
     }
 
     function calculateItemTotal() {
-        return calculateSubTotal() + calculateTaxAmount();
+        return (calculateSubTotal() * discountPercent) + calculateTaxAmount();
     }
 
     // const products = // useLookupData("PRODUCT");
@@ -181,7 +181,7 @@ export default function InvoiceItem({ Propkey, code, products, desc, qty, price,
                     disabled
                     fullWidth
                     size="small"
-                    value={calculateSubTotal()}
+                    value={calculateSubTotal().toFixed(2)}
                     label="Subtotal"
                     name="itemSubtotal" />
             </Grid>
@@ -192,7 +192,7 @@ export default function InvoiceItem({ Propkey, code, products, desc, qty, price,
                     disabled
                     fullWidth
                     size="small"
-                    value={calculateTaxAmount()}
+                    value={calculateTaxAmount().toFixed(2)}
                     label={`Tax (${tax || 0}%)`}
                     name="itemTaxAmount" />
             </Grid>
@@ -203,7 +203,7 @@ export default function InvoiceItem({ Propkey, code, products, desc, qty, price,
                     disabled
                     fullWidth
                     size="small"
-                    value={calculateItemTotal()}
+                    value={calculateItemTotal().toFixed(2)}
                     label="Total"
                     name="itemTotal" />
             </Grid>

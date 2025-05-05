@@ -909,6 +909,7 @@ export default function SalesEntry() {
                             key={index}
                             Propkey={index}
                             tax={headerData.Tax}
+                            discountPercent={1-(headerData.Discount / calculateTotal(items))}
                             products={products}
                             code={items[index].name}
                             desc={items[index].desc}
