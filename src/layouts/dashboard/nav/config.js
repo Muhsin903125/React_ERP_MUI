@@ -1,5 +1,5 @@
 // component
-import { SvgIcon } from '@mui/material';
+import { appBarClasses, SvgIcon } from '@mui/material';
 import { AccountBalance, AccountBalanceTwoTone, AccountBalanceWalletTwoTone, ArticleTwoTone, Assessment, Assignment, CardTravelTwoTone, Inventory2TwoTone, LocalGroceryStoreTwoTone, LocalShippingTwoTone, MenuTwoTone, PermIdentityTwoTone, SettingsTwoTone, StorefrontTwoTone, ToggleOffTwoTone } from '@mui/icons-material';
 import SvgColor from '../../../components/svg-color';
 
@@ -15,7 +15,231 @@ const icon = (name, isMaterialIcon = false) => {
 const subIcon = () => <span style={{
   width: "4px", height: "4px", borderRadius: "50%", backgroundColor: "rgb(145, 158, 171)", display: "inline-block", marginRight: "5px"
 }} />
+const APP_PLAN = process.env.REACT_APP_PLAN;
+const navConfig1 = [
+  {
+    title: 'dashboard',
+    path: '/app',
+    icon: icon('ic_dashboard'),
+  },
+  // master
+  {
+    title: 'Masters',
+    path: '',
+    icon: icon(<Assignment />, true),
+    childern: [
+      {
+        title: 'Finance',
+        path: '',
+        icon: icon(<AccountBalanceTwoTone />, true),
+        childern: [
+           
+          {
+            title: 'Supplier',
+            path: '/supplier',
+            icon: subIcon()
+          },
+          {
+            title: 'Salesman',
+            path: '/salesman',
+            icon: subIcon()
+          },
+          {
+            title: 'Customer',
+            path: '/customer',
+            icon: subIcon()
+          },
 
+
+        ]
+      },
+      {
+        title: 'Inventory',
+        path: '',
+        icon: icon(<Inventory2TwoTone />, true),
+        childern: [
+          {
+            title: 'Products',
+            path: '/product',
+            icon: subIcon()
+          },
+          {
+            title: 'Units',
+            path: '/unit',
+            icon: subIcon()
+          },
+          {
+            title: 'Locations',
+            path: '/location',
+            icon: subIcon()
+          },
+        ]
+      },
+
+
+    ]
+  },
+
+  // transactions
+  {
+    title: 'Transactions',
+    path: '',
+    icon: icon(<AccountBalanceWalletTwoTone />, true),
+    childern: [
+      {
+        title: 'Purchase',
+        path: '',
+        icon: icon(<LocalShippingTwoTone />, true),
+        childern: [
+          {
+            title: 'Order',
+            path: '/purchase-order',
+            icon: subIcon()
+          },
+          {
+            title: 'Invoice',
+            path: '/purchase',
+            icon: subIcon()
+          },
+          {
+            title: 'Debit Note',
+            path: '/debitnote',
+            icon: subIcon()
+          },
+        ]
+      },
+      {
+        title: 'Sales',
+        path: '',
+        icon: icon(<LocalGroceryStoreTwoTone />, true),
+        childern: [
+          {
+            title: 'Quotation',
+            path: '/quotation',
+            icon: subIcon()
+          },
+          {
+            title: 'Invoice',
+            path: '/salesinvoice',
+            icon: subIcon()
+          },
+          {
+            title: 'Credit Note',
+            path: '/creditnote',
+            icon: subIcon()
+          },
+        ]
+      }
+      
+       
+    ]
+  },
+
+  // reports 
+  {
+    title: 'Reports',
+    path: '',
+    icon: icon(<ArticleTwoTone />, true),
+    childern: [
+      
+      {
+        title: 'Sales',
+        path: '',
+        icon: icon(<LocalGroceryStoreTwoTone />, true),
+        childern: [
+          {
+            title: 'Summary',
+            path: '/productlist',
+            icon: subIcon()
+          },
+          {
+            title: 'Analysis',
+            path: '/unitlist',
+            icon: subIcon()
+          },
+        ]
+      },
+      {
+        title: 'Purchase',
+        path: '',
+        icon: icon(<LocalShippingTwoTone />, true),
+        childern: [
+          {
+            title: 'Summary',
+            path: '/productlist',
+            icon: subIcon()
+          },
+        ]
+      },
+      
+    ]
+  },
+
+  {
+    title: 'Settings',
+    path: '',
+    icon: icon(<SettingsTwoTone />, true),
+    childern: [
+      {
+        title: 'Account',
+        path: '',
+        icon: icon(<PermIdentityTwoTone />, true),
+        childern: [
+          {
+            title: 'Change Password',
+            path: '/changepassword',
+            icon: subIcon()
+          },
+
+          {
+            title: 'Users',
+            path: '/userlist',
+            icon: subIcon()
+          },
+          {
+            title: 'User Roles',
+            path: '/rolelist',
+            icon: subIcon()
+          },
+          {
+            title: 'Permissions',
+            path: '/customermasterv2',
+            icon: subIcon()
+          },
+
+
+        ]
+      },
+      
+      {
+        title: 'ERP',
+        path: '',
+        icon: icon(<ToggleOffTwoTone />, true),
+        childern: [
+          {
+            title: 'Configs',
+            path: '/settings',
+            icon: subIcon()
+          },
+          {
+            title: 'Company',
+            path: '/companyprofile',
+            icon: subIcon()
+          },
+          
+          {
+            title: 'Documents',
+            path: '/documents',
+            icon: subIcon()
+          },
+        ]
+      }
+
+    ]
+  }
+
+
+];
 const navConfig = [
   {
     title: 'dashboard',
@@ -33,7 +257,7 @@ const navConfig = [
         path: '',
         icon: icon(<AccountBalanceTwoTone />, true),
         childern: [
-          {
+           {
             title: 'Chart Of Account',
             path: '/coa',
             icon: subIcon()
@@ -53,8 +277,8 @@ const navConfig = [
             path: '/customer',
             icon: subIcon()
           },
-          
-  
+
+
         ]
       },
       {
@@ -276,7 +500,7 @@ const navConfig = [
             icon: subIcon()
           },
         ]
-      }, 
+      },
     ]
   },
 
@@ -292,10 +516,10 @@ const navConfig = [
         childern: [
           {
             title: 'Change Password',
-        path: '/changepassword',
+            path: '/changepassword',
             icon: subIcon()
-          },  
-          
+          },
+
           {
             title: 'Users',
             path: '/userlist',
@@ -311,7 +535,7 @@ const navConfig = [
             path: '/customermasterv2',
             icon: subIcon()
           },
-       
+
 
         ]
       },
@@ -324,12 +548,12 @@ const navConfig = [
             title: 'Screens',
             path: '/screens',
             icon: subIcon()
-          }, 
+          },
           {
             title: 'Permissions',
             path: '/permissions',
             icon: subIcon()
-          }, 
+          },
         ]
       },
       {
@@ -339,36 +563,35 @@ const navConfig = [
         childern: [
           {
             title: 'Configs',
-            path: '/settings', 
+            path: '/settings',
             icon: subIcon()
-          }, 
+          },
           {
             title: 'Company',
-            path: '/companyprofile', 
+            path: '/companyprofile',
             icon: subIcon()
-          }, 
+          },
           {
             title: 'Lookups',
-            path: '/lookups', 
+            path: '/lookups',
             icon: subIcon()
-          }, 
+          },
           {
             title: 'Last Number',
-            path: '/lastno', 
+            path: '/lastno',
             icon: subIcon()
-          }, 
+          },
           {
             title: 'Documents',
-            path: '/documents', 
+            path: '/documents',
             icon: subIcon()
-          }, 
+          },
         ]
       }
 
     ]
-  } 
-    
-  
-];
+  }
 
-export default navConfig;
+
+];
+export default APP_PLAN > 1 ? navConfig : navConfig1;

@@ -59,7 +59,7 @@ export default function CreditNoteEntry() {
     const [code, setCode] = useState('');
     // const [selectedDate, setSelectedDate] = useState(new Date());
     const [selectedDueDate, setselectedDueDate] = useState(new Date());
-    const [selectedInvDate, setselectedInvDate] = useState(new Date());
+    const [selectedCNDate, setselectedCNDate] = useState(new Date());
     const [IsAlertDialog, setAlertDialog] = useState(false);
     const [disableFutureDate] = useState(true);
     // const [status, setStatus] = useState('draft');
@@ -76,8 +76,10 @@ export default function CreditNoteEntry() {
 
     const [headerData, setheaderData] = useState(
         {
-            InvNo: invoiceData?.InvNo || code,
-            InvDate: invoiceData?.InvDate || selectedInvDate,
+            CnNo:  code  ,
+            CnDate:  selectedCNDate  ,
+            InvNo:  invoiceData.InvNo  ,
+            InvDate: invoiceData?.InvDate  ,
             Status: invoiceData?.Status || 'PAID',
             CustomerCode: invoiceData?.CustomerCode || '',
             Customer: invoiceData?.Customer || 'Customer Name',
@@ -135,9 +137,9 @@ export default function CreditNoteEntry() {
         }
 
         // Invoice date validation
-        if (!selectedInvDate) {
-            errors.InvDate = 'Invoice date is required';
-            showToast('Invoice date is required', "error");
+        if (!selectedCNDate) {
+            errors.CnDate = 'Credit Note date is required';
+            showToast('Credit Note date is required', "error");
             hasError = true;
         }
 
@@ -214,14 +216,12 @@ export default function CreditNoteEntry() {
     }, [headerData.InvDate, headerData.CrDays]);
 
     useEffect(() => {
-        const dueDate = new Date(selectedInvDate);
-        dueDate.setDate(dueDate.getDate() + Number(headerData.CrDays));
-        setselectedDueDate(dueDate);
+        
         setheaderData({
             ...headerData,
-            'InvDate': selectedInvDate
+            'CnDate': selectedCNDate
         });
-    }, [selectedInvDate]);
+    }, [selectedCNDate]);
     useEffect(() => {
         getProducts();
     }, []);
@@ -282,11 +282,11 @@ export default function CreditNoteEntry() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
     const getCode = async () => {
-        const { lastNo, IsEditable } = await getLastNumber('INV');
+        const { lastNo, IsEditable } = await getLastNumber('CN');
         setCode(lastNo);
         setheaderData(prev => ({
             ...prev,
-            InvNo: lastNo
+            CnNo: lastNo
         }));
     };
 
@@ -455,7 +455,7 @@ export default function CreditNoteEntry() {
                     CustomerCode: headerData?.CustomerCode,
                     InvDate: new Date(headerData.InvDate)
                 });
-                setselectedInvDate(new Date(headerData.InvDate));
+                setselectedCNDate(new Date(headerData.CnDate));
                 setItems(itemsData || []);
             } else {
                 showToast(Message, "error");
@@ -554,8 +554,10 @@ export default function CreditNoteEntry() {
     const handleNewInvoice = () => {
         // Reset all data
         setheaderData({
+            CnNo: '',
+            CnDate: selectedCNDate,
             InvNo: '',
-            InvDate: selectedInvDate,
+            InvDate: '',
             Status: 'PAID',
             CustomerCode: '',
             Customer: 'Customer Name',
@@ -706,6 +708,37 @@ export default function CreditNoteEntry() {
                         </Grid>
                         <Grid item xs={12} md={8}>
                             <Grid container spacing={1}>
+                            <Grid item xs={6} md={2}  >
+                                    <FormControl fullWidth>
+                                        <TextField
+                                            id="credit-note-no"
+                                            label="Credit Note#"
+                                            name="CnNo"
+                                            value={headerData.CnNo}
+                                            onChange={handleInputChange}
+                                            size="small"
+                                            inputProps={{
+                                                readOnly: true
+                                            }}
+                                            disabled={!isEditable}
+                                        />
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={6} md={4} >
+                                    <FormControl fullWidth error={Boolean(errors.CnDate)}>
+                                        <DateSelector
+                                            label="Credit Note Date"
+                                            size="small"
+                                            disableFuture={disableFutureDate}
+                                            value={headerData.CnDate}
+                                            onChange={setselectedCNDate}
+                                            disable={!isEditable}
+                                            error={Boolean(errors.CnDate)}
+                                            helperText={errors.CnDate}
+                                            required
+                                        />
+                                    </FormControl>
+                                </Grid>
                                 <Grid item xs={6} md={2}  >
                                     <FormControl fullWidth>
                                         <TextField
@@ -718,58 +751,25 @@ export default function CreditNoteEntry() {
                                             inputProps={{
                                                 readOnly: true
                                             }}
-                                            disabled={!isEditable}
+                                            disabled 
                                         />
                                     </FormControl>
                                 </Grid>
                                 <Grid item xs={6} md={4} >
                                     <FormControl fullWidth error={Boolean(errors.InvDate)}>
                                         <DateSelector
-                                            label="Date"
+                                            label="Invoice Date"
                                             size="small"
                                             disableFuture={disableFutureDate}
-                                            value={headerData.InvDate}
-                                            onChange={setselectedInvDate}
-                                            disable={!isEditable}
+                                            value={headerData.InvDate} 
+                                            disable 
                                             error={Boolean(errors.InvDate)}
                                             helperText={errors.InvDate}
                                             required
                                         />
                                     </FormControl>
                                 </Grid>
-                                <Grid item xs={6} md={2}  >
-                                    <FormControl fullWidth error={Boolean(errors.CrDays)}>
-                                        <TextField
-                                            id="credit-days"
-                                            label="Credit Days"
-                                            name="CrDays"
-                                            type='number'
-                                            value={headerData.CrDays}
-                                            onChange={handleInputChange}
-                                            size="small"
-                                            inputProps={{
-                                                style: {
-                                                    textAlign: 'right',
-                                                },
-                                                min: 0,
-                                            }}
-                                            disabled={!isEditable}
-                                            error={Boolean(errors.CrDays)}
-                                            helperText={errors.CrDays}
-                                        />
-                                    </FormControl>
-                                </Grid>
-                                <Grid item xs={6} md={4} >
-                                    <FormControl fullWidth>
-                                        <DateSelector
-                                            size="small"
-                                            label="Due Date"
-                                            value={selectedDueDate}
-                                            disable={!!true}
-                                            disableFuture={false}
-                                        />
-                                    </FormControl>
-                                </Grid>
+                           
                             </Grid>
                             <Grid container spacing={1} mt={1}>
                                 <Grid item xs={6} md={3}  >

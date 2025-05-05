@@ -219,7 +219,7 @@ export default function CompanyProfile() {
                                                             }}
                                                         />
                                                     </Grid>
-                                                    <Grid item xs={12}>
+                                                    {/* <Grid item xs={12}>
                                                         <Typography variant="body2" sx={{ mb: 1 }}>
                                                             Or upload a file:
                                                         </Typography>
@@ -243,7 +243,7 @@ export default function CompanyProfile() {
                                                                 Upload Logo
                                                             </Button>
                                                         </Box>
-                                                    </Grid>
+                                                    </Grid> */}
                                                 </Grid>
 
                                                 <Typography variant="caption" sx={{ mt: 2, color: 'text.secondary' }}>
