@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Grid, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Stack, Divider } from '@mui/material';
-
+import useAuth from '../../../../hooks/useAuth';
 // Helper to add days to a date
 function addDays(date, days) {
     const result = new Date(date);
@@ -28,17 +28,17 @@ function paginateItems(items) {
     return pages;
 }
 
-const PrintHeader = ({ headerData }) => (
+const PrintHeader = ({ headerData, companyName, companyAddress, companyPhone, companyEmail, companyLogoUrl }) => (
     <Box className="print-header">
         <Grid container spacing={2}>
             <Grid item xs={6}>
                 <Stack spacing={1}>
                     <Box sx={{ px: 1.5 }}>
-                        <img src="../../../assets/logo.png" alt="Logo" style={{ height: 60, marginBottom: 8, marginLeft: -5 }} />
-                        <Typography variant="subtitle1" fontWeight={700}>Your Company Name</Typography>
-                        <Typography variant="body2">123 Business Street</Typography>
-                        <Typography variant="body2">City, Country</Typography>
-                        <Typography variant="body2">Phone: +1234567890</Typography>
+                        <img src={companyLogoUrl} alt="Logo" style={{ height: 60, marginBottom: 8, marginLeft: -5 }} />
+                        <Typography variant="subtitle1" fontWeight={700}>{companyName}</Typography>
+                        <Typography variant="body2">{companyAddress}</Typography>
+                        <Typography variant="body2">{companyPhone}</Typography>
+                        <Typography variant="body2">{companyEmail}</Typography>
                     </Box>
                 </Stack>
             </Grid>
@@ -83,6 +83,7 @@ const PrintHeader = ({ headerData }) => (
 );
 
 export default function OrderPrint({ headerData, items }) {
+    const {companyName, companyAddress, companyPhone, companyEmail, companyLogoUrl} = useAuth();
     // Split items into pages of 10 items each
     const pages = paginateItems(items);
 
@@ -90,7 +91,7 @@ export default function OrderPrint({ headerData, items }) {
         <Box className="print-container">
             {pages.map((pageItems, pageIndex) => (
                 <Box key={pageIndex} className="print-page">
-                    <PrintHeader headerData={headerData} />
+                    <PrintHeader headerData={headerData} companyName={companyName} companyAddress={companyAddress} companyPhone={companyPhone} companyEmail={companyEmail} companyLogoUrl={companyLogoUrl} />
 
                     <Box className="content-section">
                         <TableContainer component={Paper} elevation={0}>

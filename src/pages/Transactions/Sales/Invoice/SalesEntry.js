@@ -590,6 +590,15 @@ export default function SalesEntry() {
         }
     };
 
+
+    const handleAddCreditNote = () => {
+        console.log('Adding credit note');
+        navigate('/creditnote-entry',{state:{
+            "invoiceData": headerData,
+            "invoiceItems": items,
+        }}  );
+    };
+
     useEffect(() => {
         fetchSalesmen();
     }, []);
@@ -607,13 +616,23 @@ export default function SalesEntry() {
                 </Typography>
                 <Stack direction="row" spacing={2}>
                     {!isEditable && (id) && (
-                        <Button
-                            variant="outlined"
-                            startIcon={<Iconify icon="eva:printer-fill" />}
-                            onClick={handlePrint}
-                        >
-                            Print
-                        </Button>
+                        <>
+                            <Button
+                                variant="outlined"
+                                startIcon={<Iconify icon="eva:printer-fill" />}
+                                onClick={handlePrint}
+                            >
+                                Print
+                            </Button>
+                            <Button
+                                variant="outlined"
+                                startIcon={<Iconify icon="eva:printer-fill" />}
+                                onClick={handleAddCreditNote}
+                            >
+                                Add Credit Note
+                            </Button>
+                        </>
+
                     )}
                     {isEditMode && !isEditable && (
                         <Button variant="contained" color="primary" startIcon={<Iconify icon="eva:edit-fill" />} onClick={toggleEditMode}>
@@ -909,7 +928,7 @@ export default function SalesEntry() {
                             key={index}
                             Propkey={index}
                             tax={headerData.Tax}
-                            discountPercent={1-(headerData.Discount / calculateTotal(items))}
+                            discountPercent={1 - (headerData.Discount / calculateTotal(items))}
                             products={products}
                             code={items[index].name}
                             desc={items[index].desc}
@@ -932,7 +951,7 @@ export default function SalesEntry() {
                         discount={headerData.Discount}
                         tax={headerData.Tax}
                         handleInputChange={(e) => handleInputChange(e)}
-                        isEditable={isEditable} 
+                        isEditable={isEditable}
                     />
                     <Stack direction="row" justifyContent="flex-end" mb={2} mt={2}>
                         {isEditable && (
