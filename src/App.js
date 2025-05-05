@@ -1,5 +1,5 @@
 // routes
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useEffect, useState } from 'react'; 
 import { SnackbarProvider } from 'notistack';
 import Router from './routes';
 // theme
@@ -15,7 +15,8 @@ import { PostRefreshToken } from './hooks/Api';
 // ----------------------------------------------------------------------
 
 export const AuthContext = createContext();
-function App() {
+
+export default function App() {
   const { logout, userToken, refreshToken } = useAuth();
   const [loadingFull, setLoadingFull] = useState(false);
   const [tkn] = useState(userToken);
@@ -37,7 +38,7 @@ function App() {
           sessionStorage.setItem("uToken", accessToken);
           sessionStorage.setItem("rToken", refreshToken);
         }
-        else { 
+        else {
           logout();
         }
       } catch {
@@ -60,17 +61,18 @@ function App() {
 
 
   return (
-    <ThemeProvider  >
-      <ScrollToTop />
-      <StyledChart />
-      <AuthContext.Provider value={{ setLoadingFull }}>
-        <SnackbarProvider maxSnack={3}>
-          <Router />
-        </SnackbarProvider>
-      </AuthContext.Provider>
-      {loadingFull && <Loader />}
+    <ThemeProvider >
+      
+        <ScrollToTop />
+        <StyledChart />
+        <AuthContext.Provider value={{ setLoadingFull }}>
+          <SnackbarProvider maxSnack={3}>
+            <Router />
+          </SnackbarProvider>
+        </AuthContext.Provider>
+        {loadingFull && <Loader />}
 
+      
     </ThemeProvider>
   );
 }
-export default App;

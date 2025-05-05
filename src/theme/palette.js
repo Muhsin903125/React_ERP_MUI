@@ -29,20 +29,20 @@ const GREY_DARK = {
   0: '#161C24',
 };
 const PRIMARY = {
-  lighter: '#D1E9FC',
-  light: '#76B0F1',
-  main: '#2065D1',
-  dark: '#103996',
-  darker: '#061B64',
+  lighter: '#E3F2FD',
+  light: '#90CAF9',
+  main: '#3366FF',  // EXAPP primary blue
+  dark: '#1939B7',
+  darker: '#0D47A1',
   contrastText: '#fff',
 };
 
 const SECONDARY = {
-  lighter: '#D6E4FF',
-  light: '#84A9FF',
-  main: '#3366FF',
-  dark: '#1939B7',
-  darker: '#091A7A',
+  lighter: '#E8F5E9',
+  light: '#81C784',
+  main: '#00A76F',  // EXAPP secondary green
+  dark: '#00875A',
+  darker: '#005249',
   contrastText: '#fff',
 };
 

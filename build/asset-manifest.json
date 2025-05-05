@@ -1,0 +1,12 @@
+{
+  "files": {
+    "main.js": "/colion/static/js/main.2ae10426.js",
+    "static/js/496.4dbdccac.chunk.js": "/colion/static/js/496.4dbdccac.chunk.js",
+    "index.html": "/colion/index.html",
+    "main.2ae10426.js.map": "/colion/static/js/main.2ae10426.js.map",
+    "496.4dbdccac.chunk.js.map": "/colion/static/js/496.4dbdccac.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/js/main.2ae10426.js"
+  ]
+}
