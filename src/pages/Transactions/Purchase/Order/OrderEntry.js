@@ -236,7 +236,7 @@ export default function OrderEntry() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
     const getCode = async () => {
-        const { lastNo, IsEditable } = await getLastNumber('PORD');
+        const { lastNo, IsEditable } = await getLastNumber('PO');
         setCode(lastNo);
         setheaderData(prev => ({
             ...prev,
