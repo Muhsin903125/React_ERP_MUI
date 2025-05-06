@@ -1,7 +1,8 @@
 // component
 import { appBarClasses, SvgIcon } from '@mui/material';
-import { AccountBalance, AccountBalanceTwoTone, AccountBalanceWalletTwoTone, ArticleTwoTone, Assessment, Assignment, CardTravelTwoTone, Inventory2TwoTone, LocalGroceryStoreTwoTone, LocalShippingTwoTone, MenuTwoTone, PermIdentityTwoTone, SettingsTwoTone, StorefrontTwoTone, ToggleOffTwoTone } from '@mui/icons-material';
+import { AccountBalance, AccountBalanceTwoTone, AccountBalanceWalletTwoTone, ArticleTwoTone, Assessment, Assignment, CardTravelTwoTone, DashboardTwoTone, Inventory2TwoTone, LocalGroceryStoreTwoTone, LocalShippingTwoTone, MenuTwoTone, PermIdentityTwoTone, SettingsTwoTone, StorefrontTwoTone, ToggleOffTwoTone } from '@mui/icons-material';
 import SvgColor from '../../../components/svg-color';
+// import useAuth from '../../../hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -16,17 +17,20 @@ const subIcon = () => <span style={{
   width: "4px", height: "4px", borderRadius: "50%", backgroundColor: "rgb(145, 158, 171)", display: "inline-block", marginRight: "5px"
 }} />
 const APP_PLAN = process.env.REACT_APP_PLAN;
-const navConfig1 = [
+// const {role} = useAuth();
+const role = sessionStorage.getItem('role');
+const navConfig1 = [    
   {
     title: 'dashboard',
     path: '/app',
-    icon: icon('ic_dashboard'),
+    icon: icon(<DashboardTwoTone />, true),
+    visible: true
   },
   // master
   {
     title: 'Masters',
     path: '',
-    icon: icon(<Assignment />, true),
+      icon: icon(<Assignment />, true),
     childern: [
       {
         title: 'Finance',
@@ -37,17 +41,20 @@ const navConfig1 = [
           {
             title: 'Supplier',
             path: '/supplier',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Salesman',
             path: '/salesman',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Customer',
             path: '/customer',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
 
 
@@ -61,17 +68,20 @@ const navConfig1 = [
           {
             title: 'Products',
             path: '/product',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Units',
             path: '/unit',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Locations',
             path: '/location',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
         ]
       },
@@ -94,18 +104,20 @@ const navConfig1 = [
           {
             title: 'Order',
             path: '/purchase-order',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Invoice',
             path: '/purchase',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
-          {
-            title: 'Debit Note',
-            path: '/debitnote',
-            icon: subIcon()
-          },
+          // {
+          //   title: 'Debit Note',
+          //   path: '/debitnote',
+          //   icon: subIcon()
+          // },
         ]
       },
       {
@@ -116,18 +128,20 @@ const navConfig1 = [
           {
             title: 'Quotation',
             path: '/quotation',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Invoice',
             path: '/salesinvoice',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
-          {
-            title: 'Credit Note',
-            path: '/creditnote',
-            icon: subIcon()
-          },
+          // {
+          //   title: 'Credit Note',
+          //   path: '/creditnote',
+          //   icon: subIcon()
+          // },
         ]
       }
       
@@ -136,44 +150,44 @@ const navConfig1 = [
   },
 
   // reports 
-  {
-    title: 'Reports',
-    path: '',
-    icon: icon(<ArticleTwoTone />, true),
-    childern: [
+  // {
+  //   title: 'Reports',
+  //   path: '',
+  //   icon: icon(<ArticleTwoTone />, true),
+  //   childern: [
       
-      {
-        title: 'Sales',
-        path: '',
-        icon: icon(<LocalGroceryStoreTwoTone />, true),
-        childern: [
-          {
-            title: 'Summary',
-            path: '/productlist',
-            icon: subIcon()
-          },
-          {
-            title: 'Analysis',
-            path: '/unitlist',
-            icon: subIcon()
-          },
-        ]
-      },
-      {
-        title: 'Purchase',
-        path: '',
-        icon: icon(<LocalShippingTwoTone />, true),
-        childern: [
-          {
-            title: 'Summary',
-            path: '/productlist',
-            icon: subIcon()
-          },
-        ]
-      },
+  //     {
+  //       title: 'Sales',
+  //       path: '',
+  //       icon: icon(<LocalGroceryStoreTwoTone />, true),
+  //       childern: [
+  //         {
+  //           title: 'Summary',
+  //           path: '/productlist',
+  //           icon: subIcon()
+  //         },
+  //         {
+  //           title: 'Analysis',
+  //           path: '/unitlist',
+  //           icon: subIcon()
+  //         },
+  //       ]
+  //     },
+  //     {
+  //       title: 'Purchase',
+  //       path: '',
+  //       icon: icon(<LocalShippingTwoTone />, true),
+  //       childern: [
+  //         {
+  //           title: 'Summary',
+  //           path: '/productlist',
+  //           icon: subIcon()
+  //         },
+  //       ]
+  //     },
       
-    ]
-  },
+  //   ]
+  // },
 
   {
     title: 'Settings',
@@ -188,18 +202,21 @@ const navConfig1 = [
           {
             title: 'Change Password',
             path: '/changepassword',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
 
           {
             title: 'Users',
             path: '/userlist',
-            icon: subIcon()
+            icon: subIcon(),
+            visible: role?.toLowerCase() !== 'employee'
           },
           {
             title: 'User Roles',
             path: '/rolelist',
-            icon: subIcon()
+            icon: subIcon(),
+            visible: role?.toLowerCase() !== 'employee'
           },
           // {
           //   title: 'Permissions',
@@ -210,7 +227,6 @@ const navConfig1 = [
 
         ]
       },
-      
       {
         title: 'ERP',
         path: '',
@@ -219,18 +235,21 @@ const navConfig1 = [
           {
             title: 'Configs',
             path: '/settings',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Company',
             path: '/companyprofile',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           
           {
             title: 'Documents',
             path: '/documents',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
         ]
       }
