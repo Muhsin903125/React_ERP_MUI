@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { useState } from 'react'; 
+import { useEffect, useState } from 'react'; 
 // @mui
 import { useTheme } from '@mui/material/styles';
 import { Grid, Container, Typography, Button, Box } from '@mui/material';
@@ -14,35 +14,47 @@ import {
   AppCurrentVisits,
   AppWebsiteVisits,
   AppTrafficBySite,
-  AppWidgetSummary,
+  AppWidgetSummary, 
   AppCurrentSubject,
   AppConversionRates,
 } from '../sections/@dashboard/app';
 import useAuth from '../hooks/useAuth';
 import { GetMultipleResult } from '../hooks/Api';
+import AppWidgetSummary2 from '../sections/@dashboard/app/AppWidgetSummary2';
 // ----------------------------------------------------------------------
 
 export default function DashboardAppPage() {
   const theme = useTheme();
   const { displayName } = useAuth();
   const [dashboardcount, setDashboardcount] = useState();
-  const [dashboardgraph, setDashboardgraph] = useState();
-  const [dashboardcategory, setDashboardcategory] = useState();
+  const [chartData, setChartData] = useState(); 
+  const [dateList, setDateList] = useState();
+  const [salesList, setSalesList] = useState();
+  const [purchaseList, setPurchaseList] = useState();
+  const [profitList, setProfitList] = useState(); 
+  const [salesmanchart, setSalesmanchart] = useState();
 
 const navigate = useNavigate();
 const getDashboardData = async () => {
   const { Success, Data, Message } = await GetMultipleResult({
-    "key": "DASHBOARD_CRUD",
-    "TYPE": "GET_ALL"
+    "key": "DASHBOARD_CRUD" 
   });
   if (Success) {
     setDashboardcount(Data[0][0]);  
-    setDashboardgraph(Data[1]);
-    setDashboardcategory(Data[2]);
+    setChartData(Data[1]);
+    setDateList(Data[1].map(item => item.Date));
+    setSalesList(Data[1].map(item => item.Sales));
+    setPurchaseList(Data[1].map(item => item.Purchases));
+    setProfitList(Data[1].map(item => item.Profit));
+    setSalesmanchart(Data[2]);
   }
 }
-
-
+useEffect(() => {
+  getDashboardData();
+}, []);
+ 
+ 
+  
   return (
     <>
       <Helmet>
@@ -67,8 +79,8 @@ const getDashboardData = async () => {
         <Grid container spacing={3}>
         <Grid item xs={12} sm={6} md={3}>
             <AppWidgetSummary 
-              title="Total Sales" 
-              total={714000} 
+              title="Today Sales" 
+              total={dashboardcount?.TodaySales || 0} 
               icon={'mdi:cash-multiple'} 
               color="success"
             />
@@ -76,8 +88,8 @@ const getDashboardData = async () => {
 
           <Grid item xs={12} sm={6} md={3}>
             <AppWidgetSummary 
-              title="Total Purchases" 
-              total={523000} 
+              title="Today Purchases" 
+              total={dashboardcount?.TodayPurchases || 0} 
               color="info" 
               icon={'mdi:cart-arrow-down'} 
             />
@@ -85,8 +97,8 @@ const getDashboardData = async () => {
 
           <Grid item xs={12} sm={6} md={3}>
             <AppWidgetSummary 
-              title="Pending Orders" 
-              total={45} 
+              title="Today Orders" 
+              total={dashboardcount?.TodayPOs || 0} 
               color="warning" 
               icon={'mdi:clock-outline'} 
             />
@@ -94,58 +106,84 @@ const getDashboardData = async () => {
 
           <Grid item xs={12} sm={6} md={3}>
             <AppWidgetSummary 
-              title="Profit Margin" 
-              total="23%" 
+              title="Today Quotations" 
+              total={dashboardcount?.TodayQuotes || 0} 
+              color="success" 
+              icon={'mdi:chart-line'} 
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <AppWidgetSummary2 
+              title="Total Sales" 
+              total={dashboardcount?.TotalSales || 0} 
+              icon={'mdi:cash-multiple'} 
+              color="success"
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <AppWidgetSummary2 
+              title="Total Purchases" 
+              total={dashboardcount?.TotalPurchases || 0} 
+              color="info" 
+              icon={'mdi:cart-arrow-down'} 
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <AppWidgetSummary2 
+              title="Total Orders" 
+              total={dashboardcount?.TotalPOs || 0} 
+              color="warning" 
+              icon={'mdi:clock-outline'} 
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <AppWidgetSummary2 
+              title="Total Quotations" 
+              total={dashboardcount?.TotalQuotes || 0} 
               color="success" 
               icon={'mdi:chart-line'} 
             />
           </Grid>
 
+         {dateList && (
           <Grid item xs={12} md={6} lg={8}>
             <AppWebsiteVisits
               title="Sales vs Purchases Trend"
               subheader="Last 6 months comparison"
-              chartLabels={[
-                '01/01/2025',
-                '02/01/2025',
-                '03/01/2025',
-                '04/01/2025',
-                '05/01/2025',
-                '06/01/2025',
-              ]}
+              chartLabels={dateList}
               chartData={[
                 {
                   name: 'Sales',
                   type: 'column',
                   fill: 'solid',
-                  data: [23, 11, 22, 27, 13, 22],
+                  data: salesList,
                 },
                 {
                   name: 'Purchases',
                   type: 'area',
                   fill: 'gradient',
-                  data: [44, 55, 41, 67, 22, 43],
+                  data: purchaseList,
                 },
                 {
                   name: 'Profit',
                   type: 'line',
                   fill: 'solid',
-                  data: [30, 25, 36, 30, 45, 35],
+                  data: profitList,
                 },
               ]}
             />
           </Grid>
+          )}
 
-          <Grid item xs={12} md={6} lg={4}>
-            <AppCurrentVisits
-              title="Sales by Category"
-              chartData={[
-                { label: 'Electronics', value: 4344 },
-                { label: 'Clothing', value: 5435 },
-                { label: 'Food', value: 1443 },
-                { label: 'Others', value: 4443 },
-              ]}
-              chartColors={[
+          {salesmanchart && (
+            <Grid item xs={12} md={6} lg={4}>
+              <AppCurrentVisits
+                title="Sales by Salesman"
+                chartData={salesmanchart}
+                chartColors={[
                 theme.palette.primary.main,
                 theme.palette.info.main,
                 theme.palette.warning.main,
@@ -153,6 +191,7 @@ const getDashboardData = async () => {
               ]}
             />
           </Grid>
+          )}
 
           {/* <Grid item xs={12} md={6} lg={8}>
             <AppConversionRates
