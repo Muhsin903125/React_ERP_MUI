@@ -1,6 +1,6 @@
 // component
 import { appBarClasses, SvgIcon } from '@mui/material';
-import { AccountBalance, AccountBalanceTwoTone, AccountBalanceWalletTwoTone, ArticleTwoTone, Assessment, Assignment, CardTravelTwoTone, Inventory2TwoTone, LocalGroceryStoreTwoTone, LocalShippingTwoTone, MenuTwoTone, PermIdentityTwoTone, SettingsTwoTone, StorefrontTwoTone, ToggleOffTwoTone } from '@mui/icons-material';
+import { AccountBalance, AccountBalanceTwoTone, AccountBalanceWalletTwoTone, ArticleTwoTone, Assessment, Assignment, CardTravelTwoTone, DashboardTwoTone, Inventory2TwoTone, LocalGroceryStoreTwoTone, LocalShippingTwoTone, MenuTwoTone, PermIdentityTwoTone, SettingsTwoTone, StorefrontTwoTone, ToggleOffTwoTone } from '@mui/icons-material';
 import SvgColor from '../../../components/svg-color';
 
 // ----------------------------------------------------------------------
@@ -20,7 +20,7 @@ const navConfig1 = [
   {
     title: 'dashboard',
     path: '/app',
-    icon: icon('ic_dashboard'),
+    icon: icon(<DashboardTwoTone />, true),
   },
   // master
   {
@@ -101,11 +101,11 @@ const navConfig1 = [
             path: '/purchase',
             icon: subIcon()
           },
-          {
-            title: 'Debit Note',
-            path: '/debitnote',
-            icon: subIcon()
-          },
+          // {
+          //   title: 'Debit Note',
+          //   path: '/debitnote',
+          //   icon: subIcon()
+          // },
         ]
       },
       {
@@ -123,11 +123,11 @@ const navConfig1 = [
             path: '/salesinvoice',
             icon: subIcon()
           },
-          {
-            title: 'Credit Note',
-            path: '/creditnote',
-            icon: subIcon()
-          },
+          // {
+          //   title: 'Credit Note',
+          //   path: '/creditnote',
+          //   icon: subIcon()
+          // },
         ]
       }
       
@@ -136,44 +136,44 @@ const navConfig1 = [
   },
 
   // reports 
-  {
-    title: 'Reports',
-    path: '',
-    icon: icon(<ArticleTwoTone />, true),
-    childern: [
+  // {
+  //   title: 'Reports',
+  //   path: '',
+  //   icon: icon(<ArticleTwoTone />, true),
+  //   childern: [
       
-      {
-        title: 'Sales',
-        path: '',
-        icon: icon(<LocalGroceryStoreTwoTone />, true),
-        childern: [
-          {
-            title: 'Summary',
-            path: '/productlist',
-            icon: subIcon()
-          },
-          {
-            title: 'Analysis',
-            path: '/unitlist',
-            icon: subIcon()
-          },
-        ]
-      },
-      {
-        title: 'Purchase',
-        path: '',
-        icon: icon(<LocalShippingTwoTone />, true),
-        childern: [
-          {
-            title: 'Summary',
-            path: '/productlist',
-            icon: subIcon()
-          },
-        ]
-      },
+  //     {
+  //       title: 'Sales',
+  //       path: '',
+  //       icon: icon(<LocalGroceryStoreTwoTone />, true),
+  //       childern: [
+  //         {
+  //           title: 'Summary',
+  //           path: '/productlist',
+  //           icon: subIcon()
+  //         },
+  //         {
+  //           title: 'Analysis',
+  //           path: '/unitlist',
+  //           icon: subIcon()
+  //         },
+  //       ]
+  //     },
+  //     {
+  //       title: 'Purchase',
+  //       path: '',
+  //       icon: icon(<LocalShippingTwoTone />, true),
+  //       childern: [
+  //         {
+  //           title: 'Summary',
+  //           path: '/productlist',
+  //           icon: subIcon()
+  //         },
+  //       ]
+  //     },
       
-    ]
-  },
+  //   ]
+  // },
 
   {
     title: 'Settings',

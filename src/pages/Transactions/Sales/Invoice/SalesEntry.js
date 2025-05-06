@@ -624,13 +624,13 @@ export default function SalesEntry() {
                             >
                                 Print
                             </Button>
-                            <Button
+                            {/* <Button
                                 variant="outlined"
                                 startIcon={<Iconify icon="eva:printer-fill" />}
                                 onClick={handleAddCreditNote}
                             >
                                 Add Credit Note
-                            </Button>
+                            </Button> */}
                         </>
 
                     )}
