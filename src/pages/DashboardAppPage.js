@@ -1,8 +1,9 @@
+import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { faker } from '@faker-js/faker';
+import { useState } from 'react'; 
 // @mui
 import { useTheme } from '@mui/material/styles';
-import { Grid, Container, Typography } from '@mui/material';
+import { Grid, Container, Typography, Button, Box } from '@mui/material';
 // components
 import Iconify from '../components/iconify';
 // sections
@@ -17,25 +18,54 @@ import {
   AppCurrentSubject,
   AppConversionRates,
 } from '../sections/@dashboard/app';
-
+import useAuth from '../hooks/useAuth';
+import { GetMultipleResult } from '../hooks/Api';
 // ----------------------------------------------------------------------
 
 export default function DashboardAppPage() {
   const theme = useTheme();
+  const { displayName } = useAuth();
+  const [dashboardcount, setDashboardcount] = useState();
+  const [dashboardgraph, setDashboardgraph] = useState();
+  const [dashboardcategory, setDashboardcategory] = useState();
+
+const navigate = useNavigate();
+const getDashboardData = async () => {
+  const { Success, Data, Message } = await GetMultipleResult({
+    "key": "DASHBOARD_CRUD",
+    "TYPE": "GET_ALL"
+  });
+  if (Success) {
+    setDashboardcount(Data[0][0]);  
+    setDashboardgraph(Data[1]);
+    setDashboardcategory(Data[2]);
+  }
+}
+
 
   return (
     <>
       <Helmet>
-        <title> Sales & Purchase Dashboard | Exapp ERP </title>
+        <title> Dashboard | Exapp ERP </title>
       </Helmet>
 
       <Container maxWidth="xl">
-        <Typography variant="h4" sx={{ mb: 5 }}>
-          Sales & Purchase Overview
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb:3 }}>
+          <Typography variant="h4" sx={{ mb: 3 }}>
+            Hi {displayName}, Welcome back
+          </Typography>
+        <Box sx={{ display: 'flex', gap: 1, }}>
+          <Button variant="contained" color="primary" sx={{ mb: 5 }} onClick={() => navigate('/sales-entry')}>
+            Add Sales Invoice Entry
+          </Button>
+          <Button variant="contained" color="primary" sx={{ mb: 5 }} onClick={() => navigate('/purchase-entry')}>
+              Add Purchase Invoice Entry
+            </Button>
+          </Box>
+        </Box>
 
         <Grid container spacing={3}>
-          <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={12} sm={6} md={3}>
             <AppWidgetSummary 
               title="Total Sales" 
               total={714000} 
@@ -124,27 +154,33 @@ export default function DashboardAppPage() {
             />
           </Grid>
 
-          <Grid item xs={12} md={6} lg={8}>
+          {/* <Grid item xs={12} md={6} lg={8}>
             <AppConversionRates
-              title="Top Performing Products"
-              subheader="Based on sales volume"
+              title="Conversion Rates"
+              subheader="(+43%) than last year"
               chartData={[
-                { label: 'Product A', value: 400 },
-                { label: 'Product B', value: 430 },
-                { label: 'Product C', value: 448 },
-                { label: 'Product D', value: 470 },
-                { label: 'Product E', value: 540 },
+                { label: 'Italy', value: 400 },
+                { label: 'Japan', value: 430 },
+                { label: 'China', value: 448 },
+                { label: 'Canada', value: 470 },
+                { label: 'France', value: 540 },
+                { label: 'Germany', value: 580 },
+                { label: 'South Korea', value: 690 },
+                { label: 'Netherlands', value: 1100 },
+                { label: 'United States', value: 1200 },
+                { label: 'United Kingdom', value: 1380 },
               ]}
             />
           </Grid>
 
           <Grid item xs={12} md={6} lg={4}>
             <AppCurrentSubject
-              title="Purchase Categories"
-              chartLabels={['Raw Materials', 'Equipment', 'Office Supplies', 'Services', 'Packaging', 'Others']}
+              title="Current Subject"
+              chartLabels={['English', 'History', 'Physics', 'Geography', 'Chinese', 'Math']}
               chartData={[
-                { name: 'This Month', data: [80, 50, 30, 40, 100, 20] },
-                { name: 'Last Month', data: [20, 30, 40, 80, 20, 80] },
+                { name: 'Series 1', data: [80, 50, 30, 40, 100, 20] },
+                { name: 'Series 2', data: [20, 30, 40, 80, 20, 80] },
+                { name: 'Series 3', data: [44, 76, 78, 13, 43, 10] },
               ]}
               chartColors={[...Array(6)].map(() => theme.palette.text.secondary)}
             />
@@ -152,11 +188,11 @@ export default function DashboardAppPage() {
 
           <Grid item xs={12} md={6} lg={8}>
             <AppNewsUpdate
-              title="Recent Transactions"
+              title="News Update"
               list={[...Array(5)].map((_, index) => ({
                 id: faker.datatype.uuid(),
-                title: faker.commerce.productName(),
-                description: `Transaction #${faker.datatype.number({ min: 1000, max: 9999 })}`,
+                title: faker.name.jobTitle(),
+                description: faker.name.jobTitle(),
                 image: `/assets/images/covers/cover_${index + 1}.jpg`,
                 postedAt: faker.date.recent(),
               }))}
@@ -165,15 +201,15 @@ export default function DashboardAppPage() {
 
           <Grid item xs={12} md={6} lg={4}>
             <AppOrderTimeline
-              title="Purchase Orders"
+              title="Order Timeline"
               list={[...Array(5)].map((_, index) => ({
                 id: faker.datatype.uuid(),
                 title: [
-                  'PO #1234 - Raw Materials',
-                  'PO #1235 - Office Supplies',
-                  'PO #1236 - Equipment',
-                  'PO #1237 - Services',
-                  'PO #1238 - Packaging',
+                  '1983, orders, $4220',
+                  '12 Invoices have been paid',
+                  'Order #37745 from September',
+                  'New order placed #XF-2356',
+                  'New order placed #XF-2346',
                 ][index],
                 type: `order${index + 1}`,
                 time: faker.date.past(),
@@ -183,27 +219,27 @@ export default function DashboardAppPage() {
 
           <Grid item xs={12} md={6} lg={4}>
             <AppTrafficBySite
-              title="Top Suppliers"
+              title="Traffic by Site"
               list={[
                 {
-                  name: 'Supplier A',
+                  name: 'FaceBook',
                   value: 323234,
-                  icon: <Iconify icon={'mdi:factory'} color="#1877F2" width={32} />,
+                  icon: <Iconify icon={'eva:facebook-fill'} color="#1877F2" width={32} />,
                 },
                 {
-                  name: 'Supplier B',
+                  name: 'Google',
                   value: 341212,
-                  icon: <Iconify icon={'mdi:factory'} color="#DF3E30" width={32} />,
+                  icon: <Iconify icon={'eva:google-fill'} color="#DF3E30" width={32} />,
                 },
                 {
-                  name: 'Supplier C',
+                  name: 'Linkedin',
                   value: 411213,
-                  icon: <Iconify icon={'mdi:factory'} color="#006097" width={32} />,
+                  icon: <Iconify icon={'eva:linkedin-fill'} color="#006097" width={32} />,
                 },
                 {
-                  name: 'Supplier D',
+                  name: 'Twitter',
                   value: 443232,
-                  icon: <Iconify icon={'mdi:factory'} color="#1C9CEA" width={32} />,
+                  icon: <Iconify icon={'eva:twitter-fill'} color="#1C9CEA" width={32} />,
                 },
               ]}
             />
@@ -211,16 +247,16 @@ export default function DashboardAppPage() {
 
           <Grid item xs={12} md={6} lg={8}>
             <AppTasks
-              title="Pending Tasks"
+              title="Tasks"
               list={[
-                { id: '1', label: 'Review Purchase Orders' },
-                { id: '2', label: 'Approve Supplier Payments' },
-                { id: '3', label: 'Update Inventory Levels' },
-                { id: '4', label: 'Generate Sales Reports' },
-                { id: '5', label: 'Follow up on Pending Orders' },
+                { id: '1', label: 'Create FireStone Logo' },
+                { id: '2', label: 'Add SCSS and JS files if required' },
+                { id: '3', label: 'Stakeholder Meeting' },
+                { id: '4', label: 'Scoping & Estimations' },
+                { id: '5', label: 'Sprint Showcase' },
               ]}
             />
-          </Grid>
+          </Grid> */}
         </Grid>
       </Container>
     </>
