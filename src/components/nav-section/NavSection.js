@@ -80,7 +80,10 @@ export default function NavSection({ data = [], ...other }) {
     const isOpen = openMenus[currentPath];
     
     if (!hasChildren) {
-      return <NavItem key={currentPath} item={item} level={level} />;
+      if(item.visible){
+        return <NavItem key={currentPath} item={item} level={level} />;
+      }
+      return null;
     }
 
     return (
