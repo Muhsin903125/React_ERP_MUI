@@ -1,27 +1,32 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <!-- Primary Meta Tags -->
     <title>Exapp - Modern Enterprise Resource Planning & Inventory Management System</title>
     <meta name="title" content="Exapp - Modern Enterprise Resource Planning & Inventory Management System">
-    <meta name="description" content="Transform your business with Exapp's comprehensive ERP solution. Features include easy account management, inventory control, real-time analytics, and AI-powered automation. Start your free trial today!">
-    <meta name="keywords" content="ERP system, inventory management, account management, business software, enterprise resource planning, inventory control, business automation, accounting software, cloud ERP, Dubai ERP, UAE business software">
-    
+    <meta name="description"
+        content="Transform your business with Exapp's comprehensive ERP solution. Features include easy account management, inventory control, real-time analytics, and AI-powered automation. Start your free trial today!">
+    <meta name="keywords"
+        content="ERP system, inventory management, account management, business software, enterprise resource planning, inventory control, business automation, accounting software, cloud ERP, Dubai ERP, UAE business software">
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://exapp.online/">
     <meta property="og:title" content="Exapp - Modern Enterprise Resource Planning & Inventory Management System">
-    <meta property="og:description" content="Transform your business with Exapp's comprehensive ERP solution. Features include easy account management, inventory control, real-time analytics, and AI-powered automation.">
+    <meta property="og:description"
+        content="Transform your business with Exapp's comprehensive ERP solution. Features include easy account management, inventory control, real-time analytics, and AI-powered automation.">
     <meta property="og:image" content="https://exapp.online/assets/og-image.jpg">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://exapp.online/">
     <meta property="twitter:title" content="Exapp - Modern Enterprise Resource Planning & Inventory Management System">
-    <meta property="twitter:description" content="Transform your business with Exapp's comprehensive ERP solution. Features include easy account management, inventory control, real-time analytics, and AI-powered automation.">
+    <meta property="twitter:description"
+        content="Transform your business with Exapp's comprehensive ERP solution. Features include easy account management, inventory control, real-time analytics, and AI-powered automation.">
     <meta property="twitter:image" content="https://exapp.online/assets/og-image.jpg">
 
     <!-- Additional SEO Meta Tags -->
@@ -38,7 +43,7 @@
     <link rel="icon" href="./exapp-icon.png" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
     <link rel="manifest" href="./site.webmanifest">
-     
+
     <!-- Structured Data -->
     <script type="application/ld+json">
     {
@@ -177,8 +182,8 @@
         /* Hero Section */
         .hero {
             padding: 10rem 0 6rem;
-            background: linear-gradient(rgba(22, 28, 36, 0.8), rgba(22, 28, 36, 0.9)), 
-                        url('https://images.unsplash.com/photo-1557426272-fc759fdf7a8d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80') center/cover;
+            background: linear-gradient(rgba(22, 28, 36, 0.8), rgba(22, 28, 36, 0.9)),
+                url('https://images.unsplash.com/photo-1557426272-fc759fdf7a8d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80') center/cover;
             position: relative;
             overflow: hidden;
         }
@@ -611,13 +616,14 @@
 
         /* Animations */
         @keyframes fadeInUp {
-            from { 
-                opacity: 0; 
-                transform: translateY(30px); 
+            from {
+                opacity: 0;
+                transform: translateY(30px);
             }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
 
@@ -626,10 +632,21 @@
             animation: fadeInUp 1s ease forwards;
         }
 
-        .delay-1 { animation-delay: 0.2s; }
-        .delay-2 { animation-delay: 0.4s; }
-        .delay-3 { animation-delay: 0.6s; }
-        .delay-4 { animation-delay: 0.8s; }
+        .delay-1 {
+            animation-delay: 0.2s;
+        }
+
+        .delay-2 {
+            animation-delay: 0.4s;
+        }
+
+        .delay-3 {
+            animation-delay: 0.6s;
+        }
+
+        .delay-4 {
+            animation-delay: 0.8s;
+        }
 
         /* WhatsApp Button Styles */
         .whatsapp-button {
@@ -930,17 +947,118 @@
                 gap: 3rem;
             }
         }
+
+        .demo-section {
+            padding: 8rem 0;
+            background: var(--background);
+            position: relative;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .demo-card {
+            background: rgba(33, 43, 54, 0.6);
+            padding: 2.5rem;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .demo-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .demo-credentials {
+            margin-bottom: 2rem;
+        }
+
+        .credential-item {
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            background: rgba(33, 43, 54, 0.3);
+            border-radius: 8px;
+        }
+
+        .credential-item span {
+            color: var(--primary);
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .demo-features {
+            color: var(--text-secondary);
+        }
+
+        .demo-features ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .demo-features li {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .copy-button {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px;
+            transition: var(--transition);
+        }
+
+        .copy-button:hover {
+            color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .demo-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .demo-card {
+                padding: 1.5rem;
+            }
+
+            .credential-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .credential-item span {
+                width: 100%;
+                word-break: break-all;
+            }
+        }
     </style>
 </head>
+
 <body>
     <!-- Header -->
     <header role="banner">
         <div class="container nav-container">
             <a href="/" class="logo" aria-label="Exapp Home">
-                <img src="./exapp-logo.png" alt="Exapp Logo"    style="height: 35px;"/>
+                <img src="./exapp-logo.png" alt="Exapp Logo" style="height: 35px;" />
             </a>
             <nav class="nav-links" role="navigation" aria-label="Main navigation">
-                <button class="mobile-menu-button" aria-label="Toggle menu" aria-expanded="false" aria-controls="main-menu">
+                <button class="mobile-menu-button" aria-label="Toggle menu" aria-expanded="false"
+                    aria-controls="main-menu">
                     <span class="menu-icon"></span>
                 </button>
                 <ul id="main-menu" class="nav-menu">
@@ -960,7 +1078,8 @@
             <div class="container hero-content">
                 <div class="hero-text animate">
                     <h1 id="hero-title">Transform Your Business with Smart Solutions</h1>
-                    <p>Experience the next generation of enterprise resource planning. Streamline operations, boost productivity, and drive growth with our comprehensive suite of business tools.</p>
+                    <p>Experience the next generation of enterprise resource planning. Streamline operations, boost
+                        productivity, and drive growth with our comprehensive suite of business tools.</p>
                     <div class="cta-buttons" role="group" aria-label="Call to action buttons">
                         <a href="/signup" class="btn btn-primary" role="button" aria-label="Get Started with Exapp">
                             <i class="fas fa-rocket" aria-hidden="true"></i>
@@ -973,7 +1092,8 @@
                     </div>
                 </div>
                 <div class="hero-image animate delay-1">
-                    <img src="https://www.creative-tim.com/blog/content/images/2021/08/dashboard-template-for-react-nodejs.png" alt="Exapp Dashboard">
+                    <img src="https://www.creative-tim.com/blog/content/images/2021/08/dashboard-template-for-react-nodejs.png"
+                        alt="Exapp Dashboard">
                     <div class="floating-card stats">
                         <div class="stat-icon">
                             <i class="fas fa-chart-line" style="font-size: 2rem; color: var(--primary);"></i>
@@ -1063,6 +1183,81 @@
         </div>
     </section>
 
+    <!-- Demo Section -->
+    <section class="demo-section">
+        <div class="container">
+            <div class="section-title animate">
+                <h2>Try Our Demo</h2>
+                <p>Experience Exapp firsthand with our fully-functional demo environment</p>
+            </div>
+            <div class="demo-grid animate delay-1">
+                <div class="demo-card">
+                    <h3 style="font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--text-primary);">Demo Access</h3>
+                    <div class="demo-credentials">
+                        <div class="credential-item">
+                            <label>URL:</label>
+                            <span>demo.exapp.online</span>
+                            <button class="copy-button" onclick="copyToClipboard('demo.exapp.online')" title="Copy URL">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        <div class="credential-item">
+                            <label>Username:</label>
+                            <span>demo@exapp.online</span>
+                            <button class="copy-button" onclick="copyToClipboard('demo@exapp.online')" title="Copy Username">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        <div class="credential-item">
+                            <label>Password:</label>
+                            <span>Demo@123</span>
+                            <button class="copy-button" onclick="copyToClipboard('Demo@123')" title="Copy Password">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <a href="https://demo.exapp.online" target="_blank" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                        <i class="fas fa-external-link-alt"></i>
+                        Launch Demo
+                    </a>
+                </div>
+                <div class="demo-features">
+                    <h3 style="color: var(--text-primary); font-size: 1.5rem; margin-bottom: 1.5rem;">What's included in the demo?</h3>
+                    <ul>
+                        <li>
+                            <i class="fas fa-check-circle" style="color: var(--secondary);"></i>
+                            <div>
+                                <strong style="color: var(--text-primary);">Full ERP Access</strong>
+                                <p>Try all modules and features without restrictions</p>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle" style="color: var(--secondary);"></i>
+                            <div>
+                                <strong style="color: var(--text-primary);">Sample Data</strong>
+                                <p>Pre-populated with realistic business data</p>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle" style="color: var(--secondary);"></i>
+                            <div>
+                                <strong style="color: var(--text-primary);">Analytics Dashboard</strong>
+                                <p>Real-time insights and reporting tools</p>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle" style="color: var(--secondary);"></i>
+                            <div>
+                                <strong style="color: var(--text-primary);">Business Workflows</strong>
+                                <p>Complete sales and purchase process flows</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Why Choose Us Section -->
     <section class="why-choose-us" id="why-choose-us">
         <div class="container">
@@ -1110,7 +1305,7 @@
                         </ul>
                     </div>
                 </div>
-               
+
             </div>
             <div class="metrics-row animate delay-2">
                 <div class="metric-item">
@@ -1214,6 +1409,20 @@
         animateElements.forEach(element => {
             observer.observe(element);
         });
+
+        // Copy to clipboard functionality
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // You could add a toast notification here
+                const button = event.currentTarget;
+                const originalIcon = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(() => {
+                    button.innerHTML = originalIcon;
+                }, 2000);
+            });
+        }
     </script>
 </body>
-</html> 
+
+</html>
