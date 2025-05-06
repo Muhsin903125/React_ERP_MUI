@@ -67,7 +67,7 @@ const getDashboardData = async () => {
         <Grid container spacing={3}>
         <Grid item xs={12} sm={6} md={3}>
             <AppWidgetSummary 
-              title="Total Sales" 
+              title="Today Sales" 
               total={714000} 
               icon={'mdi:cash-multiple'} 
               color="success"
@@ -76,7 +76,7 @@ const getDashboardData = async () => {
 
           <Grid item xs={12} sm={6} md={3}>
             <AppWidgetSummary 
-              title="Total Purchases" 
+              title="Today Purchases" 
               total={523000} 
               color="info" 
               icon={'mdi:cart-arrow-down'} 
@@ -85,7 +85,7 @@ const getDashboardData = async () => {
 
           <Grid item xs={12} sm={6} md={3}>
             <AppWidgetSummary 
-              title="Pending Orders" 
+              title="Today Orders" 
               total={45} 
               color="warning" 
               icon={'mdi:clock-outline'} 
@@ -94,7 +94,7 @@ const getDashboardData = async () => {
 
           <Grid item xs={12} sm={6} md={3}>
             <AppWidgetSummary 
-              title="Profit Margin" 
+              title="Today Quotations" 
               total="23%" 
               color="success" 
               icon={'mdi:chart-line'} 
@@ -138,7 +138,7 @@ const getDashboardData = async () => {
 
           <Grid item xs={12} md={6} lg={4}>
             <AppCurrentVisits
-              title="Sales by Category"
+              title="Sales by Salesman"
               chartData={[
                 { label: 'Electronics', value: 4344 },
                 { label: 'Clothing', value: 5435 },
