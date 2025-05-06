@@ -90,7 +90,7 @@ export default function Nav({ openNav, onCloseNav }) {
 
       <Box sx={{ flexGrow: 1 }} />
 
-      <Box sx={{ px: 2.5, pb: 3, mt: 5 }}>
+      <Box sx={{ px: 2.5, pb: 1, mt: 5 }}>
         <Stack
           spacing={1.5}
           sx={{
@@ -152,7 +152,13 @@ export default function Nav({ openNav, onCloseNav }) {
               Upgrade Now
             </Button>
           </Link>
+         
         </Stack>
+      </Box>
+      <Box sx={{ px: 2.5, pb: 3, mt: 0.5 }}>
+        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+          © 2025 Exapp. All rights reserved.
+        </Typography>
       </Box>
     </Scrollbar>
   );
