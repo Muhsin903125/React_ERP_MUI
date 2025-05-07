@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 // @mui
-import { Link as Alink, Stack, IconButton, Typography, InputAdornment, Card, TextField,  } from '@mui/material';
+import { Link as Alink, Stack, IconButton, Typography, InputAdornment, Card, TextField, Checkbox, FormControlLabel } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useToast } from '../../../hooks/Common';
 // components 
@@ -20,11 +20,20 @@ export default function LoginForm() {
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const userRef = useRef(); 
 
-  const [user, setUser] = useState(); // 'admin@erp.com'
-  const [pwd, setPwd] = useState(); // '123456'
+  const [user, setUser] = useState(() => {
+    // Check if there are saved credentials
+    const savedUser = localStorage.getItem('rememberedUser');
+    return savedUser || '';
+  });
+  const [pwd, setPwd] = useState(() => {
+    // Check if there are saved credentials
+    const savedPwd = localStorage.getItem('rememberedPassword');
+    return savedPwd || '';
+  });
 
   useEffect(() => {
     userRef.current.focus();
@@ -32,12 +41,19 @@ export default function LoginForm() {
 
   const handleClick = async () => {
     setLoadingFull(true);
-    // login("username", "accessToken", "refreshToken", "expiry","firstName","lastName","profileImg","email","role");
-    // navigate("/", { replace: true })
     try {
-
       const { Success, Data, Message } = await PostLogin(JSON.stringify({ "username": user, "password": pwd })); 
       if (Success) {
+        // Save credentials if remember me is checked
+        if (rememberMe) {
+          localStorage.setItem('rememberedUser', user);
+          localStorage.setItem('rememberedPassword', pwd);
+        } else {
+          // Clear saved credentials if remember me is unchecked
+          localStorage.removeItem('rememberedUser');
+          localStorage.removeItem('rememberedPassword');
+        }
+
         const accessToken = Data?.accessToken;
         const refreshToken = Data?.refreshToken;
         const firstName = Data?.firstName;
@@ -55,7 +71,8 @@ export default function LoginForm() {
         const companyPhone = Data?.companyPhone;
         const companyEmail = Data?.companyEmail;
         const companyWebsite = Data?.companyWebsite; 
-        login(username, accessToken, refreshToken, expiry,firstName,lastName,profileImg,email,role,companyCode,companyName,companyLogo,companyLogoUrl,companyAddress,companyPhone,companyEmail,companyWebsite);
+        const companyTrn = Data?.companyTRN;
+        login(username, accessToken, refreshToken, expiry,firstName,lastName,profileImg,email,role,companyCode,companyName,companyLogo,companyLogoUrl,companyAddress,companyPhone,companyEmail,companyWebsite,companyTrn);
 
         navigate("/", { replace: true })
         showToast(Message, 'success');
@@ -68,7 +85,6 @@ export default function LoginForm() {
     finally {
       setLoadingFull(false);
     }
-
   };
 
   return (
@@ -107,7 +123,16 @@ export default function LoginForm() {
         </Stack>
 
         <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 2 }}>
-          {/* <Checkbox name="remember" label="Remember me" /> */}
+          <FormControlLabel
+            control={
+              <Checkbox 
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                name="rememberMe"
+              />
+            }
+            label="Remember me"
+          />
           <Alink variant="subtitle2" underline="hover">
             <Link to='/forgotpassword' >
               Forgot password?
@@ -119,7 +144,6 @@ export default function LoginForm() {
           Login
         </LoadingButton>
       </Stack>
-
     </Card>
   );
 }

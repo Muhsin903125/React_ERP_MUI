@@ -31,6 +31,7 @@ export default function useAuth() {
     const [companyPhone, setCompanyPhone] = useState(sessionStorage.getItem("companyPhone"));
     const [companyEmail, setCompanyEmail] = useState(sessionStorage.getItem("companyEmail"));
     const [companyWebsite, setCompanyWebsite] = useState(sessionStorage.getItem("companyWebsite"));
+    const [companyTRN, setCompanyTRN] = useState(sessionStorage.getItem("companyTrn"));
 
     useEffect(() => {
         // const storeduToken = sessionStorage.getItem("uToken");
@@ -67,7 +68,7 @@ export default function useAuth() {
     //    // }
     // }
 
-    function login(username, token, refreshToken, expiry, firstName, lastName, profileImg, email, role, companyCode, companyName, companyLogo, companyLogoUrl, companyAddress, companyPhone, companyEmail, companyWebsite) {
+    function login(username, token, refreshToken, expiry, firstName, lastName, profileImg, email, role, companyCode, companyName, companyLogo, companyLogoUrl, companyAddress, companyPhone, companyEmail, companyWebsite, companyTrn   ) {
         // Make a request to your API to authenticate the user
         // const user = { id: 1, username: "example_user" };
         // const token = "your_jwt_token";
@@ -95,6 +96,7 @@ export default function useAuth() {
         sessionStorage.setItem("companyPhone", companyPhone);
         sessionStorage.setItem("companyEmail", companyEmail);
         sessionStorage.setItem("companyWebsite", companyWebsite);
+        sessionStorage.setItem("companyTrn", companyTrn);
         setUserToken(token);
 
         setCompanyName(companyName);
@@ -109,6 +111,7 @@ export default function useAuth() {
         setExpiry(expiry);
         setDisplayName(`${firstName} ${lastName}`);
         setprofileImg(profileImg);
+        setCompanyTRN(companyTrn);
         setRole(role);
     };
 
@@ -127,6 +130,7 @@ export default function useAuth() {
         sessionStorage.removeItem("companyPhone");
         sessionStorage.removeItem("companyEmail");
         sessionStorage.removeItem("companyWebsite");
+        sessionStorage.removeItem("companyTrn");
 
         setUserToken(null);
         setRefreshToken(null);
@@ -138,6 +142,7 @@ export default function useAuth() {
         setCompanyPhone(null);
         setCompanyEmail(null);
         setCompanyWebsite(null);
+        setCompanyTRN(null);    
         setExpiry(null);
         setDisplayName(null);
         setprofileImg(null);
@@ -148,7 +153,7 @@ export default function useAuth() {
 
     return {
         userToken, refreshToken, username, expiry, displayName, profileImg, role,
-        companyName, companyLogo, companyLogoUrl, companyAddress, companyPhone, companyEmail, companyWebsite, login, logout
+        companyName, companyLogo, companyLogoUrl, companyAddress, companyPhone, companyEmail, companyWebsite, companyTRN, login, logout
     };
 };
 
