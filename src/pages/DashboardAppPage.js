@@ -128,6 +128,7 @@ useEffect(() => {
               color="info" 
               icon={'mdi:cart-arrow-down'} 
             />
+
           </Grid>
 
           <Grid item xs={12} sm={6} md={3}>
@@ -148,6 +149,7 @@ useEffect(() => {
             />
           </Grid>
 
+         {dateList && (
           <Grid item xs={12} md={6} lg={8}>
             <AppWebsiteVisits
               title="Sales vs Purchases Trend"
@@ -175,6 +177,7 @@ useEffect(() => {
               ]}
             />
           </Grid>
+          )}
 
           {salesmanchart && (
             <Grid item xs={12} md={6} lg={4}>

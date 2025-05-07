@@ -28,7 +28,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
     docNo: yup.string().required('Doc No is required'),
     desc: yup.string().required('Description is required'),
     email: yup.string(),
-    mobile: yup.string().required('Mobile is required'),
+    mobile: yup.string(),
   });
 
   const HandleData = async (data, type) => {

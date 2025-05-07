@@ -23,8 +23,8 @@ export default function LoginForm() {
 
   const userRef = useRef(); 
 
-  const [user, setUser] = useState('admin@erp.com');
-  const [pwd, setPwd] = useState('123456'); 
+  const [user, setUser] = useState(); // 'admin@erp.com'
+  const [pwd, setPwd] = useState(); // '123456'
 
   useEffect(() => {
     userRef.current.focus();

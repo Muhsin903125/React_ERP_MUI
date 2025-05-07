@@ -79,6 +79,7 @@ export default function NavSection({ data = [], ...other }) {
     const hasChildren = item.childern && item.childern.length > 0;
     const isOpen = openMenus[currentPath];
     
+
     if (!hasChildren) {
       if(item.visible){
         return <NavItem key={currentPath} item={item} level={level} />;
@@ -125,7 +126,7 @@ export default function NavSection({ data = [], ...other }) {
         >
           <List disablePadding>
             {item.childern.map(child => 
-              renderNavItem(child, level + 1, currentPath)
+               renderNavItem(child, level + 1, currentPath)
             )}
           </List>
         </Collapse>

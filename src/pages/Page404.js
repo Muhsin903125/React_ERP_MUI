@@ -38,11 +38,11 @@ export default function Page404() {
 
           <Box
             component="img"
-            src="/assets/illustrations/illustration_404.svg"
+            src={`${process.env.REACT_APP_ROOT}/assets/illustrations/illustration_404.svg`}
             sx={{ height: 260, mx: 'auto', my: { xs: 5, sm: 10 } }}
           />
 
-          <Button to="/" size="large" variant="contained" component={RouterLink}>
+          <Button to={`/app`} size="large" variant="contained" component={RouterLink}>
             Go to Home
           </Button>
         </StyledContent>
