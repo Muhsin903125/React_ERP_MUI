@@ -13,7 +13,7 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
   <HelmetProvider>
-    <BrowserRouter basename="/colion">
+    <BrowserRouter basename={process.env.REACT_APP_ROOT}>
       <App />
     </BrowserRouter>
   </HelmetProvider>

@@ -4,7 +4,7 @@
   "licence": "MIT",
   "version": "1.0.0",
   "private": true,
-  "homepage": "/colion",
+  "homepage": "/",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
