@@ -124,8 +124,10 @@ export default function LoginForm() {
 
         <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 2 }}>
           <FormControlLabel
+            size='small'
             control={
               <Checkbox 
+                size='small'
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
                 name="rememberMe"
@@ -133,7 +135,7 @@ export default function LoginForm() {
             }
             label="Remember me"
           />
-          <Alink variant="subtitle2" underline="hover">
+          <Alink variant="subtitle2" underline="hover" size='small'>
             <Link to='/forgotpassword' >
               Forgot password?
             </Link>
