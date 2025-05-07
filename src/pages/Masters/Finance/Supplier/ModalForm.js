@@ -27,11 +27,11 @@ const ModalForm = ({ open, onClose, initialValues }) => {
   const validationSchema = yup.object().shape({
     docNo: yup.string().required('Doc No is required'),
     desc: yup.string().required('Description is required'),
-    email: yup.string().email('Invalid email format'),
-    mobile: yup.string().required('Mobile number is required'),
+    email: yup.string(),
+    mobile: yup.string(),
     trn: yup.string().max(15, 'TRN must be at most 15 characters'),
     address: yup.string(),
-    tax: yup.string().required('Tax treatment is required'),
+    tax: yup.string(),
   });
 
   const HandleData = async (data, type) => {
