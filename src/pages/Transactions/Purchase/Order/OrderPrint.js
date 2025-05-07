@@ -27,54 +27,80 @@ function paginateItems(items) {
     }
     return pages;
 }
-
-const PrintHeader = ({ headerData, companyName, companyAddress, companyPhone, companyEmail, companyLogoUrl }) => (
+const PrintHeader = ({ headerData, companyName, companyAddress, companyPhone, companyEmail, companyLogoUrl, companyTRN }) => (
     <Box className="print-header">
         <Grid container spacing={2}>
             <Grid item xs={6}>
                 <Stack spacing={1}>
-                    <Box sx={{ px: 1.5 }}>
-                        <img src={companyLogoUrl} alt="Logo" style={{ height: 60, marginBottom: 8, marginLeft: -5 }} />
-                        <Typography variant="subtitle1" fontWeight={700}>{companyName}</Typography>
-                        <Typography variant="body2">{companyAddress}</Typography>
-                        <Typography variant="body2">{companyPhone}</Typography>
-                        <Typography variant="body2">{companyEmail}</Typography>
+                    <Box  >
+                        <img src={companyLogoUrl} alt="Logo" style={{ height: 40, marginBottom: 8, marginLeft: -5 }} />
+                        <Typography variant="body2" fontWeight={700} >{companyName}</Typography>
+                        <Typography variant="body2" fontWeight={300} fontSize={12} py={0.15} >{companyAddress}</Typography>
+                        <Typography variant="body2" fontWeight={300} fontSize={12} py={0.15}  >TRN:{companyTRN}</Typography>
+                        <Typography variant="body2" fontWeight={300} fontSize={12} py={0.15}  >{companyPhone}</Typography>
+                        <Typography variant="body2" fontWeight={300} fontSize={12} py={0.15}  >{companyEmail}</Typography>
                     </Box>
                 </Stack>
             </Grid>
             <Grid item xs={6}>
                 <Box sx={{ textAlign: 'right' }}>
-                    <Typography variant="h3" color="primary" fontWeight={700} gutterBottom>PURCHASE ORDER</Typography>
+                    <Typography variant="h3" color='black' fontWeight={400} gutterBottom>PURCHASE ORDER</Typography>
+                    <Typography variant="body1" fontWeight={600}  > #: {headerData.OrderNo}</Typography>
                 </Box>
             </Grid>
 
             <Grid item xs={6}>
                 <Box sx={{
-                    background: '#f0f7ff', // Light blue background
-                    p: 1.5,
+                    // p: 1.5,
                     borderRadius: 1,
-
                     mb: 1,
                     textAlign: 'left',
-                    border: '1px solid #e3f2fd'
                 }}>
-                    <Typography variant="subtitle2" fontWeight={700}>Bill To:</Typography>
-                    <Typography variant="body2">{headerData.SupplierDisplay}</Typography>
-                    {headerData.Address && <Typography variant="body2">{headerData.Address}</Typography>}
-                    {headerData.TRN && <Typography variant="body2">TRN: {headerData.TRN}</Typography>}
-                    {headerData.ContactNo && <Typography variant="body2">Phone: {headerData.ContactNo}</Typography>}
-                    {headerData.Email && <Typography variant="body2">Email: {headerData.Email}</Typography>}
+                    <Typography variant="body2" fontWeight={700} py={0.15}> To:</Typography>
+                    <Typography variant="body2" fontWeight={300} fontSize={12} py={0.15} >{headerData.Customer}</Typography>
+                    {headerData.Address && <Typography variant="body2" fontWeight={300} fontSize={12} py={0.15} >{headerData.Address}</Typography>}
+                    {headerData.TRN && <Typography variant="body2" fontWeight={300} fontSize={12} py={0.15}  >TRN: {headerData.TRN}</Typography>}
+                    {headerData.ContactNo && <Typography variant="body2" fontWeight={300} fontSize={12} py={0.15} >Phone: {headerData.ContactNo}</Typography>}
+                    {headerData.Email && <Typography variant="body2" fontWeight={300} fontSize={12} py={0.15} >Email: {headerData.Email}</Typography>}
                 </Box>
             </Grid>
             <Grid item xs={6}>
                 <Box sx={{ textAlign: 'right' }}>
-                    <Typography variant="body2">Order #: {headerData.OrderNo}</Typography>
-                    <Typography variant="body2">Date: {headerData.OrderDate.toLocaleString()}</Typography>
-                    <Typography variant="body2">
-                        Order Validity:  {headerData.OrderValidity.toLocaleString()}
-                    </Typography>
-                    {headerData.RefNo && <Typography variant="body2">Reference: {headerData.RefNo}</Typography>} 
-                    {headerData.SalesmanName && <Typography variant="body2">Sales Person: {headerData.SalesmanName}</Typography>}
+
+                    <Table size="small" sx={{ width: 'auto', ml: 'auto' }}>
+                        <TableBody>
+                            <TableRow>
+                                <TableCell sx={{ border: 'none', py: 0.15 }}>Date:</TableCell>
+                                <TableCell sx={{ border: 'none', py: 0.15 }}>{headerData.OrderDate.toLocaleString()}</TableCell>
+                            </TableRow>
+
+                            <TableRow>
+                                <TableCell sx={{ border: 'none', py: 0.15 }}> Valid Until:</TableCell>
+                                <TableCell sx={{ border: 'none', py: 0.15 }}>
+                                    {new Date(headerData.OrderValidity).toLocaleDateString()}
+                                </TableCell>
+                            </TableRow>
+                            {headerData.LPONo && (
+                                <TableRow>
+                                    <TableCell sx={{ border: 'none', py: 0.15 }}>LPO:</TableCell>
+                                    <TableCell sx={{ border: 'none', py: 0.15 }}>{headerData.LPONo}</TableCell>
+                                </TableRow>
+                            )}
+                            {headerData.RefNo && (
+                                <TableRow>
+                                    <TableCell sx={{ border: 'none', py: 0.15 }}>Reference:</TableCell>
+                                    <TableCell sx={{ border: 'none', py: 0.15 }}>{headerData.RefNo}</TableCell>
+                                </TableRow>
+                            )}
+
+                            {headerData.SalesmanName && (
+                                <TableRow>
+                                    <TableCell sx={{ border: 'none', py: 0.15 }}>Sales Person:</TableCell>
+                                    <TableCell sx={{ border: 'none', py: 0.15 }}>{headerData.SalesmanName}</TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
                 </Box>
             </Grid>
 
@@ -82,8 +108,10 @@ const PrintHeader = ({ headerData, companyName, companyAddress, companyPhone, co
     </Box>
 );
 
+
+
 export default function OrderPrint({ headerData, items }) {
-    const {companyName, companyAddress, companyPhone, companyEmail, companyLogoUrl} = useAuth();
+    const { companyName, companyAddress, companyPhone, companyEmail, companyLogoUrl, companyTRN } = useAuth();
     // Split items into pages of 10 items each
     const pages = paginateItems(items);
 
@@ -91,9 +119,11 @@ export default function OrderPrint({ headerData, items }) {
         <Box className="print-container">
             {pages.map((pageItems, pageIndex) => (
                 <Box key={pageIndex} className="print-page">
-                    <PrintHeader headerData={headerData} companyName={companyName} companyAddress={companyAddress} companyPhone={companyPhone} companyEmail={companyEmail} companyLogoUrl={companyLogoUrl} />
+                    <PrintHeader headerData={headerData} companyName={companyName} companyAddress={companyAddress} companyPhone={companyPhone} companyEmail={companyEmail} companyLogoUrl={companyLogoUrl} companyTRN={companyTRN} />
 
-                    <Box className="content-section">
+                    <Box className="content-section" sx={{
+                        marginTop: 2
+                    }}>
                         <TableContainer component={Paper} elevation={0}>
                             <Table size="small">
                                 <TableHead>
@@ -103,36 +133,37 @@ export default function OrderPrint({ headerData, items }) {
                                         <TableCell width="35%">Description</TableCell>
                                         <TableCell width="50px" align="right">Qty</TableCell>
                                         <TableCell width="8%">Unit</TableCell>
-                                        <TableCell width="13%" align="right">Price</TableCell> 
+                                        <TableCell width="13%" align="right">Price</TableCell>
                                         <TableCell width="12%" align="right">Tax({headerData.Tax}%)</TableCell>
                                         <TableCell width="13%" align="right">Total</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     {pageItems.map((item, idx) => {
-                                        const discountPercent = 1-(headerData.Discount / headerData.GrossAmount);
+                                        const discountPercent = 1 - (headerData.Discount / headerData.GrossAmount);
                                         const subtotal = item.qty * item.price;
                                         const taxAmount = (subtotal * discountPercent * (headerData.Tax || 0)) / 100;
                                         const total = (subtotal * discountPercent) + taxAmount;
-                                        
+
                                         return (
-                                            <TableRow key={idx}>
+                                            <TableRow key={idx} className='itemrow' sx={{
+                                                borderBottom: '1px solid rgb(226, 226, 226)'
+                                            }}>
                                                 <TableCell>{idx + 1 + (pageIndex * ITEMS_PER_PAGE)}</TableCell>
                                                 <TableCell>{item.name}</TableCell>
                                                 <TableCell>{item.desc}</TableCell>
                                                 <TableCell align="right">{item.qty}</TableCell>
                                                 <TableCell>{item.unit}</TableCell>
-                                                <TableCell align="right">{item.price.toFixed(2)}</TableCell> 
+                                                <TableCell align="right">{item.price.toFixed(2)}</TableCell>
                                                 <TableCell align="right">{taxAmount.toFixed(2)}</TableCell>
                                                 <TableCell align="right">{total.toFixed(2)}</TableCell>
                                             </TableRow>
                                         );
                                     })}
-                                   
+
                                 </TableBody>
                             </Table>
                         </TableContainer>
-
                         {pageIndex === pages.length - 1 && (
                             <>
                                 <Box className="summary-section">
@@ -141,9 +172,8 @@ export default function OrderPrint({ headerData, items }) {
                                         ml: 'auto',
                                         mt: 2,
                                         p: 2,
-                                        backgroundColor: '#f0f7ff',
                                         borderRadius: 1,
-                                        border: '1px solid #e3f2fd'
+                                        borderBottom: '1px solid rgb(224, 224, 224)'
                                     }}>
                                         <Stack spacing={1}>
                                             <Stack direction="row" justifyContent="space-between">
@@ -171,9 +201,9 @@ export default function OrderPrint({ headerData, items }) {
                                     <Box className="remarks-section" sx={{
                                         mt: 3,
                                         p: 1.5,
-                                        backgroundColor: '#fff8e1',
+                                        backgroundColor: 'rgb(255, 255, 255)',
                                         borderRadius: 1,
-                                        border: '1px solid #ffecb3'
+                                        border: '1px solid rgb(211, 211, 211)'
                                     }}>
                                         <Typography variant="subtitle2" fontWeight={700} gutterBottom>Remarks:</Typography>
                                         <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
@@ -259,19 +289,16 @@ export default function OrderPrint({ headerData, items }) {
                     }
 
                     .print-header {
-                        position: relative;
-                        padding-bottom: 15px;
-                        margin-bottom: 20px;
-                        border-bottom: 1px solid #e3f2fd;
-                        background-color: #fafafa;
-                        padding: 20px;
+                        position: relative; 
+                        padding: 0px;
+                        margin-bottom: 10px;  
                         border-radius: 4px;
                     }
 
                     .content-section {
                         position: relative;
                         padding-top: 10px;
-                        margin-bottom: 40px; /* Add space for footer */
+                        margin-bottom: 20px; /* Add space for footer */
                     }
 
                     .page-footer {
@@ -280,16 +307,14 @@ export default function OrderPrint({ headerData, items }) {
                         left: 0;
                         right: 0;
                         text-align: center;
-                        border-top: 1px solid #e3f2fd;
+                        border-top: 1px solid rgb(206, 206, 206);
                         padding-top: 5px;
                     }
 
                     .summary-section {
                         margin-top: 20px;
                         break-inside: avoid;
-                        page-break-inside: avoid;
-                        background-color: #f0f7ff !important;
-                        border: 1px solid #e3f2fd !important;
+                        page-break-inside: avoid; 
                         border-radius: 4px;
                         -webkit-print-color-adjust: exact;
                         print-color-adjust: exact;
@@ -298,9 +323,7 @@ export default function OrderPrint({ headerData, items }) {
                     .remarks-section {
                         margin-top: 20px;
                         break-inside: avoid;
-                        page-break-inside: avoid;
-                        background-color: #fff8e1 !important;
-                        border: 1px solid #ffecb3 !important;
+                        page-break-inside: avoid; 
                         -webkit-print-color-adjust: exact;
                         print-color-adjust: exact;
                     }
@@ -318,28 +341,31 @@ export default function OrderPrint({ headerData, items }) {
                     }
 
                     tr {
+                        
                         page-break-inside: avoid;
                         break-inside: avoid;
                     }
-
+.itemrow{
+    border-bottom: 1px solid rgb(0, 0, 0);
+}
                     tr:nth-child(even) {
-                        background-color: #fafafa !important;
+                        background-color:rgb(255, 255, 255) !important;
                     }
 
                     th {
-                        background-color: #e3f2fd !important;
+                        background-color:rgb(226, 226, 226) !important;
                         -webkit-print-color-adjust: exact;
                         print-color-adjust: exact;
                         font-weight: 600;
                         padding: 5px;
-                        border: 1px solid #bbdefb;
+                        border: 1px solidrgb(0, 0, 0);
                         font-size: 11px;
-                        color: #1976d2;
+                        color:rgb(0, 0, 0);
                     }
 
                     td {
                         padding: 5px;
-                        border: 1px solid #e3f2fd;
+                         border: 1px solidrgb(0, 0, 0);
                         font-size: 10px;
                         vertical-align: top;
                     }
