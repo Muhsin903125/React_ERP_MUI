@@ -31,13 +31,13 @@ const validationSchema = yup.object().shape({
     CP_NAME: yup.string().required('Company name is required'),
     CP_ADDRESS: yup.string().required('Address is required'),
     CP_PHONE: yup.string()
-        .required('Phone number is required')
-        .matches(/^[0-9+\-() ]+$/, 'Invalid phone number format'),
+        .required('Phone number is required'),
+        // .matches(/^[0-9+\-() ]+$/, 'Invalid phone number format'),
     CP_EMAIL: yup.string()
-        .email('Invalid email format')
-        .required('Email is required'),
+        .email('Invalid email format'),
+        // .required('Email is required'),
     CP_TRN: yup.string()
-        .required('TRN is required')
+        // .required('TRN is required')
         .matches(/^[0-9]+$/, 'TRN must contain only numbers'),
     CP_WEBSITE: yup.string()
         .url('Invalid website URL')
