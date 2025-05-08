@@ -25,12 +25,12 @@ import DateSelector from '../../../../components/DateSelector';
 import Dropdownlist from '../../../../components/DropdownList';
 import InvoiceItem from './InvoiceItem';
 import SubTotalSec from './SubTotalSec';
-import AlertDialog from '../../../../components/AlertDialog'; 
+import AlertDialog from '../../../../components/AlertDialog';
 import { GetSingleResult, GetSingleListResult, GetMultipleResult } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 import { AuthContext } from '../../../../App';
-import InvoicePrint from './InvoicePrint';
 import SupplierDialog from '../../../../components/SupplierDialog';
+import PrintComponent from '../../../../components/PrintComponent';
 // import { head } from 'lodash';
 
 // ----------------------------------------------------------------------
@@ -908,7 +908,7 @@ export default function PurchaseEntry() {
                         <InvoiceItem
                             key={index}
                             Propkey={index}
-                            discountPercent={1-(headerData.Discount / calculateTotal(items))}
+                            discountPercent={1 - (headerData.Discount / calculateTotal(items))}
                             tax={headerData.Tax}
                             products={products}
                             code={items[index].name}
@@ -932,7 +932,7 @@ export default function PurchaseEntry() {
                         discount={headerData.Discount}
                         tax={headerData.Tax}
                         handleInputChange={(e) => handleInputChange(e)}
-                        isEditable={isEditable} 
+                        isEditable={isEditable}
                     />
                     <Stack direction="row" justifyContent="flex-end" mb={2} mt={2}>
                         {isEditable && (
@@ -963,7 +963,7 @@ export default function PurchaseEntry() {
                 </DialogTitle>
                 <DialogContent>
                     <Box id="print-content" sx={{ p: 2 }}>
-                        <InvoicePrint
+                        <PrintComponent
                             headerData={{
                                 ...headerData,
                                 SalesmanName: salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode)?.SMAN_DESC ?
@@ -971,7 +971,8 @@ export default function PurchaseEntry() {
                                     headerData.SManCode || ''
                             }}
                             items={items}
-                        />
+                            documentType="PURCHASE INVOICE"
+                        /> 
                     </Box>
                 </DialogContent>
                 <DialogActions>

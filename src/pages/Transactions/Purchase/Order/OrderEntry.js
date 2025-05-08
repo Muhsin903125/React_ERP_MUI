@@ -28,9 +28,9 @@ import SubTotalSec from './SubTotalSec';
 import AlertDialog from '../../../../components/AlertDialog';
 import { GetSingleResult, GetSingleListResult, GetMultipleResult } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
-import { AuthContext } from '../../../../App';
-import InvoicePrint from './OrderPrint';
+import { AuthContext } from '../../../../App';  
 import SupplierDialog from '../../../../components/SupplierDialog';
+import PrintComponent from '../../../../components/PrintComponent';
 // import { head } from 'lodash';
 
 // ----------------------------------------------------------------------
@@ -897,7 +897,7 @@ export default function OrderEntry() {
                 </DialogTitle>
                 <DialogContent>
                     <Box id="print-content" sx={{ p: 2 }}>
-                        <InvoicePrint
+                        <PrintComponent 
                             headerData={{
                                 ...headerData,
                                 SalesmanName: salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode)?.SMAN_DESC ?
@@ -905,7 +905,9 @@ export default function OrderEntry() {
                                     headerData.SManCode || ''
                             }}
                             items={items}
+                            documentType="PURCHASE ORDER"
                         />
+                       
                     </Box>
                 </DialogContent>
                 <DialogActions>

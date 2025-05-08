@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Grid, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Stack, Divider } from '@mui/material';
-import useAuth from '../../../../hooks/useAuth';    
+import useAuth from '../hooks/useAuth';
+
 // Helper to add days to a date
 function addDays(date, days) {
     const result = new Date(date);
@@ -19,7 +20,7 @@ const MARGIN = Math.floor(MARGIN_MM * MM_TO_PX); // ~57px
 const HEADER_HEIGHT = 180;
 const ITEMS_PER_PAGE = 15; // Fixed number of items per page
 
-// Split items into pages of 10 items each
+// Split items into pages
 function paginateItems(items) {
     const pages = [];
     for (let i = 0; i < items.length; i += ITEMS_PER_PAGE) {
@@ -27,51 +28,54 @@ function paginateItems(items) {
     }
     return pages;
 }
-const PrintHeader = ({ headerData, companyName, companyAddress, companyPhone, companyEmail, companyLogoUrl, companyTRN }) => (
+
+const PrintHeader = ({ headerData, companyName, companyAddress, companyPhone, companyEmail, companyLogoUrl, companyTRN, documentType }) => (
     <Box className="print-header">
         <Grid container spacing={2}>
             <Grid item xs={6}>
                 <Stack spacing={1}>
-                    <Box  >
+                    <Box>
                         <img src={companyLogoUrl} alt="Logo" style={{ height: 40, marginBottom: 8, marginLeft: -5 }} />
-                        <Typography variant="body2" fontWeight={700} >{companyName}</Typography>
-                        <Typography variant="body2"   fontWeight={300} fontSize={12} py={0.15} >{companyAddress}</Typography>
-                        <Typography variant="body2"   fontWeight={300} fontSize={12} py={0.15}  >TRN:{companyTRN}</Typography>
-                        <Typography variant="body2"   fontWeight={300} fontSize={12} py={0.15}  >{companyPhone}</Typography>
-                        <Typography variant="body2"   fontWeight={300} fontSize={12} py={0.15}  >{companyEmail}</Typography>
+                        <Typography variant="body2" fontWeight={700}>{companyName}</Typography>
+                        <Typography variant="body2" fontWeight={300} fontSize={12} py={0.15}>{companyAddress}</Typography>
+                        <Typography variant="body2" fontWeight={300} fontSize={12} py={0.15}>TRN:{companyTRN}</Typography>
+                        <Typography variant="body2" fontWeight={300} fontSize={12} py={0.15}>{companyPhone}</Typography>
+                        <Typography variant="body2" fontWeight={300} fontSize={12} py={0.15}>{companyEmail}</Typography>
                     </Box>
                 </Stack>
             </Grid>
             <Grid item xs={6}>
                 <Box sx={{ textAlign: 'right' }}>
-                    <Typography variant="h3" color='black' fontWeight={400} gutterBottom>PURCHASE INVOICE</Typography>
-                    <Typography variant="body1" fontWeight={600}  > #{headerData.InvNo}</Typography>
+                    <Typography variant="h3" color='black' fontWeight={400} gutterBottom>{documentType}</Typography>
+                    <Typography variant="body1" fontWeight={600}>#{headerData.InvNo || headerData.QuotNo || headerData.OrderNo}</Typography>
                 </Box>
             </Grid>
 
             <Grid item xs={6}>
-                <Box sx={{                     
-                    // p: 1.5,
+                <Box sx={{
                     borderRadius: 1,
                     mb: 1,
-                    textAlign: 'left', 
+                    textAlign: 'left',
                 }}>
-                    <Typography variant="body2" fontWeight={700} py={0.15}>From:</Typography>
-                    <Typography variant="body2"  fontWeight={300} fontSize={12} py={0.15} >{headerData.SupplierDisplay}</Typography>
-                    {headerData.Address && <Typography variant="body2"   fontWeight={300} fontSize={12} py={0.15} >{headerData.Address}</Typography>}
-                    {headerData.TRN && <Typography variant="body2"   fontWeight={300} fontSize={12} py={0.15}  >TRN: {headerData.TRN}</Typography>}
-                    {headerData.ContactNo && <Typography variant="body2"  fontWeight={300} fontSize={12} py={0.15} >Phone: {headerData.ContactNo}</Typography>}
-                    {headerData.Email && <Typography variant="body2"  fontWeight={300} fontSize={12} py={0.15} >Email: {headerData.Email}</Typography>}
+                    <Typography variant="body2" fontWeight={700} py={0.15}>
+                        {documentType === 'PURCHASE ORDER' || documentType === 'PURCHASE INVOICE' ? 'From:' : 'Bill To:'}
+                    </Typography>
+                    <Typography variant="body2" fontWeight={300} fontSize={12} py={0.15}>{headerData.Customer || headerData.SupplierDisplay}</Typography>
+                    {headerData.Address && <Typography variant="body2" fontWeight={300} fontSize={12} py={0.15}>{headerData.Address}</Typography>}
+                    {headerData.TRN && <Typography variant="body2" fontWeight={300} fontSize={12} py={0.15}>TRN: {headerData.TRN}</Typography>}
+                    {headerData.ContactNo && <Typography variant="body2" fontWeight={300} fontSize={12} py={0.15}>Phone: {headerData.ContactNo}</Typography>}
+                    {headerData.Email && <Typography variant="body2" fontWeight={300} fontSize={12} py={0.15}>Email: {headerData.Email}</Typography>}
                 </Box>
             </Grid>
             <Grid item xs={6}>
                 <Box sx={{ textAlign: 'right' }}>
-                   
                     <Table size="small" sx={{ width: 'auto', ml: 'auto' }}>
                         <TableBody>
                             <TableRow>
                                 <TableCell sx={{ border: 'none', py: 0.15 }}>Date:</TableCell>
-                                <TableCell sx={{ border: 'none', py: 0.15 }}>{headerData.InvDate.toLocaleString()}</TableCell>
+                                <TableCell sx={{ border: 'none', py: 0.15 }}>
+                                    {(headerData.InvDate || headerData.QuotDate || headerData.OrderDate).toLocaleString()}
+                                </TableCell>
                             </TableRow>
                             {headerData.PaymentMode && (
                                 <TableRow>
@@ -79,12 +83,18 @@ const PrintHeader = ({ headerData, companyName, companyAddress, companyPhone, co
                                     <TableCell sx={{ border: 'none', py: 0.15 }}>{headerData.PaymentMode}</TableCell>
                                 </TableRow>
                             )}
-                            <TableRow>
-                                <TableCell sx={{ border: 'none', py: 0.15 }}>Due Date:</TableCell>
-                                <TableCell sx={{ border: 'none', py: 0.15 }}>
-                                    {addDays(headerData.InvDate, headerData.CrDays).toLocaleDateString()}
-                                </TableCell>
-                            </TableRow>
+                            {(headerData.CrDays || headerData.ValidityDate || headerData.OrderValidity) && (
+                                <TableRow>
+                                    <TableCell sx={{ border: 'none', py: 0.15 }}>
+                                        {headerData.CrDays ? 'Due Date:' : 'Valid Until:'}
+                                    </TableCell>
+                                    <TableCell sx={{ border: 'none', py: 0.15 }}>
+                                        {headerData.CrDays 
+                                            ? addDays(headerData.InvDate, headerData.CrDays).toLocaleDateString()
+                                            : new Date(headerData.ValidityDate || headerData.OrderValidity).toLocaleDateString()}
+                                    </TableCell>
+                                </TableRow>
+                            )}
                             {headerData.LPONo && (
                                 <TableRow>
                                     <TableCell sx={{ border: 'none', py: 0.15 }}>LPO:</TableCell>
@@ -97,7 +107,6 @@ const PrintHeader = ({ headerData, companyName, companyAddress, companyPhone, co
                                     <TableCell sx={{ border: 'none', py: 0.15 }}>{headerData.RefNo}</TableCell>
                                 </TableRow>
                             )}
-                          
                             {headerData.SalesmanName && (
                                 <TableRow>
                                     <TableCell sx={{ border: 'none', py: 0.15 }}>Sales Person:</TableCell>
@@ -108,26 +117,47 @@ const PrintHeader = ({ headerData, companyName, companyAddress, companyPhone, co
                     </Table>
                 </Box>
             </Grid>
-
         </Grid>
     </Box>
 );
- 
 
-export default function InvoicePrint({ headerData, items }) {
-    const {companyName, companyAddress, companyPhone, companyEmail, companyLogoUrl, companyTRN} = useAuth();
-    // Split items into pages of 10 items each
+export default function PrintComponent({ headerData, items, documentType }) {
+    const { companyName, companyAddress, companyPhone, companyEmail, companyLogoUrl, companyTRN } = useAuth();
     const pages = paginateItems(items);
+
+    // Add print function
+    // const handlePrint = () => {
+    //     // Set the document title to the document number
+    //     const docNumber = headerData.InvNo || headerData.QuotNo || headerData.OrderNo;
+    //     document.title = `${documentType.replace(/\s+/g, '_')}_${docNumber}`;
+    //     window.print();
+    //     // Reset the title after printing
+    //     setTimeout(() => {
+    //         document.title = 'ERP System';
+    //     }, 1000);
+    // };
+
+    // // Add useEffect to handle print
+    // React.useEffect(() => {
+    //     handlePrint();
+    // }, []);
 
     return (
         <Box className="print-container">
             {pages.map((pageItems, pageIndex) => (
                 <Box key={pageIndex} className="print-page">
-                    <PrintHeader headerData={headerData} companyName={companyName} companyAddress={companyAddress} companyPhone={companyPhone} companyEmail={companyEmail} companyLogoUrl={companyLogoUrl} companyTRN={companyTRN} />
+                    <PrintHeader 
+                        headerData={headerData}
+                        companyName={companyName}
+                        companyAddress={companyAddress}
+                        companyPhone={companyPhone}
+                        companyEmail={companyEmail}
+                        companyLogoUrl={companyLogoUrl}
+                        companyTRN={companyTRN}
+                        documentType={documentType}
+                    />
 
-                    <Box className="content-section" sx={{
-                        marginTop: 2
-                    }}>
+                    <Box className="content-section" sx={{ marginTop: 2 }}>
                         <TableContainer component={Paper} elevation={0}>
                             <Table size="small">
                                 <TableHead>
@@ -137,19 +167,18 @@ export default function InvoicePrint({ headerData, items }) {
                                         <TableCell width="35%">Description</TableCell>
                                         <TableCell width="50px" align="right">Qty</TableCell>
                                         <TableCell width="8%">Unit</TableCell>
-                                        <TableCell width="13%" align="right">Price</TableCell> 
+                                        <TableCell width="13%" align="right">Price</TableCell>
                                         <TableCell width="12%" align="right">Tax({headerData.Tax}%)</TableCell>
                                         <TableCell width="13%" align="right">Total</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     {pageItems.map((item, idx) => {
-                                      const discountPercent = 1-(headerData.Discount / headerData.GrossAmount);
-                                      const subtotal = item.qty * item.price;
-                                      const taxAmount = (subtotal * discountPercent * (headerData.Tax || 0)) / 100;
-                                      const total = (subtotal * discountPercent) + taxAmount;
-                                    
-                                        
+                                        const discountPercent = 1 - (headerData.Discount / headerData.GrossAmount);
+                                        const subtotal = item.qty * item.price;
+                                        const taxAmount = (subtotal * discountPercent * (headerData.Tax || 0)) / 100;
+                                        const total = (subtotal * discountPercent) + taxAmount;
+
                                         return (
                                             <TableRow key={idx} className='itemrow' sx={{
                                                 borderBottom: '1px solid rgb(226, 226, 226)'
@@ -159,13 +188,12 @@ export default function InvoicePrint({ headerData, items }) {
                                                 <TableCell>{item.desc}</TableCell>
                                                 <TableCell align="right">{item.qty}</TableCell>
                                                 <TableCell>{item.unit}</TableCell>
-                                                <TableCell align="right">{item.price.toFixed(2)}</TableCell> 
+                                                <TableCell align="right">{item.price.toFixed(2)}</TableCell>
                                                 <TableCell align="right">{taxAmount.toFixed(2)}</TableCell>
                                                 <TableCell align="right">{total.toFixed(2)}</TableCell>
                                             </TableRow>
                                         );
                                     })}
-                                   
                                 </TableBody>
                             </Table>
                         </TableContainer>
@@ -177,7 +205,7 @@ export default function InvoicePrint({ headerData, items }) {
                                         width: 250,
                                         ml: 'auto',
                                         mt: 2,
-                                        p: 2, 
+                                        p: 2,
                                         borderRadius: 1,
                                         borderBottom: '1px solid rgb(224, 224, 224)'
                                     }}>
@@ -239,7 +267,7 @@ export default function InvoicePrint({ headerData, items }) {
                 </Box>
             ))}
 
-<style>{`
+            <style>{`
                 @media print {
                     @page {
                         size: A4 portrait;
@@ -347,31 +375,32 @@ export default function InvoicePrint({ headerData, items }) {
                     }
 
                     tr {
-                        
                         page-break-inside: avoid;
                         break-inside: avoid;
                     }
-.itemrow{
-    border-bottom: 1px solid rgb(0, 0, 0);
-}
+
+                    .itemrow {
+                        border-bottom: 1px solid rgb(0, 0, 0);
+                    }
+
                     tr:nth-child(even) {
-                        background-color:rgb(255, 255, 255) !important;
+                        background-color: rgb(255, 255, 255) !important;
                     }
 
                     th {
-                        background-color:rgb(226, 226, 226) !important;
+                        background-color: rgb(226, 226, 226) !important;
                         -webkit-print-color-adjust: exact;
                         print-color-adjust: exact;
                         font-weight: 600;
                         padding: 5px;
-                        border: 1px solidrgb(0, 0, 0);
+                        // border: 1px solid rgb(0, 0, 0);
                         font-size: 11px;
-                        color:rgb(0, 0, 0);
+                        color: rgb(0, 0, 0);
                     }
 
                     td {
                         padding: 5px;
-                         border: 1px solidrgb(0, 0, 0);
+                        // border: 1px solid rgb(0, 0, 0);
                         font-size: 10px;
                         vertical-align: top;
                     }

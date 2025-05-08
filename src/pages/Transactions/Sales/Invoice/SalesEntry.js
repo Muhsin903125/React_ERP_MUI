@@ -29,8 +29,8 @@ import AlertDialog from '../../../../components/AlertDialog';
 import CustomerDialog from '../../../../components/CustomerDialog';
 import { GetSingleResult, GetSingleListResult, GetMultipleResult } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
-import { AuthContext } from '../../../../App';
-import InvoicePrint from './InvoicePrint';
+import { AuthContext } from '../../../../App'; 
+import PrintComponent from '../../../../components/PrintComponent';
 // import { head } from 'lodash';
 
 // ----------------------------------------------------------------------
@@ -593,10 +593,12 @@ export default function SalesEntry() {
 
     const handleAddCreditNote = () => {
         console.log('Adding credit note');
-        navigate('/creditnote-entry',{state:{
-            "invoiceData": headerData,
-            "invoiceItems": items,
-        }}  );
+        navigate('/creditnote-entry', {
+            state: {
+                "invoiceData": headerData,
+                "invoiceItems": items,
+            }
+        });
     };
 
     useEffect(() => {
@@ -624,13 +626,13 @@ export default function SalesEntry() {
                             >
                                 Print
                             </Button>
-                            {/* <Button
+                            <Button
                                 variant="outlined"
                                 startIcon={<Iconify icon="eva:printer-fill" />}
                                 onClick={handleAddCreditNote}
                             >
                                 Add Credit Note
-                            </Button> */}
+                            </Button>
                         </>
 
                     )}
@@ -982,7 +984,7 @@ export default function SalesEntry() {
                 </DialogTitle>
                 <DialogContent>
                     <Box id="print-content" sx={{ p: 2 }}>
-                        <InvoicePrint
+                        <PrintComponent
                             headerData={{
                                 ...headerData,
                                 SalesmanName: salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode)?.SMAN_DESC ?
@@ -990,7 +992,8 @@ export default function SalesEntry() {
                                     headerData.SManCode || ''
                             }}
                             items={items}
-                        />
+                            documentType="TAX INVOICE"
+                        /> 
                     </Box>
                 </DialogContent>
                 <DialogActions>
