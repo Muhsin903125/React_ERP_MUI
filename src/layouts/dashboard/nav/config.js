@@ -264,6 +264,7 @@ const navConfig = [
     title: 'dashboard',
     path: '/app',
     icon: icon('ic_dashboard'),
+    visible:true
   },
   // master
   {
@@ -279,22 +280,26 @@ const navConfig = [
            {
             title: 'Chart Of Account',
             path: '/coa',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Supplier',
             path: '/supplier',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Salesman',
             path: '/salesman',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Customer',
             path: '/customer',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
 
 
@@ -308,17 +313,20 @@ const navConfig = [
           {
             title: 'Products',
             path: '/product',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Units',
             path: '/unit',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Locations',
             path: '/location',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
         ]
       },
@@ -341,17 +349,20 @@ const navConfig = [
           {
             title: 'Order',
             path: '/purchase-order',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Invoice',
             path: '/purchase',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Debit Note',
             path: '/debitnote',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
         ]
       },
@@ -363,17 +374,20 @@ const navConfig = [
           {
             title: 'Quotation',
             path: '/quotation',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Invoice',
             path: '/salesinvoice',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Credit Note',
             path: '/creditnote',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
         ]
       },
@@ -385,22 +399,26 @@ const navConfig = [
           {
             title: 'Reciept',
             path: '/productlist',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Payment',
             path: '/customermasterv2',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Journal',
             path: '/customermasterv2',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Allocation',
             path: '/customermasterv2',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
         ]
       },
@@ -412,12 +430,14 @@ const navConfig = [
           {
             title: 'Stock Adjustment',
             path: '/productlist',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Transfer',
             path: '/customermasterv2',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
         ]
       },
@@ -438,31 +458,36 @@ const navConfig = [
           {
             title: 'Statement of Account',
             path: '/productlist',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Trail Balance',
             path: '/customermasterv2',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'P&L',
             path: '/customermasterv2',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Balance Sheet',
             path: '/customermasterv2',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
 
           {
             title: 'Ageing',
             path: '/customermasterv2',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
         ]
-      },
+      },  
       {
         title: 'Sales',
         path: '',
@@ -471,12 +496,14 @@ const navConfig = [
           {
             title: 'Summary',
             path: '/productlist',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Analysis',
             path: '/unitlist',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
         ]
       },
@@ -488,7 +515,8 @@ const navConfig = [
           {
             title: 'Summary',
             path: '/productlist',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
         ]
       },
@@ -500,23 +528,28 @@ const navConfig = [
           {
             title: 'Stock Balance',
             path: '/productlist',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           }, {
             title: 'Stock Location Wise Balance',
             path: '/productlist',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           }, {
             title: 'Stock Ledger',
             path: '/productlist',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           }, {
             title: 'Stock Ageing',
             path: '/productlist',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           }, {
             title: 'Stock Movement',
             path: '/productlist',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
         ]
       },
@@ -536,23 +569,27 @@ const navConfig = [
           {
             title: 'Change Password',
             path: '/changepassword',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
 
           {
             title: 'Users',
             path: '/userlist',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'User Roles',
             path: '/rolelist',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Permissions',
             path: '/customermasterv2',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
 
 
@@ -566,12 +603,14 @@ const navConfig = [
           {
             title: 'Screens',
             path: '/screens',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Permissions',
             path: '/permissions',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
         ]
       },
@@ -583,12 +622,14 @@ const navConfig = [
           {
             title: 'Configs',
             path: '/settings',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Company',
             path: '/companyprofile',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Lookups',
@@ -598,12 +639,14 @@ const navConfig = [
           {
             title: 'Last Number',
             path: '/lastno',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
           {
             title: 'Documents',
             path: '/documents',
-            icon: subIcon()
+            icon: subIcon(),
+            visible:true
           },
         ]
       }
