@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { Button, Modal, Grid, TextField, Stack, Box, Typography, MenuItem, FormControl, InputLabel, Select } from '@mui/material';
-import { Formik, Form, Field } from 'formik';
+import { Button, Modal, Grid, TextField, Stack, Box, Typography, MenuItem, FormControl, InputLabel, Select, FormControlLabel, Switch, IconButton, Card, CardContent } from '@mui/material';
+import { Formik, Form, Field, FieldArray } from 'formik';
 import * as yup from 'yup';
 import Iconify from '../../../../components/iconify';
 import { GetSingleListResult, GetSingleResult } from '../../../../hooks/Api';
@@ -28,7 +28,13 @@ const ModalForm = ({ open, onClose, initialValues }) => {
     code: yup.string().required('Code is required'),
     desc: yup.string().required('Description is required'),
     unit: yup.string().required('Unit is required'),
-    price: yup.string().required('Price is required'), 
+    price: yup.string().required('Price is required'),
+    conversions: yup.array().of(
+      yup.object().shape({
+        conversionUnit: yup.string().required('Conversion unit is required'),
+        conversionRate: yup.string().required('Conversion rate is required'),
+      })
+    ),
   });
 
   const HandleData = async (data, type) => {
@@ -39,7 +45,8 @@ const ModalForm = ({ open, onClose, initialValues }) => {
         IM_CODE: data.code,
         IM_DESC: data.desc,
         IM_UNIT_CODE: data.unit,
-        IM_PRICE: data.price, 
+        IM_PRICE: data.price,
+        IM_CONVERSIONS: data.conversions,
       });
 
       if (Success) {
@@ -110,7 +117,8 @@ const ModalForm = ({ open, onClose, initialValues }) => {
             code: initialValues?.IM_CODE || code,
             desc: initialValues?.IM_DESC || '',
             unit: initialValues?.IM_UNIT_CODE || '',
-            price: initialValues?.IM_PRICE || '', 
+            price: initialValues?.IM_PRICE || '',
+            conversions: initialValues?.IM_CONVERSIONS || [],
           }}
           validationSchema={validationSchema}
           onSubmit={(values) => {
@@ -121,7 +129,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
             }
           }}
         >
-          {({ values, errors, touched, handleChange }) => (
+          {({ values, errors, touched, handleChange, setFieldValue }) => (
             <Form>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
@@ -147,7 +155,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                     helperText={touched.desc && errors.desc}
                   />
                 </Grid>
-          
+
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
@@ -160,13 +168,13 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                     helperText={touched.price && errors.price}
                   />
                 </Grid>
-             
+
                 <Grid item xs={12} sm={6}>
                   <FormControl fullWidth error={Boolean(touched.unit && errors.unit)}>
-                    <InputLabel>Unit</InputLabel>
+                    <InputLabel>Base Unit</InputLabel>
                     <Field
                       as={Select}
-                      label="Unit"
+                      label="Base Unit"
                       name="unit"
                       value={values.unit}
                       onChange={handleChange}
@@ -184,7 +192,79 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                     )}
                   </FormControl>
                 </Grid>
-                 
+
+                <Grid item xs={12}>
+                  <Typography variant="h6" sx={{ mb: 2 }}>
+                    Unit Conversions
+                  </Typography>
+                  <FieldArray name="conversions">
+                    {({ push, remove }) => (
+                      <Stack spacing={2}>
+                        {values.conversions.map((conversion, index) => (
+                          <Card key={index} variant="outlined">
+                            <CardContent>
+                              <Grid container spacing={2} alignItems="center">
+                                <Grid item xs={12} sm={5}>
+                                  <FormControl fullWidth error={Boolean(touched.conversions?.[index]?.conversionUnit && errors.conversions?.[index]?.conversionUnit)}>
+                                    <InputLabel>Conversion Unit</InputLabel>
+                                    <Field
+                                      as={Select}
+                                      label="Conversion Unit"
+                                      name={`conversions.${index}.conversionUnit`}
+                                      value={conversion.conversionUnit}
+                                      onChange={handleChange}
+                                    >
+                                      {unit.map((item) => (
+                                        <MenuItem key={item.LK_KEY} value={item.LK_KEY}>
+                                          {item.LK_VALUE}
+                                        </MenuItem>
+                                      ))}
+                                    </Field>
+                                    {touched.conversions?.[index]?.conversionUnit && errors.conversions?.[index]?.conversionUnit && (
+                                      <Typography color="error" variant="caption">
+                                        {errors.conversions[index].conversionUnit}
+                                      </Typography>
+                                    )}
+                                  </FormControl>
+                                </Grid>
+                                <Grid item xs={12} sm={5}>
+                                  <TextField
+                                    fullWidth
+                                    type="number"
+                                    label="Conversion Rate"
+                                    name={`conversions.${index}.conversionRate`}
+                                    value={conversion.conversionRate}
+                                    onChange={handleChange}
+                                    error={Boolean(touched.conversions?.[index]?.conversionRate && errors.conversions?.[index]?.conversionRate)}
+                                    helperText={touched.conversions?.[index]?.conversionRate && errors.conversions?.[index]?.conversionRate}
+                                  />
+                                </Grid>
+                                <Grid item xs={12} sm={2}>
+                                  <IconButton
+                                    color="error"
+                                    onClick={() => remove(index)}
+                                    sx={{ mt: 1 }}
+                                  >
+                                    <Iconify icon="mdi:delete" />
+                                  </IconButton>
+                                </Grid>
+                              </Grid>
+                            </CardContent>
+                          </Card>
+                        ))}
+                        <Button
+                          startIcon={<Iconify icon="mdi:plus" />}
+                          onClick={() => push({ conversionUnit: '', conversionRate: '' })}
+                          variant="outlined"
+                          sx={{ alignSelf: 'flex-start' }}
+                        >
+                          Add Conversion
+                        </Button>
+                      </Stack>
+                    )}
+                  </FieldArray>
+                </Grid>
+
                 <Grid item xs={12}>
                   <Stack direction="row" alignItems="center" justifyContent="flex-end">
                     <Button
