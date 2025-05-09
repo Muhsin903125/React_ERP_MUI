@@ -6,47 +6,97 @@ import {
     IconButton,
     Autocomplete,
     createFilterOptions,
+    Select,
+    MenuItem,
 } from '@mui/material';
 import { Delete } from '@mui/icons-material';
 
-export default function TransactionItem({ 
-    Propkey, 
-    code, 
-    products, 
-    desc, 
-    qty, 
-    price, 
-    unit, 
-    tax, 
-    discountPercent, 
-    removeItem, 
-    setItems, 
-    items, 
-    errors, 
+export default function TransactionItem({
+    Propkey,
+    code,
+    products,
+    desc,
+    qty,
+    price,
+    unit,
+    tax,
+    discountPercent,
+    removeItem,
+    setItems,
+    items,
+    errors,
     isEditable,
     showTaxField = true, // Optional prop to control tax field visibility
     onItemChange, // Optional callback for custom item change handling
+    unitList,
 }) {
     const [hasErrors, setHasErrors] = useState(false);
+    const [availUnit, setAvailUnit] = useState([]);
 
     useEffect(() => {
         setHasErrors(errors !== undefined && errors !== null && Object.keys(errors).length > 0);
     }, [errors]);
 
+    useEffect(() => {
+        console.log("useEffect triggered", { items, unitList, Propkey });
+        if (items && unitList) {
+            const currentItem = items[Propkey];
+            console.log("Current item:", currentItem);
+            const product = products.find(p => p.code === currentItem.name);
+            console.log("Product:", product);
+            if (product?.avail_unit_code) {
+                const unitPricePairs = product.avail_unit_code.split(',');
+                console.log("Unit price pairs:", unitPricePairs);
+                
+                const availUnits = unitList.filter(u => 
+                    unitPricePairs.some(unitPrice => {
+                        const [unit] = unitPrice.split('#');
+                        return unit === u.LK_KEY;
+                    })
+                );
+                console.log("Available units:", availUnits);
+                setAvailUnit(availUnits);
+            } else {
+                setAvailUnit([]);
+            }
+        }
+    }, [  unitList,products]);
+
     const handleItemCodeChange = (event, newValue) => {
         if (!newValue) return;
+        console.log("Item selected:", newValue);
         
+        const unitPricePairs = newValue.avail_unit_code.split(',');
+        console.log("Unit price pairs:", unitPricePairs);
+        
+        const availUnits = unitList.filter(u => 
+            unitPricePairs.some(unitPrice => {
+                const [unit] = unitPrice.split('#');
+                return unit === u.LK_KEY;
+            })
+        );
+        console.log("Available units:", availUnits);
+        
+        // Get the first unit-price pair
+        const firstUnitPrice = unitPricePairs[0]?.split('#') || ['', '0'];
+        const defaultUnit = firstUnitPrice[0];
+        const defaultPrice = parseFloat(firstUnitPrice[1]) || 0;
+        console.log("Default unit and price:", { defaultUnit, defaultPrice });
+
         const newItems = [...items];
         newItems[Propkey] = {
             ...newItems[Propkey],
             name: newValue.code,
             desc: newValue.desc,
-            unit: newValue.unit,
-            price: newValue.price,
+            unit: defaultUnit,
+            price: defaultPrice,
             qty: 1,
-            tax: newValue.tax || 0
+            tax: newValue.tax || 0,
+            avail_unit_code: newValue.avail_unit_code
         };
+        console.log("Updated items:", newItems);
         setItems(newItems);
+        setAvailUnit(availUnits);
         if (onItemChange) {
             onItemChange(newItems[Propkey]);
         }
@@ -58,24 +108,40 @@ export default function TransactionItem({
 
     const handleChange = (event) => {
         const newItems = [...items];
+        const { name, value } = event.target;
+        console.log("Field changed:", { name, value });
 
-        if (event.target.name === `ItemDesc_${Propkey}`) {
-            newItems[Propkey].desc = event.target.value;
-        }
-        else if (event.target.name === `ItemPrice_${Propkey}`) {
-            newItems[Propkey].price = event.target.value;
-        }
-        else if (event.target.name === `ItemCode_${Propkey}`) {
-            newItems[Propkey].name = event.target.value;
-        }
-        else if (event.target.name === `ItemQty_${Propkey}`) {
-            newItems[Propkey].qty = event.target.value;
-        }
-        else if (event.target.name === `ItemUnit_${Propkey}`) {
-            newItems[Propkey].unit = event.target.value;
-        }
-        else if (event.target.name === `ItemTax_${Propkey}`) {
-            newItems[Propkey].tax = event.target.value;
+        if (name === `ItemUnit_${Propkey}`) {
+            // When unit changes, update price based on the selected unit
+            const currentItem = items[Propkey];
+            const product = products.find(p => p.code === currentItem.name);
+            const unitPricePairs = product?.avail_unit_code?.split(',') || [];
+            console.log("Unit price pairs for price update:", unitPricePairs);
+            
+            const selectedUnitPrice = unitPricePairs.find(up => {
+                const [unit] = up.split('#');
+                return unit === value;
+            });
+            console.log("Selected unit price pair:", selectedUnitPrice);
+            
+            const newPrice = selectedUnitPrice ? parseFloat(selectedUnitPrice.split('#')[1]) : 0;
+            console.log("New price:", newPrice);
+
+            newItems[Propkey] = {
+                ...newItems[Propkey],
+                unit: value,
+                price: newPrice
+            };
+        } else if (name === `ItemDesc_${Propkey}`) {
+            newItems[Propkey].desc = value;
+        } else if (name === `ItemPrice_${Propkey}`) {
+            newItems[Propkey].price = value;
+        } else if (name === `ItemCode_${Propkey}`) {
+            newItems[Propkey].name = value;
+        } else if (name === `ItemQty_${Propkey}`) {
+            newItems[Propkey].qty = value;
+        } else if (name === `ItemTax_${Propkey}`) {
+            newItems[Propkey].tax = value;
         }
         
         setItems(newItems);
@@ -151,15 +217,23 @@ export default function TransactionItem({
             </Grid>
 
             <Grid item xs={6} sm={3} md={1}>
-                <TextField
+                <Select
                     fullWidth
-                    name={`ItemUnit_${Propkey}`}
-                    value={items[Propkey].unit || ''}
                     size="small"
-                    label="Unit"
-                    onChange={handleChange}
+                    value={items[Propkey].unit}
+                    onChange={(event) => handleChange({ target: { name: `ItemUnit_${Propkey}`, value: event.target.value } })}
                     disabled={!isEditable}
-                />
+                >
+                    {availUnit && availUnit.length > 0 ? (
+                        availUnit.map((option) => (
+                            <MenuItem key={option.LK_KEY} value={option.LK_KEY}>
+                                {option.LK_VALUE}
+                            </MenuItem>
+                        ))
+                    ) : (
+                        <MenuItem value="">Select Unit</MenuItem>
+                    )}
+                </Select>
             </Grid>
 
             <Grid item xs={6} sm={3} md={1}>
@@ -167,10 +241,10 @@ export default function TransactionItem({
                     fullWidth
                     name={`ItemPrice_${Propkey}`}
                     type="number"
-                    inputProps={{ 
-                        min: "0", 
+                    inputProps={{
+                        min: "0",
                         step: "0.01",
-                        style: { textAlign: 'right' } 
+                        style: { textAlign: 'right' }
                     }}
                     size="small"
                     label="Price"
@@ -185,7 +259,7 @@ export default function TransactionItem({
                     type="number"
                     fullWidth
                     name={`ItemQty_${Propkey}`}
-                    inputProps={{ 
+                    inputProps={{
                         min: "1",
                         step: "1",
                         style: { textAlign: 'right' }

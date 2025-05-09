@@ -18,7 +18,7 @@ import {
 } from '@mui/material';
 import validator from 'validator';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { getLastNumber, getLocationList } from '../../../../utils/CommonServices';
+import { getLastNumber, getLocationList, GetLookupList, getUnitList } from '../../../../utils/CommonServices';
 import Confirm from '../../../../components/Confirm';
 import Iconify from '../../../../components/iconify';
 import DateSelector from '../../../../components/DateSelector';
@@ -70,6 +70,7 @@ export default function SalesEntry() {
     const [salesmenList, setSalesmenList] = useState([]);
     const [salesmanLoading, setSalesmanLoading] = useState(false);
     const [locations, setLocations] = useState([]);
+    const [unitList, setUnitList] = useState([]);
     const { state } = useLocation();
     const { invoiceData } = state || {};
 
@@ -98,6 +99,10 @@ export default function SalesEntry() {
             Remarks: invoiceData?.Remarks || ''
         })
 
+    const getUnits = async () => {
+        const Data = await GetLookupList('UNITS');
+        setUnitList(Data);
+    };
     const [items, setItems] = useState(invoiceData?.items || [{
         name: "",
         price: 0,
@@ -213,6 +218,7 @@ export default function SalesEntry() {
     }, [selectedInvDate]);
     useEffect(() => {
         getProducts();
+        getUnits();
     }, []);
     const handleInputChange = event => {
         const { type, name, value } = event.target;
@@ -938,6 +944,7 @@ export default function SalesEntry() {
                             price={items[index].price}
                             unit={items[index].unit}
                             items={items}
+                            unitList={unitList}
                             setItems={setItems}
                             removeItem={() => removeItem(index)}
                             errors={errors.item}

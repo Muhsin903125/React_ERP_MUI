@@ -6,6 +6,7 @@ import * as yup from 'yup';
 import Iconify from '../../../../components/iconify';
 import { GetMultipleResult, GetSingleListResult, GetSingleResult } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
+import { GetLookupList } from '../../../../utils/CommonServices';
 
 const ModalForm = ({ open, onClose, initialValues }) => {
   const { showToast } = useToast();
@@ -55,7 +56,8 @@ const ModalForm = ({ open, onClose, initialValues }) => {
     conversions: yup.array().of(
       yup.object().shape({
         conversionUnit: yup.string().required('Conversion unit is required'),
-        conversionRate: yup.string().required('Conversion rate is required'),
+        conversionRate: yup.string().required('Conversion rate is required').min(1, 'Conversion rate must be greater than 0'),
+        conversionPrice: yup.string() 
       })
     ),
   });
@@ -111,24 +113,8 @@ const ModalForm = ({ open, onClose, initialValues }) => {
   };
 
   const getUnit = async () => {
-    try {
-      setIsLoading(true);
-      const { Success, Data, Message } = await GetSingleListResult({
-        key: 'LOOKUP',
-        TYPE: 'UNITS',
-      });
-
-      if (Success) {
-        setUnit(Data);
-      } else {
-        showToast(Message, 'error');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      showToast('An error occurred while getting units', 'error');
-    } finally {
-      setIsLoading(false);
-    }
+    const data = await GetLookupList('UNITS');
+    setUnit(data);   
   };
 
   const getDetails = async () => {
@@ -151,7 +137,8 @@ const ModalForm = ({ open, onClose, initialValues }) => {
           price: productData.IM_PRICE?.toString() || '',
           conversions: conversionData.map(conv => ({
             conversionUnit: conv.conversionUnit || '',
-            conversionRate: conv.conversionRate?.toString() || ''
+            conversionRate: conv.conversionRate?.toString() || '',
+            conversionPrice: conv.conversionPrice?.toString() || ''
           }))
         };
 
@@ -212,6 +199,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                     <Grid item xs={12} sm={6}>
                       <TextField
                         fullWidth
+                        size="small"
                         label="Code"
                         disabled={isNew ? !codeEditable : true}
                         name="code"
@@ -224,6 +212,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                     <Grid item xs={12} sm={6}>
                       <TextField
                         fullWidth
+                        size="small"
                         label="Description"
                         name="desc"
                         value={values.desc || ''}
@@ -237,6 +226,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                       <TextField
                         fullWidth
                         type="number"
+                        size="small"
                         label="Price"
                         name="price"
                         value={values.price || ''}
@@ -247,11 +237,12 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                     </Grid>
 
                     <Grid item xs={12} sm={6}>
-                      <FormControl fullWidth error={Boolean(touched.unit && errors.unit)}>
+                      <FormControl fullWidth size="small" error={Boolean(touched.unit && errors.unit)}>
                         <InputLabel>Base Unit</InputLabel>
                         <Field
                           as={Select}
                           label="Base Unit"
+                          size="small"
                           name="unit"
                           value={values.unit || ''}
                           onChange={handleChange}
@@ -279,8 +270,9 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                           <Stack spacing={2} gap={1}>
                             {values.conversions.map((conversion, index) => (
                               <Grid key={index} container alignItems="center" gap={1}>
-                                <Grid item xs={12} sm={5}>
-                                  <FormControl fullWidth error={Boolean(touched.conversions?.[index]?.conversionUnit && errors.conversions?.[index]?.conversionUnit)}>
+                                <Grid item xs={12} sm={4}>
+                                  <FormControl size="small"
+                                  fullWidth error={Boolean(touched.conversions?.[index]?.conversionUnit && errors.conversions?.[index]?.conversionUnit)}>
                                     <InputLabel>Conversion Unit</InputLabel>
                                     <Field
                                       as={Select}
@@ -302,8 +294,9 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                                     )}
                                   </FormControl>
                                 </Grid>
-                                <Grid item xs={12} sm={5}>
+                                <Grid item xs={12} sm={3}>
                                   <TextField
+                                    size="small"
                                     fullWidth
                                     type="number"
                                     label="Conversion Rate"
@@ -312,6 +305,19 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                                     onChange={handleChange}
                                     error={Boolean(touched.conversions?.[index]?.conversionRate && errors.conversions?.[index]?.conversionRate)}
                                     helperText={touched.conversions?.[index]?.conversionRate && errors.conversions?.[index]?.conversionRate}
+                                  />
+                                </Grid>
+                                <Grid item xs={12} sm={3}>
+                                  <TextField
+                                    size="small"
+                                    fullWidth
+                                    type="number"
+                                    label="Conversion Price"
+                                    name={`conversions.${index}.conversionPrice`}
+                                    value={conversion.conversionPrice || ''}
+                                    onChange={handleChange}
+                                    error={Boolean(touched.conversions?.[index]?.conversionPrice && errors.conversions?.[index]?.conversionPrice)}
+                                    helperText={touched.conversions?.[index]?.conversionPrice && errors.conversions?.[index]?.conversionPrice}
                                   />
                                 </Grid>
                                 <Grid item xs={12} sm={1}>

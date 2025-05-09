@@ -40,6 +40,25 @@ export async function getLocationList() {
     return null; // Return null if not successful
 };
 
+export async function GetLookupList(type) {
+    try {
+        const { Success, Data, Message } = await GetSingleListResult({
+            key: 'LOOKUP',
+            TYPE: type,   
+        });
+
+        if (Success) {
+            return Data;
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        return null; // Return null in case of an error  
+    }
+    return null; // Return null if not successful
+}
+
+
+
 
 export async function getSupplierList() {
     try {
@@ -59,3 +78,21 @@ export async function getSupplierList() {
     }
     return null; // Return null if not successful
 };
+
+export async function getUnitList() {
+    try {
+        const { Success, Data, Message } = await GetSingleListResult({
+            "key": "UNITS_CRUD", 
+            "TYPE": "GETALL",
+        });
+
+        if (Success) {
+            return Data;
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        return null; // Return null in case of an error  
+    }
+    return null; // Return null if not successful
+}   
+
