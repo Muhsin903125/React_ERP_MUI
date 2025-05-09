@@ -18,7 +18,7 @@ import {
 } from '@mui/material';
 import validator from 'validator';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getLastNumber, getLocationList } from '../../../../utils/CommonServices';
+import { getLastNumber, getLocationList, getUnitList } from '../../../../utils/CommonServices';
 import Confirm from '../../../../components/Confirm';
 import Iconify from '../../../../components/iconify';
 import DateSelector from '../../../../components/DateSelector';
@@ -108,9 +108,16 @@ export default function QuotationEntry() {
         }
     };
 
+    const [unitList, setUnitList] = useState([]);
+    const getunits = async () => {
+        const Data = await getUnitList();
+        setUnitList(Data);
+        
+    }
     useEffect(() => {
         fetchSalesmen();
         getLocations();
+        getunits();
     }, []);
 
     const [locations, setLocations] = useState([]);
@@ -923,8 +930,9 @@ export default function QuotationEntry() {
                             products={products}
                             code={items[index].name}
                             desc={items[index].desc}
-                            qty={items[index].qty}
+                            qty={items[index].qty}  
                             price={items[index].price}
+                            unitList={unitList}
                             unit={items[index].unit}
                             tax={headerData.Tax}
                             discountPercent={1 - (headerData.Discount / calculateTotal(items))}

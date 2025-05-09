@@ -18,7 +18,7 @@ import {
 } from '@mui/material';
 import validator from 'validator';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { getLastNumber, getLocationList } from '../../../../utils/CommonServices';
+import { getLastNumber, getLocationList, getUnitList } from '../../../../utils/CommonServices';
 import Confirm from '../../../../components/Confirm';
 import Iconify from '../../../../components/iconify';
 import DateSelector from '../../../../components/DateSelector';
@@ -342,6 +342,12 @@ export default function PurchaseEntry() {
         });
         // setSelectedValue(value.name);
     };
+    const [unitList, setUnitList] = useState([]);
+    const getunits = async () => {
+        const Data = await getUnitList();
+        setUnitList(Data);
+        
+    }
 
     const getLocations = async () => {
         const Data = await getLocationList();
@@ -350,6 +356,7 @@ export default function PurchaseEntry() {
     };
     useEffect(() => {
         getLocations();
+        getunits();
     }, []);
 
     const CreateInvoice = async () => {
@@ -908,6 +915,7 @@ export default function PurchaseEntry() {
                         <TransactionItem
                             key={index}
                             Propkey={index}
+                            unitList={unitList}
                             discountPercent={1 - (headerData.Discount / calculateTotal(items))}
                             tax={headerData.Tax}
                             products={products}
