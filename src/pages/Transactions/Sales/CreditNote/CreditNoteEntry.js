@@ -24,7 +24,7 @@ import Iconify from '../../../../components/iconify';
 import DateSelector from '../../../../components/DateSelector';
 import Dropdownlist from '../../../../components/DropdownList';
 import CreditNoteItem from './CreditNoteItem';
-import SubTotalSec from './SubTotalSec';
+import SubTotalSec from '../../../../components/SubTotalSec';
 import AlertDialog from '../../../../components/AlertDialog';
 import CustomerDialog from '../../../../components/CustomerDialog';
 import { GetSingleResult, GetSingleListResult, GetMultipleResult } from '../../../../hooks/Api';

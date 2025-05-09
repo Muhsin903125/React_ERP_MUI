@@ -22,15 +22,15 @@ import { getLastNumber, getLocationList } from '../../../../utils/CommonServices
 import Confirm from '../../../../components/Confirm';
 import Iconify from '../../../../components/iconify';
 import DateSelector from '../../../../components/DateSelector';
-import Dropdownlist from '../../../../components/DropdownList';
-import QuotationItem from './QuotationItem';
-import SubTotalSec from './SubTotalSec';
+import Dropdownlist from '../../../../components/DropdownList';  
 import AlertDialog from '../../../../components/AlertDialog';
 import CustomerDialog from '../../../../components/CustomerDialog';
 import { GetSingleResult, GetSingleListResult, GetMultipleResult } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 import { AuthContext } from '../../../../App'; 
 import PrintComponent from '../../../../components/PrintComponent';
+import TransactionItem from '../../../../components/TransactionItem';
+import SubTotalSec from '../../../../components/SubTotalSec';
 // import { head } from 'lodash';
 
 // ----------------------------------------------------------------------
@@ -917,7 +917,7 @@ export default function QuotationEntry() {
                         Item Details
                     </Typography>
                     {items.map((field, index) => (
-                        <QuotationItem
+                        <TransactionItem
                             key={index}
                             Propkey={index}
                             products={products}

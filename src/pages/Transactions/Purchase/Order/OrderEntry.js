@@ -22,15 +22,15 @@ import { getLastNumber, getLocationList } from '../../../../utils/CommonServices
 import Confirm from '../../../../components/Confirm';
 import Iconify from '../../../../components/iconify';
 import DateSelector from '../../../../components/DateSelector';
-import Dropdownlist from '../../../../components/DropdownList';
-import InvoiceItem from './OrderItem';
-import SubTotalSec from './SubTotalSec';
+import Dropdownlist from '../../../../components/DropdownList';  
 import AlertDialog from '../../../../components/AlertDialog';
 import { GetSingleResult, GetSingleListResult, GetMultipleResult } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 import { AuthContext } from '../../../../App';  
 import SupplierDialog from '../../../../components/SupplierDialog';
 import PrintComponent from '../../../../components/PrintComponent';
+import TransactionItem from '../../../../components/TransactionItem';
+import SubTotalSec from '../../../../components/SubTotalSec';
 // import { head } from 'lodash';
 
 // ----------------------------------------------------------------------
@@ -839,7 +839,7 @@ export default function OrderEntry() {
                         Item Details
                     </Typography>
                     {items.map((field, index) => (
-                        <InvoiceItem
+                        <TransactionItem
                             key={index}
                             Propkey={index}
                             discountPercent={1-(headerData.Discount / calculateTotal(items))}
