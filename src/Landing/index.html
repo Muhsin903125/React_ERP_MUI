@@ -183,7 +183,7 @@
         .hero {
             padding: 10rem 0 6rem;
             background: linear-gradient(rgba(22, 28, 36, 0.8), rgba(22, 28, 36, 0.9)),
-                url('https://images.unsplash.com/photo-1557426272-fc759fdf7a8d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80') center/cover;
+                url('https://exapp.online/bg-home.jpeg') center/cover;
             position: relative;
             overflow: hidden;
         }
@@ -500,7 +500,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: url('https://images.unsplash.com/photo-1557426272-fc759fdf7a8d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80') center/cover;
+            background: url('https://exapp.online/bg-home.jpeg') center/cover;
             opacity: 0.1;
         }
 
@@ -538,35 +538,24 @@
             border-top: 1px solid var(--border);
         }
 
-        .footer-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 3rem;
-            margin-bottom: 4rem;
-        }
-
-        .footer-links h3 {
-            font-size: 1.3rem;
+        .footer-main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
             margin-bottom: 2rem;
-            color: var(--text-primary);
         }
 
-        .footer-links ul {
-            list-style: none;
+        .footer-logo {
+            height: 40px;
         }
 
-        .footer-links a {
+        .footer-info {
             color: var(--text-secondary);
-            text-decoration: none;
-            display: block;
-            margin-bottom: 1rem;
-            transition: var(--transition);
-            font-size: 1.1rem;
-        }
-
-        .footer-links a:hover {
-            color: var(--primary);
-            transform: translateX(5px);
+            font-size: 1.05rem;
+            text-align: center;
+            max-width: 400px;
         }
 
         .footer-bottom {
@@ -801,6 +790,19 @@
                 display: block;
             }
 
+            .nav-container {
+                padding: 0.5rem 0;
+            }
+
+            .logo {
+                height: 40px;
+            }
+
+            .logo img {
+                height: 30px;
+                margin: 10px 20px;
+            }
+
             .nav-menu {
                 position: fixed;
                 top: 0;
@@ -810,7 +812,7 @@
                 height: 100vh;
                 background: var(--surface);
                 flex-direction: column;
-                padding: 80px 20px 20px;
+                padding: 60px 20px 20px;
                 transition: right 0.3s ease;
                 gap: 1rem;
             }
@@ -822,7 +824,186 @@
             .nav-menu a {
                 display: block;
                 padding: 10px;
+                font-size: 1.1rem;
+            }
+
+            .hero {
+                padding: 6rem 0 4rem;
+            }
+
+            .hero-text h1 {
+                font-size: 2rem;
+                margin-bottom: 1rem;
+            }
+
+            .hero-text p {
+                font-size: 1rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .section-title {
+                margin-bottom: 3rem;
+            }
+
+            .section-title h2 {
+                font-size: 1.8rem;
+            }
+
+            .section-title p {
+                font-size: 1rem;
+            }
+
+            .features-grid,
+            .benefits-grid,
+            .pricing-grid {
+                gap: 1.5rem;
+            }
+
+            .feature-card,
+            .benefit-card,
+            .pricing-card {
+                padding: 1.5rem;
+            }
+
+            .feature-icon {
+                font-size: 2rem;
+                margin-bottom: 1rem;
+            }
+
+            .feature-card h3,
+            .benefit-content h3 {
                 font-size: 1.2rem;
+            }
+
+            .feature-card p,
+            .benefit-content p {
+                font-size: 0.9rem;
+            }
+
+            .stats-grid {
+                gap: 1.5rem;
+            }
+
+            .stat-item h3 {
+                font-size: 2rem;
+            }
+
+            .stat-item p {
+                font-size: 0.9rem;
+            }
+
+            .contact-grid {
+                gap: 2rem;
+            }
+
+            .contact-form {
+                padding: 1.5rem;
+            }
+
+            .form-group {
+                margin-bottom: 1rem;
+            }
+
+            .form-control {
+                padding: 0.8rem;
+            }
+
+            .footer-main {
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 1.5rem;
+                margin-bottom: 2rem;
+            }
+
+            .footer-logo {
+                height: 40px;
+            }
+
+            .footer-info {
+                color: var(--text-secondary);
+                font-size: 1.05rem;
+                text-align: center;
+                max-width: 400px;
+            }
+
+            .footer-bottom {
+                text-align: center;
+                padding-top: 2rem;
+                border-top: 1px solid var(--border);
+                color: var(--text-secondary);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero {
+                padding: 5rem 0 3rem;
+            }
+
+            .hero-text h1 {
+                font-size: 1.8rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                gap: 0.8rem;
+                max-width: 250px;
+                align-items: flex-end;
+            }
+
+            .btn {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
+
+            .section-title {
+                margin-bottom: 2rem;
+            }
+
+            .section-title h2 {
+                font-size: 1.6rem;
+            }
+
+            .feature-card,
+            .benefit-card,
+            .pricing-card {
+                padding: 1.2rem;
+            }
+
+            .contact-item {
+                margin-bottom: 1rem;
+            }
+
+            .contact-item i {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+
+            .footer-main {
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 1.5rem;
+                margin-bottom: 2rem;
+            }
+
+            .footer-logo {
+                height: 40px;
+            }
+
+            .footer-info {
+                color: var(--text-secondary);
+                font-size: 1.05rem;
+                text-align: center;
+                max-width: 400px;
+            }
+
+            .footer-bottom {
+                text-align: center;
+                padding-top: 2rem;
+                border-top: 1px solid var(--border);
+                color: var(--text-secondary);
             }
         }
 
@@ -1035,15 +1216,398 @@
                 padding: 1.5rem;
             }
 
-            .credential-item {
+            /* .credential-item {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 0.5rem;
-            }
+            } */
 
             .credential-item span {
                 width: 100%;
                 word-break: break-all;
+                text-align: right;
+                margin-right: 10px;
+            }
+        }
+
+        /* Modern Pricing Styles */
+        .pricing-section {
+            padding: 8rem 0;
+            background: linear-gradient(135deg, rgba(33, 43, 54, 0.95) 0%, rgba(22, 28, 36, 0.95) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pricing-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(51, 102, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(0, 167, 111, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .pricing-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 4rem;
+            position: relative;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 70px;
+            height: 38px;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(33, 43, 54, 0.8);
+            transition: .4s;
+            border-radius: 38px;
+            border: 2px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 30px;
+            width: 30px;
+            left: 4px;
+            bottom: 2px;
+            background: var(--gradient);
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(51, 102, 255, 0.3);
+        }
+
+        input:checked + .toggle-slider {
+            background: rgba(51, 102, 255, 0.1);
+            border-color: var(--primary);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(32px);
+        }
+
+        .toggle-label {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .toggle-label.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+            position: relative;
+        }
+
+        .pricing-card {
+            background: rgba(33, 43, 54, 0.6);
+            padding: 1.5rem;
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pricing-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(51, 102, 255, 0.1) 0%, transparent 100%);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .pricing-card:hover::before {
+            opacity: 1;
+        }
+
+        .pricing-card.popular {
+            border: 2px solid var(--primary);
+            transform: scale(1.05);
+            background: rgba(33, 43, 54, 0.8);
+        }
+
+        .pricing-card.popular::after {
+            content: 'Most Popular';
+            position: absolute;
+            top: 1rem;
+            right: -2rem;
+            background: var(--gradient);
+            color: white;
+            padding: 0.5rem 3rem;
+            transform: rotate(45deg);
+            font-size: 0.8rem;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(51, 102, 255, 0.3);
+        }
+
+        .pricing-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .pricing-header h3 {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .price {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .price span {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            -webkit-text-fill-color: var(--text-secondary);
+        }
+
+        .billing-info {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .pricing-features {
+            margin: 2rem 0;
+            flex-grow: 1;
+        }
+
+        .pricing-features ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .pricing-features li {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        .pricing-features li i {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            background: rgba(0, 167, 111, 0.1);
+            padding: 0.3rem;
+            border-radius: 50%;
+        }
+
+        .pricing-card .btn {
+            width: 100%;
+            justify-content: center;
+            padding: 1rem;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .pricing-card .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(51, 102, 255, 0.2);
+        }
+
+        @media (max-width: 1200px) {
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .pricing-grid {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .pricing-card.popular {
+                transform: none;
+            }
+
+            .pricing-toggle {
+                margin-bottom: 2rem;
+            }
+
+            .toggle-switch {
+                width: 60px;
+                height: 32px;
+            }
+
+            .toggle-slider:before {
+                height: 24px;
+                width: 24px;
+            }
+
+            input:checked + .toggle-slider:before {
+                transform: translateX(28px);
+            }
+        }
+
+        /* Contact Section Styles */
+        .contact-section {
+            padding: 8rem 0;
+            background: var(--surface);
+            position: relative;
+        }
+
+        .contact-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at bottom left, rgba(51, 102, 255, 0.1), transparent 70%);
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .contact-info {
+            color: var(--text-secondary);
+        }
+
+        .contact-info h3 {
+            color: var(--text-primary);
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .contact-info p {
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .contact-details {
+            margin-top: 2rem;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .contact-item i {
+            font-size: 1.5rem;
+            color: var(--primary);
+            background: rgba(51, 102, 255, 0.1);
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .contact-form {
+            background: rgba(33, 43, 54, 0.6);
+            padding: 2.5rem;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(33, 43, 54, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(51, 102, 255, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-secondary);
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        @media (max-width: 768px) {
+            .contact-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .contact-form {
+                padding: 1.5rem;
             }
         }
     </style>
@@ -1063,8 +1627,8 @@
                 </button>
                 <ul id="main-menu" class="nav-menu">
                     <li><a href="#features" aria-label="View Features">Features</a></li>
-                    <li><a href="#statistics" aria-label="View Statistics">Statistics</a></li>
-                    <li><a href="#testimonials" aria-label="View Testimonials">Testimonials</a></li>
+                    <!-- <li><a href="#statistics" aria-label="View Statistics">Statistics</a></li>
+                    <li><a href="#testimonials" aria-label="View Testimonials">Testimonials</a></li> -->
                     <li><a href="#pricing" aria-label="View Pricing">Pricing</a></li>
                     <li><a href="#contact" aria-label="Contact Us">Contact</a></li>
                 </ul>
@@ -1081,19 +1645,18 @@
                     <p>Experience the next generation of enterprise resource planning. Streamline operations, boost
                         productivity, and drive growth with our comprehensive suite of business tools.</p>
                     <div class="cta-buttons" role="group" aria-label="Call to action buttons">
-                        <a href="/signup" class="btn btn-primary" role="button" aria-label="Get Started with Exapp">
+                        <a href="#contact" class="btn btn-primary" role="button" aria-label="Get Started with Exapp">
                             <i class="fas fa-rocket" aria-hidden="true"></i>
                             Get Started
                         </a>
-                        <a href="/demo" class="btn btn-secondary" role="button" aria-label="Watch Demo Video">
+                        <!-- <a href="/demo" class="btn btn-secondary" role="button" aria-label="Watch Demo Video">
                             <i class="fas fa-play" aria-hidden="true"></i>
                             Watch Demo
-                        </a>
+                        </a> -->
                     </div>
                 </div>
                 <div class="hero-image animate delay-1">
-                    <img src="https://www.creative-tim.com/blog/content/images/2021/08/dashboard-template-for-react-nodejs.png"
-                        alt="Exapp Dashboard">
+                    <!-- <img src="https://exapp.online/bg-home.png" alt="Exapp Dashboard"> -->
                     <div class="floating-card stats">
                         <div class="stat-icon">
                             <i class="fas fa-chart-line" style="font-size: 2rem; color: var(--primary);"></i>
@@ -1204,7 +1767,8 @@
                         <div class="credential-item">
                             <label>Username:</label>
                             <span>demo@exapp.online</span>
-                            <button class="copy-button" onclick="copyToClipboard('demo@exapp.online')" title="Copy Username">
+                            <button class="copy-button" onclick="copyToClipboard('demo@exapp.online')"
+                                title="Copy Username">
                                 <i class="fas fa-copy"></i>
                             </button>
                         </div>
@@ -1216,13 +1780,15 @@
                             </button>
                         </div>
                     </div>
-                    <a href="https://demo.exapp.online" target="_blank" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                    <a href="https://demo.exapp.online" target="_blank" class="btn btn-primary"
+                        style="width: 100%; justify-content: center;">
                         <i class="fas fa-external-link-alt"></i>
                         Launch Demo
                     </a>
                 </div>
                 <div class="demo-features">
-                    <h3 style="color: var(--text-primary); font-size: 1.5rem; margin-bottom: 1.5rem;">What's included in the demo?</h3>
+                    <h3 style="color: var(--text-primary); font-size: 1.5rem; margin-bottom: 1.5rem;">What's included in
+                        the demo?</h3>
                     <ul>
                         <li>
                             <i class="fas fa-check-circle" style="color: var(--secondary);"></i>
@@ -1324,16 +1890,176 @@
         </div>
     </section>
 
-    <!-- CTA Section -->
-    <section class="cta">
+    <!-- Pricing Section -->
+    <section class="pricing-section" id="pricing">
         <div class="container">
-            <div class="cta-content animate">
-                <h2>Ready to Transform Your Business?</h2>
-                <p>Join thousands of businesses already using Exapp to drive their growth</p>
-                <a href="/signup" class="btn btn-secondary" role="button" aria-label="Start Free Trial">
-                    <i class="fas fa-rocket" aria-hidden="true"></i>
-                    Start Free Trial
-                </a>
+            <div class="section-title animate">
+                <h2>Simple, Transparent Pricing</h2>
+                <p>Choose the perfect plan for your organization</p>
+            </div>
+            <div class="pricing-toggle animate">
+                <span class="toggle-label monthly active">Monthly</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" style="display: none;" id="billingToggle" onchange="toggleBilling()">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label yearly">Yearly (Save 20%)</span>
+            </div>
+            <div class="pricing-grid">
+                <div class="pricing-card animate delay-1">
+                    <div class="pricing-header">
+                        <h3>Basic</h3>
+                        <div class="price" data-monthly="60" data-yearly="48"><img src="./AED_Symbol.svg" alt="AED" style="width: 30px; height: 30px;" /> 60<span>/month</span></div>
+                        <!-- <div class="billing-info">per organization</div> -->
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Perfect for small businesses</p>
+                    </div>
+                    <div class="pricing-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Up to 2 users</li>
+                            <li><i class="fas fa-check"></i> Basic inventory tracking</li>
+                            <li><i class="fas fa-check"></i> Product & item management</li>
+                            <li><i class="fas fa-check"></i> Basic purchase orders</li>
+                            <li><i class="fas fa-check"></i> Basic sales orders</li>
+                            <li><i class="fas fa-check"></i> Simple reporting</li>
+                            <li><i class="fas fa-check"></i> Email support</li>
+                        </ul>
+                    </div>
+                    <a href="#contact" class="btn btn-secondary">Get Started</a>
+                </div>
+
+                <div class="pricing-card animate delay-2">
+                    <div class="pricing-header">
+                        <h3>Starter</h3>
+                        <div class="price" data-monthly="100" data-yearly="80"><img src="./AED_Symbol.svg" alt="AED" style="width: 30px; height: 30px;" /> 100<span>/month</span></div>
+                        <!-- <div class="billing-info">per organization</div> -->
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Perfect for growing businesses</p>
+                    </div>
+                    <div class="pricing-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Up to 3 users</li>
+                            <li><i class="fas fa-check"></i> Basic inventory tracking</li>
+                            <li><i class="fas fa-check"></i> Product & item management</li>
+                            <li><i class="fas fa-check"></i> Purchase & order management</li>
+                            <li><i class="fas fa-check"></i> Sales & quote management</li>
+                            <li><i class="fas fa-check"></i> Simple sales orders</li>
+                            <li><i class="fas fa-check"></i> Basic reporting</li>
+                            <li><i class="fas fa-check"></i> Basic analytics</li>
+                            <li><i class="fas fa-check"></i> Email support</li>
+                        </ul>
+                    </div>
+                    <a href="#contact" class="btn btn-secondary">Get Started</a>
+                </div>
+
+                <div class="pricing-card popular animate delay-2">
+                    <div class="pricing-header">
+                        <h3>Professional</h3>
+                        <div class="price" data-monthly="200" data-yearly="160"><img src="./AED_Symbol.svg" alt="AED" style="width: 30px; height: 30px;" />  200<span>/month</span></div>
+                        <!-- <div class="billing-info">per organization</div> -->
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Best for growing businesses</p>
+                    </div>
+                    <div class="pricing-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Up to 20 users</li>
+                            <li><i class="fas fa-check"></i> Advanced inventory management</li>
+                            <li><i class="fas fa-check"></i> Multi-warehouse support</li>
+                            <li><i class="fas fa-check"></i> Batch & serial number tracking</li>
+                            <li><i class="fas fa-check"></i> Advanced barcode & QR support</li>
+                            <li><i class="fas fa-check"></i> Purchase & sales order management</li>
+                            <li><i class="fas fa-check"></i> Supplier management</li>
+                            <li><i class="fas fa-check"></i> Advanced analytics & reporting</li>
+                            <li><i class="fas fa-check"></i> Priority support</li>
+                            <li><i class="fas fa-check"></i> SLA guarantee</li>
+                        </ul>
+                    </div>
+                    <a href="#contact" class="btn btn-primary">Get Started</a>
+                </div>
+
+                <div class="pricing-card animate delay-3">
+                    <div class="pricing-header">
+                        <h3>Enterprise</h3>
+                        <div class="price">Custom</div>
+                        <!-- <div class="billing-info">per organization</div> -->
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">For large organizations</p>
+                    </div>
+                    <div class="pricing-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Unlimited users</li>
+                            <li><i class="fas fa-check"></i> Multi-location inventory</li>
+                            <li><i class="fas fa-check"></i> Advanced warehouse management</li>
+                            <li><i class="fas fa-check"></i> Custom inventory workflows</li>
+                            <li><i class="fas fa-check"></i> Integration with existing systems</li>
+                            <li><i class="fas fa-check"></i> Custom reporting & analytics</li>
+                            <li><i class="fas fa-check"></i> Dedicated support team</li>
+                            <li><i class="fas fa-check"></i> SLA guarantee</li>
+                            <li><i class="fas fa-check"></i> On-premise option</li>
+                            <li><i class="fas fa-check"></i> Custom development</li>
+                        </ul>
+                    </div>
+                    <a href="#contact" class="btn btn-secondary">Contact Sales</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section" id="contact">
+        <div class="container">
+            <div class="section-title animate">
+                <h2>Contact Us</h2>
+                <p>Get in touch with our team for any inquiries</p>
+            </div>
+            <div class="contact-grid">
+                <div class="contact-info animate delay-1">
+                    <h3>Let's Discuss Your Business Needs</h3>
+                    <p>Fill out the form and we'll get back to you shortly. For immediate assistance, you can reach us directly through WhatsApp.</p>
+                    <div class="contact-details">
+                        <div class="contact-item">
+                            <i class="fab fa-whatsapp"></i>
+                            <div>
+                                <h4 style="color: var(--text-primary); margin-bottom: 0.3rem;">WhatsApp</h4>
+                                <p>+971 58 236 6125</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <h4 style="color: var(--text-primary); margin-bottom: 0.3rem;">Email</h4>
+                                <p>info@exapp.online</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <h4 style="color: var(--text-primary); margin-bottom: 0.3rem;">Location</h4>
+                                <p>Dubai, United Arab Emirates</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="contact-form animate delay-2">
+                    <form id="contactForm" onsubmit="redirectToWhatsApp(event)">
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input type="text" id="name" class="form-control" placeholder="Enter your name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" class="form-control" placeholder="Enter your phone number" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" class="form-control" placeholder="Tell us about your requirements" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">
+                            <i class="fab fa-whatsapp"></i>
+                            Send via WhatsApp
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </section>
@@ -1347,42 +2073,11 @@
     <!-- Footer -->
     <footer>
         <div class="container">
-            <div class="footer-grid">
-                <div class="footer-links">
-                    <h3>Company</h3>
-                    <ul>
-                        <li><a href="#">About Us</a></li>
-                        <li><a href="#">Careers</a></li>
-                        <li><a href="#">Press</a></li>
-                        <li><a href="#">Blog</a></li>
-                    </ul>
-                </div>
-                <div class="footer-links">
-                    <h3>Product</h3>
-                    <ul>
-                        <li><a href="#">Features</a></li>
-                        <li><a href="#">Pricing</a></li>
-                        <li><a href="#">Security</a></li>
-                        <li><a href="#">Enterprise</a></li>
-                    </ul>
-                </div>
-                <div class="footer-links">
-                    <h3>Resources</h3>
-                    <ul>
-                        <li><a href="#">Documentation</a></li>
-                        <li><a href="#">Tutorials</a></li>
-                        <li><a href="#">Support</a></li>
-                        <li><a href="#">API</a></li>
-                    </ul>
-                </div>
-                <div class="footer-links">
-                    <h3>Legal</h3>
-                    <ul>
-                        <li><a href="#">Privacy</a></li>
-                        <li><a href="#">Terms</a></li>
-                        <li><a href="#">Security</a></li>
-                        <li><a href="#">Compliance</a></li>
-                    </ul>
+            <div class="footer-main">
+                <img src="./exapp-logo.png" alt="Exapp Logo" class="footer-logo" />
+                <div class="footer-info">
+                    Exapp is a modern ERP & inventory management platform for growing businesses.<br>
+                    Made with <span style="color: var(--accent);">&#10084;&#65039;</span> in Dubai.
                 </div>
             </div>
             <div class="footer-bottom">
@@ -1421,6 +2116,46 @@
                     button.innerHTML = originalIcon;
                 }, 2000);
             });
+        }
+
+        // WhatsApp redirect function
+        function redirectToWhatsApp(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const message = document.getElementById('message').value;
+
+            const whatsappMessage = `Hello, I'm interested in Exapp ERP.\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nMessage: ${message}`;
+            const encodedMessage = encodeURIComponent(whatsappMessage);
+            const whatsappUrl = `https://wa.me/971582366125?text=${encodedMessage}`;
+            
+            window.open(whatsappUrl, '_blank');
+        }
+
+        // Pricing toggle functionality
+        function toggleBilling() {
+            const toggle = document.getElementById('billingToggle');
+            const monthlyLabel = document.querySelector('.toggle-label.monthly');
+            const yearlyLabel = document.querySelector('.toggle-label.yearly');
+            const prices = document.querySelectorAll('.price[data-monthly]');
+            
+            if (toggle.checked) {
+                monthlyLabel.classList.remove('active');
+                yearlyLabel.classList.add('active');
+                prices.forEach(price => {
+                    const yearlyPrice = price.getAttribute('data-yearly');
+                    price.innerHTML = `<img src="./AED_Symbol.svg" alt="AED" style="width: 30px; height: 30px;" /> ${yearlyPrice}<span>/month</span>`;
+                });
+            } else {
+                monthlyLabel.classList.add('active');
+                yearlyLabel.classList.remove('active');
+                prices.forEach(price => {
+                    const monthlyPrice = price.getAttribute('data-monthly');
+                    price.innerHTML = `<img src="./AED_Symbol.svg" alt="AED" style="width: 30px; height: 30px;" /> ${monthlyPrice}<span>/month</span>`;
+                });
+            }
         }
     </script>
 </body>
