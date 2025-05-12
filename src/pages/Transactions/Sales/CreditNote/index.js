@@ -34,7 +34,7 @@ import Scrollbar from '../../../../components/scrollbar';
 
 const TABLE_HEAD = [
     { id: 'cnNo', label: 'CN No', alignRight: false },
-    { id: 'date', label: 'Date', alignRight: false },
+    { id: 'cnDate', label: 'Date', alignRight: false },
     { id: 'customer', label: 'Customer', alignRight: false },
     { id: 'invoiceNo', label: 'Invoice No', alignRight: false },
     { id: 'returnReason', label: 'Return Reason', alignRight: false },
@@ -70,7 +70,7 @@ export default function CreditNote() {
             setLoadingFull(true);
             const { Success, Data, TotalCount } = await GetSingleListResult({
                 "key": "CN_CRUD",
-                "TYPE": "GET_LIST",
+                "TYPE": "GET_ALL",
                 "fromDate": filters.fromDate.toISOString(),
                 "toDate": filters.toDate.toISOString(),
                 "status": filters.status,
@@ -112,11 +112,11 @@ export default function CreditNote() {
     };
 
     const handleEdit = (id) => {
-        navigate(`/dashboard/credit-note-entry/${id}`);
+        navigate(`/creditnote-entry/${id}`);
     };
 
     const handleAdd = () => {
-        navigate('/dashboard/credit-note-entry');
+        // navigate('/dashboard/credit-note-entry');
     };
 
     const getStatusColor = (status) => {
@@ -238,7 +238,7 @@ export default function CreditNote() {
                                                         <IconButton 
                                                             size="small" 
                                                             color="primary"
-                                                            onClick={() => handleEdit(row.CNNo)}
+                                                            onClick={() => handleEdit(row.InvNo)}
                                                         >
                                                             <Iconify icon="eva:edit-fill" />
                                                         </IconButton>

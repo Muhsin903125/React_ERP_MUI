@@ -18,12 +18,11 @@ import {
 } from '@mui/material';
 import validator from 'validator';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { getLastNumber, getLocationList } from '../../../../utils/CommonServices';
+import { getLastNumber, getLocationList, getUnitList } from '../../../../utils/CommonServices';
 import Confirm from '../../../../components/Confirm';
 import Iconify from '../../../../components/iconify';
 import DateSelector from '../../../../components/DateSelector';
-import Dropdownlist from '../../../../components/DropdownList';
-import CreditNoteItem from './CreditNoteItem';
+import Dropdownlist from '../../../../components/DropdownList'; 
 import SubTotalSec from '../../../../components/SubTotalSec';
 import AlertDialog from '../../../../components/AlertDialog';
 import CustomerDialog from '../../../../components/CustomerDialog';
@@ -32,6 +31,7 @@ import { useToast } from '../../../../hooks/Common';
 import { AuthContext } from '../../../../App';
 import CreditNotePrint from './CreditNotePrint';
 import InvoiceItemsDialog from './InvoiceItemsDialog';
+import TransactionItem from '../../../../components/TransactionItem';
 // import { head } from 'lodash';
 
 // ----------------------------------------------------------------------
@@ -71,6 +71,7 @@ export default function CreditNoteEntry() {
     const [salesmenList, setSalesmenList] = useState([]);
     const [salesmanLoading, setSalesmanLoading] = useState(false);
     const [locations, setLocations] = useState([]);
+    const [unitList, setUnitList] = useState([]);
     const { state } = useLocation();
     const { invoiceData } = state || {};
 
@@ -78,7 +79,7 @@ export default function CreditNoteEntry() {
         {
             CnNo:  code  ,
             CnDate:  selectedCNDate  ,
-            InvNo:  invoiceData.InvNo  ,
+            InvNo:  invoiceData?.InvNo  ,
             InvDate: invoiceData?.InvDate  ,
             Status: invoiceData?.Status || 'PAID',
             CustomerCode: invoiceData?.CustomerCode || '',
@@ -115,8 +116,13 @@ export default function CreditNoteEntry() {
             setAccounts(Data);
         }
     }
+    const getUnits = async () => {
+        const Data = await getUnitList();
+        setUnitList(Data);
+    }
     useEffect(() => {
         getAccounts();
+        getUnits();
     }, []);
     const validate = () => {
         const errors = {};
@@ -302,12 +308,11 @@ export default function CreditNoteEntry() {
                 desc: "",
                 qty: 0,
                 unit: "",
-                type: "inventory",
+                type: "account",
                 account: "",
-                discountPercent: 0,
-                tax: 0,
-                discount: 0,
-                total: 0,
+                previous_docno: "",
+                previous_docsrno: ""  
+                
                 
             }]);
         }
@@ -382,13 +387,13 @@ export default function CreditNoteEntry() {
                 };
 
                 const base64Data = encodeJsonToBase64(JSON.stringify({
-                    "key": "SALE_INV_CRUD",
+                    "key": "CN_CRUD",
                     "TYPE": isEditMode ? "UPDATE" : "INSERT",
                     "DOC_NO": id,
                     "headerData": {
-                        ...headerData, 
-                        "InvDate": selectedCNDate,
-                        "InvNo": code,
+                        ...headerData,   
+                        "InvDate": headerData.InvDate,
+                        "InvNo": headerData.InvNo,
                         "GrossAmount": calculateTotal(items),
                         "TaxAmount": (calculateTotal(items) - headerData.Discount) * headerData.Tax / 100.00,
                         "NetAmount": (calculateTotal(items) - headerData.Discount) * (1 + headerData.Tax / 100.00),
@@ -409,7 +414,7 @@ export default function CreditNoteEntry() {
                 if (Success) {
                     setIsEditMode(false);
                     setIsEditable(false);
-                    navigate(`/sales-entry/${Data.id}`, { replace: true });
+                    navigate(`/creditnote-entry/${Data.id}`, { replace: true });
                     showToast(Data.Message, 'success');
                 }
                 else {
@@ -453,6 +458,9 @@ export default function CreditNoteEntry() {
                 setheaderData({
                     ...headerData,
                     InvNo: headerData?.InvNo,
+                    CnNo: headerData?.CnNo,
+                    CnDate: new Date(headerData.CnDate),
+                    InvDate: new Date(headerData.InvDate),
                     // Status: headerData?.Status,
                     CustomerCode: headerData?.CustomerCode,
                     InvDate: new Date(headerData.InvDate)
@@ -954,7 +962,7 @@ export default function CreditNoteEntry() {
                     </Box>
 
                     {items.map((field, index) => (
-                        <CreditNoteItem
+                        <TransactionItem
                             key={index}
                             Propkey={index}
                             accounts={accounts}
@@ -968,13 +976,16 @@ export default function CreditNoteEntry() {
                             unit={items[index].unit}
                             items={items}
                             setItems={setItems}
+                            unitList={unitList}
                             removeItem={() => removeItem(index)}
                             errors={errors.item}
                             isEditable={isEditable}
+                            type={'credit'}
                         />
                     ))}
 
                     <SubTotalSec
+                        addItem={addItem}
                         calculateTotal={calculateTotal(items)}
                         discount={headerData.Discount}
                         tax={headerData.Tax}
