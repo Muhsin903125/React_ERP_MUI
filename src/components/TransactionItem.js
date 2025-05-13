@@ -97,6 +97,8 @@ export default function TransactionItem({
                 price: defaultPrice,
                 qty: 1,
                 tax: newValue.tax || 0,
+                previous_docno: newValue.previous_docno,
+                previous_docsrno: newValue.previous_docsrno,
                 avail_unit_code: newValue.avail_unit_code,
                 type: 'inventory'
             };

@@ -212,7 +212,7 @@ export default function CreditNote() {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {creditNotes.map((row) => (
+                                        {creditNotes?.map((row) => (
                                             <TableRow key={row.CNNo} hover>
                                                 <TableCell>{row.CNNo}</TableCell>
                                                 <TableCell>
@@ -238,13 +238,13 @@ export default function CreditNote() {
                                                         <IconButton 
                                                             size="small" 
                                                             color="primary"
-                                                            onClick={() => handleEdit(row.InvNo)}
+                                                            onClick={() => handleEdit(row.CnNo)}
                                                         >
                                                             <Iconify icon="eva:edit-fill" />
                                                         </IconButton>
                                                         <IconButton 
                                                             size="small"
-                                                            onClick={() => navigate(`/dashboard/credit-note-entry/${row.CNNo}`, { state: { print: true } })}
+                                                            onClick={() => navigate(`/dashboard/credit-note-entry/${row.CnNo}`, { state: { print: true } })}
                                                         >
                                                             <Iconify icon="eva:printer-fill" />
                                                         </IconButton>
