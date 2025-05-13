@@ -211,15 +211,7 @@ export default function CreditNoteEntry() {
         return !hasError;
     };
 
-    useEffect(() => {
-
-        // if (headerData.InvDate && headerData.CrDays) {
-        if (!id) {
-            const dueDate = new Date(headerData.InvDate);
-            dueDate.setDate(dueDate.getDate() + Number(headerData.CrDays));
-            setselectedDueDate(dueDate);
-        }
-    }, [headerData.InvDate, headerData.CrDays]);
+   
 
     useEffect(() => {
         
@@ -251,24 +243,7 @@ export default function CreditNoteEntry() {
                 });
     };
 
-    const handleDateChange = (event, name) => {
-        const newDate = event.$d;
-        setheaderData(prev => {
-            const updatedData = {
-                ...prev,
-                [name]: newDate
-            };
-
-            // Calculate new due date whenever invoice date changes
-            if (name === 'InvDate') {
-                const dueDate = new Date(newDate);
-                dueDate.setDate(dueDate.getDate() + Number(updatedData.CrDays));
-                setselectedDueDate(dueDate);
-            }
-
-            return updatedData;
-        });
-    };
+    
 
     const handleSave = () => {
         if (validate()) {
@@ -459,9 +434,7 @@ export default function CreditNoteEntry() {
                     ...headerData,
                     InvNo: headerData?.InvNo,
                     CnNo: headerData?.CnNo,
-                    CnDate: new Date(headerData.CnDate),
-                    InvDate: new Date(headerData.InvDate),
-                    // Status: headerData?.Status,
+                    CnDate: new Date(headerData.CnDate),  
                     CustomerCode: headerData?.CustomerCode,
                     InvDate: new Date(headerData.InvDate)
                 });
