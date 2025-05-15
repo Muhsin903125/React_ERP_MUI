@@ -42,33 +42,28 @@ export default function TransactionItem({
     const [availUnit, setAvailUnit] = useState([]);
     const [itemType, setItemType] = useState(items[Propkey]?.type || 'inventory');
 
-    useEffect(() => {
-        setHasErrors(errors !== undefined && errors !== null && Object.keys(errors).length > 0);
-    }, [errors]);
-
-    useEffect(() => {
-        console.log("items", items);
-        console.log("unitList", unitList);
-        console.log("products", products);
-        console.log("Propkey", Propkey);
+    useEffect(() => { 
         if (items && unitList) {
+
             const currentItem = items[Propkey];
-            const product = products.find(p => p.code === currentItem.name);
-            console.log("Current item:", currentItem);
-            console.log("Products:", products);
-            console.log("Found product:", product);
-            if (product?.avail_unit_code) {
-                const unitPricePairs = product.avail_unit_code.split(',');
-                const availUnits = unitList.filter(u => 
-                    unitPricePairs.some(unitPrice => {
-                        const [unit] = unitPrice.split('#');
-                        return unit === u.LK_KEY;
-                    })
-                );
-                setAvailUnit(availUnits);
-            } else {
-                setAvailUnit([]);
+            console.log("currentItem", currentItem);
+            if (currentItem?.type !== 'account' ) {
+                const product = products.find(p => p.code === currentItem.name);
+                console.log("Found product:", product);
+                if (product?.avail_unit_code) {
+                    const unitPricePairs = product.avail_unit_code.split(',');
+                    const availUnits = unitList.filter(u => 
+                        unitPricePairs.some(unitPrice => {
+                            const [unit] = unitPrice.split('#');
+                            return unit === u.LK_KEY;
+                        })
+                    );
+                    setAvailUnit(availUnits);
+                } else {
+                    setAvailUnit([]);
+                }
             }
+               
         }
     }, [items, unitList, products, Propkey]);
 
@@ -104,7 +99,7 @@ export default function TransactionItem({
             };
             setItems(newItems);
             setAvailUnit(availUnits);
-        }
+        } 
         
         if (onItemChange) {
             onItemChange(items[Propkey]);
@@ -113,20 +108,17 @@ export default function TransactionItem({
 
     const handleAccountChange = (event, newValue) => {
         if (!newValue) return;
-
+        
         const newItems = [...items];
         newItems[Propkey] = {
             ...newItems[Propkey],
-            name: newValue.AC_CODE || '',
+            // name: newValue.AC_CODE || '',
             desc: newValue.AC_DESC || '',
-            type: 'account',
-            unit: 'Unit',
-            price: 0,
-            qty: 1,
-            tax: 0
+            type: 'account', 
+            account: newValue.AC_CODE || '',
         };
         setItems(newItems);
-
+        
         if (onItemChange) {
             onItemChange(newItems[Propkey]);
         }
@@ -143,15 +135,12 @@ export default function TransactionItem({
         const newItems = [...items];
         newItems[Propkey] = {
             ...newItems[Propkey],
-            type: newType,
-            name: '',
-            desc: '',
+            type: newType,    
             unit: 'Unit',
             price: 0,
             qty: 1,
-
-
-        };
+            tax: 0
+         };
         setItems(newItems);
 
         if (onItemChange) {
@@ -178,6 +167,7 @@ export default function TransactionItem({
             newItems[Propkey] = {
                 ...newItems[Propkey],
                 unit: value,
+                type: 'inventory',
                 price: newPrice
             };
         } else if (name === `ItemDesc_${Propkey}`) {
@@ -191,6 +181,7 @@ export default function TransactionItem({
         } else if (name === `ItemTax_${Propkey}`) {
             newItems[Propkey].tax = value;
         }
+
 
         setItems(newItems);
         if (onItemChange) {
@@ -238,11 +229,10 @@ export default function TransactionItem({
                         options={products}
                         fullWidth
                         autoSelect
-
                         filterOptions={filterOptions}
                         onChange={handleItemCodeChange}
                         getOptionLabel={(option) => option?.code || ''}
-                        value={products.find(p => p.code === items[Propkey].name) || null}
+                        value={products.find(p => p.code === items[Propkey]?.name) || null}
                         disabled={!isEditable}
                         renderOption={(props, option) => (
                             <Box component="li" sx={{ borderBottom: '1px solid blue' }} {...props}>
@@ -260,8 +250,8 @@ export default function TransactionItem({
                             <TextField
                                 {...params}
                                 size="small"
-                                error={hasErrors && (items[Propkey].name == null || Object.keys(items[Propkey].name).length === 0)}
-                                helperText={(items[Propkey].name == null || Object.keys(items[Propkey].name).length === 0) ? errors : ''}
+                                error={hasErrors && (items[Propkey]?.name == null || Object.keys(items[Propkey]?.name || {}).length === 0)}
+                                helperText={(items[Propkey]?.name == null || Object.keys(items[Propkey]?.name || {}).length === 0) ? errors : ''}
                                 name={`ItemCode_${Propkey}`}
                                 label="Code"
                             />
@@ -276,7 +266,7 @@ export default function TransactionItem({
                         autoSelect
                         onChange={handleAccountChange}
                         getOptionLabel={(option) => `${option?.AC_CODE} - ${option?.AC_DESC}` || ''}
-                        value={accounts?.find(acc => acc.AC_CODE === items[Propkey].name) || null}
+                        value={accounts?.find(acc => acc.AC_CODE === items[Propkey]?.account) || null}
                         disabled={!isEditable}
                         renderOption={(props, option) => (
                             <Box component="li" {...props}>
@@ -291,18 +281,18 @@ export default function TransactionItem({
                             </Box>
                         )}
                         renderInput={(params) =>
-                            <TextField {...params}
+                            <TextField {...params} 
                                 size="small"
-                                error={hasErrors && !items[Propkey].name}
-                                helperText={!items[Propkey].name ? errors : ''}
-                                label="Account"
+                                error={hasErrors && !items[Propkey]?.name}
+                                helperText={!items[Propkey]?.name ? errors : ''}
+                                label="Account" 
                             />
                         }
                     />
                 )}
             </Grid>
 
-            <Grid item xs={12} md={itemType === 'account' ? 3.5 : (type === 'credit' ? 2.5 : 3.5)}>
+            <Grid item xs={12} md={itemType === 'account' ? 4.5 : (type === 'credit' ? 2.5 : 3.5)}>
                 <TextField
                     name={`ItemDesc_${Propkey}`}
                     size="small"
@@ -354,7 +344,7 @@ export default function TransactionItem({
                     disabled={!isEditable}
                 />
             </Grid>
-
+ {(itemType !== 'account') && (
             <Grid item xs={6} sm={3} md={1}>
                 <TextField
                     type="number"
@@ -372,6 +362,7 @@ export default function TransactionItem({
                     disabled={!isEditable}
                 />
             </Grid>
+ )}
 
             {/* {showTaxField && (
                 <Grid item xs={6} sm={3} md={1}>

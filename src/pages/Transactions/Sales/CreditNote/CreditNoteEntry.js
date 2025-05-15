@@ -390,7 +390,7 @@ export default function CreditNoteEntry() {
                     setIsEditMode(false);
                     setIsEditable(false);
                     navigate(`/creditnote-entry/${Data.id}`, { replace: true });
-                    showToast(Data.Message, 'success');
+                    showToast(id ? "Credit Note Updated Successfully" : "Credit Note Saved Successfully", 'success');
                 }
                 else {
                     showToast(Message, "error");
@@ -431,8 +431,8 @@ export default function CreditNoteEntry() {
                 console.log("asdas--", itemsData, Data);
 
                 setheaderData({
-                    ...headerData,
-                    InvNo: headerData?.InvNo,
+                    ...headerData, 
+                    InvNo: headerData?.InvNo, 
                     CnNo: headerData?.CnNo,
                     CnDate: new Date(headerData.CnDate),  
                     CustomerCode: headerData?.CustomerCode,
@@ -440,6 +440,20 @@ export default function CreditNoteEntry() {
                 });
                 setselectedCNDate(new Date(headerData.CnDate));
                 setItems(itemsData || []);
+
+                // Fetch invoice items
+                const { Success: invSuccess, Data: invData, Message: invMessage } = await GetMultipleResult({
+                    "key": "SALE_INV_CRUD",
+                    "TYPE": "GET",
+                    "DOC_NO": headerData?.InvNo.replace("INV", '')
+                });
+
+                if (invSuccess) {
+                    console.log("invData--", invData[0],"da",headerData?.InvNo);
+                    setInvoiceItems(invData[1] || []); // Assuming items are in the second array
+                } else {
+                    showToast(invMessage, "error");
+                }
             } else {
                 showToast(Message, "error");
             }
@@ -594,25 +608,51 @@ export default function CreditNoteEntry() {
     const handleItemSelect = (item) => {
         if (Array.isArray(item)) {
             // Handle select all
-            setSelectedItems(item);
+            const newItems = item.map(itemss => ({
+                ...itemss,
+                type: 'inventory',          
+                previous_docno: itemss.name,
+                previous_docsrno: itemss.srno,
+            }));
+            setSelectedItems(prev => [...prev, ...newItems]);
             return;
         }
 
         setSelectedItems(prev => {
             const exists = prev.some(i => i.name === item.name);
-            if (exists) {
+            if (exists) { 
                 return prev.filter(i => i.name !== item.name);
             }
-            return [...prev, item];
+
+            // Add the new item with required fields
+            const newItem = {
+                ...item,
+                type: 'inventory',
+                previous_docno: item.name,
+                previous_docsrno: item.srno,
+            };
+            return [...prev, newItem];
         });
     };
 
     const handleConfirmItems = () => {
         const itemsWithType = selectedItems.map(item => ({
             ...item,
-            type: 'inventory'  // Set default type for items from invoice
+            type: 'inventory',
+            previous_docno: item.name,
+            previous_docsrno: item.srno,
         }));
-        setItems(itemsWithType);
+
+        // Remove any existing items that are in the selected items
+        setItems(prev => {
+            const existingNames = new Set(itemsWithType.map(item => item.name));
+            const filteredPrev = prev.filter(item => !existingNames.has(item.name)  );
+            const filteredPrevAccount = prev.filter(item => (item.type === 'account')  ); 
+            return [...filteredPrev, ...filteredPrevAccount, ...itemsWithType];
+        });
+
+        // Clear the selected items after adding them
+        // setSelectedItems([]);
         setShowItemDialog(false);
     };
 
@@ -636,7 +676,7 @@ export default function CreditNoteEntry() {
                             Print
                         </Button>
                     )}
-                    {isEditMode && !isEditable && (
+                    {(  !isEditable) && (
                         <Button variant="contained" color="primary" startIcon={<Iconify icon="eva:edit-fill" />} onClick={toggleEditMode}>
                             Enable Edit
                         </Button>
@@ -646,9 +686,9 @@ export default function CreditNoteEntry() {
                             Cancel Edit
                         </Button>
                     )}
-                    <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleNewInvoice}>
+                    {/* <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleNewInvoice}>
                         New Invoice
-                    </Button>
+                    </Button> */}
                 </Stack>
             </Stack>
 
@@ -919,7 +959,7 @@ export default function CreditNoteEntry() {
                     </Grid>
                 </Stack>
                 <Stack m={2.5} maxwidth={'lg'}>
-                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
                         <Typography variant="h6">
                             Item Details
                         </Typography>

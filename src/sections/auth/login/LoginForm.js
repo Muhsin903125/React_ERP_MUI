@@ -27,6 +27,9 @@ export default function LoginForm() {
   const [user, setUser] = useState(() => {
     // Check if there are saved credentials
     const savedUser = localStorage.getItem('rememberedUser');
+    if (savedUser) {
+      setRememberMe(true);
+    }
     return savedUser || '';
   });
   const [pwd, setPwd] = useState(() => {

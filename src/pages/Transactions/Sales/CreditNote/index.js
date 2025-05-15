@@ -33,8 +33,8 @@ import Label from '../../../../components/label';
 import Scrollbar from '../../../../components/scrollbar';
 
 const TABLE_HEAD = [
-    { id: 'cnNo', label: 'CN No', alignRight: false },
-    { id: 'cnDate', label: 'Date', alignRight: false },
+    { id: 'CnNo', label: 'CN No', alignRight: false },
+    { id: 'CnDate', label: 'Date', alignRight: false },
     { id: 'customer', label: 'Customer', alignRight: false },
     { id: 'invoiceNo', label: 'Invoice No', alignRight: false },
     { id: 'returnReason', label: 'Return Reason', alignRight: false },
@@ -71,12 +71,12 @@ export default function CreditNote() {
             const { Success, Data, TotalCount } = await GetSingleListResult({
                 "key": "CN_CRUD",
                 "TYPE": "GET_ALL",
-                "fromDate": filters.fromDate.toISOString(),
-                "toDate": filters.toDate.toISOString(),
-                "status": filters.status,
-                "searchText": filters.searchText,
-                "pageNumber": page + 1,
-                "pageSize": rowsPerPage,
+                // "fromDate": filters.fromDate.toISOString(),
+                // "toDate": filters.toDate.toISOString(),
+                // "status": filters.status,
+                // "searchText": filters.searchText,
+                // "pageNumber": page + 1,
+                // "pageSize": rowsPerPage,
             });
 
             if (Success) {
@@ -116,7 +116,7 @@ export default function CreditNote() {
     };
 
     const handleAdd = () => {
-        // navigate('/dashboard/credit-note-entry');
+        navigate('/salesinvoice');
     };
 
     const getStatusColor = (status) => {
@@ -213,17 +213,17 @@ export default function CreditNote() {
                                     </TableHead>
                                     <TableBody>
                                         {creditNotes?.map((row) => (
-                                            <TableRow key={row.CNNo} hover>
-                                                <TableCell>{row.CNNo}</TableCell>
+                                            <TableRow key={row.CnNo} hover>
+                                                <TableCell>{row.CnNo}</TableCell>
                                                 <TableCell>
-                                                    {new Date(row.CNDate).toLocaleDateString()}
+                                                    {new Date(row.CnDate).toLocaleDateString()}
                                                 </TableCell>
                                                 <TableCell>
                                                     <Typography variant="subtitle2" noWrap>
                                                         {row.Customer}
                                                     </Typography>
                                                 </TableCell>
-                                                <TableCell>{row.InvoiceNo}</TableCell>
+                                                <TableCell>{row.InvNo}</TableCell>
                                                 <TableCell>{row.ReturnReason}</TableCell>
                                                 <TableCell align="right">
                                                     {row.NetAmount.toFixed(2)}
@@ -242,12 +242,12 @@ export default function CreditNote() {
                                                         >
                                                             <Iconify icon="eva:edit-fill" />
                                                         </IconButton>
-                                                        <IconButton 
+                                                        {/* <IconButton 
                                                             size="small"
                                                             onClick={() => navigate(`/dashboard/credit-note-entry/${row.CnNo}`, { state: { print: true } })}
                                                         >
                                                             <Iconify icon="eva:printer-fill" />
-                                                        </IconButton>
+                                                        </IconButton> */}
                                                     </Stack>
                                                 </TableCell>
                                             </TableRow>
