@@ -488,7 +488,7 @@ export default function DebitNoteEntry() {
             <!DOCTYPE html>
             <html>
                 <head>
-                    <title>Print Debit Note</title>
+                    <title>Debit Note-${headerData.DnNo}</title>
                     <style>
                         ${styles}
                         body {

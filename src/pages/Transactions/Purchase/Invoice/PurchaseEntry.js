@@ -616,7 +616,7 @@ export default function PurchaseEntry() {
     return (
         <>
             <Helmet>
-                <title> Purchase Invoice </title>
+                <title> Purchase Invoice-${headerData.InvNo} </title>
             </Helmet>
 
             <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>

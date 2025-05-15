@@ -495,7 +495,7 @@ export default function SalesEntry() {
             <!DOCTYPE html>
             <html>
                 <head>
-                    <title>Print Invoice</title>
+                    <title>Invoice-${headerData.InvNo}</title>
                     <style>
                         ${styles}
                         body {

@@ -462,7 +462,7 @@ export default function OrderEntry() {
             <!DOCTYPE html>
             <html>
                 <head>
-                    <title>Print Invoice</title>
+                    <title>Order-${headerData.OrderNo}</title>
                     <style>
                         ${styles}
                         body {

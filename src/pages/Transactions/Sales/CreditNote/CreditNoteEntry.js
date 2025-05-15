@@ -506,7 +506,7 @@ export default function CreditNoteEntry() {
             <!DOCTYPE html>
             <html>
                 <head>
-                    <title>Print Invoice</title>
+                    <title >Credit Note-${headerData.CnNo}</title>
                     <style>
                         ${styles}
                         body {

@@ -510,7 +510,7 @@ export default function QuotationEntry() {
             <!DOCTYPE html>
             <html>
                 <head>
-                    <title>Print Quotation</title>
+                    <title>Quotation-${headerData.QuotNo}</title>
                     <style>
                         ${styles}
                         body {
