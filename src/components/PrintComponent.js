@@ -47,7 +47,7 @@ const PrintHeader = ({ headerData, companyName, companyAddress, companyPhone, co
             <Grid item xs={6}>
                 <Box sx={{ textAlign: 'right' }}>
                     <Typography variant="h3" color='black' fontWeight={400} gutterBottom>{documentType}</Typography>
-                    <Typography variant="body1" fontWeight={600}>#{headerData.InvNo || headerData.QuotNo || headerData.OrderNo}</Typography>
+                    <Typography variant="body1" fontWeight={600}>#{headerData.CnNo || headerData.DnNo || headerData.InvNo || headerData.QuotNo || headerData.OrderNo}</Typography>
                 </Box>
             </Grid>
 

@@ -278,7 +278,7 @@ export default function CreditNoteEntry() {
 
 
     const addItem = (event) => {
-        if (validate()) {
+        if (validate() || items.length === 0) {
             event.preventDefault();
             // console.log(ItemNewLength);
             setItems([...items, {
