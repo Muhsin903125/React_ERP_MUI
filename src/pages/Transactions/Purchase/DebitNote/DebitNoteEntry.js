@@ -51,7 +51,7 @@ const PaymentModeOptions = [
 ];
 
 
-export default function CreditNoteEntry() {
+export default function DebitNoteEntry() {
     const navigate = useNavigate();
     const { id } = useParams();
     const { showToast } = useToast();
@@ -77,8 +77,8 @@ export default function CreditNoteEntry() {
 
     const [headerData, setheaderData] = useState(
         {
-            CnNo:  code  ,
-            CnDate:  selectedCNDate  ,
+            DnNo:  code  ,
+            DnDate:  selectedCNDate  ,
             InvNo:  invoiceData?.InvNo  ,
             InvDate: invoiceData?.InvDate  ,
             Status: invoiceData?.Status || 'PAID',
@@ -144,18 +144,12 @@ export default function CreditNoteEntry() {
 
         // Invoice date validation
         if (!selectedCNDate) {
-            errors.CnDate = 'Credit Note date is required';
-            showToast('Credit Note date is required', "error");
+            errors.DnDate = 'Debit Note date is required';
+            showToast('Debit Note date is required', "error");
             hasError = true;
         }
 
-        // Credit Days validation
-        if (headerData.CrDays < 0) {
-            errors.CrDays = 'Credit days cannot be negative';
-            showToast('Credit days cannot be negative', "error");
-            hasError = true;
-        }
-
+      
         // Email validation (if provided)
         if (headerData.Email && !validator.isEmail(headerData.Email)) {
             errors.Email = 'Invalid email address';
@@ -267,11 +261,11 @@ export default function CreditNoteEntry() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
     const getCode = async () => {
-        const { lastNo, IsEditable } = await getLastNumber('CN');
+        const { lastNo, IsEditable } = await getLastNumber('DN');
         setCode(lastNo);
         setheaderData(prev => ({
             ...prev,
-            CnNo: lastNo
+            DnNo: lastNo
         }));
     };
 
@@ -364,7 +358,7 @@ export default function CreditNoteEntry() {
                 };
 
                 const base64Data = encodeJsonToBase64(JSON.stringify({
-                    "key": "CN_CRUD",
+                    "key": "DN_CRUD",
                     "TYPE": isEditMode ? "UPDATE" : "INSERT",
                     "DOC_NO": id,
                     "headerData": {
@@ -391,8 +385,8 @@ export default function CreditNoteEntry() {
                 if (Success) {
                     setIsEditMode(false);
                     setIsEditable(false);
-                    navigate(`/creditnote-entry/${Data.id}`, { replace: true });
-                    showToast(id ? "Credit Note Updated Successfully" : "Credit Note Saved Successfully", 'success');
+                    navigate(`/debitnote-entry/${Data.id}`, { replace: true });
+                    showToast(id ? "Debit Note Updated Successfully" : "Debit Note Saved Successfully", 'success');
                 }
                 else {
                     showToast(Message, "error");
@@ -421,7 +415,7 @@ export default function CreditNoteEntry() {
         try {
             setLoadingFull(true);
             const { Success, Data, Message } = await GetMultipleResult({
-                "key": "CN_CRUD",
+                "key": "DN_CRUD",
                 "TYPE": "GET",
                 "DOC_NO": invoiceId
             });
@@ -434,20 +428,20 @@ export default function CreditNoteEntry() {
                 setheaderData({
                     ...headerData,
                     InvNo: headerData?.InvNo,
-                    CnNo: headerData?.CnNo,
-                    CnDate: new Date(headerData.CnDate),  
+                    DnNo: headerData?.DnNo,
+                    DnDate: new Date(headerData.DnDate),  
                     CustomerCode: headerData?.CustomerCode,
                     InvDate: new Date(headerData.InvDate)
                 });
-                setselectedCNDate(new Date(headerData.CnDate));
+                setselectedCNDate(new Date(headerData.DnDate));
                 setItems(itemsData || []); 
                 // Fetch invoice items
                 console.log("headerData.InvNo", headerData);
                 if (headerData?.InvNo) {
                     const { Success: invSuccess, Data: invData, Message: invMessage } = await GetMultipleResult({
-                        "key": "SALE_INV_CRUD",
+                        "key": "PURCH_INV_CRUD",
                         "TYPE": "GET",
-                        "DOC_NO": headerData.InvNo.replace("INV", '')
+                        "DOC_NO": headerData.InvNo.replace("PUR", '')
                     });
 
                     if (invSuccess) {
@@ -506,7 +500,7 @@ export default function CreditNoteEntry() {
             <!DOCTYPE html>
             <html>
                 <head>
-                    <title>Print Invoice</title>
+                    <title>Print Debit Note</title>
                     <style>
                         ${styles}
                         body {
@@ -542,48 +536,15 @@ export default function CreditNoteEntry() {
         if (id) {
             loadInvoiceDetails(id);
         }
-        if (invoiceData && isEditable)
-            handleNewInvoice();
+        // if (invoiceData && isEditable)
+        //     handleNewInvoice();
 
 
         setIsEditable(!isEditable);
 
     };
 
-    const handleNewInvoice = () => {
-        // Reset all data
-        setheaderData({
-            CnNo: '',
-            CnDate: selectedCNDate,
-            InvNo: '',
-            InvDate: '',
-            Status: 'PAID',
-            CustomerCode: '',
-            Customer: 'Customer Name',
-            Address: '',
-            Location: '',
-            TRN: '',
-            ContactNo: '',
-            Email: '',
-            LPONo: '',
-            RefNo: '',
-            PaymentMode: 'CASH',
-            CrDays: 0,
-            Discount: 0,
-            Tax: 5,
-            GrossAmount: 0,
-            TaxAmount: 0,
-            NetAmount: 0,
-            SManCode: '',
-            Remarks: ''
-        });
-        setItems([]);  // Initialize with empty array instead of default item
-        setErrors({});
-        setIsEditable(true);
-        setIsEditMode(false);
-        getCode(); // Get new invoice number
-        navigate('/sales-entry');
-    };
+ 
 
     const fetchSalesmen = async () => {
         try {
@@ -666,12 +627,12 @@ export default function CreditNoteEntry() {
     return (
         <>
             <Helmet>
-                <title> Sales Credit Note </title>
+                <title> Purchase Debit Note </title>
             </Helmet>
 
             <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
                 <Typography variant="h4" gutterBottom>
-                    {isEditMode ? 'Edit Sales Credit Note' : 'New Sales Credit Note'}
+                    {isEditMode ? 'Edit Purchase Debit Note' : 'New Purchase Debit Note'}
                 </Typography>
                 <Stack direction="row" spacing={2}>
                     {!isEditable && (id) && (
@@ -741,10 +702,10 @@ export default function CreditNoteEntry() {
                             <Grid item xs={6} md={2}  >
                                     <FormControl fullWidth>
                                         <TextField
-                                            id="credit-note-no"
-                                            label="Credit Note#"
-                                            name="CnNo"
-                                            value={headerData.CnNo}
+                                            id="debit-note-no"
+                                            label="Debit Note#"
+                                            name="DnNo"
+                                            value={headerData.DnNo}
                                             onChange={handleInputChange}
                                             size="small"
                                             inputProps={{
@@ -755,16 +716,16 @@ export default function CreditNoteEntry() {
                                     </FormControl>
                                 </Grid>
                                 <Grid item xs={6} md={4} >
-                                    <FormControl fullWidth error={Boolean(errors.CnDate)}>
+                                    <FormControl fullWidth error={Boolean(errors.DnDate)}>
                                         <DateSelector
-                                            label="Credit Note Date"
+                                            label="Debit Note Date"
                                             size="small"
                                             disableFuture={disableFutureDate}
-                                            value={headerData.CnDate}
+                                            value={headerData.DnDate}
                                             onChange={setselectedCNDate}
                                             disable={!isEditable}
-                                            error={Boolean(errors.CnDate)}
-                                            helperText={errors.CnDate}
+                                            error={Boolean(errors.DnDate)}
+                                            helperText={errors.DnDate}
                                             required
                                         />
                                     </FormControl>
@@ -1015,7 +976,7 @@ export default function CreditNoteEntry() {
                     <Stack direction="row" justifyContent="flex-end" mb={2} mt={2}>
                         {isEditable && (
                             <Button variant="contained" color={isEditMode ? 'warning' : 'success'} size='large' onClick={handleSave}>
-                                {isEditMode ? 'Update Credit Note' : 'Create Credit Note'}
+                                {isEditMode ? 'Update Debit Note' : 'Create Debit Note'}
                             </Button>
                         )}
                     </Stack>
@@ -1058,7 +1019,7 @@ export default function CreditNoteEntry() {
                                     headerData.SManCode || ''
                             }}
                             items={items}
-                            documentType="TAX CREDIT NOTE"
+                            documentType="TAX DEBIT NOTE"
                         /> 
                     </Box>
                 </DialogContent>

@@ -46,6 +46,7 @@ export default function TransactionItem({
         if (items && unitList) {
 
             const currentItem = items[Propkey];
+            setItemType(currentItem?.type || 'inventory');
             console.log("currentItem", currentItem);
             if (currentItem?.type !== 'account' ) {
                 const product = products.find(p => p.code === currentItem.name);
@@ -62,6 +63,8 @@ export default function TransactionItem({
                 } else {
                     setAvailUnit([]);
                 }
+            }else{
+                setAvailUnit([]);
             }
                
         }
@@ -112,9 +115,11 @@ export default function TransactionItem({
         const newItems = [...items];
         newItems[Propkey] = {
             ...newItems[Propkey],
-            // name: newValue.AC_CODE || '',
+            name: newValue.AC_CODE || '',
             desc: newValue.AC_DESC || '',
             type: 'account', 
+            qty: 1,
+            price: 0,
             account: newValue.AC_CODE || '',
         };
         setItems(newItems);
@@ -136,6 +141,7 @@ export default function TransactionItem({
         newItems[Propkey] = {
             ...newItems[Propkey],
             type: newType,    
+            account: '',
             unit: 'Unit',
             price: 0,
             qty: 1,

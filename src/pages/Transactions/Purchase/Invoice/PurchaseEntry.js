@@ -601,6 +601,17 @@ export default function PurchaseEntry() {
         fetchSalesmen();
     }, []);
 
+    const handleAddDebitNote = () => {
+        navigate('/debitnote-entry', {
+            state: {
+                "invoiceData": headerData,
+                "invoiceItems": items,
+            }
+        });
+    }; 
+
+
+
 
     return (
         <>
@@ -614,14 +625,25 @@ export default function PurchaseEntry() {
                 </Typography>
                 <Stack direction="row" spacing={2}>
                     {!isEditable && (id) && (
-                        <Button
-                            variant="outlined"
-                            startIcon={<Iconify icon="eva:printer-fill" />}
-                            onClick={handlePrint}
-                        >
-                            Print
-                        </Button>
+                      <>
+                      <Button
+                          variant="outlined"
+                          startIcon={<Iconify icon="eva:printer-fill" />}
+                          onClick={handlePrint}
+                      >
+                          Print
+                      </Button>
+                      <Button
+                          variant="outlined"
+                          startIcon={<Iconify icon="eva:printer-fill" />}
+                          onClick={handleAddDebitNote}
+                      >
+                          Add Debit Note
+                      </Button>
+                  </>
                     )}
+
+
                     {isEditMode && !isEditable && (
                         <Button variant="contained" color="primary" startIcon={<Iconify icon="eva:edit-fill" />} onClick={toggleEditMode}>
                             Enable Edit

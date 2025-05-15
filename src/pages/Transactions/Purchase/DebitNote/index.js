@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import MaterialReactTable from 'material-react-table';
 import moment from 'moment';
-import { GetSingleListResult, PostCommonSp, PostMultiSp } from '../../../../hooks/Api';
+import { GetSingleListResult    } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 import { AuthContext } from '../../../../App';
 import Iconify from '../../../../components/iconify';
@@ -21,13 +21,13 @@ import Iconify from '../../../../components/iconify';
 
 const columns = [
     {
-        accessorKey: 'InvNo',
+        accessorKey: 'CnNo',
         header: 'Code',
         enableEditing: false,
         size: 0
     },
     {
-        accessorKey: 'InvDate',
+        accessorKey: 'CnDate',
         header: 'Date',
         cell: info => {
             const rawDate = info.getValue();
@@ -44,21 +44,13 @@ const columns = [
         header: 'Customer',
     },
     {
-        accessorKey: 'LPONo',
-        header: 'LPO No',
-    },
-    {
-        accessorKey: 'TRN',
-        header: 'TRN',
-    },
+        accessorKey: 'InvNo',
+        header: 'Invoice No',
+    }, 
     {
         accessorKey: 'PaymentMode',
         header: 'Payment Mode',
-    },
-    {
-        accessorKey: 'Status',
-        header: 'Status',
-    },
+    }, 
     {
 
         accessorKey: 'GrossAmount',
@@ -73,11 +65,11 @@ const columns = [
 ];
 
 
-export default function SalesInvoice() {
+export default function DebitNote() {
     const navigate = useNavigate();
     const { setLoadingFull } = useContext(AuthContext);
     const { showToast } = useToast();
-    const [SalesInvoice, setSalesInvoice] = useState([]);
+    const [DebitNote, setDebitNote] = useState([]);
     const [validationErrors, setValidationErrors] = useState({}); 
 
     useEffect(() => {
@@ -87,11 +79,11 @@ export default function SalesInvoice() {
             try {
                 setLoadingFull(false);
                 const { Success, Data, Message } = await GetSingleListResult({
-                    "key": "SALE_INV_CRUD",
+                    "key": "DN_CRUD",
                     "TYPE": "GET_ALL",
                 })
                 if (Success) {
-                    setSalesInvoice(Data)
+                    setDebitNote(Data)
                     //  showToast(Message, 'success');
                 }
                 else {
@@ -106,64 +98,40 @@ export default function SalesInvoice() {
 
     }, [])
 
-
-    // for edit Save
-    const handleSaveRowEdits = async ({ exitEditingMode, row, values }) => {
-        if (!Object.keys(validationErrors).length) {
-            SalesInvoice[row.index] = values;
-            // send/receive api updates here, then refetch or update local table data for re-render
-            const response = await PostCommonSp({
-                "json": values,
-                "key": "CUSTOMER_EDIT"
-            })
-            if (response.Success) {
-                setSalesInvoice([...SalesInvoice]);
-                exitEditingMode(); // required to exit editing mode and close modal
-            }
-            else {
-                showToast(response.Message, "error");
-            }
-        }
-    };
-
-    // for cancel edit
-    const handleCancelRowEdits = () => {
-        setValidationErrors({});
-    };
-
+ 
+ 
     const handleView = (rowData) => {
-        navigate(`/sales-entry/${rowData.InvNo}`);
+        navigate(`/debitnote-entry/${rowData.DnNo}`);
     };
 
     return (
         <>
             <Helmet>
-                <title>Sale Invoice </title>
+                <title>Purchase Debit Note </title>
             </Helmet>
             <Box component="main" sx={{ m: 1, p: 1 }}>
 
                 <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
                     <Typography variant="h4" gutterBottom>
-                        Sale Invoice List
+                        Debit Note List
                     </Typography>
-                    <Link to="/sales-entry" style={{ textDecoration: 'none' }}>
+                    <Link to="/purchase" style={{ textDecoration: 'none' }}>
                         <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-                            New Sales Invoice Entry
+                            New Debit Note Entry
                         </Button>
                     </Link>
                 </Stack>
 
                 <MaterialReactTable
                     columns={columns}
-                    data={SalesInvoice}
+                    data={DebitNote}
                     initialState={{
                         density: 'compact',
                         expanded: true,
                     }}
                     enableColumnOrdering
-                    enableGrouping
-                    onEditingRowSave={handleSaveRowEdits}
-                    onEditingRowCancel={handleCancelRowEdits}
+                    enableGrouping 
+                    
                     enableRowActions
                     // 👇 Add this
                     renderRowActions={({ row }) => (
@@ -172,7 +140,7 @@ export default function SalesInvoice() {
                                 variant="text"
                                 onClick={() => handleView(row.original)}
                                 color="primary"
-                                title="View/Edit Invoice"
+                                title="View/Edit Debit Note"
                             >
                                 <Iconify icon="mdi:eye" />
                             </Button>

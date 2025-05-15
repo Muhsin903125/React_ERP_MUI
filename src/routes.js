@@ -47,6 +47,8 @@ import PurchaseOrder from './pages/Transactions/Purchase/Order';
 import PurchaseOrderEntry from './pages/Transactions/Purchase/Order/OrderEntry';
 import Lookups from './pages/Settings/ERP/Lookups';
 import CompanyProfile from './pages/Settings/ERP/CompanyProfile';
+import DebitNoteEntry from './pages/Transactions/Purchase/DebitNote/DebitNoteEntry';
+import DebitNote from './pages/Transactions/Purchase/DebitNote';
 // ----------------------------------------------------------------------
 const RequiredRolesContext = createContext();
 
@@ -128,6 +130,11 @@ export default function Router() {
     { path: 'creditnote', element: <CreditNote /> },  
     { path: 'creditnote-entry', element: <CreditNoteEntry /> },
     { path: 'creditnote-entry/:id', element: <CreditNoteEntry /> },
+
+    { path: 'debitnote', element: <DebitNote /> },
+    { path: 'debitnote-entry', element: <DebitNoteEntry /> },
+    { path: 'debitnote-entry/:id', element: <DebitNoteEntry /> },
+
     { path: 'documents', element: <Documents /> },
 
     { path: 'purchase', element: <PurchaseInvoice /> },
