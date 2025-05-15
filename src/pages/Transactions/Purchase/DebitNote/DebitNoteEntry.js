@@ -82,13 +82,14 @@ export default function DebitNoteEntry() {
             InvNo:  invoiceData?.InvNo  ,
             InvDate: invoiceData?.InvDate  ,
             Status: invoiceData?.Status || 'PAID',
-            CustomerCode: invoiceData?.CustomerCode || '',
-            Customer: invoiceData?.Customer || 'Customer Name',
+            SupplierCode: invoiceData?.SupplierCode || '',
+            Supplier: invoiceData?.Supplier || 'Supplier Name',
+           
             Address: invoiceData?.Address || '',
             TRN: invoiceData?.TRN || '',
             ContactNo: invoiceData?.ContactNo || '',
             Email: invoiceData?.Email || '',
-            LPONo: invoiceData?.LPONo || '',
+            SuppInvNo: invoiceData?.SuppInvNo || '',
             RefNo: invoiceData?.RefNo || '',
             PaymentMode: invoiceData?.PaymentMode || 'CASH',
             Location: invoiceData?.Location || '',
@@ -128,10 +129,10 @@ export default function DebitNoteEntry() {
         const errors = {};
         let hasError = false;
 
-        // Customer validation
-        if (validator.isEmpty(headerData.CustomerCode)) {
-            errors.CustomerCode = 'Customer is required';
-            showToast('Customer is required', "error");
+        // Supplier validation
+        if (validator.isEmpty(headerData.SupplierCode)) {
+            errors.SupplierCode = 'Supplier is required';
+            showToast('Supplier is required', "error");
             hasError = true;
         }
 
@@ -322,20 +323,7 @@ export default function DebitNoteEntry() {
         setOpen(false);
     };
 
-    const handleSelect = (value) => {
-        setOpen(false);
-        setheaderData({
-            ...headerData,
-            "Customer": value.CUS_DESC,
-            "Address": value.CUS_ADDRESS,
-            "TRN": value.CUS_TRN,
-            "CustomerCode": value.CUS_DOCNO,
-            "ContactNo": value.CUS_MOB,
-            "Email": value.CUS_EMAIL
-
-        });
-        // setSelectedValue(value.name);
-    };
+   
 
     const getLocations = async () => {
         const Data = await getLocationList();
@@ -430,7 +418,7 @@ export default function DebitNoteEntry() {
                     InvNo: headerData?.InvNo,
                     DnNo: headerData?.DnNo,
                     DnDate: new Date(headerData.DnDate),  
-                    CustomerCode: headerData?.CustomerCode,
+                    SupplierCode: headerData?.SupplierCode,
                     InvDate: new Date(headerData.InvDate)
                 });
                 setselectedCNDate(new Date(headerData.DnDate));
@@ -667,7 +655,7 @@ export default function DebitNoteEntry() {
                             <Grid container spacing={2} mt={1}>
                                 <Grid item xs={8} md={8}>
                                     <Typography variant="subtitle1" ml={2} mb={1} style={{ color: "gray" }} >
-                                        Customer :   {headerData.CustomerCode}
+                                        Supplier :   {headerData.SupplierCode}
                                     </Typography>
                                 </Grid>
                                 {/* <Grid item xs={4} md={4} align='right'> */}
@@ -684,7 +672,7 @@ export default function DebitNoteEntry() {
                                 {/* </Grid> */}
                                 <Grid item xs={12} md={12}>
                                     <Typography variant="body2" ml={2} style={{ color: "black" }} >
-                                        {headerData.Customer}
+                                        {headerData.Supplier}
                                     </Typography>
                                 </Grid>
                                 <Grid item xs={12} md={12}>
@@ -799,11 +787,11 @@ export default function DebitNoteEntry() {
                                 <Grid item xs={6} md={3} >
                                     <FormControl fullWidth>
                                         <TextField
-                                            id="lpo-no"
-                                            label="Cus.LPO No"
-                                            name="LPONo"
+                                            id="supplier-invoice-no"
+                                            label="Supplier Invoice#"
+                                            name="SuppInvNo"
                                             size="small"
-                                            value={headerData.LPONo}
+                                            value={headerData.SuppInvNo}
                                             onChange={handleInputChange}
                                             disabled={!isEditable}
                                         />
