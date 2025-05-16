@@ -285,8 +285,7 @@ export default function DebitNoteEntry() {
                 type: "account",
                 account: "",
                 previous_docno: "",
-                previous_docsrno: ""  
-                
+                previous_docsrno: ""                
                 
             }]);
         }

@@ -21,13 +21,13 @@ import Iconify from '../../../../components/iconify';
 
 const columns = [
     {
-        accessorKey: 'CnNo',
+        accessorKey: 'DnNo',
         header: 'Code',
         enableEditing: false,
         size: 0
     },
     {
-        accessorKey: 'CnDate',
+        accessorKey: 'DnDate',
         header: 'Date',
         cell: info => {
             const rawDate = info.getValue();
@@ -40,8 +40,8 @@ const columns = [
 
 
     {
-        accessorKey: 'CustomerDisplay',
-        header: 'Customer',
+        accessorKey: 'SupplierDisplay',
+        header: 'Supplier',
     },
     {
         accessorKey: 'InvNo',
