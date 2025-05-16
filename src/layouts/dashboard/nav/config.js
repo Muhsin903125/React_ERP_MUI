@@ -398,19 +398,19 @@ const navConfig = [
         childern: [
           {
             title: 'Reciept',
-            path: '/productlist',
+            path: '/reciept',
             icon: subIcon(),
             visible:true
           },
           {
             title: 'Payment',
-            path: '/customermasterv2',
+            path: '/payment',
             icon: subIcon(),
             visible:true
           },
           {
             title: 'Journal',
-            path: '/customermasterv2',
+            path: '/journal',
             icon: subIcon(),
             visible:true
           },

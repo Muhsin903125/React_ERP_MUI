@@ -14,6 +14,7 @@ export default function SubTotalSec({
     isEditable,
     showAddButton = true, // Optional prop to control add button visibility
     direction = "row", // Optional prop to control grid direction
+    type = null,
 }) {
     function FormattedNumber(value) {
         return new Intl.NumberFormat('en-US', {
@@ -32,20 +33,22 @@ export default function SubTotalSec({
                 )}
 
                 <Grid item container md={8} spacing={3.5} mt={1} justifyContent="flex-end">
-                    <Grid item xs={6} md={4}>
-                        <TextField
-                            fullWidth
-                            type="number"
-                            inputProps={{ min: "0" }}
-                            size="small"
-                            label="Discount"
+                        <Grid item xs={6} md={4}>
+                    {type !== 'credit' && (
+                            <TextField
+                                fullWidth
+                                type="number"
+                                inputProps={{ min: "0" }}
+                                size="small"
+                                label="Discount"
                             name="Discount"
                             value={discount}
                             onChange={handleInputChange}
                             disabled={!isEditable}
-                        />
-                    </Grid>
-                    <Grid item xs={6} md={4}>
+                            />
+                        )}
+                        </Grid>
+                    <Grid item xs={6} md={  4}>
                         <TextField
                             fullWidth
                             type="number"

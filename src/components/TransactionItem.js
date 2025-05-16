@@ -42,18 +42,18 @@ export default function TransactionItem({
     const [availUnit, setAvailUnit] = useState([]);
     const [itemType, setItemType] = useState(items[Propkey]?.type || 'inventory');
 
-    useEffect(() => { 
+    useEffect(() => {
         if (items && unitList) {
 
             const currentItem = items[Propkey];
             setItemType(currentItem?.type || 'inventory');
             console.log("currentItem", currentItem);
-            if (currentItem?.type !== 'account' ) {
+            if (currentItem?.type !== 'account') {
                 const product = products.find(p => p.code === currentItem.name);
                 console.log("Found product:", product);
                 if (product?.avail_unit_code) {
                     const unitPricePairs = product.avail_unit_code.split(',');
-                    const availUnits = unitList.filter(u => 
+                    const availUnits = unitList.filter(u =>
                         unitPricePairs.some(unitPrice => {
                             const [unit] = unitPrice.split('#');
                             return unit === u.LK_KEY;
@@ -63,25 +63,25 @@ export default function TransactionItem({
                 } else {
                     setAvailUnit([]);
                 }
-            }else{
+            } else {
                 setAvailUnit([]);
             }
-               
+
         }
     }, [items, unitList, products, Propkey]);
 
     const handleItemCodeChange = (event, newValue) => {
         if (!newValue) return;
-        
+
         if (itemType === 'inventory') {
             const unitPricePairs = newValue.avail_unit_code?.split(',') || [];
-            const availUnits = unitList ? unitList.filter(u => 
+            const availUnits = unitList ? unitList.filter(u =>
                 unitPricePairs.some(unitPrice => {
                     const [unit] = unitPrice.split('#');
                     return unit === u.LK_KEY;
                 })
             ) : [];
-            
+
             const firstUnitPrice = unitPricePairs[0]?.split('#') || ['', '0'];
             const defaultUnit = firstUnitPrice[0];
             const defaultPrice = parseFloat(firstUnitPrice[1]) || 0;
@@ -95,15 +95,13 @@ export default function TransactionItem({
                 price: defaultPrice,
                 qty: 1,
                 tax: newValue.tax || 0,
-                previous_docno: newValue.previous_docno,
-                previous_docsrno: newValue.previous_docsrno,
                 avail_unit_code: newValue.avail_unit_code,
                 type: 'inventory'
             };
             setItems(newItems);
             setAvailUnit(availUnits);
-        } 
-        
+        }
+
         if (onItemChange) {
             onItemChange(items[Propkey]);
         }
@@ -111,19 +109,19 @@ export default function TransactionItem({
 
     const handleAccountChange = (event, newValue) => {
         if (!newValue) return;
-        
+
         const newItems = [...items];
         newItems[Propkey] = {
             ...newItems[Propkey],
             name: newValue.AC_CODE || '',
             desc: newValue.AC_DESC || '',
-            type: 'account', 
+            type: 'account',
             qty: 1,
             price: 0,
             account: newValue.AC_CODE || '',
         };
         setItems(newItems);
-        
+
         if (onItemChange) {
             onItemChange(newItems[Propkey]);
         }
@@ -140,13 +138,13 @@ export default function TransactionItem({
         const newItems = [...items];
         newItems[Propkey] = {
             ...newItems[Propkey],
-            type: newType,    
+            type: newType,
             account: '',
             unit: 'Unit',
             price: 0,
             qty: 1,
             tax: 0
-         };
+        };
         setItems(newItems);
 
         if (onItemChange) {
@@ -201,11 +199,19 @@ export default function TransactionItem({
 
     const calculateTaxAmount = () => {
         const subtotal = calculateSubTotal();
-        return (subtotal * discountPercent * (tax || 0)) / 100;
+        if (type !== 'credit') {
+            return (subtotal * discountPercent * (tax || 0)) / 100;
+        }
+        return (subtotal * (tax || 0)) / 100;
+
     };
 
     const calculateItemTotal = () => {
-        return (calculateSubTotal() * discountPercent) + calculateTaxAmount();
+        if (type !== 'credit') {
+            return (calculateSubTotal() * discountPercent) + calculateTaxAmount();
+        }
+        return (calculateSubTotal()) + calculateTaxAmount();
+
     };
 
     return (
@@ -287,11 +293,11 @@ export default function TransactionItem({
                             </Box>
                         )}
                         renderInput={(params) =>
-                            <TextField {...params} 
+                            <TextField {...params}
                                 size="small"
                                 error={hasErrors && !items[Propkey]?.name}
                                 helperText={!items[Propkey]?.name ? errors : ''}
-                                label="Account" 
+                                label="Account"
                             />
                         }
                     />
@@ -350,25 +356,25 @@ export default function TransactionItem({
                     disabled={!isEditable}
                 />
             </Grid>
- {(itemType !== 'account') && (
-            <Grid item xs={6} sm={3} md={1}>
-                <TextField
-                    type="number"
-                    fullWidth
-                    name={`ItemQty_${Propkey}`}
-                    inputProps={{
-                        min: "1",
-                        step: "1",
-                        style: { textAlign: 'right' }
-                    }}
-                    size="small"
-                    label="Quantity"
-                    onChange={handleChange}
-                    value={qty}
-                    disabled={!isEditable}
-                />
-            </Grid>
- )}
+            {(itemType !== 'account') && (
+                <Grid item xs={6} sm={3} md={1}>
+                    <TextField
+                        type="number"
+                        fullWidth
+                        name={`ItemQty_${Propkey}`}
+                        inputProps={{
+                            min: "1",
+                            step: "1",
+                            style: { textAlign: 'right' }
+                        }}
+                        size="small"
+                        label="Quantity"
+                        onChange={handleChange}
+                        value={qty}
+                        disabled={!isEditable}
+                    />
+                </Grid>
+            )}
 
             {/* {showTaxField && (
                 <Grid item xs={6} sm={3} md={1}>

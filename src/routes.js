@@ -22,7 +22,7 @@ import RegisterUser from './pages/User/RegisterUser';
 import UserList from './pages/User/UserList';
 import UserRoleList from './pages/User/Roles/UserRoleList';
 import ProductList from './pages/Masters/Inventory/Product/ProductList';
-import UnitList from './pages/Masters/Inventory/Unit/UnitList';
+// import UnitList from './pages/Masters/Inventory/Unit/UnitList';
 import Settings from './pages/Settings'; 
 import ChartOfAccount from './pages/Masters/Finance/ChartOfAccount';
 import Supplier from './pages/Masters/Finance/Supplier';
@@ -49,6 +49,8 @@ import Lookups from './pages/Settings/ERP/Lookups';
 import CompanyProfile from './pages/Settings/ERP/CompanyProfile';
 import DebitNoteEntry from './pages/Transactions/Purchase/DebitNote/DebitNoteEntry';
 import DebitNote from './pages/Transactions/Purchase/DebitNote';
+import Reciept from './pages/Transactions/Finance/Reciept';
+import RecieptEntry from './pages/Transactions/Finance/Reciept/RecieptEntry';
 // ----------------------------------------------------------------------
 const RequiredRolesContext = createContext();
 
@@ -110,7 +112,7 @@ export default function Router() {
     { path: 'productlist', element: <ProductList /> },
     { path: 'unit', element: <Unit /> },
     { path: 'location', element: <Location /> },
-    { path: 'unitlist', element: <UnitList /> },
+    // { path: 'unitlist', element: <UnitList /> },
     { path: 'coa', element: <ChartOfAccount /> },
     { path: 'supplier', element: <Supplier /> },
     { path: 'salesman', element: <Salesman /> },
@@ -143,6 +145,14 @@ export default function Router() {
     { path: 'purchase-order', element: <PurchaseOrder /> }, 
     { path: 'purchase-order-entry', element: <PurchaseOrderEntry /> },
     { path: 'purchase-order-entry/:id', element: <PurchaseOrderEntry /> },
+
+    { path: 'reciept', element: <Reciept /> },
+    { path: 'reciept-entry', element: <RecieptEntry /> },
+    { path: 'reciept-entry/:id', element: <RecieptEntry /> },
+
+    // { path: 'payment', element: <Payment /> },
+    // { path: 'payment-entry', element: <PaymentEntry /> },
+    // { path: 'payment-entry/:id', element: <PaymentEntry /> },
 
     { path: 'lookups', element: <Lookups /> },
     { path: 'companyprofile', element: <CompanyProfile /> },

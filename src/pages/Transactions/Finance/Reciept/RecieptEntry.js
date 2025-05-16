@@ -22,16 +22,18 @@ import { getLastNumber, getLocationList, getUnitList } from '../../../../utils/C
 import Confirm from '../../../../components/Confirm';
 import Iconify from '../../../../components/iconify';
 import DateSelector from '../../../../components/DateSelector';
-import Dropdownlist from '../../../../components/DropdownList';
+import Dropdownlist from '../../../../components/DropdownList'; 
 import SubTotalSec from '../../../../components/SubTotalSec';
 import AlertDialog from '../../../../components/AlertDialog';
 import CustomerDialog from '../../../../components/CustomerDialog';
 import { GetSingleResult, GetSingleListResult, GetMultipleResult } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
-import { AuthContext } from '../../../../App';
+import { AuthContext } from '../../../../App'; 
 import InvoiceItemsDialog from './InvoiceItemsDialog';
 import TransactionItem from '../../../../components/TransactionItem';
 import PrintComponent from '../../../../components/PrintComponent';
+import PendingBillsDialog from './PendingBillsDialog';
+import PayerDialog from './PayerDialog';
 // import { head } from 'lodash';
 
 // ----------------------------------------------------------------------
@@ -50,19 +52,21 @@ const PaymentModeOptions = [
     { value: 'OTHER', label: 'Others' },
 ];
 
+const DepositToOptions = [
+    { value: 'BANK', label: 'Bank' },
+    { value: 'CASH', label: 'Cash' },
+];
 
-export default function CreditNoteEntry() {
+export default function RecieptEntry() {
     const navigate = useNavigate();
     const { id } = useParams();
     const { showToast } = useToast();
     const { setLoadingFull } = useContext(AuthContext);
     const [code, setCode] = useState('');
-    // const [selectedDate, setSelectedDate] = useState(new Date());
-    const [selectedDueDate, setselectedDueDate] = useState(new Date());
+    const [selectedRecieptDate, setselectedRecieptDate] = useState(new Date());
     const [selectedCNDate, setselectedCNDate] = useState(new Date());
     const [IsAlertDialog, setAlertDialog] = useState(false);
     const [disableFutureDate] = useState(true);
-    // const [status, setStatus] = useState('draft');
     const [errors, setErrors] = useState({});
     const [isEditMode, setIsEditMode] = useState(false);
     const [isEditable, setIsEditable] = useState(true);
@@ -75,32 +79,27 @@ export default function CreditNoteEntry() {
     const { state } = useLocation();
     const { invoiceData } = state || {};
 
-    const [headerData, setheaderData] = useState(
-        {
-            CnNo: code,
-            CnDate: selectedCNDate,
-            InvNo: invoiceData?.InvNo,
-            InvDate: invoiceData?.InvDate,
-            Status: invoiceData?.Status || 'PAID',
-            CustomerCode: invoiceData?.CustomerCode || '',
-            Customer: invoiceData?.Customer || 'Customer Name',
-            Address: invoiceData?.Address || '',
-            TRN: invoiceData?.TRN || '',
-            ContactNo: invoiceData?.ContactNo || '',
-            Email: invoiceData?.Email || '',
-            LPONo: invoiceData?.LPONo || '',
-            RefNo: invoiceData?.RefNo || '',
-            PaymentMode: invoiceData?.PaymentMode || 'CASH',
-            Location: invoiceData?.Location || '',
-            CrDays: invoiceData?.CrDays || 0,
-            Discount: invoiceData?.Discount || 0,
-            Tax: invoiceData?.Tax || 5,
-            GrossAmount: invoiceData?.GrossAmount || 0,
-            TaxAmount: invoiceData?.TaxAmount || 0,
-            NetAmount: invoiceData?.NetAmount || 0,
-            SManCode: invoiceData?.SManCode || '',
-            Remarks: invoiceData?.Remarks || ''
-        })
+    const [pendingBills, setPendingBills] = useState([]);
+    const [selectedBills, setSelectedBills] = useState([]);
+    const [showPendingBillsDialog, setShowPendingBillsDialog] = useState(false);
+
+    const [headerData, setheaderData] = useState({
+        RpNo: code,
+        RpDate: selectedRecieptDate,
+        PayerCode: '',
+        Payer: 'Payer Name',
+        PaymentMethod: 'CASH',
+        ReferenceNo: '',
+        RefDate: new Date(),
+        DepositTo: '',
+        Amount: 0,
+        Address: '',
+        TRN: '',
+        ContactNo: '',
+        Email: '',
+        Location: '',
+        Remarks: ''
+    });
 
     const [items, setItems] = useState([]);
     const [selectedItems, setSelectedItems] = useState([]);
@@ -128,86 +127,53 @@ export default function CreditNoteEntry() {
         const errors = {};
         let hasError = false;
 
-        // Customer validation
-        if (validator.isEmpty(headerData.CustomerCode)) {
-            errors.CustomerCode = 'Customer is required';
-            showToast('Customer is required', "error");
+        // Payer validation
+        if (validator.isEmpty(headerData.PayerCode)) {
+            errors.PayerCode = 'Payer is required';
+            showToast('Payer is required', "error");
             hasError = true;
         }
 
-        // Salesman validation
-        if (!headerData.SManCode) {
-            errors.SManCode = 'Salesman is required';
-            showToast('Salesman is required', "error");
+        // Receipt date validation
+        if (!headerData.RpDate) {
+            errors.RpDate = 'Receipt date is required';
+            showToast('Receipt date is required', "error");
             hasError = true;
         }
 
-        // Invoice date validation
-        if (!selectedCNDate) {
-            errors.CnDate = 'Credit Note date is required';
-            showToast('Credit Note date is required', "error");
+        // Payment Method validation
+        if (!headerData.PaymentMethod) {
+            errors.PaymentMethod = 'Payment method is required';
+            showToast('Payment method is required', "error");
             hasError = true;
         }
 
-        // Credit Days validation
-        if (headerData.CrDays < 0) {
-            errors.CrDays = 'Credit days cannot be negative';
-            showToast('Credit days cannot be negative', "error");
+        // Deposit To validation
+        if (!headerData.DepositTo) {
+            errors.DepositTo = 'Deposit to is required';
+            showToast('Deposit to is required', "error");
             hasError = true;
         }
 
-        // Email validation (if provided)
-        if (headerData.Email && !validator.isEmail(headerData.Email)) {
-            errors.Email = 'Invalid email address';
-            showToast('Invalid email address', "error");
-            hasError = true;
-        }
-
-        // Contact number validation (if provided)
-        if (headerData.ContactNo && !validator.isMobilePhone(headerData.ContactNo)) {
-            errors.ContactNo = 'Invalid contact number';
-            showToast('Invalid contact number', "error");
+        // Amount validation
+        if (!headerData.Amount || headerData.Amount <= 0) {
+            errors.Amount = 'Valid amount is required';
+            showToast('Valid amount is required', "error");
             hasError = true;
         }
 
         // Items validation
         if (items.length === 0) {
-            errors.items = 'At least one item is required';
-            showToast('At least one item is required', "error");
+            errors.items = 'At least one bill is required';
+            showToast('At least one bill is required', "error");
             hasError = true;
         }
 
-        // Validate each item
-        const itemErrors = items.map((item, index) => {
-            const itemError = {};
-            if (!item.name || item.name.trim() === '') {
-                itemError.name = 'Item name is required';
-                hasError = true;
-            }
-            if (!item.qty || item.qty <= 0) {
-                itemError.qty = 'Valid quantity is required';
-                hasError = true;
-            }
-            if (!item.price || item.price <= 0) {
-                itemError.price = 'Valid price is required';
-                hasError = true;
-            }
-            if (item.type === 'inventory' && (!item.unit || item.unit.trim() === '')) {
-                itemError.unit = 'Unit is required for inventory items';
-                hasError = true;
-            }
-            return Object.keys(itemError).length > 0 ? itemError : null;
-        }).filter(Boolean);
-
-        if (itemErrors.length > 0) {
-            errors.items = itemErrors;
-            showToast('Please check all item details', "error");
-        }
-
-        // Payment validation
-        if (!headerData.PaymentMode) {
-            errors.PaymentMode = 'Payment mode is required';
-            showToast('Payment mode is required', "error");
+        // Validate allocated amounts match total
+        const totalAllocated = items.reduce((sum, item) => sum + (item.price * item.qty), 0);
+        if (Math.abs(totalAllocated - headerData.Amount) > 0.01) {
+            errors.Amount = 'Total allocated amount must match receipt amount';
+            showToast('Total allocated amount must match receipt amount', "error");
             hasError = true;
         }
 
@@ -215,15 +181,15 @@ export default function CreditNoteEntry() {
         return !hasError;
     };
 
-
+   
 
     useEffect(() => {
-
+        
         setheaderData({
             ...headerData,
-            'CnDate': selectedCNDate
+            'RpDate': selectedRecieptDate
         });
-    }, [selectedCNDate]);
+    }, [selectedRecieptDate]);
     useEffect(() => {
         getProducts();
     }, []);
@@ -247,11 +213,11 @@ export default function CreditNoteEntry() {
                 });
     };
 
-
+    
 
     const handleSave = () => {
         if (validate()) {
-            CreateInvoice();
+            CreateReceipt();
         }
     };
     useEffect(() => {
@@ -267,11 +233,11 @@ export default function CreditNoteEntry() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
     const getCode = async () => {
-        const { lastNo, IsEditable } = await getLastNumber('CN');
+        const { lastNo, IsEditable } = await getLastNumber('RP');
         setCode(lastNo);
         setheaderData(prev => ({
             ...prev,
-            CnNo: lastNo
+            RpNo: lastNo
         }));
     };
 
@@ -290,9 +256,9 @@ export default function CreditNoteEntry() {
                 type: "account",
                 account: "",
                 previous_docno: "",
-                previous_docsrno: ""
-
-
+                previous_docsrno: ""  
+                
+                
             }]);
         }
     };
@@ -315,7 +281,32 @@ export default function CreditNoteEntry() {
     function calculateTotal(items) {
         return items.reduce((total, item) => total + item.price * item.qty, 0);
     }
- 
+
+    // For Customer Dialog
+    const [open, setOpen] = useState(false);
+    // const [selectedValue, setSelectedValue] = useState("Customer Name");
+
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    const handleSelect = (value) => {
+        setOpen(false);
+        setheaderData({
+            ...headerData,
+            "Payer": value.PAYER_NAME,
+            "Address": value.PAYER_ADDRESS,
+            "TRN": value.PAYER_TRN,
+            "PayerCode": value.PAYER_CODE,
+            "ContactNo": value.PAYER_MOB,
+            "Email": value.PAYER_EMAIL
+        });
+    };
+
     const getLocations = async () => {
         const Data = await getLocationList();
         setLocations(Data);
@@ -323,42 +314,30 @@ export default function CreditNoteEntry() {
     };
     useEffect(() => {
         getLocations();
-        if (invoiceData && invoiceData.invNo !== null) {
-            getInvoiceItems(invoiceData.invNo.replace("INV", ''));
-        }
     }, []);
 
-
-    const CreateInvoice = async () => {
+    const CreateReceipt = async () => {
         Confirm(`Do you want to ${isEditMode ? 'update' : 'save'}?`).then(async () => {
             try {
-                setLoadingFull(false);
+                setLoadingFull(true);
 
-                const encodeJsonToBase64 = (json) => {
-                    // Step 1: Convert the string to Base64
-                    const base64Encoded = btoa(json);
-                    return base64Encoded;
-                };
-
-                const base64Data = encodeJsonToBase64(JSON.stringify({
-                    "key": "CN_CRUD",
+                const base64Data = btoa(JSON.stringify({
+                    "key": "RECEIPT_CRUD",
                     "TYPE": isEditMode ? "UPDATE" : "INSERT",
                     "DOC_NO": id,
                     "headerData": {
                         ...headerData,
-                        "InvDate": headerData.InvDate,
-                        "InvNo": headerData.InvNo,
-                        "GrossAmount": calculateTotal(items),
-                        "TaxAmount": (calculateTotal(items)) * headerData.Tax / 100.00,
-                        "NetAmount": (calculateTotal(items)) * (1 + headerData.Tax / 100.00),
-                        "Remarks": headerData.Remarks || ''
+                        RpDate: headerData.RpDate,
+                        RefDate: headerData.RefDate,
+                        Amount: headerData.Amount,
+                        Remarks: headerData.Remarks || ''
                     },
-                    "detailData": items.map((item, index) => {
-                        return {
-                            ...item,
-                            srno: index + 1
-                        };
-                    })
+                    "detailData": items.map((item, index) => ({
+                        ...item,
+                        srno: index + 1,
+                        billNo: item.name,
+                        allocatedAmount: item.price
+                    }))
                 }));
 
                 const { Success, Message, Data } = await GetSingleResult({
@@ -368,8 +347,8 @@ export default function CreditNoteEntry() {
                 if (Success) {
                     setIsEditMode(false);
                     setIsEditable(false);
-                    navigate(`/creditnote-entry/${Data.id}`, { replace: true });
-                    showToast(id ? "Credit Note Updated Successfully" : "Credit Note Saved Successfully", 'success');
+                    navigate(`/receipt-entry/${Data.id}`, { replace: true });
+                    showToast(id ? "Receipt Updated Successfully" : "Receipt Saved Successfully", 'success');
                 }
                 else {
                     showToast(Message, "error");
@@ -412,16 +391,26 @@ export default function CreditNoteEntry() {
                     ...headerData,
                     InvNo: headerData?.InvNo,
                     CnNo: headerData?.CnNo,
-                    CnDate: new Date(headerData.CnDate),
+                    CnDate: new Date(headerData.CnDate),  
                     CustomerCode: headerData?.CustomerCode,
                     InvDate: new Date(headerData.InvDate)
                 });
                 setselectedCNDate(new Date(headerData.CnDate));
-                setItems(itemsData || []);
+                setItems(itemsData || []); 
                 // Fetch invoice items
                 console.log("headerData.InvNo", headerData);
                 if (headerData?.InvNo) {
-                    getInvoiceItems(headerData.InvNo.replace("INV", ''));
+                    const { Success: invSuccess, Data: invData, Message: invMessage } = await GetMultipleResult({
+                        "key": "SALE_INV_CRUD",
+                        "TYPE": "GET",
+                        "DOC_NO": headerData.InvNo.replace("INV", '')
+                    });
+
+                    if (invSuccess) {
+                        setInvoiceItems(invData[1] || []); // Assuming items are in the second array
+                    } else {
+                        showToast(invMessage, "error");
+                    }
                 }
             } else {
                 showToast(Message, "error");
@@ -432,19 +421,7 @@ export default function CreditNoteEntry() {
             setLoadingFull(false);
         }
     };
-    const getInvoiceItems = async (invoiceId) => {
-        const { Success: invSuccess, Data: invData, Message: invMessage } = await GetSingleListResult({
-            "key": "SALE_INV_CRUD",
-            "TYPE": "GET_INV_ITEMS",
-            "DOC_NO": invoiceId || headerData.InvNo.replace("INV", '')
-        });
 
-        if (invSuccess) {
-            setInvoiceItems(invData); // Assuming items are in the second array
-        } else {
-            showToast(invMessage, "error");
-        }
-    }
     const handlePrint = () => {
         console.log('Opening print dialog');
         setPrintDialogOpen(true);
@@ -531,7 +508,7 @@ export default function CreditNoteEntry() {
 
     const handleNewInvoice = () => {
         // Reset all data
-        setheaderData({
+        setheaderData({ 
             CnNo: '',
             CnDate: selectedCNDate,
             InvNo: '',
@@ -548,6 +525,7 @@ export default function CreditNoteEntry() {
             RefNo: '',
             PaymentMode: 'CASH',
             CrDays: 0,
+            Discount: 0,
             Tax: 5,
             GrossAmount: 0,
             TaxAmount: 0,
@@ -590,8 +568,8 @@ export default function CreditNoteEntry() {
             // Handle select all
             const newItems = item.map(itemss => ({
                 ...itemss,
-                type: 'inventory',
-                previous_docno: headerData?.InvNo,
+                type: 'inventory',          
+                previous_docno: itemss.name,
                 previous_docsrno: itemss.srno,
             }));
             setSelectedItems(prev => [...prev, ...newItems]);
@@ -600,7 +578,7 @@ export default function CreditNoteEntry() {
 
         setSelectedItems(prev => {
             const exists = prev.some(i => i.name === item.name);
-            if (exists) {
+            if (exists) { 
                 return prev.filter(i => i.name !== item.name);
             }
 
@@ -608,7 +586,7 @@ export default function CreditNoteEntry() {
             const newItem = {
                 ...item,
                 type: 'inventory',
-                previous_docno: headerData?.InvNo,
+                previous_docno: item.name,
                 previous_docsrno: item.srno,
             };
             return [...prev, newItem];
@@ -619,7 +597,7 @@ export default function CreditNoteEntry() {
         const itemsWithType = selectedItems.map(item => ({
             ...item,
             type: 'inventory',
-            previous_docno: headerData?.InvNo,
+            previous_docno: item.name,
             previous_docsrno: item.srno,
             unit: item.unit || '',
             price: item.price || 0,
@@ -630,7 +608,7 @@ export default function CreditNoteEntry() {
         setItems(prev => {
             // Get existing item names to avoid duplicates
             const existingNames = new Set(prev.map(item => item.name));
-
+            
             // Filter out items that already exist
             const newItems = itemsWithType.filter(item => !existingNames.has(item.name));
 
@@ -641,15 +619,78 @@ export default function CreditNoteEntry() {
         setShowItemDialog(false);
     };
 
+    const fetchPendingBills = async (payerCode) => {
+        try {
+            setLoadingFull(true);
+            const { Success, Data, Message } = await GetSingleListResult({
+                "key": "PENDING_BILLS",
+                "TYPE": "GET_ALL",
+                "PAYER_CODE": payerCode
+            });
+            if (Success) {
+                setPendingBills(Data.map(bill => ({
+                    ...bill,
+                    allocatedAmount: bill.balanceAmount
+                })));
+            } else {
+                showToast(Message, "error");
+            }
+        } catch (error) {
+            showToast("Error fetching pending bills", "error");
+        } finally {
+            setLoadingFull(false);
+        }
+    };
+
+    const handleShowPendingBills = () => {
+        if (!headerData.PayerCode) {
+            showToast("Please select a payer first", "error");
+            return;
+        }
+        fetchPendingBills(headerData.PayerCode);
+        setShowPendingBillsDialog(true);
+    };
+
+    const handleAllocatedAmountChange = (billNo, amount) => {
+        setSelectedBills(prev => prev.map(bill => 
+            bill.billNo === billNo 
+                ? { ...bill, allocatedAmount: amount } 
+                : bill
+        ));
+    };
+
+    const handleConfirmBillSelection = () => {
+        // Convert selected bills to items
+        const newItems = selectedBills.map((bill, index) => ({
+            name: bill.billNo,
+            desc: `Bill Date: ${new Date(bill.date).toLocaleDateString()}`,
+            qty: 1,
+            price: bill.allocatedAmount,
+            type: "bill",
+            previous_docno: bill.billNo,
+            previous_docsrno: index + 1
+        }));
+
+        setItems(newItems);
+        setShowPendingBillsDialog(false);
+
+        // Update total amount
+        const totalAllocated = selectedBills.reduce((sum, bill) => sum + bill.allocatedAmount, 0);
+        setheaderData(prev => ({
+            ...prev,
+            Amount: totalAllocated
+        }));
+    };
+
     return (
         <>
             <Helmet>
-                <title> Sales Credit Note </title>
+                <title> Sales Reciept | Exapp </title>
             </Helmet>
 
             <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
                 <Typography variant="h4" gutterBottom>
-                    {isEditMode ? 'Edit Sales Credit Note' : 'New Sales Credit Note'}
+                    {isEditMode ? 'Edit Sales Reciept' : 'New Sales Reciept'}
                 </Typography>
                 <Stack direction="row" spacing={2}>
                     {!isEditable && (id) && (
@@ -661,7 +702,7 @@ export default function CreditNoteEntry() {
                             Print
                         </Button>
                     )}
-                    {(!isEditable) && (
+                    {(  !isEditable) && (
                         <Button variant="contained" color="primary" startIcon={<Iconify icon="eva:edit-fill" />} onClick={toggleEditMode}>
                             Enable Edit
                         </Button>
@@ -684,24 +725,24 @@ export default function CreditNoteEntry() {
                             <Grid container spacing={2} mt={1}>
                                 <Grid item xs={8} md={8}>
                                     <Typography variant="subtitle1" ml={2} mb={1} style={{ color: "gray" }} >
-                                        Customer :   {headerData.CustomerCode}
+                                        Payer :   {headerData.PayerCode}
                                     </Typography>
                                 </Grid>
-                                {/* <Grid item xs={4} md={4} align='right'> */}
-                                {/* {isEditable && (
-                                        <Button size="small" startIcon={<Iconify icon={headerData?.CustomerCode ? "eva:edit-fill" : "eva:person-add-fill"} />} onClick={handleClickOpen}>
-                                            {headerData?.CustomerCode ? 'change' : 'Add'}
+                                <Grid item xs={4} md={4} align='right'>
+                                      {isEditable && (
+                                        <Button size="small" startIcon={<Iconify icon={headerData?.PayerCode ? "eva:edit-fill" : "eva:person-add-fill"} />} onClick={handleClickOpen}>
+                                            {headerData?.PayerCode ? 'change' : 'Add'}
                                         </Button>
-                                    )} */}
-                                {/* <CustomerDialog
+                                    )} 
+                                      <PayerDialog
                                         open={open}
                                         onClose={handleClose}
                                         onSelect={handleSelect}
-                                    /> */}
-                                {/* </Grid> */}
+                                    />  
+                                </Grid>
                                 <Grid item xs={12} md={12}>
                                     <Typography variant="body2" ml={2} style={{ color: "black" }} >
-                                        {headerData.Customer}
+                                        {headerData.Payer}
                                     </Typography>
                                 </Grid>
                                 <Grid item xs={12} md={12}>
@@ -716,13 +757,13 @@ export default function CreditNoteEntry() {
                         </Grid>
                         <Grid item xs={12} md={8}>
                             <Grid container spacing={1}>
-                                <Grid item xs={6} md={2}  >
+                            <Grid item xs={6} md={2}  >
                                     <FormControl fullWidth>
                                         <TextField
-                                            id="credit-note-no"
-                                            label="Credit Note#"
-                                            name="CnNo"
-                                            value={headerData.CnNo}
+                                            id="reciept-no"
+                                            label="Reciept#"
+                                            name="RpNo"
+                                            value={headerData.RpNo}
                                             onChange={handleInputChange}
                                             size="small"
                                             inputProps={{
@@ -733,51 +774,22 @@ export default function CreditNoteEntry() {
                                     </FormControl>
                                 </Grid>
                                 <Grid item xs={6} md={4} >
-                                    <FormControl fullWidth error={Boolean(errors.CnDate)}>
+                                    <FormControl fullWidth error={Boolean(errors.RpDate)}>
                                         <DateSelector
-                                            label="Credit Note Date"
+                                            label="Reciept Date"
                                             size="small"
                                             disableFuture={disableFutureDate}
-                                            value={headerData.CnDate}
-                                            onChange={setselectedCNDate}
+                                            value={headerData.RpDate}
+                                            onChange={setselectedRecieptDate}
                                             disable={!isEditable}
-                                            error={Boolean(errors.CnDate)}
-                                            helperText={errors.CnDate}
+                                            error={Boolean(errors.RpDate)}
+                                            helperText={errors.RpDate}
                                             required
                                         />
                                     </FormControl>
                                 </Grid>
-                                <Grid item xs={6} md={2}  >
-                                    <FormControl fullWidth>
-                                        <TextField
-                                            id="invoice-no"
-                                            label="Invoice#"
-                                            name="InvNo"
-                                            value={headerData.InvNo}
-                                            onChange={handleInputChange}
-                                            size="small"
-                                            inputProps={{
-                                                readOnly: true
-                                            }}
-                                            disabled
-                                        />
-                                    </FormControl>
-                                </Grid>
-                                <Grid item xs={6} md={4} >
-                                    <FormControl fullWidth error={Boolean(errors.InvDate)}>
-                                        <DateSelector
-                                            label="Invoice Date"
-                                            size="small"
-                                            disableFuture={disableFutureDate}
-                                            value={headerData.InvDate}
-                                            disable
-                                            error={Boolean(errors.InvDate)}
-                                            helperText={errors.InvDate}
-                                            required
-                                        />
-                                    </FormControl>
-                                </Grid>
-
+                            
+                           
                             </Grid>
                             <Grid container spacing={1} mt={1}>
                                 <Grid item xs={6} md={3}  >
@@ -965,7 +977,7 @@ export default function CreditNoteEntry() {
                             Propkey={index}
                             accounts={accounts}
                             tax={headerData.Tax}
-                            // discountPercent={1-(headerData.Discount / calculateTotal(items))}
+                            discountPercent={1-(headerData.Discount / calculateTotal(items))}
                             products={products}
                             code={items[index].name}
                             desc={items[index].desc}
@@ -983,7 +995,6 @@ export default function CreditNoteEntry() {
                     ))}
 
                     <SubTotalSec
-                        type={'credit'}
                         addItem={addItem}
                         calculateTotal={calculateTotal(items)}
                         discount={headerData.Discount}
@@ -1004,8 +1015,8 @@ export default function CreditNoteEntry() {
             <InvoiceItemsDialog
                 open={showItemDialog}
                 onClose={() => setShowItemDialog(false)}
-                items={invoiceItems || []}
-                selectedItems={selectedItems  }
+                items={invoiceItems}
+                selectedItems={selectedItems}
                 onItemSelect={handleItemSelect}
                 onConfirm={handleConfirmItems}
             />
@@ -1029,7 +1040,7 @@ export default function CreditNoteEntry() {
                 </DialogTitle>
                 <DialogContent>
                     <Box id="print-content" sx={{ p: 2 }}>
-                        <PrintComponent
+                    <PrintComponent
                             headerData={{
                                 ...headerData,
                                 SalesmanName: salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode)?.SMAN_DESC ?
@@ -1038,7 +1049,7 @@ export default function CreditNoteEntry() {
                             }}
                             items={items}
                             documentType="TAX CREDIT NOTE"
-                        />
+                        /> 
                     </Box>
                 </DialogContent>
                 <DialogActions>
@@ -1062,6 +1073,16 @@ export default function CreditNoteEntry() {
                     OnSuccess={setAlertDialog}
                 />
             )}
+
+            <PendingBillsDialog
+                open={showPendingBillsDialog}
+                onClose={() => setShowPendingBillsDialog(false)}
+                bills={pendingBills}
+                selectedBills={selectedBills}
+                onBillSelect={setSelectedBills}
+                onConfirm={handleConfirmBillSelection}
+                onAllocatedAmountChange={handleAllocatedAmountChange}
+            />
         </>
     );
 }
