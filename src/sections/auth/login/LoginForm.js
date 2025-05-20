@@ -1,114 +1,153 @@
+// LoginForm.js
+// This component renders the login form for the application, handling user authentication and the 'Remember Me' feature.
+// It uses Material UI components and custom hooks for authentication and toast notifications.
+
 import { useContext, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-// @mui
 import { Link as Alink, Stack, IconButton, Typography, InputAdornment, Card, TextField, Checkbox, FormControlLabel } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useToast } from '../../../hooks/Common';
-// components 
 import Iconify from '../../../components/iconify';
-import { AuthContext } from '../../../App'; 
+import { AuthContext } from '../../../App';
 import { PostLogin } from '../../../hooks/Api';
 import useAuth from '../../../hooks/useAuth';
 
-// ----------------------------------------------------------------------
-
+/**
+ * LoginForm component handles user login, including:
+ * - Input fields for username/email and password
+ * - 'Remember Me' functionality (stores credentials in localStorage)
+ * - Password visibility toggle
+ * - Calls API for authentication and manages login state
+ * - Shows toast notifications for success/error
+ */
 export default function LoginForm() {
+  // Toast notification hook
   const { showToast } = useToast();
+  // Context for global loading state
   const { setLoadingFull } = useContext(AuthContext);
-
+  // Custom authentication hook
   const { login, logout } = useAuth();
+  // React Router navigation
   const navigate = useNavigate();
 
+  // State for password visibility
   const [showPassword, setShowPassword] = useState(false);
+  // State for 'Remember Me' checkbox
   const [rememberMe, setRememberMe] = useState(false);
+  // Ref for focusing the user input
+  const userRef = useRef();
 
-  const userRef = useRef(); 
-
+  // State for user/email input, initialized from localStorage if available
   const [user, setUser] = useState(() => {
-    // Check if there are saved credentials
     const savedUser = localStorage.getItem('rememberedUser');
-    if (savedUser) {
-      setRememberMe(true);
-    }
+    if (savedUser) setRememberMe(true);
     return savedUser || '';
   });
+  // State for password input, initialized from localStorage if available
   const [pwd, setPwd] = useState(() => {
-    // Check if there are saved credentials
     const savedPwd = localStorage.getItem('rememberedPassword');
     return savedPwd || '';
   });
 
+  // Focus the user input on mount
   useEffect(() => {
     userRef.current.focus();
-  }, []) 
+  }, []);
 
+  /**
+   * Handles the login button click event.
+   * Calls the login API, manages localStorage for credentials,
+   * updates authentication context, and navigates on success.
+   */
   const handleClick = async () => {
     setLoadingFull(true);
     try {
-      const { Success, Data, Message } = await PostLogin(JSON.stringify({ "username": user, "password": pwd })); 
+      const { Success, Data, Message } = await PostLogin(JSON.stringify({ username: user, password: pwd }));
       if (Success) {
-        // Save credentials if remember me is checked
+        // Store or clear credentials based on 'Remember Me'
         if (rememberMe) {
           localStorage.setItem('rememberedUser', user);
           localStorage.setItem('rememberedPassword', pwd);
         } else {
-          // Clear saved credentials if remember me is unchecked
           localStorage.removeItem('rememberedUser');
           localStorage.removeItem('rememberedPassword');
         }
-
-        const accessToken = Data?.accessToken;
-        const refreshToken = Data?.refreshToken;
-        const firstName = Data?.firstName;
-        const lastName = Data?.lastName;
-        const email = Data?.email;
-        const profileImg = Data?.profileImg;
-        const expiry = Data?.expiration;
-        const username = Data?.userName;
-        const role = Data?.role;
-        const companyCode = Data?.companyCode;
-        const companyName = Data?.companyName;
-        const companyLogo = Data?.companyLogo;
-        const companyLogoUrl = Data?.companyLogoURL;
-        const companyAddress = Data?.companyAddress;
-        const companyPhone = Data?.companyPhone;
-        const companyEmail = Data?.companyEmail;
-        const companyWebsite = Data?.companyWebsite; 
-        const companyTrn = Data?.companyTRN;
-        login(username, accessToken, refreshToken, expiry,firstName,lastName,profileImg,email,role,companyCode,companyName,companyLogo,companyLogoUrl,companyAddress,companyPhone,companyEmail,companyWebsite,companyTrn);
-
-        navigate("/", { replace: true })
+        // Extract user and company info from API response
+        const {
+          accessToken,
+          refreshToken,
+          firstName,
+          lastName,
+          email,
+          profileImg,
+          expiration,
+          userName,
+          role,
+          companyCode,
+          companyName,
+          companyLogo,
+          companyLogoURL,
+          companyAddress,
+          companyPhone,
+          companyEmail,
+          companyWebsite,
+          companyTRN
+        } = Data || {};
+        // Update authentication context
+        login(
+          userName,
+          accessToken,
+          refreshToken,
+          expiration,
+          firstName,
+          lastName,
+          profileImg,
+          email,
+          role,
+          companyCode,
+          companyName,
+          companyLogo,
+          companyLogoURL,
+          companyAddress,
+          companyPhone,
+          companyEmail,
+          companyWebsite,
+          companyTRN
+        );
+        // Navigate to home page
+        navigate('/', { replace: true });
         showToast(Message, 'success');
-      }
-      else {
+      } else {
         logout();
-        showToast(Message, "error");
+        showToast(Message, 'error');
       }
-    }
-    finally {
+    } finally {
       setLoadingFull(false);
     }
   };
 
   return (
-    <Card  >
+    <Card>
       <Stack m={2.5}>
-        <Stack spacing={3} >
+        <Stack spacing={3}>
           <Typography variant="h3" sx={{ px: 1, mt: 2, mb: 2 }}>
             Login
           </Typography>
-          <TextField name="email"
+          {/* User/Email input */}
+          <TextField
+            name="email"
             id="email"
             autoComplete="off"
-            onChange={(e) => setUser(e.target.value)}
+            onChange={e => setUser(e.target.value)}
             value={user}
             required
-            label="Email address" />
-
+            label="Email address"
+          />
+          {/* Password input with visibility toggle */}
           <TextField
             name="password"
             label="Password"
-            onChange={(e) => setPwd(e.target.value)}
+            onChange={e => setPwd(e.target.value)}
             value={pwd}
             ref={userRef}
             required
@@ -124,27 +163,25 @@ export default function LoginForm() {
             }}
           />
         </Stack>
-
+        {/* Remember Me and Forgot Password */}
         <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 2 }}>
           <FormControlLabel
-            size='small'
+            size="small"
             control={
-              <Checkbox 
-                size='small'
+              <Checkbox
+                size="small"
                 checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
+                onChange={e => setRememberMe(e.target.checked)}
                 name="rememberMe"
               />
             }
             label="Remember me"
           />
-          <Alink variant="subtitle2" underline="hover" size='small'>
-            <Link to='/forgotpassword' >
-              Forgot password?
-            </Link>
+          <Alink variant="subtitle2" underline="hover" size="small">
+            <Link to="/forgotpassword">Forgot password?</Link>
           </Alink>
         </Stack>
-
+        {/* Login button */}
         <LoadingButton fullWidth size="large" type="submit" variant="contained" onClick={handleClick}>
           Login
         </LoadingButton>

@@ -273,35 +273,33 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                 {/* Impact Checkboxes */}
                 <Grid item xs={12} sm={6} justifyContent="center" alignItems="center">
                   <FormControlLabel
-                    control={<Checkbox
-                      fullWidth
-                      checked={!isNew ? values.stockImpact === 1 : values.stockImpact}
-                      label="Stock Impact"
-                      name="stockImpact"
-                      value={values.stockImpact}
-                      onChange={handleChange}
-                      error={Boolean(touched.stockImpact && errors.stockImpact)}
-                      helperText={touched.stockImpact && errors.stockImpact}
-                    />}
+                    control={
+                      <Checkbox
+                        fullWidth
+                        checked={values.stockImpact === 1}
+                        name="stockImpact"
+                        onChange={e => setFieldValue('stockImpact', e.target.checked ? 1 : 0)}
+                        error={Boolean(touched.stockImpact && errors.stockImpact)}
+                      />
+                    }
                     label="Stock Impact"
                   />
                   <FormControlLabel
-                    control={<Checkbox
-                      fullWidth
-                      checked={!isNew ? values.accountImpact === 1 : values.accountImpact}
-                      label="Account Impact"
-                      name="accountImpact"
-                      value={values.accountImpact}
-                      onChange={handleChange}
-                      error={Boolean(touched.accountImpact && errors.accountImpact)}
-                      helperText={touched.accountImpact && errors.accountImpact}
-                    />}
+                    control={
+                      <Checkbox
+                        fullWidth
+                        checked={values.accountImpact === 1}
+                        name="accountImpact"
+                        onChange={e => setFieldValue('accountImpact', e.target.checked ? 1 : 0)}
+                        error={Boolean(touched.accountImpact && errors.accountImpact)}
+                      />
+                    }
                     label="Account Impact"
                   />
                 </Grid>
 
                 {/* Stock Direction Radio Group */}
-                {values.stockImpact && (
+                {values.stockImpact===1 && (
                   <Grid item xs={12} sm={6} justifyContent="center" alignItems="center">
                     <RadioGroup
                       row

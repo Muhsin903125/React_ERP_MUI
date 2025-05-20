@@ -79,7 +79,7 @@ export default function Reciept() {
             try {
                 setLoadingFull(false);
                 const { Success, Data, Message } = await GetSingleListResult({
-                    "key": "CN_CRUD",
+                    "key": "RECIEPT_CRUD",
                     "TYPE": "GET_ALL",
                 })
                 if (Success) {
@@ -101,7 +101,7 @@ export default function Reciept() {
  
  
     const handleView = (rowData) => {
-        navigate(`/creditnote-entry/${rowData.CnNo}`);
+        navigate(`/reciept-entry/${rowData.CnNo}`);
     };
 
     return (
@@ -115,7 +115,7 @@ export default function Reciept() {
                     <Typography variant="h4" gutterBottom>
                         Reciept List
                     </Typography>
-                    <Link to="/salesinvoice" style={{ textDecoration: 'none' }}>
+                    <Link to="/reciept-entry" style={{ textDecoration: 'none' }}>
                         <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
                             New Reciept Entry
                         </Button>
