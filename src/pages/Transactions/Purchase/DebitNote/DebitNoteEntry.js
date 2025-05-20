@@ -332,7 +332,7 @@ export default function DebitNoteEntry() {
     useEffect(() => {
         getLocations();
          if (invoiceData && invoiceData.invNo !== null) {
-            getInvoiceItems(invoiceData.invNo.replace("PUR", ''));
+            getInvoiceItems(invoiceData.invNo?.replace("PUR", ''));
         }
     }, []);
 

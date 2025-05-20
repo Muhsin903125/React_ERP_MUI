@@ -323,8 +323,9 @@ export default function CreditNoteEntry() {
     };
     useEffect(() => {
         getLocations();
-        if (invoiceData && invoiceData.invNo !== null) {
-            getInvoiceItems(invoiceData.invNo.replace("INV", ''));
+
+        if (invoiceData && invoiceData.invNo !== null) { 
+            getInvoiceItems(invoiceData.invNo?.replace("INV", ''));
         }
     }, []);
 
