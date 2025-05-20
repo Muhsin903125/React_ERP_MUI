@@ -331,6 +331,9 @@ export default function DebitNoteEntry() {
     };
     useEffect(() => {
         getLocations();
+         if (invoiceData && invoiceData.invNo !== null) {
+            getInvoiceItems(invoiceData.invNo.replace("PUR", ''));
+        }
     }, []);
 
     const CreateInvoice = async () => {
@@ -398,6 +401,19 @@ export default function DebitNoteEntry() {
             console.error("Error:", error); // More informative error handling
         }
     };
+     const getInvoiceItems = async (invoiceId) => {
+            const { Success: invSuccess, Data: invData, Message: invMessage } = await GetSingleListResult({
+                "key": "PURCH_INV_CRUD",
+                "TYPE": "GET_INV_ITEMS",
+                "DOC_NO": invoiceId || headerData.InvNo.replace("INV", '')
+            });
+    
+            if (invSuccess) {
+                setInvoiceItems(invData); // Assuming items are in the second array
+            } else {
+                showToast(invMessage, "error");
+            }
+        }
     const loadInvoiceDetails = async (invoiceId) => {
         try {
             setLoadingFull(true);
@@ -425,17 +441,7 @@ export default function DebitNoteEntry() {
                 // Fetch invoice items
                 console.log("headerData.InvNo", headerData);
                 if (headerData?.InvNo) {
-                    const { Success: invSuccess, Data: invData, Message: invMessage } = await GetMultipleResult({
-                        "key": "PURCH_INV_CRUD",
-                        "TYPE": "GET",
-                        "DOC_NO": headerData.InvNo.replace("PUR", '')
-                    });
-
-                    if (invSuccess) {
-                        setInvoiceItems(invData[1] || []); // Assuming items are in the second array
-                    } else {
-                        showToast(invMessage, "error");
-                    }
+                    getInvoiceItems(headerData?.InvNo.replace("PUR", ''));
                 }
             } else {
                 showToast(Message, "error");

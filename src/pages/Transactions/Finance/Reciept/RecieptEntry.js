@@ -907,21 +907,33 @@ export default function RecieptEntry() {
                                         />
                                     </FormControl>
                                 </Grid>
-                                <Grid item xs={6} md={4} mt={1}    >
-                                    <FormControl fullWidth error={Boolean(errors.PaymentMode)}>
-                                        <Dropdownlist
-                                            options={PaymentModeOptions}
-                                            name="PaymentMode"
-                                            value={headerData.PaymentMode}
-                                            label="Payment Mode"
-                                            onChange={handleInputChange}
-                                            disable={!isEditable}
-                                            error={Boolean(errors.PaymentMode)}
-                                            helperText={errors.PaymentMode}
-                                            required
-                                        />
-                                    </FormControl>
-                                </Grid>
+                                <Grid item xs={6} md={4} mt={1}>
+  <FormControl fullWidth error={Boolean(errors.PaymentMode)}>
+    <Autocomplete
+      size="small"
+      disabled={!isEditable}
+      options={PaymentModeOptions}
+      getOptionLabel={(option) => option.label || ''}
+      value={PaymentModeOptions.find(opt => opt.value === headerData.PaymentMode) || null}
+      onChange={(_, newValue) => {
+        setheaderData(prev => ({
+          ...prev,
+          PaymentMode: newValue ? newValue.value : ''
+        }));
+      }}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label="Payment Mode"
+          required
+          error={Boolean(errors.PaymentMode)}
+          helperText={errors.PaymentMode}
+        />
+      )}
+    />
+  </FormControl>
+</Grid>
+
                                 {/* <Grid item xs={6} md={6} mt={1} >
                                     <FormControl fullWidth>
                                         <Dropdownlist options={InvoiceStatusOptions}
