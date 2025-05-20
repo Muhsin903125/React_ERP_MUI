@@ -24,7 +24,7 @@ export default function InvoiceItemsDialog({ open, onClose, items, selectedItems
     };
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+        <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth >
             <DialogTitle>
                 <Box display="flex" justifyContent="space-between" alignItems="center">
                     <Typography variant="h6">Select Items from Invoice</Typography>
@@ -54,6 +54,8 @@ export default function InvoiceItemsDialog({ open, onClose, items, selectedItems
                                 <TableCell>Item Name</TableCell>
                                 <TableCell>Description</TableCell>
                                 <TableCell align="right">Quantity</TableCell>
+                                <TableCell align="right">Discount</TableCell>
+                                <TableCell align="right">Invoice Rate</TableCell>
                                 <TableCell align="right">Price</TableCell>
                                 <TableCell align="right">Total</TableCell>
                             </TableRow>
@@ -75,6 +77,8 @@ export default function InvoiceItemsDialog({ open, onClose, items, selectedItems
                                     <TableCell>{item.name}</TableCell>
                                     <TableCell>{item.desc}</TableCell>
                                     <TableCell align="right">{item.qty}</TableCell>
+                                    <TableCell align="right">{item.discount}</TableCell>
+                                    <TableCell align="right">{item.inv_rate}</TableCell>
                                     <TableCell align="right">{item.price}</TableCell>
                                     <TableCell align="right">{item.qty * item.price}</TableCell>
                                 </TableRow>
@@ -83,7 +87,7 @@ export default function InvoiceItemsDialog({ open, onClose, items, selectedItems
                     </Table>
                 </TableContainer>
             </DialogContent>
-            <DialogActions>
+            <DialogActions sx={{padding:2}}>
                 <Button onClick={onClose}>Cancel</Button>
                 <Button 
                     variant="contained" 

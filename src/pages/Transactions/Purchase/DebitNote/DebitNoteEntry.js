@@ -959,6 +959,7 @@ export default function DebitNoteEntry() {
                     ))}
 
                     <SubTotalSec
+                        type={'credit'}
                         addItem={addItem}
                         calculateTotal={calculateTotal(items)}
                         discount={headerData.Discount}

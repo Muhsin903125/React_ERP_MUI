@@ -33,22 +33,22 @@ export default function SubTotalSec({
                 )}
 
                 <Grid item container md={8} spacing={3.5} mt={1} justifyContent="flex-end">
-                        <Grid item xs={6} md={4}>
-                    {type !== 'credit' && (
+                    <Grid item xs={6} md={4}>
+                        {type !== 'credit' && (
                             <TextField
                                 fullWidth
                                 type="number"
                                 inputProps={{ min: "0" }}
                                 size="small"
                                 label="Discount"
-                            name="Discount"
-                            value={discount}
-                            onChange={handleInputChange}
-                            disabled={!isEditable}
+                                name="Discount"
+                                value={discount}
+                                onChange={handleInputChange}
+                                disabled={!isEditable}
                             />
                         )}
-                        </Grid>
-                    <Grid item xs={6} md={  4}>
+                    </Grid>
+                    <Grid item xs={6} md={4}>
                         <TextField
                             fullWidth
                             type="number"
@@ -73,16 +73,20 @@ export default function SubTotalSec({
                                 {FormattedNumber(calculateTotal)}
                             </Typography>
                         </Grid>
-                        <Grid item md={8} xs={6}>
-                            <Typography variant="subtitle2">
-                                Discount:
-                            </Typography>
-                        </Grid>
-                        <Grid item md={4} xs={6}>
-                            <Typography variant="subtitle2" style={{ color: "#FF5630" }}>
-                                {FormattedNumber(discount * -1)}
-                            </Typography>
-                        </Grid>
+                        {type !== 'credit' && (
+                            <>
+                                <Grid item md={8} xs={6}>
+                                    <Typography variant="subtitle2">
+                                        Discount:
+                                    </Typography>
+                                </Grid>
+                                <Grid item md={4} xs={6}>
+                                    <Typography variant="subtitle2" style={{ color: "#FF5630" }}>
+                                        {FormattedNumber(discount * -1)}
+                                    </Typography>
+                                </Grid>
+                            </>
+                        )}
                         <Grid item md={8} xs={6}>
                             <Typography variant="subtitle2">
                                 Tax:

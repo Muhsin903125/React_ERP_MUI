@@ -93,10 +93,10 @@ export default function NavSection({ data = [], ...other }) {
           onClick={() => handleMenuClick(currentPath, level)}
           disableGutters
           sx={{
-            pl: level * 2,
+            pl: level * 2 ,
             backgroundColor: getItemBgColor(level),
             ...(level > 0 && {
-              borderLeft: `4px solid ${theme.palette.primary.main}`,
+              borderLeft: `3px solid ${level === 1 ? theme.palette.secondary.light :   theme.palette.primary.lighter}`,
               borderRadius: 0
             })
           }}
