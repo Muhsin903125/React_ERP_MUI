@@ -402,10 +402,11 @@ export default function DebitNoteEntry() {
         }
     };
      const getInvoiceItems = async (invoiceId) => {
+        console.log("invoiceId", invoiceId);
             const { Success: invSuccess, Data: invData, Message: invMessage } = await GetSingleListResult({
                 "key": "PURCH_INV_CRUD",
                 "TYPE": "GET_INV_ITEMS",
-                "DOC_NO": invoiceId || headerData.InvNo.replace("INV", '')
+                "DOC_NO": invoiceId || headerData.InvNo?.replace("PUR", '')
             });
     
             if (invSuccess) {
