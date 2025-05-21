@@ -214,14 +214,18 @@ export default function PrintComponent({ headerData, items, documentType }) {
                                                 <Typography variant="body2">Gross Amount:</Typography>
                                                 <Typography variant="body2">{headerData.GrossAmount.toFixed(2)}</Typography>
                                             </Stack>
-                                            <Stack direction="row" justifyContent="space-between">
-                                                <Typography variant="body2">Discount:</Typography>
-                                                <Typography variant="body2">{headerData.Discount.toFixed(2)}</Typography>
-                                            </Stack>
-                                            <Stack direction="row" justifyContent="space-between">
-                                                <Typography variant="body2">Tax ({headerData.Tax}%):</Typography>
-                                                <Typography variant="body2">{headerData.TaxAmount.toFixed(2)}</Typography>
-                                            </Stack>
+                                            {headerData.Discount > 0 && (
+                                                <Stack direction="row" justifyContent="space-between">
+                                                    <Typography variant="body2">Discount:</Typography>
+                                                    <Typography variant="body2">{headerData.Discount.toFixed(2)}</Typography>
+                                                </Stack>
+                                            )}
+                                            {headerData.Tax > 0 && (
+                                                <Stack direction="row" justifyContent="space-between">
+                                                    <Typography variant="body2">Tax ({headerData.Tax}%):</Typography>
+                                                    <Typography variant="body2">{headerData.TaxAmount.toFixed(2)}</Typography>
+                                                </Stack>
+                                            )}
                                             <Divider />
                                             <Stack direction="row" justifyContent="space-between">
                                                 <Typography variant="subtitle2" fontWeight={700}>Net Amount:</Typography>

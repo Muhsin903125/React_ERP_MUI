@@ -106,6 +106,9 @@ export default function RecieptEntry() {
     const [showItemDialog, setShowItemDialog] = useState(false);
     const [invoiceItems, setInvoiceItems] = useState(state?.invoiceItems || []);
     const [accounts, setAccounts] = useState([]);
+    const [payersList, setPayersList] = useState([]);
+    const [payerLoading, setPayerLoading] = useState(false);
+
     const getAccounts = async () => {
         const { Success, Data, Message } = await GetSingleListResult({
             "key": "COA_CRUD",
@@ -682,6 +685,28 @@ export default function RecieptEntry() {
         }));
     };
 
+    const fetchPayers = async () => {
+        try {
+            setPayerLoading(true);
+            const { Success, Data } = await GetSingleListResult({
+                "key": "PAYER_CRUD",
+                "TYPE": "GET_ALL"
+            });
+            if (Success) {
+                setPayersList(Data);
+            }
+        } catch (error) {
+            showToast("Error fetching payers", "error");
+            console.error('Error fetching payers:', error);
+        } finally {
+            setPayerLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchPayers();
+    }, []);
+
     return (
         <>
             <Helmet>
@@ -723,29 +748,53 @@ export default function RecieptEntry() {
                     <Grid container spacing={2} mt={1}  >
                         <Grid item xs={12} md={4}>
                             <Grid container spacing={2} mt={1}>
-                                <Grid item xs={8} md={8}>
-                                    <Typography variant="subtitle1" ml={2} mb={1} style={{ color: "gray" }} >
-                                        Payer :   {headerData.PayerCode}
-                                    </Typography>
+                                <Grid item xs={12}>
+                                    <FormControl fullWidth error={Boolean(errors.PayerCode)}>
+                                        <Autocomplete
+                                            size="small"
+                                            disabled={!isEditable}
+                                            options={payersList || []}
+                                            getOptionLabel={(option) => 
+                                                option ? `${option.PAYER_NAME} (${option.PAYER_CODE})` : ''
+                                            }
+                                            value={payersList?.find(p => p.PAYER_CODE === headerData.PayerCode) || null}
+                                            loading={payerLoading}
+                                            onChange={(_, newValue) => {
+                                                if (newValue) {
+                                                    setheaderData(prev => ({
+                                                        ...prev,
+                                                        PayerCode: newValue.PAYER_CODE,
+                                                        Payer: newValue.PAYER_NAME,
+                                                        Address: newValue.PAYER_ADDRESS,
+                                                        TRN: newValue.PAYER_TRN,
+                                                        ContactNo: newValue.PAYER_MOB,
+                                                        Email: newValue.PAYER_EMAIL
+                                                    }));
+                                                } else {
+                                                    setheaderData(prev => ({
+                                                        ...prev,
+                                                        PayerCode: '',
+                                                        Payer: 'Payer Name',
+                                                        Address: '',
+                                                        TRN: '',
+                                                        ContactNo: '',
+                                                        Email: ''
+                                                    }));
+                                                }
+                                            }}
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    label="Payer"
+                                                    required
+                                                    error={Boolean(errors.PayerCode)}
+                                                    helperText={errors.PayerCode}
+                                                />
+                                            )}
+                                        />
+                                    </FormControl>
                                 </Grid>
-                                <Grid item xs={4} md={4} align='right'>
-                                      {isEditable && (
-                                        <Button size="small" startIcon={<Iconify icon={headerData?.PayerCode ? "eva:edit-fill" : "eva:person-add-fill"} />} onClick={handleClickOpen}>
-                                            {headerData?.PayerCode ? 'change' : 'Add'}
-                                        </Button>
-                                    )} 
-                                      <PayerDialog
-                                        open={open}
-                                        onClose={handleClose}
-                                        onSelect={handleSelect}
-                                    />  
-                                </Grid>
-                                <Grid item xs={12} md={12}>
-                                    <Typography variant="body2" ml={2} style={{ color: "black" }} >
-                                        {headerData.Payer}
-                                    </Typography>
-                                </Grid>
-                                <Grid item xs={12} md={12}>
+                                <Grid item xs={12}>
                                     <Typography variant="body2" ml={2} style={{ color: "gray" }} >
                                         {headerData.TRN}
                                     </Typography>
