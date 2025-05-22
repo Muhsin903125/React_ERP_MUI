@@ -57,49 +57,65 @@ export default function PendingBillsDialog({
                                         }}
                                     />
                                 </TableCell>
-                                <TableCell>Bill No</TableCell>
-                                <TableCell>Date</TableCell>
-                                <TableCell align="right">Amount</TableCell>
-                                <TableCell align="right">Balance Amount</TableCell>
+
+                                <TableCell>Sr No</TableCell>
+                                <TableCell>Doc Code</TableCell>
+                                <TableCell>Doc Date</TableCell>
+                                <TableCell align="right">Doc Amount</TableCell>
+                                <TableCell align="right">Doc Balance Amount</TableCell>
                                 <TableCell align="right">Allocated Amount</TableCell>
+
+                                <TableCell>Amount Type</TableCell>
+                                <TableCell>Actrn Srno</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {bills.map((bill) => {
-                                const isSelected = selectedBills.some(selected => selected.billNo === bill.billNo);
+                                const isSelected = selectedBills.some(selected => selected.srno === bill.srno);
                                 return (
-                                    <TableRow key={bill.billNo}>
+                                    <TableRow key={bill.srno}>
                                         <TableCell padding="checkbox">
                                             <Checkbox
                                                 checked={isSelected}
                                                 onChange={() => {
                                                     if (isSelected) {
-                                                        onBillSelect(selectedBills.filter(selected => selected.billNo !== bill.billNo));
+                                                        onBillSelect(selectedBills.filter(selected => selected.srno !== bill.srno));
                                                     } else {
-                                                        onBillSelect([...selectedBills, { ...bill, allocatedAmount: bill.balanceAmount }]);
+                                                        onBillSelect([...selectedBills, { ...bill, allocatedAmount: bill.doc_bal_amount }]);
                                                     }
                                                 }}
                                             />
                                         </TableCell>
-                                        <TableCell>{bill.billNo}</TableCell>
-                                        <TableCell>{new Date(bill.date).toLocaleDateString()}</TableCell>
-                                        <TableCell align="right">{bill.amount.toFixed(2)}</TableCell>
-                                        <TableCell align="right">{bill.balanceAmount.toFixed(2)}</TableCell>
+                                        <TableCell>{bill.srno}</TableCell>
+                                        <TableCell>{bill.doc_code}</TableCell>
+                                        <TableCell>{new Date(bill.doc_date).toLocaleDateString()}</TableCell>
+                                        <TableCell align="right">{bill.doc_amount.toFixed(2)}</TableCell>
+                                        <TableCell align="right">{bill.doc_bal_amount.toFixed(2)}</TableCell>
                                         <TableCell align="right">
-                                            {isSelected && (
-                                                <TextField
-                                                    type="number"
-                                                    value={selectedBills.find(selected => selected.billNo === bill.billNo)?.allocatedAmount || 0}
-                                                    onChange={(e) => onAllocatedAmountChange(bill.billNo, parseFloat(e.target.value) || 0)}
-                                                    inputProps={{
-                                                        min: 0,
-                                                        max: bill.balanceAmount,
-                                                        step: 0.01
-                                                    }}
-                                                    size="small"
-                                                />
-                                            )}
+
+                                            <TextField
+                                                type="number"
+                                                disabled={!isSelected}
+                                                defaultValue={bill.allocatedAmount}
+                                                value={selectedBills.find(selected => selected.srno === bill.srno)?.allocatedAmount || 0}
+                                                onChange={(e) => {
+                                                    const value = parseFloat(e.target.value) || 0;
+                                                    const maxAmount = bill.doc_bal_amount;
+                                                    const finalValue = Math.min(Math.max(0, value), maxAmount);
+                                                    onAllocatedAmountChange(bill.srno, finalValue);
+                                                }}
+                                                inputProps={{
+                                                    min: 0,
+                                                    max: bill.doc_bal_amount,
+                                                    step: 0.01
+                                                }}
+                                                style={{ width: '100px' }}
+                                                size="small"
+                                            />
+
                                         </TableCell>
+                                        <TableCell>{bill.amount_type === -1 ? "Credit" : "Debit"}</TableCell>
+                                        <TableCell>{bill.actrn_srno}</TableCell>
                                     </TableRow>
                                 );
                             })}

@@ -1,162 +1,112 @@
-import { createContext, useContext, useEffect, useState } from 'react';
 import { Navigate, useRoutes } from 'react-router-dom';
+import { RequireAuth } from './hooks/RequireAuth';
+
 // layouts
 import DashboardLayout from './layouts/dashboard';
 import SimpleLayout from './layouts/simple';
-//
+
+// pages
 import BlogPage from './pages/BlogPage';
 import UserPage from './pages/UserPage';
 import LoginPage from './pages/LoginPage';
 import Page404 from './pages/Page404';
 import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
-import ChangePassword from './pages/User/ChangePassword'; 
-import CustomerMaster from './pages/Masters/CustomerMaster';
+import Settings from './pages/Settings';
+
+// auth
 import { LoginForm } from './sections/auth/login';
+import ChangePassword from './pages/User/ChangePassword';
 import ForgotPassword from './pages/User/ForgotPassword';
 import ResetPassword from './pages/User/ResetPassword';
-import { Post } from './hooks/axios';
-import { RequireAuth } from './hooks/RequireAuth';
-import CustomerMasterV2 from './pages/Masters/CustomerMasterV2';
 import RegisterUser from './pages/User/RegisterUser';
 import UserList from './pages/User/UserList';
 import UserRoleList from './pages/User/Roles/UserRoleList';
+
+// masters
+import CustomerMaster from './pages/Masters/CustomerMaster';
+import CustomerMasterV2 from './pages/Masters/CustomerMasterV2';
 import ProductList from './pages/Masters/Inventory/Product/ProductList';
-// import UnitList from './pages/Masters/Inventory/Unit/UnitList';
-import Settings from './pages/Settings'; 
 import ChartOfAccount from './pages/Masters/Finance/ChartOfAccount';
 import Supplier from './pages/Masters/Finance/Supplier';
 import Salesman from './pages/Masters/Finance/Salesman';
-import LastNumber from './pages/Settings/ERP/LastNumber';
 import Customer from './pages/Masters/Finance/Customer';
-import Screens from './pages/Settings/Menu/Screens';
-import Permissions from './pages/Settings/Menu/Permissions';
 import Product from './pages/Masters/Inventory/Product';
 import Unit from './pages/Masters/Inventory/Unit';
-import Location from './pages/Masters/Inventory/Location'; 
+import Location from './pages/Masters/Inventory/Location';
+
+// settings
+import LastNumber from './pages/Settings/ERP/LastNumber';
+import Screens from './pages/Settings/Menu/Screens';
+import Permissions from './pages/Settings/Menu/Permissions';
+import Documents from './pages/Settings/ERP/Documents';
+import Lookups from './pages/Settings/ERP/Lookups';
+import CompanyProfile from './pages/Settings/ERP/CompanyProfile';
+
+// transactions
 import SalesInvoice from './pages/Transactions/Sales/Invoice';
 import SalesEntry from './pages/Transactions/Sales/Invoice/SalesEntry';
 import SalesQuotation from './pages/Transactions/Sales/Quotation';
 import QuotationEntry from './pages/Transactions/Sales/Quotation/QuotationEntry';
 import CreditNote from './pages/Transactions/Sales/CreditNote';
 import CreditNoteEntry from './pages/Transactions/Sales/CreditNote/CreditNoteEntry';
-import Documents from './pages/Settings/ERP/Documents';
 import PurchaseInvoice from './pages/Transactions/Purchase/Invoice';
 import PurchaseEntry from './pages/Transactions/Purchase/Invoice/PurchaseEntry';
 import PurchaseOrder from './pages/Transactions/Purchase/Order';
 import PurchaseOrderEntry from './pages/Transactions/Purchase/Order/OrderEntry';
-import Lookups from './pages/Settings/ERP/Lookups';
-import CompanyProfile from './pages/Settings/ERP/CompanyProfile';
 import DebitNoteEntry from './pages/Transactions/Purchase/DebitNote/DebitNoteEntry';
 import DebitNote from './pages/Transactions/Purchase/DebitNote';
 import Reciept from './pages/Transactions/Finance/Reciept';
 import RecieptEntry from './pages/Transactions/Finance/Reciept/RecieptEntry';
+
 // ----------------------------------------------------------------------
-const RequiredRolesContext = createContext();
 
-const fetchRequiredRoles = async (routePath) => {
-  // Replace with your actual API call
-  const response = await fetch(`/api/routes/${routePath}/requiredRoles`);
-  const data = await response.json();
-  return data.requiredRoles;
-};
+const userMenus = [
+  { path: 'customermasterv2', element: <CustomerMasterV2 /> },
+];
 
-const canAccess = (userRoles, requiredRoles) => {
-  return requiredRoles.some(role => userRoles.includes(role));
-};
+const adminMenus = [
+  { path: 'userlist', element: <UserList /> },
+  { path: 'registeruser', element: <RegisterUser /> },
+  { path: 'rolelist', element: <UserRoleList /> },
+  { path: 'product', element: <Product /> },
+  { path: 'productlist', element: <ProductList /> },
+  { path: 'unit', element: <Unit /> },
+  { path: 'location', element: <Location /> },
+  { path: 'coa', element: <ChartOfAccount /> },
+  { path: 'supplier', element: <Supplier /> },
+  { path: 'salesman', element: <Salesman /> },
+  { path: 'customer', element: <Customer /> },
+  { path: 'lastno', element: <LastNumber /> },
+  { path: 'screens', element: <Screens /> },
+  { path: 'permissions', element: <Permissions /> },
+  { path: 'salesinvoice', element: <SalesInvoice /> },
+  { path: 'sales-entry', element: <SalesEntry /> },
+  { path: 'sales-entry/:id', element: <SalesEntry /> },
+  { path: 'quotation', element: <SalesQuotation /> },
+  { path: 'quotation-entry', element: <QuotationEntry /> },
+  { path: 'quotation-entry/:id', element: <QuotationEntry /> },
+  { path: 'creditnote', element: <CreditNote /> },
+  { path: 'creditnote-entry', element: <CreditNoteEntry /> },
+  { path: 'creditnote-entry/:id', element: <CreditNoteEntry /> },
+  { path: 'debitnote', element: <DebitNote /> },
+  { path: 'debitnote-entry', element: <DebitNoteEntry /> },
+  { path: 'debitnote-entry/:id', element: <DebitNoteEntry /> },
+  { path: 'documents', element: <Documents /> },
+  { path: 'purchase', element: <PurchaseInvoice /> },
+  { path: 'purchase-entry', element: <PurchaseEntry /> },
+  { path: 'purchase-entry/:id', element: <PurchaseEntry /> },
+  { path: 'purchase-order', element: <PurchaseOrder /> },
+  { path: 'purchase-order-entry', element: <PurchaseOrderEntry /> },
+  { path: 'purchase-order-entry/:id', element: <PurchaseOrderEntry /> },
+  { path: 'reciept', element: <Reciept /> },
+  { path: 'reciept-entry', element: <RecieptEntry /> },
+  { path: 'reciept-entry/:id', element: <RecieptEntry /> },
+  { path: 'lookups', element: <Lookups /> },
+  { path: 'companyprofile', element: <CompanyProfile /> },
+];
 
-const ProtectedRoute = ({ children }) => {
-  const requiredRoles = useContext(RequiredRolesContext);
-
-  if (!requiredRoles) {
-    return <div>Loading...</div>; // or display a loading indicator
-  }
-
-  const userRoles = 'admin' /* Get user roles from state or context */;
-
-  if (!canAccess(userRoles, requiredRoles)) {
-    return <Navigate to="/unauthorized" replace />;
-  }
-
-  return children;
-};
 export default function Router() {
-
-
-  const [requiredRoles, setRequiredRoles] = useState(null);
-
-  useEffect(() => {
-    const fetchRoles = async () => {
-      const roles = await fetchRequiredRoles(window.location.pathname);
-      setRequiredRoles(roles);
-    };
-    console.log("pathh- ", window.location.pathname);
-
-    fetchRoles();
-  }, []);
-
-
-
-
-
-  const userMenus = [
-    { path: 'customermasterv2', element: <CustomerMasterV2 /> },
-   
-  ]
-  const AdminMenus = [
-    { path: 'userlist', element: <UserList /> },
-
-    { path: 'registeruser', element: <RegisterUser /> },
-    { path: 'rolelist', element: <UserRoleList /> },
-    { path: 'product', element: <Product /> },
-    { path: 'productlist', element: <ProductList /> },
-    { path: 'unit', element: <Unit /> },
-    { path: 'location', element: <Location /> },
-    // { path: 'unitlist', element: <UnitList /> },
-    { path: 'coa', element: <ChartOfAccount /> },
-    { path: 'supplier', element: <Supplier /> },
-    { path: 'salesman', element: <Salesman /> },
-    { path: 'customer', element: <Customer /> },
-    { path: 'lastno', element: <LastNumber /> },
-    { path: 'screens', element: <Screens /> },
-    { path: 'permissions', element: <Permissions /> }, 
-
-    { path: 'salesinvoice', element: <SalesInvoice /> },
-    { path: 'sales-entry', element: <SalesEntry /> },
-    { path: 'sales-entry/:id', element: <SalesEntry /> },
-
-    { path: 'quotation', element: <SalesQuotation /> },
-    { path: 'quotation-entry', element: <QuotationEntry /> },
-    { path: 'quotation-entry/:id', element: <QuotationEntry /> },
-
-    { path: 'creditnote', element: <CreditNote /> },  
-    { path: 'creditnote-entry', element: <CreditNoteEntry /> },
-    { path: 'creditnote-entry/:id', element: <CreditNoteEntry /> },
-
-    { path: 'debitnote', element: <DebitNote /> },
-    { path: 'debitnote-entry', element: <DebitNoteEntry /> },
-    { path: 'debitnote-entry/:id', element: <DebitNoteEntry /> },
-
-    { path: 'documents', element: <Documents /> },
-
-    { path: 'purchase', element: <PurchaseInvoice /> },
-    { path: 'purchase-entry', element: <PurchaseEntry /> },
-    { path: 'purchase-entry/:id', element: <PurchaseEntry /> },
-    { path: 'purchase-order', element: <PurchaseOrder /> }, 
-    { path: 'purchase-order-entry', element: <PurchaseOrderEntry /> },
-    { path: 'purchase-order-entry/:id', element: <PurchaseOrderEntry /> },
-
-    { path: 'reciept', element: <Reciept /> },
-    { path: 'reciept-entry', element: <RecieptEntry /> },
-    { path: 'reciept-entry/:id', element: <RecieptEntry /> },
-
-    // { path: 'payment', element: <Payment /> },
-    // { path: 'payment-entry', element: <PaymentEntry /> },
-    // { path: 'payment-entry/:id', element: <PaymentEntry /> },
-
-    { path: 'lookups', element: <Lookups /> },
-    { path: 'companyprofile', element: <CompanyProfile /> },
-  ]
   const routes = useRoutes([
     {
       path: '/',
@@ -174,20 +124,13 @@ export default function Router() {
         { path: 'customermaster', element: <CustomerMaster /> },
         { path: 'settings', element: <Settings /> },
         { path: 'lookups', element: <Lookups /> },
-
         ...userMenus,
-        ...AdminMenus
-        // { path: 'customermasterv2', element: <CustomerMasterV2 /> },
-        // { path: 'SalesList', element: <SalesList /> },
+        ...adminMenus,
       ],
     },
     {
       path: '/login',
       element: <LoginPage Page={LoginForm} />,
-    },
-    {
-      path: '/testt',
-      element: <Post />,
     },
     {
       path: '/forgotpassword',
@@ -212,12 +155,4 @@ export default function Router() {
   ]);
 
   return routes;
-  // return (
-  //   <RequiredRolesContext.Provider value={requiredRoles}>
-  //     <Routes>
-  //       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-  //       {/* Other routes */}
-  //     </Routes>
-  //   </RequiredRolesContext.Provider>
-  // );
 }
