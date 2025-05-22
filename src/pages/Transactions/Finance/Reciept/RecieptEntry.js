@@ -561,13 +561,17 @@ export default function RecieptEntry() {
         setShowItemDialog(false);
     };
 
-    const fetchPendingBills = async (payerCode) => {
+    const fetchPendingBills = async () => {
+        if (!headerData.Account1) {
+            showToast("Please select a payer first", "error");
+            return;
+        }
         try {
             setLoadingFull(true);
             const { Success, Data, Message } = await GetSingleListResult({
-                "key": "PENDING_BILLS",
-                "TYPE": "GET_ALL",
-                "PAYER_CODE": payerCode
+                "key": "RV_CRUD",
+                "TYPE": "GET_OUTSTANDING",
+                "ac_code": headerData.Account1
             });
             if (Success) {
                 setPendingBills(Data.map(bill => ({
@@ -585,11 +589,11 @@ export default function RecieptEntry() {
     };
 
     const handleShowPendingBills = () => {
-        if (!headerData.PayerCode) {
+        if (!headerData.Account1) {
             showToast("Please select a payer first", "error");
             return;
         }
-        fetchPendingBills(headerData.PayerCode);
+        fetchPendingBills();
         setShowPendingBillsDialog(true);
     };
 
@@ -624,28 +628,7 @@ export default function RecieptEntry() {
         }));
     };
 
-    const fetchPayers = async () => {
-        try {
-            setPayerLoading(true);
-            const { Success, Data } = await GetSingleListResult({
-                "key": "PAYER_CRUD",
-                "TYPE": "GET_ALL"
-            });
-            if (Success) {
-                setPayersList(Data);
-            }
-        } catch (error) {
-            showToast("Error fetching payers", "error");
-            console.error('Error fetching payers:', error);
-        } finally {
-            setPayerLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchPayers();
-    }, []);
-
+   
     return (
         <>
             <Helmet>
@@ -903,7 +886,7 @@ export default function RecieptEntry() {
                             accounts={accounts}
                             tax={headerData.Tax}
                             discountPercent={1 - (headerData.Discount / calculateTotal(items))}
-                            products={products}
+                            products={pendingBills}
                             code={items[index].name}
                             desc={items[index].desc}
                             qty={items[index].qty}
