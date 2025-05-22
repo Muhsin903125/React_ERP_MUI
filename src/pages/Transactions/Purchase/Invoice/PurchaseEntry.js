@@ -635,7 +635,7 @@ export default function PurchaseEntry() {
                       </Button>
                       <Button
                           variant="outlined"
-                          startIcon={<Iconify icon="eva:printer-fill" />}
+                          startIcon={<Iconify icon="eva:file-add-fill" />}
                           onClick={handleAddDebitNote}
                       >
                           Add Debit Note
