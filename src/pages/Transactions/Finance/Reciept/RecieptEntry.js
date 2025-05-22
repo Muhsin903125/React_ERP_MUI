@@ -22,13 +22,13 @@ import { getLastNumber, getLocationList, getUnitList } from '../../../../utils/C
 import Confirm from '../../../../components/Confirm';
 import Iconify from '../../../../components/iconify';
 import DateSelector from '../../../../components/DateSelector';
-import Dropdownlist from '../../../../components/DropdownList'; 
+import Dropdownlist from '../../../../components/DropdownList';
 import SubTotalSec from '../../../../components/SubTotalSec';
 import AlertDialog from '../../../../components/AlertDialog';
 import CustomerDialog from '../../../../components/CustomerDialog';
 import { GetSingleResult, GetSingleListResult, GetMultipleResult } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
-import { AuthContext } from '../../../../App'; 
+import { AuthContext } from '../../../../App';
 import InvoiceItemsDialog from './InvoiceItemsDialog';
 import TransactionItem from '../../../../components/TransactionItem';
 import PrintComponent from '../../../../components/PrintComponent';
@@ -86,27 +86,52 @@ export default function RecieptEntry() {
     const [headerData, setheaderData] = useState({
         RpNo: code,
         RpDate: selectedRecieptDate,
-        PayerCode: '',
-        Payer: 'Payer Name',
-        PaymentMethod: 'CASH',
-        ReferenceNo: '',
+        Account1: '',
+        Account2: '',
+        RefNo: '',
         RefDate: new Date(),
-        DepositTo: '',
+        PaymentMethod: 'CASH',
         Amount: 0,
-        Address: '',
-        TRN: '',
-        ContactNo: '',
-        Email: '',
-        Location: '',
         Remarks: ''
     });
 
+    const [detailData, setDetailData] = useState([]);
+    const [journal, setJournal] = useState([]);
+    const [selectedRefDate, setselectedRefDate] = useState(new Date());
+
+    // headerData (
+    //     RpNo,
+    //     RpDate,		
+    //     account1,	
+    //     account2,	
+    //     RefNo,		
+    //     RefDate,	
+    //     PaymentMode,	
+    //     Amount,		
+    //     Remarks		
+    //     )
+    //     detailData
+    //     (
+    //     srno,
+    //     account,
+    //     doc_code,
+    //     doc_date,
+    //     doc_amount,
+    //     doc_bal_amount,
+    //     alloc_amount	
+    //     ),
+    //     journal
+    //     (
+    //     srno,	
+    //     account	,
+    //     type	,
+    //     amount	
+    //     )
     const [items, setItems] = useState([]);
     const [selectedItems, setSelectedItems] = useState([]);
     const [showItemDialog, setShowItemDialog] = useState(false);
     const [invoiceItems, setInvoiceItems] = useState(state?.invoiceItems || []);
     const [accounts, setAccounts] = useState([]);
-    const [payersList, setPayersList] = useState([]);
     const [payerLoading, setPayerLoading] = useState(false);
 
     const getAccounts = async () => {
@@ -118,22 +143,23 @@ export default function RecieptEntry() {
             setAccounts(Data);
         }
     }
-    const getUnits = async () => {
-        const Data = await getUnitList();
-        setUnitList(Data);
-    }
+
     useEffect(() => {
         getAccounts();
-        getUnits();
     }, []);
     const validate = () => {
         const errors = {};
         let hasError = false;
 
         // Payer validation
-        if (validator.isEmpty(headerData.PayerCode)) {
-            errors.PayerCode = 'Payer is required';
+        if (validator.isEmpty(headerData.Account1)) {
+            errors.Account1 = 'Payer is required';
             showToast('Payer is required', "error");
+            hasError = true;
+        }
+        if (validator.isEmpty(headerData.Account2)) {
+            errors.Account2 = 'Deposit To is required';
+            showToast('Deposit To is required', "error");
             hasError = true;
         }
 
@@ -148,13 +174,6 @@ export default function RecieptEntry() {
         if (!headerData.PaymentMethod) {
             errors.PaymentMethod = 'Payment method is required';
             showToast('Payment method is required', "error");
-            hasError = true;
-        }
-
-        // Deposit To validation
-        if (!headerData.DepositTo) {
-            errors.DepositTo = 'Deposit to is required';
-            showToast('Deposit to is required', "error");
             hasError = true;
         }
 
@@ -173,29 +192,28 @@ export default function RecieptEntry() {
         }
 
         // Validate allocated amounts match total
-        const totalAllocated = items.reduce((sum, item) => sum + (item.price * item.qty), 0);
-        if (Math.abs(totalAllocated - headerData.Amount) > 0.01) {
-            errors.Amount = 'Total allocated amount must match receipt amount';
-            showToast('Total allocated amount must match receipt amount', "error");
-            hasError = true;
-        }
+        // const totalAllocated = items.reduce((sum, item) => sum + (item.price * item.qty), 0);
+        // if (Math.abs(totalAllocated - headerData.Amount) > 0.01) {
+        //     errors.Amount = 'Total allocated amount must match receipt amount';
+        //     showToast('Total allocated amount must match receipt amount', "error");
+        //     hasError = true;
+        // }
 
         setErrors(errors);
         return !hasError;
     };
 
-   
+
 
     useEffect(() => {
-        
+
         setheaderData({
             ...headerData,
-            'RpDate': selectedRecieptDate
+            'RpDate': selectedRecieptDate,
+            'RefDate': selectedRefDate
         });
-    }, [selectedRecieptDate]);
-    useEffect(() => {
-        getProducts();
-    }, []);
+    }, [selectedRecieptDate, selectedRefDate]);
+
     const handleInputChange = event => {
         const { type, name, value } = event.target;
         if (type === 'number' && Object.keys(value).length > 1)
@@ -204,23 +222,17 @@ export default function RecieptEntry() {
                 [name]: value.replace(/^0+/, '')
             });
         else
-            if (name === 'CrDays' && value === '')
-                setheaderData({
-                    ...headerData,
-                    [name]: 0
-                });
-            else
-                setheaderData({
-                    ...headerData,
-                    [name]: value
-                });
+            setheaderData({
+                ...headerData,
+                [name]: value
+            });
     };
 
-    
+
 
     const handleSave = () => {
         if (validate()) {
-            CreateReceipt();
+            CreateReceiptVoucher();
         }
     };
     useEffect(() => {
@@ -236,7 +248,7 @@ export default function RecieptEntry() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
     const getCode = async () => {
-        const { lastNo, IsEditable } = await getLastNumber('RP');
+        const { lastNo, IsEditable } = await getLastNumber('RV');
         setCode(lastNo);
         setheaderData(prev => ({
             ...prev,
@@ -250,30 +262,20 @@ export default function RecieptEntry() {
         if (validate() || items.length === 0) {
             event.preventDefault();
             // console.log(ItemNewLength);
-            setItems([...items, {
-                name: "",
-                price: 0,
-                desc: "",
-                qty: 0,
-                unit: "",
-                type: "account",
+            setDetailData([...detailData, {
+               
+                srno: 0,
                 account: "",
-                previous_docno: "",
-                previous_docsrno: ""  
-                
-                
+                doc_code: "",
+                doc_date: "",
+                doc_amount: 0,
+                doc_bal_amount: 0,
+                alloc_amount: 0
+
             }]);
         }
     };
-
-
-    // const editItem = (index, event) => {
-    //   event.preventDefault();
-    //   const newItems = [...items];
-    //   newItems[index] = { name: event.target.itemName.value, price: event.target.itemPrice.value };
-    //   setItems(newItems);
-    // };
-
+ 
     const removeItem = (index) => {
         const newItems = [...items];
         newItems.splice(index, 1);
@@ -288,44 +290,16 @@ export default function RecieptEntry() {
     // For Customer Dialog
     const [open, setOpen] = useState(false);
     // const [selectedValue, setSelectedValue] = useState("Customer Name");
+ 
+    
 
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-    };
-
-    const handleSelect = (value) => {
-        setOpen(false);
-        setheaderData({
-            ...headerData,
-            "Payer": value.PAYER_NAME,
-            "Address": value.PAYER_ADDRESS,
-            "TRN": value.PAYER_TRN,
-            "PayerCode": value.PAYER_CODE,
-            "ContactNo": value.PAYER_MOB,
-            "Email": value.PAYER_EMAIL
-        });
-    };
-
-    const getLocations = async () => {
-        const Data = await getLocationList();
-        setLocations(Data);
-        console.log("locationList", locations);
-    };
-    useEffect(() => {
-        getLocations();
-    }, []);
-
-    const CreateReceipt = async () => {
+    const CreateReceiptVoucher = async () => {
         Confirm(`Do you want to ${isEditMode ? 'update' : 'save'}?`).then(async () => {
             try {
                 setLoadingFull(true);
 
                 const base64Data = btoa(JSON.stringify({
-                    "key": "RECEIPT_CRUD",
+                    "key": "RV_CRUD",
                     "TYPE": isEditMode ? "UPDATE" : "INSERT",
                     "DOC_NO": id,
                     "headerData": {
@@ -335,11 +309,22 @@ export default function RecieptEntry() {
                         Amount: headerData.Amount,
                         Remarks: headerData.Remarks || ''
                     },
-                    "detailData": items.map((item, index) => ({
+                    "detailData": detailData.map((item, index) => ({
                         ...item,
                         srno: index + 1,
-                        billNo: item.name,
-                        allocatedAmount: item.price
+                        account: item.account,
+                        doc_code: item.doc_code,
+                        doc_date: item.doc_date,
+                        doc_amount: item.doc_amount,
+                        doc_bal_amount: item.doc_bal_amount,
+                        alloc_amount: item.alloc_amount
+                    })),
+                    "journal": journal.map((item, index) => ({
+                        ...item,
+                        srno: index + 1,
+                        account: item.account,
+                        type: item.type,
+                        amount: item.amount
                     }))
                 }));
 
@@ -351,7 +336,7 @@ export default function RecieptEntry() {
                     setIsEditMode(false);
                     setIsEditable(false);
                     navigate(`/receipt-entry/${Data.id}`, { replace: true });
-                    showToast(id ? "Receipt Updated Successfully" : "Receipt Saved Successfully", 'success');
+                    showToast(id ? "Receipt Voucher Updated Successfully" : "Receipt Voucher Saved Successfully", 'success');
                 }
                 else {
                     showToast(Message, "error");
@@ -362,20 +347,7 @@ export default function RecieptEntry() {
             }
         });
     };
-    const [products, setProducts] = useState([]);
-    const getProducts = async () => {
-        try {
-            const { Success, Data, Message } = await GetSingleListResult({
-                "key": "ITEM_CRUD",
-                "TYPE": "GET_ALL",
-            });
-            if (Success) {
-                setProducts(Data);
-            }
-        } catch (error) {
-            console.error("Error:", error); // More informative error handling
-        }
-    };
+     
     const loadInvoiceDetails = async (invoiceId) => {
         try {
             setLoadingFull(true);
@@ -394,12 +366,12 @@ export default function RecieptEntry() {
                     ...headerData,
                     InvNo: headerData?.InvNo,
                     CnNo: headerData?.CnNo,
-                    CnDate: new Date(headerData.CnDate),  
+                    CnDate: new Date(headerData.CnDate),
                     CustomerCode: headerData?.CustomerCode,
                     InvDate: new Date(headerData.InvDate)
                 });
                 setselectedCNDate(new Date(headerData.CnDate));
-                setItems(itemsData || []); 
+                setItems(itemsData || []);
                 // Fetch invoice items
                 console.log("headerData.InvNo", headerData);
                 if (headerData?.InvNo) {
@@ -511,67 +483,34 @@ export default function RecieptEntry() {
 
     const handleNewInvoice = () => {
         // Reset all data
-        setheaderData({ 
-            CnNo: '',
-            CnDate: selectedCNDate,
-            InvNo: '',
-            InvDate: '',
-            Status: 'PAID',
-            CustomerCode: '',
-            Customer: 'Customer Name',
-            Address: '',
-            Location: '',
-            TRN: '',
-            ContactNo: '',
-            Email: '',
-            LPONo: '',
+        setheaderData({
+            RpNo: '',
+            RpDate: selectedRecieptDate,
+            Account1: '',
+            Account2: '',
             RefNo: '',
-            PaymentMode: 'CASH',
-            CrDays: 0,
-            Discount: 0,
-            Tax: 5,
-            GrossAmount: 0,
-            TaxAmount: 0,
-            NetAmount: 0,
-            SManCode: '',
+            RefDate: new Date(),
+            PaymentMethod: 'CASH',
+            Amount: 0,
             Remarks: ''
         });
-        setItems([]);  // Initialize with empty array instead of default item
+        setDetailData([]);
+        setJournal([]);
+        setItems([]);
+        setSelectedItems([]);
         setErrors({});
         setIsEditable(true);
-        setIsEditMode(false);
-        getCode(); // Get new invoice number
-        navigate('/sales-entry');
     };
 
-    const fetchSalesmen = async () => {
-        try {
-            setSalesmanLoading(true);
-            const { Success, Data, Message } = await GetSingleListResult({
-                "key": "SMAN_CRUD",
-                "TYPE": "GET_ALL"
-            });
-            if (Success) {
-                setSalesmenList(Data);
-            }
-        } catch (error) {
-            showToast("Error fetching salesmen", "error");
-            console.error('Error fetching salesmen:', error);
-        } finally {
-            setSalesmanLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchSalesmen();
-    }, []);
+   
+ 
 
     const handleItemSelect = (item) => {
         if (Array.isArray(item)) {
             // Handle select all
             const newItems = item.map(itemss => ({
                 ...itemss,
-                type: 'inventory',          
+                type: 'inventory',
                 previous_docno: itemss.name,
                 previous_docsrno: itemss.srno,
             }));
@@ -581,7 +520,7 @@ export default function RecieptEntry() {
 
         setSelectedItems(prev => {
             const exists = prev.some(i => i.name === item.name);
-            if (exists) { 
+            if (exists) {
                 return prev.filter(i => i.name !== item.name);
             }
 
@@ -611,7 +550,7 @@ export default function RecieptEntry() {
         setItems(prev => {
             // Get existing item names to avoid duplicates
             const existingNames = new Set(prev.map(item => item.name));
-            
+
             // Filter out items that already exist
             const newItems = itemsWithType.filter(item => !existingNames.has(item.name));
 
@@ -655,9 +594,9 @@ export default function RecieptEntry() {
     };
 
     const handleAllocatedAmountChange = (billNo, amount) => {
-        setSelectedBills(prev => prev.map(bill => 
-            bill.billNo === billNo 
-                ? { ...bill, allocatedAmount: amount } 
+        setSelectedBills(prev => prev.map(bill =>
+            bill.billNo === billNo
+                ? { ...bill, allocatedAmount: amount }
                 : bill
         ));
     };
@@ -727,7 +666,7 @@ export default function RecieptEntry() {
                             Print
                         </Button>
                     )}
-                    {(  !isEditable) && (
+                    {(!isEditable) && (
                         <Button variant="contained" color="primary" startIcon={<Iconify icon="eva:edit-fill" />} onClick={toggleEditMode}>
                             Enable Edit
                         </Button>
@@ -747,66 +686,70 @@ export default function RecieptEntry() {
                 <Stack maxwidth={'lg'} padding={2.5} style={{ backgroundColor: '#e8f0fa', boxShadow: '#dbdbdb4f -1px 9px 20px 0px' }}>
                     <Grid container spacing={2} mt={1}  >
                         <Grid item xs={12} md={4}>
-                            <Grid container spacing={2} mt={1}>
-                                <Grid item xs={12}>
-                                    <FormControl fullWidth error={Boolean(errors.PayerCode)}>
-                                        <Autocomplete
-                                            size="small"
-                                            disabled={!isEditable}
-                                            options={payersList || []}
-                                            getOptionLabel={(option) => 
-                                                option ? `${option.PAYER_NAME} (${option.PAYER_CODE})` : ''
-                                            }
-                                            value={payersList?.find(p => p.PAYER_CODE === headerData.PayerCode) || null}
-                                            loading={payerLoading}
-                                            onChange={(_, newValue) => {
-                                                if (newValue) {
-                                                    setheaderData(prev => ({
-                                                        ...prev,
-                                                        PayerCode: newValue.PAYER_CODE,
-                                                        Payer: newValue.PAYER_NAME,
-                                                        Address: newValue.PAYER_ADDRESS,
-                                                        TRN: newValue.PAYER_TRN,
-                                                        ContactNo: newValue.PAYER_MOB,
-                                                        Email: newValue.PAYER_EMAIL
-                                                    }));
-                                                } else {
-                                                    setheaderData(prev => ({
-                                                        ...prev,
-                                                        PayerCode: '',
-                                                        Payer: 'Payer Name',
-                                                        Address: '',
-                                                        TRN: '',
-                                                        ContactNo: '',
-                                                        Email: ''
-                                                    }));
-                                                }
-                                            }}
-                                            renderInput={(params) => (
-                                                <TextField
-                                                    {...params}
-                                                    label="Payer"
-                                                    required
-                                                    error={Boolean(errors.PayerCode)}
-                                                    helperText={errors.PayerCode}
-                                                />
-                                            )}
+
+                            <FormControl fullWidth error={Boolean(errors.Account1)}>
+                                <Autocomplete
+                                    size="small"
+                                    disabled={!isEditable}
+                                    options={accounts || []}
+                                    getOptionLabel={(option) =>
+                                        option ? `${option.AC_DESC} (${option.AC_CODE})` : ''
+                                    }
+                                    value={accounts?.find(p => p.AC_CODE === headerData.Account1) || null}
+                                    loading={payerLoading}
+                                    onChange={(_, newValue) => {
+                                        setheaderData(prev => ({
+                                            ...prev,
+                                            Account1: newValue?.AC_CODE || ''
+                                        }));
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Payer"
+                                            required
+                                            error={Boolean(errors.Account1)}
+                                            helperText={errors.Account1}
                                         />
-                                    </FormControl>
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <Typography variant="body2" ml={2} style={{ color: "gray" }} >
-                                        {headerData.TRN}
-                                    </Typography>
-                                    <Typography variant="body2" ml={2} mb={2} style={{ color: "gray" }} >
-                                        {headerData.Address}
-                                    </Typography>
-                                </Grid>
-                            </Grid>
+                                    )}
+                                />
+                            </FormControl>
                         </Grid>
+                        <Grid item xs={12} md={4}>
+
+                            <FormControl fullWidth error={Boolean(errors.Account2)}>
+                                <Autocomplete
+                                    size="small"
+                                    disabled={!isEditable}
+                                    options={accounts || []}
+                                    getOptionLabel={(option) =>
+                                        option ? `${option.AC_DESC} (${option.AC_CODE})` : ''
+                                    }
+                                    value={accounts?.find(p => p.AC_CODE === headerData.Account2) || null}
+                                    loading={payerLoading}
+                                    onChange={(_, newValue) => {
+                                        setheaderData(prev => ({
+                                            ...prev,
+                                            Account2: newValue?.AC_CODE || ''
+                                        }));
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Deposit To"
+                                            required
+                                            error={Boolean(errors.Account2)}
+                                            helperText={errors.Account2}
+                                        />
+                                    )}
+                                />
+                            </FormControl>
+                        </Grid>
+
+
                         <Grid item xs={12} md={8}>
                             <Grid container spacing={1}>
-                            <Grid item xs={6} md={2}  >
+                                <Grid item xs={6} md={2}  >
                                     <FormControl fullWidth>
                                         <TextField
                                             id="reciept-no"
@@ -837,56 +780,11 @@ export default function RecieptEntry() {
                                         />
                                     </FormControl>
                                 </Grid>
-                            
-                           
+
+
                             </Grid>
                             <Grid container spacing={1} mt={1}>
-                                <Grid item xs={6} md={3}  >
-                                    <FormControl fullWidth>
-                                        <TextField
-                                            id="mob-no"
-                                            label="Mobile#"
-                                            name="ContactNo"
-                                            size="small"
-                                            type="tel"
-                                            value={headerData.ContactNo}
-                                            onChange={handleInputChange}
-                                            disabled={!isEditable}
-                                            error={Boolean(errors.ContactNo)}
-                                            helperText={errors.ContactNo}
-                                        />
-                                    </FormControl>
-                                </Grid>
-                                <Grid item xs={6} md={3} >
-                                    <FormControl fullWidth>
-                                        <TextField
-                                            id="email"
-                                            label="Email Id"
-                                            name="Email"
-                                            size="small"
-                                            type="email"
-                                            value={headerData.Email}
-                                            onChange={handleInputChange}
-                                            error={Boolean(errors.Email)}
-                                            helperText={errors.Email}
-                                            disabled={!isEditable}
-                                        />
-                                    </FormControl>
-                                </Grid>
 
-                                <Grid item xs={6} md={3} >
-                                    <FormControl fullWidth>
-                                        <TextField
-                                            id="lpo-no"
-                                            label="Cus.LPO No"
-                                            name="LPONo"
-                                            size="small"
-                                            value={headerData.LPONo}
-                                            onChange={handleInputChange}
-                                            disabled={!isEditable}
-                                        />
-                                    </FormControl>
-                                </Grid>
                                 <Grid item xs={6} md={3} b >
                                     <FormControl fullWidth>
                                         <TextField
@@ -900,100 +798,66 @@ export default function RecieptEntry() {
                                         />
                                     </FormControl>
                                 </Grid>
-                                <Grid item xs={6} md={4} mt={1} >
-                                    <FormControl fullWidth error={Boolean(errors.SManCode)}>
-                                        <Autocomplete
-                                            disabled={!isEditable}
-                                            options={salesmenList}
-                                            value={salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode) || null}
-                                            getOptionLabel={(option) =>
-                                                option ? `${option.SMAN_DESC} (${option.SMAN_DOCNO})` : ''
-                                            }
-                                            loading={salesmanLoading}
-                                            renderInput={(params) => (
-                                                <TextField
-                                                    {...params}
-                                                    label="Sales Person"
-                                                    size="small"
-                                                    error={Boolean(errors.SManCode)}
-                                                    helperText={errors.SManCode}
-                                                    required
-                                                />
-                                            )}
-                                            onChange={(event, value) => {
-                                                setheaderData({
-                                                    ...headerData,
-                                                    SManCode: value?.SMAN_DOCNO || ''
-                                                });
-                                            }}
+                                <Grid item xs={6} md={4} >
+                                    <FormControl fullWidth error={Boolean(errors.RefDate)}>
+                                        <DateSelector
+                                            label="Ref.Date"
+                                            size="small"
+                                            disableFuture={disableFutureDate}
+                                            value={headerData.RefDate}
+                                            onChange={setselectedRefDate}
+                                            disable={!isEditable}
+                                            error={Boolean(errors.RefDate)}
+                                            helperText={errors.RefDate}
+                                            required
                                         />
                                     </FormControl>
                                 </Grid>
 
-                                <Grid item xs={6} md={4} mt={1}    >
-                                    <FormControl size='small' fullWidth error={Boolean(errors.Location)}>
+
+                                <Grid item xs={6} md={4} mt={1}>
+                                    <FormControl fullWidth error={Boolean(errors.PaymentMode)}>
                                         <Autocomplete
-                                            size='small'
+                                            size="small"
                                             disabled={!isEditable}
-                                            options={locations}
-                                            getOptionLabel={(option) => `${option.LM_LOCATION_CODE} - ${option.LM_LOCATION_NAME}`}
-                                            value={locations.find(l => l.LM_LOCATION_CODE === headerData.Location) || null}
+                                            options={PaymentModeOptions}
+                                            getOptionLabel={(option) => option.label || ''}
+                                            value={PaymentModeOptions.find(opt => opt.value === headerData.PaymentMode) || null}
                                             onChange={(_, newValue) => {
                                                 setheaderData(prev => ({
                                                     ...prev,
-                                                    Location: newValue?.LM_LOCATION_CODE || ''
+                                                    PaymentMode: newValue ? newValue.value : ''
                                                 }));
                                             }}
                                             renderInput={(params) => (
                                                 <TextField
                                                     {...params}
-                                                    label="Location"
+                                                    label="Payment Mode"
                                                     required
-                                                    error={Boolean(errors.Location)}
-                                                    helperText={errors.Location}
+                                                    error={Boolean(errors.PaymentMode)}
+                                                    helperText={errors.PaymentMode}
                                                 />
                                             )}
                                         />
                                     </FormControl>
                                 </Grid>
                                 <Grid item xs={6} md={4} mt={1}>
-  <FormControl fullWidth error={Boolean(errors.PaymentMode)}>
-    <Autocomplete
-      size="small"
-      disabled={!isEditable}
-      options={PaymentModeOptions}
-      getOptionLabel={(option) => option.label || ''}
-      value={PaymentModeOptions.find(opt => opt.value === headerData.PaymentMode) || null}
-      onChange={(_, newValue) => {
-        setheaderData(prev => ({
-          ...prev,
-          PaymentMode: newValue ? newValue.value : ''
-        }));
-      }}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          label="Payment Mode"
-          required
-          error={Boolean(errors.PaymentMode)}
-          helperText={errors.PaymentMode}
-        />
-      )}
-    />
-  </FormControl>
-</Grid>
-
-                                {/* <Grid item xs={6} md={6} mt={1} >
-                                    <FormControl fullWidth>
-                                        <Dropdownlist options={InvoiceStatusOptions}
-                                            name="Status"
-                                            value={headerData.Status}
-                                            label={"Status"}
+                                    <FormControl fullWidth error={Boolean(errors.Amount)}>
+                                        <TextField
+                                            id="amount"
+                                            label="Amount"
+                                            name="Amount"
+                                            size="small"
+                                            value={headerData.Amount}
                                             onChange={handleInputChange}
-                                            disable={!isEditable}
+                                            disabled={!isEditable}
+                                            error={Boolean(errors.Amount)}
+                                            helperText={errors.Amount}
                                         />
                                     </FormControl>
-                                </Grid> */}
+                                </Grid>
+
+
                             </Grid>
                             <Grid container spacing={1} mt={1}>
                                 <Grid item xs={12} md={12}>
@@ -1038,7 +902,7 @@ export default function RecieptEntry() {
                             Propkey={index}
                             accounts={accounts}
                             tax={headerData.Tax}
-                            discountPercent={1-(headerData.Discount / calculateTotal(items))}
+                            discountPercent={1 - (headerData.Discount / calculateTotal(items))}
                             products={products}
                             code={items[index].name}
                             desc={items[index].desc}
@@ -1071,7 +935,7 @@ export default function RecieptEntry() {
                         )}
                     </Stack>
                 </Stack>
-            </Card>
+            </Card >
 
             <InvoiceItemsDialog
                 open={showItemDialog}
@@ -1101,7 +965,7 @@ export default function RecieptEntry() {
                 </DialogTitle>
                 <DialogContent>
                     <Box id="print-content" sx={{ p: 2 }}>
-                    <PrintComponent
+                        <PrintComponent
                             headerData={{
                                 ...headerData,
                                 SalesmanName: salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode)?.SMAN_DESC ?
@@ -1110,7 +974,7 @@ export default function RecieptEntry() {
                             }}
                             items={items}
                             documentType="TAX CREDIT NOTE"
-                        /> 
+                        />
                     </Box>
                 </DialogContent>
                 <DialogActions>
@@ -1128,12 +992,14 @@ export default function RecieptEntry() {
                 </DialogActions>
             </Dialog>
 
-            {IsAlertDialog && (
-                <AlertDialog
-                    Message="Are you sure you want to proceed?"
-                    OnSuccess={setAlertDialog}
-                />
-            )}
+            {
+                IsAlertDialog && (
+                    <AlertDialog
+                        Message="Are you sure you want to proceed?"
+                        OnSuccess={setAlertDialog}
+                    />
+                )
+            }
 
             <PendingBillsDialog
                 open={showPendingBillsDialog}
