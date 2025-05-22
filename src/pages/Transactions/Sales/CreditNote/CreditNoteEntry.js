@@ -987,7 +987,7 @@ export default function CreditNoteEntry() {
                         type={'credit'}
                         addItem={addItem}
                         calculateTotal={calculateTotal(items)}
-                        discount={headerData.Discount}
+                        discount={0} // {headerData.Discount}
                         tax={headerData.Tax}
                         handleInputChange={(e) => handleInputChange(e)}
                         isEditable={isEditable}
