@@ -634,7 +634,7 @@ export default function SalesEntry() {
                             </Button>
                             <Button
                                 variant="outlined"
-                                startIcon={<Iconify icon="eva:printer-fill" />}
+                                startIcon={<Iconify icon="eva:file-add-fill" />}
                                 onClick={handleAddCreditNote}
                             >
                                 Add Credit Note
