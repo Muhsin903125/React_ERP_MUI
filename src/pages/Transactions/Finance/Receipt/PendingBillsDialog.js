@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import {
     Dialog,
     DialogTitle,
@@ -14,6 +14,8 @@ import {
     Paper,
     Checkbox,
     TextField,
+    Box,
+    Typography,
 } from '@mui/material';
 
 export default function PendingBillsDialog({
@@ -23,8 +25,22 @@ export default function PendingBillsDialog({
     selectedBills,
     onBillSelect,
     onConfirm,
-    onAllocatedAmountChange
+    onAllocatedAmountChange,
+    onDiscountChange
 }) {
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const filteredBills = useMemo(() => {
+        return bills.filter(bill => 
+            bill.doc_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            bill.srno.toString().includes(searchTerm)
+        );
+    }, [bills, searchTerm]);
+
+    const totalAllocated = useMemo(() => {
+        return selectedBills.reduce((sum, bill) => sum + (bill.allocatedAmount || 0), 0);
+    }, [selectedBills]);
+
     return (
         <Dialog
             open={open}
@@ -40,17 +56,27 @@ export default function PendingBillsDialog({
         >
             <DialogTitle>Pending Bills</DialogTitle>
             <DialogContent>
+                <Box sx={{ mb: 2, mt: 2 }}>
+                    <TextField
+                        fullWidth
+                        label="Search by Doc Code or Sr No"
+                        variant="outlined"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        size="small"
+                    />
+                </Box>
                 <TableContainer component={Paper}>
                     <Table>
                         <TableHead>
                             <TableRow>
                                 <TableCell padding="checkbox">
                                     <Checkbox
-                                        indeterminate={selectedBills.length > 0 && selectedBills.length < bills.length}
-                                        checked={bills.length > 0 && selectedBills.length === bills.length}
+                                        indeterminate={selectedBills.length > 0 && selectedBills.length < filteredBills.length}
+                                        checked={filteredBills.length > 0 && selectedBills.length === filteredBills.length}
                                         onChange={(event) => {
                                             if (event.target.checked) {
-                                                onBillSelect(bills);
+                                                onBillSelect(filteredBills);
                                             } else {
                                                 onBillSelect([]);
                                             }
@@ -66,11 +92,11 @@ export default function PendingBillsDialog({
                                 <TableCell align="right">Allocated Amount</TableCell>
 
                                 <TableCell>Amount Type</TableCell>
-                                <TableCell>Actrn Srno</TableCell>
+                                <TableCell>Discount</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {bills.map((bill) => {
+                            {filteredBills.map((bill) => {
                                 const isSelected = selectedBills.some(selected => selected.srno === bill.srno);
                                 return (
                                     <TableRow key={bill.srno}>
@@ -81,7 +107,7 @@ export default function PendingBillsDialog({
                                                     if (isSelected) {
                                                         onBillSelect(selectedBills.filter(selected => selected.srno !== bill.srno));
                                                     } else {
-                                                        onBillSelect([...selectedBills, { ...bill, allocatedAmount: bill.doc_bal_amount }]);
+                                                        onBillSelect([...selectedBills, { ...bill, allocatedAmount: bill.doc_bal_amount, discount: bill.discount }]);
                                                     }
                                                 }}
                                             />
@@ -115,13 +141,34 @@ export default function PendingBillsDialog({
 
                                         </TableCell>
                                         <TableCell>{bill.amount_type === -1 ? "Credit" : "Debit"}</TableCell>
-                                        <TableCell>{bill.actrn_srno}</TableCell>
+                                        <TableCell>  <TextField
+                                                type="number"
+                                                disabled={!isSelected}
+                                                defaultValue={0}
+                                                value={selectedBills.find(selected => selected.srno === bill.srno)?.discount || 0}
+                                                onChange={(e) => {
+                                                    const value = parseFloat(e.target.value) || 0;
+                                                    onDiscountChange(bill.srno, value);
+                                                }}
+                                                inputProps={{
+                                                    min: 0,
+                                                    max: bill.doc_bal_amount,
+                                                    step: 0.01
+                                                }}
+                                                style={{ width: '100px' }}
+                                                size="small"
+                                            /></TableCell>
                                     </TableRow>
                                 );
                             })}
                         </TableBody>
                     </Table>
                 </TableContainer>
+                <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+                    <Typography variant="h6">
+                        Total Allocated: {totalAllocated.toFixed(2)}
+                    </Typography>
+                </Box>
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Cancel</Button>

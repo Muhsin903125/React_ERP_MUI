@@ -21,13 +21,13 @@ import Iconify from '../../../../components/iconify';
 
 const columns = [
     {
-        accessorKey: 'CnNo',
+        accessorKey: 'RpNo',
         header: 'Code',
         enableEditing: false,
         size: 0
     },
     {
-        accessorKey: 'CnDate',
+        accessorKey: 'RpDate',
         header: 'Date',
         cell: info => {
             const rawDate = info.getValue();
@@ -40,28 +40,22 @@ const columns = [
 
 
     {
-        accessorKey: 'CustomerDisplay',
-        header: 'Customer',
-    },
+        accessorKey: 'Account1Name',
+        header: 'Payer',
+    }, 
     {
-        accessorKey: 'InvNo',
-        header: 'Invoice No',
+        accessorKey: 'Account2Name',
+        header: 'Deposit To',
     }, 
     {
         accessorKey: 'PaymentMode',
         header: 'Payment Mode',
     }, 
     {
-
-        accessorKey: 'GrossAmount',
-        header: 'Gross Amount',
+        accessorKey: 'Amount',
+        header: 'Amount',
         enableEditing: false,
-    },
-    {
-        accessorKey: 'NetAmount',
-        header: 'Net Amount',
-        enableEditing: false,
-    },
+    }
 ];
 
 
@@ -79,7 +73,7 @@ export default function Reciept() {
             try {
                 setLoadingFull(false);
                 const { Success, Data, Message } = await GetSingleListResult({
-                    "key": "RECIEPT_CRUD",
+                    "key": "RV_CRUD",
                     "TYPE": "GET_ALL",
                 })
                 if (Success) {
@@ -101,7 +95,7 @@ export default function Reciept() {
  
  
     const handleView = (rowData) => {
-        navigate(`/reciept-entry/${rowData.CnNo}`);
+        navigate(`/receipt-entry/${rowData.RpNo}`);
     };
 
     return (
@@ -114,10 +108,10 @@ export default function Reciept() {
                 <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
                     <Typography variant="h4" gutterBottom>
                         Reciept List
-                    </Typography>
-                    <Link to="/reciept-entry" style={{ textDecoration: 'none' }}>
+                    </Typography> 
+                    <Link to="/receipt-entry" style={{ textDecoration: 'none' }}>
                         <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-                            New Reciept Entry
+                            New Reciept Entry 
                         </Button>
                     </Link>
                 </Stack>

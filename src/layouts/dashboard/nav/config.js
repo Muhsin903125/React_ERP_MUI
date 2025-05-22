@@ -398,7 +398,7 @@ const navConfig = [
         childern: [
           {
             title: 'Reciept',
-            path: '/reciept',
+            path: '/receipt',
             icon: subIcon(),
             visible:true
           },

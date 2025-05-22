@@ -1,4 +1,4 @@
-import { Box, Grid, Typography, useTheme } from '@mui/material';
+        import { Box, Grid, Typography, useTheme } from '@mui/material'; 
 import PropTypes from 'prop-types';
 
 PendingBillsTable.propTypes = {
@@ -15,6 +15,10 @@ PendingBillsTable.propTypes = {
 
 export default function PendingBillsTable({ detailData }) {
     const theme = useTheme();
+    const calculateBalance = (balAmount, allocAmount) => {
+        const balance = Number(balAmount) - Number(allocAmount);
+        return balance.toFixed(2);
+    }
     return (
         <Box sx={{ 
             border: `1px solid ${theme.palette.primary.lighter}`,
@@ -27,7 +31,7 @@ export default function PendingBillsTable({ detailData }) {
                 borderBottom: `1px solid ${theme.palette.primary.lighter}`,
                 py: 1.5
             }}>
-                <Grid item xs={2} md={2}>
+                <Grid item xs={2} md={1}>
                     <Typography variant="subtitle2" sx={{ px: 2, fontWeight: 600 }}>Doc Code</Typography>
                 </Grid>
                 <Grid item xs={2} md={2}>
@@ -42,8 +46,11 @@ export default function PendingBillsTable({ detailData }) {
                 <Grid item xs={2} md={2}>
                     <Typography variant="subtitle2" sx={{ px: 2, fontWeight: 600 }}>Balance</Typography>
                 </Grid>
-                <Grid item xs={2} md={2}>
+                <Grid item xs={2} md={1}>
                     <Typography variant="subtitle2" sx={{ px: 2, fontWeight: 600 }}>Amount Type</Typography>
+                </Grid>
+                <Grid item xs={2} md={2}>
+                    <Typography variant="subtitle2" sx={{ px: 2, fontWeight: 600 }}>Discount</Typography>
                 </Grid>
             </Grid>
             {detailData.map((field, index) => (
@@ -58,7 +65,7 @@ export default function PendingBillsTable({ detailData }) {
                         transition: 'background-color 0.2s'
                     }}
                 >
-                    <Grid item xs={2} md={2}>
+                    <Grid item xs={2} md={1}>
                         <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{field.doc_code}</Typography>
                     </Grid>
                     <Grid item xs={2} md={2}>
@@ -68,12 +75,12 @@ export default function PendingBillsTable({ detailData }) {
                         <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{field.doc_bal_amount}</Typography>
                     </Grid>
                     <Grid item xs={2} md={2}>
-                        <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{field.allocatedAmount}</Typography>
+                        <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{field.alloc_amount}</Typography>
                     </Grid>
                     <Grid item xs={2} md={2}>
-                        <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{field.doc_bal_amount - field.allocatedAmount}</Typography>
+                        <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{calculateBalance(field.doc_bal_amount, field.alloc_amount)}</Typography>
                     </Grid>
-                    <Grid item xs={2} md={2}>
+                    <Grid item xs={2} md={1}>
                         <Typography 
                             variant="body2" 
                             sx={{ 
@@ -85,6 +92,9 @@ export default function PendingBillsTable({ detailData }) {
                         >
                             {field.amount_type === -1 ? 'Credit' : 'Debit'}
                         </Typography>
+                    </Grid>
+                    <Grid item xs={2} md={2}>
+                        <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{field.discount}</Typography>
                     </Grid>
                 </Grid>
             ))}

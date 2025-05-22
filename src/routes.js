@@ -56,8 +56,8 @@ import PurchaseOrder from './pages/Transactions/Purchase/Order';
 import PurchaseOrderEntry from './pages/Transactions/Purchase/Order/OrderEntry';
 import DebitNoteEntry from './pages/Transactions/Purchase/DebitNote/DebitNoteEntry';
 import DebitNote from './pages/Transactions/Purchase/DebitNote';
-import Reciept from './pages/Transactions/Finance/Reciept';
-import RecieptEntry from './pages/Transactions/Finance/Reciept/RecieptEntry';
+import Receipt from './pages/Transactions/Finance/Receipt';
+import ReceiptEntry from './pages/Transactions/Finance/Receipt/ReceiptEntry';
 
 // ----------------------------------------------------------------------
 
@@ -99,9 +99,9 @@ const adminMenus = [
   { path: 'purchase-order', element: <PurchaseOrder /> },
   { path: 'purchase-order-entry', element: <PurchaseOrderEntry /> },
   { path: 'purchase-order-entry/:id', element: <PurchaseOrderEntry /> },
-  { path: 'reciept', element: <Reciept /> },
-  { path: 'reciept-entry', element: <RecieptEntry /> },
-  { path: 'reciept-entry/:id', element: <RecieptEntry /> },
+  { path: 'receipt', element: <Receipt /> },
+  { path: 'receipt-entry', element: <ReceiptEntry /> },
+  { path: 'receipt-entry/:id', element: <ReceiptEntry /> },
   { path: 'lookups', element: <Lookups /> },
   { path: 'companyprofile', element: <CompanyProfile /> },
 ];
