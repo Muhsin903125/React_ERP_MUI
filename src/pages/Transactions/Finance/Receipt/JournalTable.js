@@ -47,7 +47,7 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
         if (!newEntry.account || !newEntry.amount) return;
 
         const parsedAmount = Number(newEntry.amount);
-        if (isNaN(parsedAmount) || parsedAmount <= 0) return;
+        if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) return;
 
         const updatedJournal = [...journal, {
             srno: journal.length + 1,
