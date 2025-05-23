@@ -443,6 +443,8 @@ export default function ReceiptEntry() {
         setErrors({});
         setIsEditable(true);
         setIsEditMode(false);
+        getCode(); // Get new invoice number
+        navigate('/receipt-entry');
     };
 
 

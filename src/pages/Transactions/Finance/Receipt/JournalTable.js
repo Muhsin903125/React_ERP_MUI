@@ -169,6 +169,7 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
                                             <IconButton
                                                 size="small"
                                                 color="primary"
+                                                disabled={!isEditable}
                                                 onClick={() => {
                                                     setNewEntry({
                                                         account: entry.account,
@@ -186,6 +187,7 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
                                             <IconButton
                                                 size="small"
                                                 color="error"
+                                                disabled={!isEditable}
                                                 onClick={() => handleDeleteEntry(index)}
                                             >
                                                 <Iconify icon="eva:trash-2-outline" />
