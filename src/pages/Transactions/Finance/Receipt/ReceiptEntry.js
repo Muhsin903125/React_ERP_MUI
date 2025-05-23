@@ -621,13 +621,15 @@ export default function ReceiptEntry() {
                 srno: 1,
                 account: headerData.Account1,
                 type: "Debit",
-                amount: selectedBills.reduce((sum, bill) => sum + bill.allocatedAmount, 0)
+                amount: selectedBills.reduce((sum, bill) => sum + bill.allocatedAmount, 0),
+                isManual: false
             },
             {
                 srno: 2,
                 account: headerData.Account2,
                 type: "Credit",
-                amount: selectedBills.reduce((sum, bill) => sum + bill.allocatedAmount, 0)
+                amount: selectedBills.reduce((sum, bill) => sum + bill.allocatedAmount, 0),
+                isManual: false
             }
         ];
 
@@ -920,7 +922,25 @@ export default function ReceiptEntry() {
 
                     {currentTab === 'journal' && (
                         <Box> 
-                            <JournalTable journal={journal} accounts={accounts} />
+                            
+                            <JournalTable 
+                                journal={journal} 
+                                isEditable={isEditable}
+                                accounts={accounts} 
+                                onJournalChange={(newJournal) => {
+                                    setJournal(newJournal);
+                                    // Update total amount if needed
+                                    const totalAmount = newJournal.reduce((sum, entry) => {
+                                        return sum + (entry.type === 'Debit' ? entry.amount : -entry.amount);
+                                    }, 0);
+                                    if (totalAmount !== 0) {
+                                        setheaderData(prev => ({
+                                            ...prev,
+                                            Amount: Math.abs(totalAmount)
+                                        }));
+                                    }
+                                }}
+                            />
                         </Box>
                     )}
 
