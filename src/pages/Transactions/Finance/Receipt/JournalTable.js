@@ -30,6 +30,7 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
         type: 'Debit',
         amount: 0
     });
+    const [editIndex, setEditIndex] = useState(null);
 
     const getAccountName = (accountCode) => {
         const account = accounts?.find(acc => acc.AC_CODE === accountCode);
@@ -42,24 +43,31 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
 
     const handleAddEntry = () => {
         if (!newEntry.account || !newEntry.amount) return;
-
         const parsedAmount = Number(newEntry.amount);
-        if (isNaN(parsedAmount) || parsedAmount <= 0) return;
-
-        const updatedJournal = [...journal, {
-            srno: journal.length + 1,
-            account: newEntry.account,
-            type: newEntry.type,
-            amount: parsedAmount,
-            isManual: 1 // Mark as manually added entry
-        }];
-
+        if (Number.isNaN(parsedAmount) || parsedAmount <= 0) return;
+        let updatedJournal;
+        if (editIndex !== null) {
+            // Edit existing entry
+            updatedJournal = journal.map((entry, idx) =>
+                idx === editIndex
+                    ? { ...entry, account: newEntry.account, type: newEntry.type, amount: parsedAmount }
+                    : entry
+            );
+        } else {
+            // Add new entry
+            updatedJournal = [...journal, {
+                srno: journal.length + 1,
+                account: newEntry.account,
+                type: newEntry.type,
+                amount: parsedAmount,
+                isManual: 1
+            }];
+        }
         // Calculate total amount and determine default type
         const totalAmount = updatedJournal.reduce((sum, entry) => {
             const amt = Number(entry.amount) || 0;
             return sum + (entry.type === 'Credit' ? -amt : amt);
         }, 0);
-
         onJournalChange(updatedJournal);
         setNewEntry({
             account: '',
@@ -67,6 +75,7 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
             amount: Math.abs(totalAmount)
         });
         setOpen(false);
+        setEditIndex(null);
     };
 
     const handleDeleteEntry = (index) => {
@@ -80,7 +89,7 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
     return (
         <>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                
+
                 <Button
                     variant="contained"
                     startIcon={<Iconify icon="eva:plus-fill" />}
@@ -152,14 +161,33 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
                                     })}
                                 </TableCell>
                                 <TableCell align="center">
-                                    {entry.isManual === 1 && (
-                                        <IconButton
-                                            size="small"
-                                            color="error"
-                                            onClick={() => handleDeleteEntry(index)}
-                                        >
-                                            <Iconify icon="eva:trash-2-outline" />
-                                        </IconButton>
+                                    {(entry.isManual === 1 ) && (
+                                        <>
+                                            <IconButton
+                                                size="small"
+                                                color="primary"
+                                                onClick={() => {
+                                                    setNewEntry({
+                                                        account: entry.account,
+                                                        type: entry.type,
+                                                        amount: entry.amount
+                                                    });
+                                                    setOpen(true);
+                                                    // Store index for editing
+                                                    setEditIndex(index);
+                                                }}
+                                                sx={{ mr: 1 }}
+                                            >
+                                                <Iconify icon="eva:edit-2-outline" />
+                                            </IconButton>
+                                            <IconButton
+                                                size="small"
+                                                color="error"
+                                                onClick={() => handleDeleteEntry(index)}
+                                            >
+                                                <Iconify icon="eva:trash-2-outline" />
+                                            </IconButton>
+                                        </>
                                     )}
                                 </TableCell>
                             </TableRow>
@@ -177,7 +205,7 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
                 </Table>
             </TableContainer>
 
-            <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
+            <Dialog open={open} onClose={() => { setOpen(false); setEditIndex(null); }} maxWidth="sm" fullWidth>
                 <DialogTitle>Add Journal Entry</DialogTitle>
                 <DialogContent>
                     <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
