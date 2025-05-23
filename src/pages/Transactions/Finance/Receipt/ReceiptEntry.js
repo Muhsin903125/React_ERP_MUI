@@ -823,13 +823,14 @@ export default function ReceiptEntry() {
 
                                         handleInputChange(e);
                                         const amount = Number(e.target.value);
+                                        const totalAlloc = detailData.reduce((sum, bill) => sum + (bill.alloc_amount - bill.discount), 0);
                                         const totalDiscount = detailData.reduce((sum, bill) => sum + Number(bill.discount || 0), 0);
                                         const journalEntries = [
                                             {
                                                 srno: 1,
                                                 account: headerData.Account1,
                                                 type: "Credit",
-                                                amount: amount + totalDiscount,
+                                                amount: totalAlloc + totalDiscount,
                                                 isManual: 0
                                             },
                                             {
