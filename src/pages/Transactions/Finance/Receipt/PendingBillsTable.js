@@ -1,4 +1,4 @@
-        import { Box, Grid, Typography, useTheme } from '@mui/material'; 
+import { Box, Grid, Typography, useTheme } from '@mui/material'; 
 import PropTypes from 'prop-types';
 
 PendingBillsTable.propTypes = {
@@ -72,10 +72,10 @@ export default function PendingBillsTable({ detailData }) {
                         <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{field.doc_date}</Typography>
                     </Grid>
                     <Grid item xs={2} md={2}>
-                        <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{field.doc_bal_amount}</Typography>
+                        <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{Number(field.doc_bal_amount).toFixed(2)}</Typography>
                     </Grid>
                     <Grid item xs={2} md={2}>
-                        <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{field.alloc_amount}</Typography>
+                        <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{Number(field.alloc_amount).toFixed(2)}</Typography>
                     </Grid>
                     <Grid item xs={2} md={2}>
                         <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{calculateBalance(field.doc_bal_amount, field.alloc_amount)}</Typography>
@@ -94,7 +94,7 @@ export default function PendingBillsTable({ detailData }) {
                         </Typography>
                     </Grid>
                     <Grid item xs={2} md={2}>
-                        <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{field.discount}</Typography>
+                        <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{Number(field.discount || 0).toFixed(2)}</Typography>
                     </Grid>
                 </Grid>
             ))}
@@ -111,4 +111,4 @@ export default function PendingBillsTable({ detailData }) {
             )}
         </Box>
     );
-} 
+}
