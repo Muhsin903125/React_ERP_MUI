@@ -316,7 +316,7 @@ export default function ReceiptEntry() {
                         doc_date: item.doc_date,
                         doc_amount: item.doc_amount,
                         doc_bal_amount: item.doc_bal_amount,
-                        alloc_amount: item.allocatedAmount,
+                        alloc_amount: item.alloc_amount,
                         amount_type: item.amount_type,
                         actrn_srno: item.actrn_srno,
                         discount: item.discount
@@ -877,7 +877,7 @@ export default function ReceiptEntry() {
                     </Grid>
                 </Stack>
                 <Stack m={2.5} maxwidth={'lg'}>
-                    <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+                    <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 1 }}>
                         <Tabs
                             value={currentTab}
                             onChange={handleTabChange}
@@ -890,15 +890,13 @@ export default function ReceiptEntry() {
 
                     {currentTab === 'allocation' && (
                         <>
-                            <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-                                <Typography variant="h6">
-                                    Item Details
-                                </Typography>
+                            <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
                                 {isEditable && (
                                     <Button
                                         variant="contained"
+                                        size="small"
                                         disabled={!headerData.Account1}
-                                        startIcon={<Iconify icon="eva:plus-fill" />}
+                                        startIcon={<Iconify icon="eva:file-add-outline" />}
                                         onClick={() => setShowPendingBillsDialog(true)}
                                     >
                                         View Pending Bills

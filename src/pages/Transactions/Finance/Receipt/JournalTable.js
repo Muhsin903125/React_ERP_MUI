@@ -75,8 +75,8 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
 
     return (
         <>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6">Journal Entries</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                
                 <Button
                     variant="contained"
                     startIcon={<Iconify icon="eva:plus-fill" />}
