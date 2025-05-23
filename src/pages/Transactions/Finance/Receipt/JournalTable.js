@@ -48,7 +48,7 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
             account: newEntry.account,
             type: newEntry.type,
             amount: parseFloat(newEntry.amount),
-            isManual: true // Mark as manually added entry
+            isManual: 1 // Mark as manually added entry
         }];
 
         // Calculate total amount and determine default type
@@ -148,7 +148,7 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
                                     })}
                                 </TableCell>
                                 <TableCell align="center">
-                                    {entry.isManual && (
+                                    {entry.isManual === 1 && (
                                         <IconButton
                                             size="small"
                                             color="error"
