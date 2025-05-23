@@ -168,13 +168,13 @@ export default function ReceiptEntry() {
         }
 
         // Amount validation
-        if (!headerData.Amount || headerData.Amount <= 0) {
+        if (!headerData.Amount || Number(headerData.Amount) <= 0) {
             errors.Amount = 'Valid amount is required';
             showToast('Valid amount is required', "error");
             hasError = true;
         }
 
-        if (headerData.Amount < totalAllocatedAmount) {
+        if (Number(headerData.Amount) < totalAllocatedAmount) {
             errors.Amount = 'Allocated amount cannot be greater than the total amount';
             showToast('Allocated amount cannot be greater than the total amount', "error");
             hasError = true;
@@ -183,7 +183,7 @@ export default function ReceiptEntry() {
 
         // Validate journal entries sum to zero
         const journalSum = journal.reduce((sum, entry) => {
-            const amount = entry.amount || 0;
+            const amount = Number(entry.amount) || 0;
             return sum + (entry.type === "Credit" ? -amount : amount);
         }, 0);
 
@@ -216,6 +216,12 @@ export default function ReceiptEntry() {
             'RefDate': selectedRefDate
         });
     }, [selectedReceiptDate, selectedRefDate]);
+
+    // Calculate total allocated amount from detailData
+    useEffect(() => {
+        const totalAllocated = detailData.reduce((sum, bill) => sum + (Number(bill.alloc_amount) - Number(bill.discount || 0)), 0);
+        setTotalAllocatedAmount(totalAllocated);
+    }, [detailData]);
 
     const handleInputChange = event => {
         const { type, name, value } = event.target;
@@ -553,33 +559,35 @@ export default function ReceiptEntry() {
             doc_date: bill.doc_date,
             doc_amount: bill.doc_amount,
             doc_bal_amount: bill.doc_bal_amount,
-            alloc_amount: bill.allocatedAmount,
-            discount: bill.discount,
-            amount_type:bill.amount_type,
+            alloc_amount: Number(bill.allocatedAmount) || 0,
+            discount: Number(bill.discount) || 0,
+            amount_type: bill.amount_type,
             actrn_srno: bill.actrn_srno
         }));
 
         // Create journal entries
+        const totalAlloc = formattedBills.reduce((sum, bill) => sum + (bill.alloc_amount - bill.discount), 0);
+        const totalDiscount = formattedBills.reduce((sum, bill) => sum + bill.discount, 0);
         const journalEntries = [
             {
                 srno: 1,
                 account: headerData.Account1,
                 type: "Credit",
-                amount: selectedBills.reduce((sum, bill) => sum + bill.allocatedAmount, 0),
+                amount: totalAlloc + totalDiscount,
                 isManual: 0
             },
             {
                 srno: 2,
                 account: headerData.Account2,
                 type: "Debit",
-                amount: selectedBills.reduce((sum, bill) => sum + (bill.allocatedAmount - (bill.discount || 0)), 0),
+                amount: totalAlloc,
                 isManual: 0
             },
-            ...(selectedBills.reduce((sum, bill) => sum + (bill.discount || 0), 0) > 0 ? [{
+            ...(totalDiscount > 0 ? [{
                 srno: 3,
                 account: "10001",
-                type: "Debit", 
-                amount: selectedBills.reduce((sum, bill) => sum + (bill.discount || 0), 0),
+                type: "Debit",
+                amount: totalDiscount,
                 isManual: 0
             }] : []),
             ...journal.filter(entry => entry.isManual === 1).map((entry, index) => ({
@@ -593,13 +601,10 @@ export default function ReceiptEntry() {
         setShowPendingBillsDialog(false);
 
         // Update total amount
-        const totalAllocated = selectedBills.reduce((sum, bill) => sum + (bill.allocatedAmount - (bill.discount || 0)), 0);
-        setTotalAllocatedAmount(totalAllocated);
-        console.log("totalAllocated", totalAllocated);
-        
+        setTotalAllocatedAmount(totalAlloc);
         setheaderData(prev => ({
             ...prev,
-            Amount: totalAllocated
+            Amount: totalAlloc
         }));
     };
 
@@ -818,12 +823,13 @@ export default function ReceiptEntry() {
 
                                         handleInputChange(e);
                                         const amount = Number(e.target.value);
+                                        const totalDiscount = detailData.reduce((sum, bill) => sum + Number(bill.discount || 0), 0);
                                         const journalEntries = [
                                             {
                                                 srno: 1,
                                                 account: headerData.Account1,
                                                 type: "Credit",
-                                                amount: detailData.reduce((sum, bill) => sum + (bill.alloc_amount - (bill.discount || 0)), 0) || amount,
+                                                amount: amount + totalDiscount,
                                                 isManual: 0
                                             },
                                             {
@@ -833,11 +839,11 @@ export default function ReceiptEntry() {
                                                 amount,
                                                 isManual: 0 
                                             },
-                                            ...(detailData.reduce((sum, bill) => sum + (bill.discount || 0), 0) > 0 ? [{
+                                            ...(totalDiscount > 0 ? [{
                                                 srno: 3,
                                                 account: "10001",
                                                 type: "Debit", 
-                                                amount: detailData.reduce((sum, bill) => sum + (bill.discount || 0), 0),
+                                                amount: totalDiscount,
                                                 isManual: 0
                                             }] : []),
                                             ...journal.filter(entry => entry.isManual === 1).map((entry, index) => ({

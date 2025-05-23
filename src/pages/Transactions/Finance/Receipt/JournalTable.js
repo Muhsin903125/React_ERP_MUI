@@ -46,17 +46,21 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
     const handleAddEntry = () => {
         if (!newEntry.account || !newEntry.amount) return;
 
+        const parsedAmount = Number(newEntry.amount);
+        if (isNaN(parsedAmount) || parsedAmount <= 0) return;
+
         const updatedJournal = [...journal, {
             srno: journal.length + 1,
             account: newEntry.account,
             type: newEntry.type,
-            amount: parseFloat(newEntry.amount),
+            amount: parsedAmount,
             isManual: 1 // Mark as manually added entry
         }];
 
         // Calculate total amount and determine default type
         const totalAmount = updatedJournal.reduce((sum, entry) => {
-            return sum + (entry.type === 'Credit' ? -entry.amount : entry.amount);
+            const amt = Number(entry.amount) || 0;
+            return sum + (entry.type === 'Credit' ? -amt : amt);
         }, 0);
 
         onJournalChange(updatedJournal);
@@ -145,7 +149,7 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
                                     </Typography>
                                 </TableCell>
                                 <TableCell align="right">
-                                    {entry.amount.toLocaleString('en-US', {
+                                    {Number(entry.amount).toLocaleString('en-US', {
                                         minimumFractionDigits: 2,
                                         maximumFractionDigits: 2
                                     })}
@@ -238,6 +242,7 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
                             }))}
                             required
                             fullWidth
+                            inputProps={{ min: 0, step: 'any' }}
                         />
                     </Box>
                 </DialogContent>
@@ -254,4 +259,4 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
             </Dialog>
         </>
     );
-} 
+}
