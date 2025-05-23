@@ -12,7 +12,8 @@ export const RequireAuth = ({ children }) => {
 
   const storedrToken = sessionStorage.getItem("rToken");
   if (!storeduToken || !storedexpiry || !storedrToken) {
-    return <Navigate to='/login' state={{ path: location.pathname }} />
+    sessionStorage.setItem('redirectUrl', location.pathname + location.search);
+    return <Navigate to='/login' state={{ from: location }} replace />
   }
   return children
 }

@@ -114,8 +114,14 @@ export default function LoginForm() {
           companyWebsite,
           companyTRN
         );
-        // Navigate to home page
-        navigate('/', { replace: true });
+
+        // Get the redirect URL from sessionStorage
+        const redirectUrl = sessionStorage.getItem('redirectUrl');
+        // Navigate to the redirect URL if it exists, otherwise go to home
+        navigate(redirectUrl || '/', { replace: true });
+        // Clear the redirect URL from sessionStorage
+        sessionStorage.removeItem('redirectUrl');
+        
         showToast(Message, 'success');
       } else {
         logout();
