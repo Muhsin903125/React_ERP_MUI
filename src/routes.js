@@ -58,6 +58,7 @@ import DebitNoteEntry from './pages/Transactions/Purchase/DebitNote/DebitNoteEnt
 import DebitNote from './pages/Transactions/Purchase/DebitNote';
 import Receipt from './pages/Transactions/Finance/Receipt';
 import ReceiptEntry from './pages/Transactions/Finance/Receipt/ReceiptEntry';
+import ComingSoon from './components/ComingSoon';
 
 // ----------------------------------------------------------------------
 
@@ -104,6 +105,59 @@ const adminMenus = [
   { path: 'receipt-entry/:id', element: <ReceiptEntry /> },
   { path: 'lookups', element: <Lookups /> },
   { path: 'companyprofile', element: <CompanyProfile /> },
+
+  { path: 'journal', element: <ComingSoon title="Journal"  /> },
+  { path: 'journal-entry', element: <ComingSoon title="Journal Entry" /> },
+  { path: 'journal-entry/:id', element: <ComingSoon title="Journal Entry" /> },
+
+  { path: 'allocation', element: <ComingSoon title="Allocation" /> },
+  { path: 'allocation-entry', element: <ComingSoon title="Allocation Entry" /> },
+  { path: 'allocation-entry/:id', element: <ComingSoon title="Allocation Entry" /> },
+
+  { path: 'payment', element: <ComingSoon title="Payment" /> },
+  { path: 'payment-entry', element: <ComingSoon title="Payment Entry" /> },
+  { path: 'payment-entry/:id', element: <ComingSoon title="Payment Entry" /> },
+
+  { path: 'stock-adjustment', element: <ComingSoon title="Stock Adjustment" /> },
+  { path: 'stock-adjustment-entry', element: <ComingSoon title="Stock Adjustment Entry" /> },
+  { path: 'stock-adjustment-entry/:id', element: <ComingSoon title="Stock Adjustment Entry" /> },
+
+  { path: 'transfer', element: <ComingSoon title="Transfer" /> },
+  { path: 'transfer-entry', element: <ComingSoon title="Transfer Entry" /> },
+  { path: 'transfer-entry/:id', element: <ComingSoon title="Transfer Entry" /> },
+
+  { path: 'statement-of-account', element: <ComingSoon title="Statement of Account" /> },
+  { path: 'statement-of-account-entry', element: <ComingSoon title="Statement of Account Entry" /> },
+  { path: 'statement-of-account-entry/:id', element: <ComingSoon title="Statement of Account Entry" /> },
+
+  { path: 'trail-balance', element: <ComingSoon title="Trail Balance" /> },
+  { path: 'trail-balance-entry', element: <ComingSoon title="Trail Balance Entry" /> },
+  { path: 'trail-balance-entry/:id', element: <ComingSoon title="Trail Balance Entry" /> },
+
+  { path: 'pl', element: <ComingSoon title="Profit and Loss" /> },
+  { path: 'pl-entry', element: <ComingSoon title="Profit and Loss Entry" /> },
+  { path: 'pl-entry/:id', element: <ComingSoon title="Profit and Loss Entry" /> },
+
+  { path: 'balance-sheet', element: <ComingSoon title="Balance Sheet" /> },
+  { path: 'balance-sheet-entry', element: <ComingSoon title="Balance Sheet Entry" /> },
+  { path: 'balance-sheet-entry/:id', element: <ComingSoon title="Balance Sheet Entry" /> },
+
+  { path: 'ageing', element: <ComingSoon title="Ageing" /> },
+  { path: 'ageing-entry', element: <ComingSoon title="Ageing Entry" /> },
+  { path: 'ageing-entry/:id', element: <ComingSoon title="Ageing Entry" /> },
+
+  { path: 'sales-summary', element: <ComingSoon title="Sales Summary" /> },
+  { path: 'sales-analysis', element: <ComingSoon title="Sales Analysis" /> },
+
+  { path: 'purchase-summary', element: <ComingSoon title="Purchase Summary" /> },
+  { path: 'purchase-analysis', element: <ComingSoon title="Purchase Analysis" /> },
+
+  { path: 'stock-balance', element: <ComingSoon title="Stock Balance" /> },
+  { path: 'stock-location-balance', element: <ComingSoon title="Stock Location Balance" /> },
+  { path: 'stock-ledger', element: <ComingSoon title="Stock Ledger" /> },
+  { path: 'stock-ageing', element: <ComingSoon title="Stock Ageing" /> },
+  { path: 'stock-movement', element: <ComingSoon title="Stock Movement" /> },
+ 
 ];
 
 export default function Router() {
@@ -127,6 +181,10 @@ export default function Router() {
         ...userMenus,
         ...adminMenus,
       ],
+    },
+    {
+      path: '/comingsoon',
+      element: <ComingSoon />,
     },
     {
       path: '/login',

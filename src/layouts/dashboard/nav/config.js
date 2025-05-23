@@ -416,7 +416,7 @@ const navConfig = [
           },
           {
             title: 'Allocation',
-            path: '/customermasterv2',
+            path: '/allocation',
             icon: subIcon(),
             visible:true
           },
@@ -429,13 +429,13 @@ const navConfig = [
         childern: [
           {
             title: 'Stock Adjustment',
-            path: '/productlist',
+            path: '/stock-adjustment',
             icon: subIcon(),
             visible:true
           },
           {
             title: 'Transfer',
-            path: '/customermasterv2',
+            path: '/transfer',
             icon: subIcon(),
             visible:true
           },
@@ -457,32 +457,32 @@ const navConfig = [
         childern: [
           {
             title: 'Statement of Account',
-            path: '/productlist',
+            path: '/statement-of-account',
             icon: subIcon(),
             visible:true
           },
           {
             title: 'Trail Balance',
-            path: '/customermasterv2',
+            path: '/trail-balance',
             icon: subIcon(),
             visible:true
           },
           {
             title: 'P&L',
-            path: '/customermasterv2',
+            path: '/pl',
             icon: subIcon(),
             visible:true
           },
           {
             title: 'Balance Sheet',
-            path: '/customermasterv2',
+            path: '/balance-sheet',
             icon: subIcon(),
             visible:true
           },
 
           {
             title: 'Ageing',
-            path: '/customermasterv2',
+            path: '/ageing',
             icon: subIcon(),
             visible:true
           },
@@ -495,13 +495,13 @@ const navConfig = [
         childern: [
           {
             title: 'Summary',
-            path: '/productlist',
+            path: '/sales-summary',
             icon: subIcon(),
             visible:true
           },
           {
             title: 'Analysis',
-            path: '/unitlist',
+            path: '/sales-analysis',
             icon: subIcon(),
             visible:true
           },
@@ -514,7 +514,7 @@ const navConfig = [
         childern: [
           {
             title: 'Summary',
-            path: '/productlist',
+            path: '/purchase-summary',
             icon: subIcon(),
             visible:true
           },
@@ -527,27 +527,27 @@ const navConfig = [
         childern: [
           {
             title: 'Stock Balance',
-            path: '/productlist',
+            path: '/stock-balance',
             icon: subIcon(),
             visible:true
           }, {
             title: 'Stock Location Wise Balance',
-            path: '/productlist',
+            path: '/stock-location-balance',
             icon: subIcon(),
             visible:true
           }, {
             title: 'Stock Ledger',
-            path: '/productlist',
+            path: '/stock-ledger',
             icon: subIcon(),
             visible:true
           }, {
             title: 'Stock Ageing',
-            path: '/productlist',
+            path: '/stock-ageing',
             icon: subIcon(),
             visible:true
           }, {
             title: 'Stock Movement',
-            path: '/productlist',
+            path: '/stock-movement',
             icon: subIcon(),
             visible:true
           },
@@ -587,7 +587,7 @@ const navConfig = [
           },
           {
             title: 'Permissions',
-            path: '/customermasterv2',
+            path: '/permissions',
             icon: subIcon(),
             visible:true
           },
