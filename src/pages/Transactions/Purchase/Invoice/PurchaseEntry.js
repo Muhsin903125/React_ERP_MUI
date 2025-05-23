@@ -30,6 +30,7 @@ import { AuthContext } from '../../../../App';
 import SupplierDialog from '../../../../components/SupplierDialog';
 import PrintComponent from '../../../../components/PrintComponent';
 import TransactionItem from '../../../../components/TransactionItem';
+import PrintDialog from '../../../../components/PrintDialog';   
 import SubTotalSec from '../../../../components/SubTotalSec';
 // import { head } from 'lodash';
 
@@ -457,75 +458,7 @@ export default function PurchaseEntry() {
     };
 
     const handlePrint = () => {
-        console.log('Opening print dialog');
         setPrintDialogOpen(true);
-    };
-
-    const handleClosePrintDialog = () => {
-        console.log('Closing print dialog');
-        setPrintDialogOpen(false);
-    };
-
-
-    const handlePrintFromDialog = () => {
-        const printContent = document.getElementById('print-content');
-        if (!printContent) {
-            console.error('Print content not found');
-            return;
-        }
-
-        const printWindow = window.open('', '', 'width=800,height=600');
-        if (!printWindow) {
-            console.error('Could not open print window');
-            return;
-        }
-
-        const styles = Array.from(document.styleSheets)
-            .map(styleSheet => {
-                try {
-                    return Array.from(styleSheet.cssRules)
-                        .map(rule => rule.cssText)
-                        .join('\n');
-                } catch (e) {
-                    return '';
-                }
-            })
-            .join('\n');
-
-        printWindow.document.write(`
-            <!DOCTYPE html>
-            <html>
-                <head>
-                    <title>Print Invoice</title>
-                    <style>
-                        ${styles}
-                        body {
-                            padding: 20px;
-                        }
-                        @media print {
-                            body {
-                                padding: 0;
-                            }
-                            @page {
-                                size: A4;
-                                margin: 1cm;
-                            }
-                        }
-                    </style>
-                </head>
-                <body>
-                    ${printContent.innerHTML}
-                </body>
-            </html>
-        `);
-
-        printWindow.document.close();
-        printWindow.focus();
-
-        setTimeout(() => {
-            printWindow.print();
-            printWindow.close();
-        }, 500);
     };
 
     const toggleEditMode = () => {
@@ -974,51 +907,24 @@ export default function PurchaseEntry() {
                 </Stack>
             </Card>
 
-            {/* Print Dialog */}
-            <Dialog
+            {/* Replace the old Dialog with PrintDialog */}
+            <PrintDialog
                 open={printDialogOpen}
                 onClose={() => setPrintDialogOpen(false)}
-                maxWidth="lg"
-                fullWidth
-                PaperProps={{
-                    sx: {
-                        minHeight: '80vh',
-                        maxHeight: '90vh',
-                        overflowY: 'auto'
-                    }
-                }}
+                title="Purchase Invoice Print Preview"
+                documentTitle={`Purchase Invoice-${headerData.InvNo}`}
             >
-                <DialogTitle>
-                    <Typography variant="h6">Print Preview</Typography>
-                </DialogTitle>
-                <DialogContent>
-                    <Box id="print-content" sx={{ p: 2 }}>
-                        <PrintComponent
-                            headerData={{
-                                ...headerData,
-                                SalesmanName: salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode)?.SMAN_DESC ?
-                                    `${salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode).SMAN_DESC} (${headerData.SManCode})` :
-                                    headerData.SManCode || ''
-                            }}
-                            items={items}
-                            documentType="PURCHASE INVOICE"
-                        /> 
-                    </Box>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setPrintDialogOpen(false)}>
-                        Close
-                    </Button>
-                    <Button
-                        onClick={handlePrintFromDialog}
-                        variant="contained"
-                        color="primary"
-                        startIcon={<Iconify icon="eva:printer-fill" />}
-                    >
-                        Print
-                    </Button>
-                </DialogActions>
-            </Dialog>
+                <PrintComponent
+                    headerData={{
+                        ...headerData,
+                        SalesmanName: salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode)?.SMAN_DESC ?
+                            `${salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode).SMAN_DESC} (${headerData.SManCode})` :
+                            headerData.SManCode || ''
+                    }}
+                    items={items}
+                    documentType="PURCHASE INVOICE"
+                />
+            </PrintDialog>
 
             {IsAlertDialog && (
                 <AlertDialog

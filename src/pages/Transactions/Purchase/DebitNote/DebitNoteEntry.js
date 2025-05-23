@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useRef } from 'react';
 // @mui
 import {
     Card,
@@ -32,6 +32,7 @@ import { AuthContext } from '../../../../App';
 import InvoiceItemsDialog from './InvoiceItemsDialog';
 import TransactionItem from '../../../../components/TransactionItem';
 import PrintComponent from '../../../../components/PrintComponent';
+import PrintDialog from '../../../../components/PrintDialog';
 // import { head } from 'lodash';
 
 // ----------------------------------------------------------------------
@@ -56,6 +57,7 @@ export default function DebitNoteEntry() {
     const { id } = useParams();
     const { showToast } = useToast();
     const { setLoadingFull } = useContext(AuthContext);
+    const printRef = useRef(null);
     const [code, setCode] = useState('');
     // const [selectedDate, setSelectedDate] = useState(new Date());
     const [selectedDueDate, setselectedDueDate] = useState(new Date());
@@ -455,7 +457,6 @@ export default function DebitNoteEntry() {
     };
 
     const handlePrint = () => {
-        console.log('Opening print dialog');
         setPrintDialogOpen(true);
     };
 
@@ -988,50 +989,24 @@ export default function DebitNoteEntry() {
             />
 
             {/* Print Dialog */}
-            <Dialog
+            <PrintDialog
                 open={printDialogOpen}
                 onClose={() => setPrintDialogOpen(false)}
-                maxWidth="lg"
-                fullWidth
-                PaperProps={{
-                    sx: {
-                        minHeight: '80vh',
-                        maxHeight: '90vh',
-                        overflowY: 'auto'
-                    }
-                }}
+                title="Debit Note Print Preview"
+                printRef={printRef}
+                documentTitle={`Debit Note-${headerData.DnNo}`}
             >
-                <DialogTitle>
-                    <Typography variant="h6">Print Preview</Typography>
-                </DialogTitle>
-                <DialogContent>
-                    <Box id="print-content" sx={{ p: 2 }}>
-                    <PrintComponent
-                            headerData={{
-                                ...headerData,
-                                SalesmanName: salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode)?.SMAN_DESC ?
-                                    `${salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode).SMAN_DESC} (${headerData.SManCode})` :
-                                    headerData.SManCode || ''
-                            }}
-                            items={items}
-                            documentType="TAX DEBIT NOTE"
-                        /> 
-                    </Box>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setPrintDialogOpen(false)}>
-                        Close
-                    </Button>
-                    <Button
-                        onClick={handlePrintFromDialog}
-                        variant="contained"
-                        color="primary"
-                        startIcon={<Iconify icon="eva:printer-fill" />}
-                    >
-                        Print
-                    </Button>
-                </DialogActions>
-            </Dialog>
+                <PrintComponent
+                    headerData={{
+                        ...headerData,
+                        SalesmanName: salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode)?.SMAN_DESC ?
+                            `${salesmenList.find(s => s.SMAN_DOCNO === headerData.SManCode).SMAN_DESC} (${headerData.SManCode})` :
+                            headerData.SManCode || ''
+                    }}
+                    items={items}
+                    documentType="TAX DEBIT NOTE"
+                />
+            </PrintDialog>
 
             {IsAlertDialog && (
                 <AlertDialog
