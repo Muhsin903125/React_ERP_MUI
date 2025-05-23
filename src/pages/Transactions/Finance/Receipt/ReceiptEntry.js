@@ -179,12 +179,7 @@ export default function ReceiptEntry() {
             showToast('Allocated amount cannot be greater than the total amount', "error");
             hasError = true;
         }
-        // Items validation
-        if (detailData.length === 0) {
-            errors.items = 'At least one bill is required';
-            showToast('At least one bill is required', "error");
-            hasError = true;
-        }
+        
 
         // Validate journal entries sum to zero
         const journalSum = journal.reduce((sum, entry) => {
@@ -571,23 +566,23 @@ export default function ReceiptEntry() {
                 account: headerData.Account1,
                 type: "Credit",
                 amount: selectedBills.reduce((sum, bill) => sum + bill.allocatedAmount, 0),
-                isManual: false
+                isManual: 0
             },
             {
                 srno: 2,
                 account: headerData.Account2,
                 type: "Debit",
                 amount: selectedBills.reduce((sum, bill) => sum + (bill.allocatedAmount - (bill.discount || 0)), 0),
-                isManual: false
+                isManual: 0
             },
             ...(selectedBills.reduce((sum, bill) => sum + (bill.discount || 0), 0) > 0 ? [{
                 srno: 3,
                 account: "10001",
                 type: "Debit", 
                 amount: selectedBills.reduce((sum, bill) => sum + (bill.discount || 0), 0),
-                isManual: false
+                isManual: 0
             }] : []),
-            ...journal.filter(entry => entry.isManual).map((entry, index) => ({
+            ...journal.filter(entry => entry.isManual === 1).map((entry, index) => ({
                 ...entry,
                 srno: index + 4
             }))
@@ -828,21 +823,24 @@ export default function ReceiptEntry() {
                                                 srno: 1,
                                                 account: headerData.Account1,
                                                 type: "Credit",
-                                                amount: detailData.reduce((sum, bill) => sum + (bill.alloc_amount - (bill.discount || 0)), 0) || amount
+                                                amount: detailData.reduce((sum, bill) => sum + (bill.alloc_amount - (bill.discount || 0)), 0) || amount,
+                                                isManual: 0
                                             },
                                             {
                                                 srno: 2,
                                                 account: headerData.Account2,
                                                 type: "Debit",
-                                                amount
+                                                amount,
+                                                isManual: 0 
                                             },
                                             ...(detailData.reduce((sum, bill) => sum + (bill.discount || 0), 0) > 0 ? [{
                                                 srno: 3,
                                                 account: "10001",
                                                 type: "Debit", 
-                                                amount: detailData.reduce((sum, bill) => sum + (bill.discount || 0), 0)
+                                                amount: detailData.reduce((sum, bill) => sum + (bill.discount || 0), 0),
+                                                isManual: 0
                                             }] : []),
-                                            ...journal.filter(entry => entry.isManual).map((entry, index) => ({
+                                            ...journal.filter(entry => entry.isManual === 1).map((entry, index) => ({
                                                 ...entry,
                                                 srno: index + 4
                                             })) 
