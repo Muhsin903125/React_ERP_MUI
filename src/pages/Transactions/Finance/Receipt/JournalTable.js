@@ -51,11 +51,16 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
             isManual: true // Mark as manually added entry
         }];
 
+        // Calculate total amount and determine default type
+        const totalAmount = updatedJournal.reduce((sum, entry) => {
+            return sum + (entry.type === 'Credit' ? -entry.amount : entry.amount);
+        }, 0);
+
         onJournalChange(updatedJournal);
         setNewEntry({
             account: '',
-            type: 'Debit',
-            amount: 0
+            type: totalAmount >= 0 ? 'Credit' : 'Debit',
+            amount: Math.abs(totalAmount)
         });
         setOpen(false);
     };

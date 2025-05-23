@@ -186,6 +186,19 @@ export default function ReceiptEntry() {
             hasError = true;
         }
 
+        // Validate journal entries sum to zero
+        const journalSum = journal.reduce((sum, entry) => {
+            const amount = entry.amount || 0;
+            return sum + (entry.type === "Credit" ? -amount : amount);
+        }, 0);
+
+        if (Math.abs(journalSum) > 0.01) {
+            errors.journal = 'Voucher not tally';
+            const sign = journalSum > 0 ? 'Debit' : 'Credit';
+            showToast(`Voucher not tally. Difference: ${Math.abs(journalSum).toFixed(2)} ${sign}`, "error");
+            hasError = true;
+        }
+
         // Validate allocated amounts match total
         // const totalAllocated = items.reduce((sum, item) => sum + (item.price * item.qty), 0);
         // if (Math.abs(totalAllocated - headerData.Amount) > 0.01) {
@@ -556,17 +569,28 @@ export default function ReceiptEntry() {
             {
                 srno: 1,
                 account: headerData.Account1,
-                type: "Debit",
+                type: "Credit",
                 amount: selectedBills.reduce((sum, bill) => sum + bill.allocatedAmount, 0),
                 isManual: false
             },
             {
                 srno: 2,
                 account: headerData.Account2,
-                type: "Credit",
-                amount: selectedBills.reduce((sum, bill) => sum + bill.allocatedAmount, 0),
+                type: "Debit",
+                amount: selectedBills.reduce((sum, bill) => sum + (bill.allocatedAmount - (bill.discount || 0)), 0),
                 isManual: false
-            }
+            },
+            ...(selectedBills.reduce((sum, bill) => sum + (bill.discount || 0), 0) > 0 ? [{
+                srno: 3,
+                account: "10001",
+                type: "Debit", 
+                amount: selectedBills.reduce((sum, bill) => sum + (bill.discount || 0), 0),
+                isManual: false
+            }] : []),
+            ...journal.filter(entry => entry.isManual).map((entry, index) => ({
+                ...entry,
+                srno: index + 4
+            }))
         ];
 
         setDetailData(formattedBills);
@@ -574,17 +598,14 @@ export default function ReceiptEntry() {
         setShowPendingBillsDialog(false);
 
         // Update total amount
-        const totalAllocated = selectedBills.reduce((sum, bill) => sum + bill.allocatedAmount, 0);
+        const totalAllocated = selectedBills.reduce((sum, bill) => sum + (bill.allocatedAmount - (bill.discount || 0)), 0);
         setTotalAllocatedAmount(totalAllocated);
         console.log("totalAllocated", totalAllocated);
         
-        // Update header amount if it's 0
-        if (headerData.Amount === 0) {
-            setheaderData(prev => ({
-                ...prev,
-                Amount: totalAllocated
-            }));
-        }
+        setheaderData(prev => ({
+            ...prev,
+            Amount: totalAllocated
+        }));
     };
 
     const handleTabChange = (event, newValue) => {
@@ -794,7 +815,40 @@ export default function ReceiptEntry() {
                                     value={headerData?.Amount || 0}
                                     min={totalAllocatedAmount}
 
-                                    onChange={handleInputChange}
+                                    onChange={(e) => {
+                                        if (!headerData.Account1 || !headerData.Account2 || headerData.Account1 === '' || headerData.Account2 === '') {
+                                            showToast("Please select both accounts before changing amount", "error");
+                                            return;
+                                        }
+
+                                        handleInputChange(e);
+                                        const amount = Number(e.target.value);
+                                        const journalEntries = [
+                                            {
+                                                srno: 1,
+                                                account: headerData.Account1,
+                                                type: "Credit",
+                                                amount: detailData.reduce((sum, bill) => sum + (bill.alloc_amount - (bill.discount || 0)), 0) || amount
+                                            },
+                                            {
+                                                srno: 2,
+                                                account: headerData.Account2,
+                                                type: "Debit",
+                                                amount
+                                            },
+                                            ...(detailData.reduce((sum, bill) => sum + (bill.discount || 0), 0) > 0 ? [{
+                                                srno: 3,
+                                                account: "10001",
+                                                type: "Debit", 
+                                                amount: detailData.reduce((sum, bill) => sum + (bill.discount || 0), 0)
+                                            }] : []),
+                                            ...journal.filter(entry => entry.isManual).map((entry, index) => ({
+                                                ...entry,
+                                                srno: index + 4
+                                            })) 
+                                        ];
+                                        setJournal(journalEntries);
+                                    }}
                                     disabled={!isEditable}
                                     error={Boolean(errors.Amount)}
                                     helperText={errors.Amount}
@@ -865,16 +919,6 @@ export default function ReceiptEntry() {
                                 accounts={accounts} 
                                 onJournalChange={(newJournal) => {
                                     setJournal(newJournal);
-                                    // Update total amount if needed
-                                    const totalAmount = newJournal.reduce((sum, entry) => {
-                                        return sum + (entry.type === 'Debit' ? entry.amount : -entry.amount);
-                                    }, 0);
-                                    if (totalAmount !== 0) {
-                                        setheaderData(prev => ({
-                                            ...prev,
-                                            Amount: Math.abs(totalAmount)
-                                        }));
-                                    }
                                 }}
                             />
                         </Box>
