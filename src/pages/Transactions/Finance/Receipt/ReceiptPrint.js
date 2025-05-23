@@ -1,0 +1,274 @@
+import React from 'react';
+import {
+    Box,
+    Typography,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
+    Grid,
+    Divider,
+    Stack,
+} from '@mui/material';
+import { format } from 'date-fns';
+import useAuth from '../../../../hooks/useAuth';
+
+export default function ReceiptPrint({ headerData, journal, accounts, detailData }) {
+    const { companyName, companyAddress, companyPhone, companyEmail, companyLogoUrl, companyTRN } = useAuth();
+
+    const getAccountName = (accountCode) => {
+        const account = accounts?.find(acc => acc.AC_CODE === accountCode);
+        return account ? `${account.AC_DESC} (${account.AC_CODE})` : accountCode;
+    };
+
+    const formatDate = (date) => {
+        return date ? format(new Date(date), 'dd/MM/yyyy') : '';
+    };
+
+    const formatAmount = (amount) => {
+        return amount ? amount.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }) : '';
+    };
+
+    return (
+        <Box sx={{ p: 3, maxWidth: '210mm', margin: '0 auto' }}>
+            {/* Company Header */}
+            <Grid container spacing={2} sx={{ mb: 4 }}>
+                <Grid item xs={6}>
+                    <Stack spacing={1}>
+                        <Box>
+                            <img src={companyLogoUrl} alt="Logo" style={{ height: 40, marginBottom: 8, marginLeft: -5 }} />
+                            <Typography variant="body2" fontWeight={700}>{companyName}</Typography>
+                            <Typography variant="body2" fontWeight={300} fontSize={12} py={0.15}>{companyAddress}</Typography>
+                            <Typography variant="body2" fontWeight={300} fontSize={12} py={0.15}>TRN: {companyTRN}</Typography>
+                            <Typography variant="body2" fontWeight={300} fontSize={12} py={0.15}>{companyPhone}</Typography>
+                            <Typography variant="body2" fontWeight={300} fontSize={12} py={0.15}>{companyEmail}</Typography>
+                        </Box>
+                    </Stack>
+                </Grid>
+                <Grid item xs={6}>
+                    <Box sx={{ textAlign: 'right' }}>
+                        <Typography variant="h3" color='black' fontWeight={400} gutterBottom>RECEIPT VOUCHER</Typography>
+                        <Typography variant="body1" fontWeight={600}>#{headerData.RpNo}</Typography>
+                    </Box>
+                </Grid>
+            </Grid>
+
+            {/* Receipt Details */}
+            <Grid container spacing={2} sx={{ mb: 4 }}>
+                <Grid item xs={6}>
+                    <Box sx={{ mb: 2 }}>
+                        <Typography variant="subtitle2" color="text.secondary">
+                            Receipt Date
+                        </Typography>
+                        <Typography variant="body1">
+                            {formatDate(headerData.RpDate)}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ mb: 2 }}>
+                        <Typography variant="subtitle2" color="text.secondary">
+                            Payer
+                        </Typography>
+                        <Typography variant="body1">
+                            {getAccountName(headerData.Account1)}
+                        </Typography>
+                    </Box>
+                    <Box>
+                        <Typography variant="subtitle2" color="text.secondary">
+                            Deposit To
+                        </Typography>
+                        <Typography variant="body1">
+                            {getAccountName(headerData.Account2)}
+                        </Typography>
+                    </Box>
+
+                </Grid>
+                <Grid item xs={6}>
+                    <Box>
+                        <Typography variant="subtitle2" color="text.secondary">
+                            Payment Mode
+                        </Typography>
+                        <Typography variant="body1">
+                            {headerData.PaymentMode}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ mb: 2 }}>
+                        <Typography variant="subtitle2" color="text.secondary">
+                            Reference No
+                        </Typography>
+                        <Typography variant="body1">
+                            {headerData.RefNo || '-'}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ mb: 2 }}>
+                        <Typography variant="subtitle2" color="text.secondary">
+                            Reference Date
+                        </Typography>
+                        <Typography variant="body1">
+                            {formatDate(headerData.RefDate)}
+                        </Typography>
+                    </Box>
+
+                </Grid>
+            </Grid>
+
+            {/* Amount Section */}
+            <Box sx={{
+                mb: 4,
+                p: 2,
+                bgcolor: 'primary.light',
+                borderRadius: 1,
+                border: '1px solid',
+                borderColor: 'primary.main'
+            }}>
+                <Grid container justifyContent="space-between" alignItems="center">
+                    <Grid item>
+                        <Typography variant="h6" color="primary.dark">
+                            Total Amount
+                        </Typography>
+                    </Grid>
+                    <Grid item>
+                        <Typography variant="h6" color="primary.dark" fontWeight="bold">
+                            {formatAmount(headerData.Amount)}
+                        </Typography>
+                    </Grid>
+                </Grid>
+            </Box>
+
+            {/* Allocations List */}
+            <Box sx={{ mb: 4 }}>
+                <Typography variant="h6" sx={{ mb: 2 }}>
+                    Allocations
+                </Typography>
+                <TableContainer component={Paper} sx={{ boxShadow: 'none', border: '1px solid', borderColor: 'divider' }}>
+                    <Table size="small">
+                        <TableHead>
+                            <TableRow sx={{ bgcolor: 'grey.50' }}>
+                                <TableCell>Sr. No</TableCell>
+                                <TableCell>Document</TableCell>
+                                <TableCell>Date</TableCell>
+                                <TableCell align="right">Document Amount</TableCell>
+                                <TableCell align="right">Balance Amount</TableCell>
+                                <TableCell align="right">Allocated Amount</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {detailData && detailData.map((item, index) => (
+                                <TableRow key={index}>
+                                    <TableCell>{item.srno}</TableCell>
+                                    <TableCell>{item.doc_code}</TableCell>
+                                    <TableCell>{formatDate(item.doc_date)}</TableCell>
+                                    <TableCell align="right">{formatAmount(item.doc_amount)}</TableCell>
+                                    <TableCell align="right">{formatAmount(item.doc_bal_amount)}</TableCell>
+                                    <TableCell align="right">{formatAmount(item.alloc_amount)}</TableCell>
+                                </TableRow>
+                            ))}
+                            {detailData && detailData.length === 0 && (
+                                <TableRow>
+                                    <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
+                                        <Typography variant="body2" color="text.secondary">
+                                            No allocations found
+                                        </Typography>
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            </Box>
+
+            {/* Journal Entries */}
+            <Box sx={{ mb: 4 }}>
+                <Typography variant="h6" sx={{ mb: 2 }}>
+                    Journal Entries
+                </Typography>
+                <TableContainer component={Paper} sx={{ boxShadow: 'none', border: '1px solid', borderColor: 'divider' }}>
+                    <Table size="small">
+                        <TableHead>
+                            <TableRow sx={{ bgcolor: 'grey.50' }}>
+                                <TableCell>Sr. No</TableCell>
+                                <TableCell>Account</TableCell>
+                                <TableCell>Type</TableCell>
+                                <TableCell align="right">Amount</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {journal && journal.map((entry, index) => (
+                                <TableRow key={index}>
+                                    <TableCell>{entry.srno}</TableCell>
+                                    <TableCell>{getAccountName(entry.account)}</TableCell>
+                                    <TableCell>
+                                        <Typography
+                                            sx={{
+                                                color: entry.type === 'Debit' ? 'error.main' : 'success.main',
+                                                fontWeight: 500
+                                            }}
+                                        >
+                                            {entry.type}
+                                        </Typography>
+                                    </TableCell>
+                                    <TableCell align="right">
+                                        {formatAmount(entry.amount)}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                            {journal && journal.length === 0 && (
+                                <TableRow>
+                                    <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
+                                        <Typography variant="body2" color="text.secondary">
+                                            No journal entries found
+                                        </Typography>
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            </Box>
+
+            {/* Remarks */}
+            {headerData.Remarks && (
+                <Box sx={{ mb: 4 }}>
+                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                        Remarks
+                    </Typography>
+                    <Typography variant="body1">
+                        {headerData.Remarks}
+                    </Typography>
+                </Box>
+            )}
+
+            {/* Footer */}
+            <Box sx={{ mt: 6 }}>
+                <Grid container spacing={4}>
+                    <Grid item xs={4}>
+                        <Box sx={{ borderTop: '1px solid', borderColor: 'divider', pt: 2 }}>
+                            <Typography variant="body2" align="center">
+                                Prepared By
+                            </Typography>
+                        </Box>
+                    </Grid>
+                    <Grid item xs={4}>
+                        <Box sx={{ borderTop: '1px solid', borderColor: 'divider', pt: 2 }}>
+                            <Typography variant="body2" align="center">
+                                Checked By
+                            </Typography>
+                        </Box>
+                    </Grid>
+                    <Grid item xs={4}>
+                        <Box sx={{ borderTop: '1px solid', borderColor: 'divider', pt: 2 }}>
+                            <Typography variant="body2" align="center">
+                                Authorized By
+                            </Typography>
+                        </Box>
+                    </Grid>
+                </Grid>
+            </Box>
+        </Box>
+    );
+} 
