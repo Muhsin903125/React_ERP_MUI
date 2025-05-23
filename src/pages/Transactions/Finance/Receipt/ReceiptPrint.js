@@ -141,49 +141,43 @@ export default function ReceiptPrint({ headerData, journal, accounts, detailData
             </Box>
 
             {/* Allocations List */}
-            <Box sx={{ mb: 4 }}>
-                <Typography variant="h6" sx={{ mb: 2 }}>
-                    Allocations
-                </Typography>
-                <TableContainer component={Paper} sx={{ boxShadow: 'none', border: '1px solid', borderColor: 'divider' }}>
-                    <Table size="small">
-                        <TableHead>
-                            <TableRow sx={{ bgcolor: 'grey.50' }}>
-                                <TableCell>Sr. No</TableCell>
-                                <TableCell>Document</TableCell>
-                                <TableCell>Date</TableCell>
-                                <TableCell align="right">Document Amount</TableCell>
-                                <TableCell align="right">Balance Amount</TableCell>
-                                <TableCell align="right">Allocated Amount</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {detailData && detailData.map((item, index) => (
-                                <TableRow key={index}>
-                                    <TableCell>{item.srno}</TableCell>
-                                    <TableCell>{item.doc_code}</TableCell>
-                                    <TableCell>{formatDate(item.doc_date)}</TableCell>
-                                    <TableCell align="right">{formatAmount(item.doc_amount)}</TableCell>
-                                    <TableCell align="right">{formatAmount(item.doc_bal_amount)}</TableCell>
-                                    <TableCell align="right">{formatAmount(item.alloc_amount)}</TableCell>
+            {detailData && detailData.length > 0 && (
+                <Box sx={{ mb: 4 }}>
+                    <Typography variant="h6" sx={{ mb: 2 }}>
+                        Allocations
+                    </Typography>
+                    <TableContainer component={Paper} sx={{ boxShadow: 'none', border: '1px solid', borderColor: 'divider' }}>
+                        <Table size="small">
+                            <TableHead>
+                                <TableRow sx={{ bgcolor: 'grey.50' }}>
+                                    <TableCell>Sr. No</TableCell>
+                                    <TableCell>Document</TableCell>
+                                    <TableCell>Date</TableCell>
+                                    <TableCell align="right">Document Amount</TableCell>
+                                    <TableCell align="right">Balance Amount</TableCell>
+                                    <TableCell align="right">Allocated Amount</TableCell>
                                 </TableRow>
-                            ))}
-                            {detailData && detailData.length === 0 && (
-                                <TableRow>
-                                    <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
-                                        <Typography variant="body2" color="text.secondary">
-                                            No allocations found
-                                        </Typography>
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </Box>
+                            </TableHead>
+                            <TableBody>
+                                {detailData && detailData.map((item, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell>{item.srno}</TableCell>
+                                        <TableCell>{item.doc_code}</TableCell>
+                                        <TableCell>{formatDate(item.doc_date)}</TableCell>
+                                        <TableCell align="right">{formatAmount(item.doc_amount)}</TableCell>
+                                        <TableCell align="right">{formatAmount(item.doc_bal_amount)}</TableCell>
+                                        <TableCell align="right">{formatAmount(item.alloc_amount)}</TableCell>
+                                    </TableRow>
+                                ))}
+
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Box>
+            )}
 
             {/* Journal Entries */}
-            <Box sx={{ mb: 4 }}>
+            {/* <Box sx={{ mb: 4 }}>
                 <Typography variant="h6" sx={{ mb: 2 }}>
                     Journal Entries
                 </Typography>
@@ -229,7 +223,7 @@ export default function ReceiptPrint({ headerData, journal, accounts, detailData
                         </TableBody>
                     </Table>
                 </TableContainer>
-            </Box>
+            </Box> */}
 
             {/* Remarks */}
             {headerData.Remarks && (
