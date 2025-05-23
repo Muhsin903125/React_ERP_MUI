@@ -25,10 +25,13 @@ import Iconify from '../../../../components/iconify';
 export default function JournalTable({ journal, accounts, onJournalChange, isEditable }) {
     const theme = useTheme();
     const [open, setOpen] = useState(false);
-    const [newEntry, setNewEntry] = useState({
-        account: '',
-        type: 'Debit',
-        amount: 0
+    const [newEntry, setNewEntry] = useState(() => {
+        const total = journal.reduce((sum, entry) => sum + (entry.type === 'Credit' ? -entry.amount : entry.amount), 0);
+        return {
+            account: '',
+            type: total >= 0 ? 'Credit' : 'Debit',
+            amount: Math.abs(total)
+        };
     });
     const [editIndex, setEditIndex] = useState(null);
 
