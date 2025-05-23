@@ -105,7 +105,7 @@ export default function PendingBillsTable({ detailData }) {
                     bgcolor: 'background.paper'
                 }}>
                     <Typography variant="body1" color="text.secondary">
-                        No pending bills
+                        No Allocated Bills
                     </Typography>
                 </Box>
             )}
