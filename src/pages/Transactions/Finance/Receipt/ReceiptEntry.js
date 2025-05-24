@@ -290,14 +290,14 @@ export default function ReceiptEntry() {
 
 
     const CreateReceiptVoucher = async () => {
-        Confirm(`Do you want to ${isEditMode ? 'update' : 'save'}?`).then(async () => {
+        Confirm(`Do you want to ${isEditMode || id ? 'update' : 'save'}?`).then(async () => {
             try {
                 setLoadingFull(true);
 
                 const base64Data = btoa(JSON.stringify({
                     "key": "RV_CRUD",
-                    "TYPE": isEditMode ? "UPDATE" : "INSERT",
-                    "DOC_NO": id,
+                    "TYPE": isEditMode || id ? "UPDATE" : "INSERT",
+                    "DOC_NO": id || '',
                     "headerData": {
                         ...headerData,
 
@@ -519,7 +519,8 @@ export default function ReceiptEntry() {
             const { Success, Data, Message } = await GetSingleListResult({
                 "key": "RV_CRUD",
                 "TYPE": "GET_OUTSTANDING",
-                "ac_code": payer
+                "ac_code": payer,
+                "DOC_NO": id || ''
             });
             if (Success) {
                 console.log("Data", Data);
@@ -933,8 +934,8 @@ export default function ReceiptEntry() {
 
                     <Stack direction="row" justifyContent="flex-end" mb={2} mt={2}>
                         {isEditable && (
-                            <Button variant="contained" color={isEditMode ? 'warning' : 'success'} size='large' onClick={handleSave}>
-                                {isEditMode ? 'Update Receipt' : 'Create Receipt'}
+                            <Button variant="contained" color={isEditMode || id ? 'warning' : 'success'} size='large' onClick={handleSave}>
+                                {isEditMode || id ? 'Update Receipt' : 'Create Receipt'}
                             </Button>
                         )}
                     </Stack>

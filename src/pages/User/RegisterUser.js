@@ -272,7 +272,7 @@ const RegisterUser = () => {
                   type="submit"
                   variant="contained"
                 >
-                  {isEditing ? 'Update User' : 'Save User'}
+                  {isEditing || user?.id ? 'Update User' : 'Save User'}
                 </LoadingButton>
               </Stack>
             </Grid>

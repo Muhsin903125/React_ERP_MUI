@@ -335,7 +335,7 @@ export default function CreditNoteEntry() {
 
 
     const CreateInvoice = async () => {
-        Confirm(`Do you want to ${isEditMode ? 'update' : 'save'}?`).then(async () => {
+        Confirm(`Do you want to ${isEditMode || id ? 'update' : 'save'}?`).then(async () => {
             try {
                 setLoadingFull(false);
 
@@ -347,8 +347,8 @@ export default function CreditNoteEntry() {
 
                 const base64Data = encodeJsonToBase64(JSON.stringify({
                     "key": "CN_CRUD",
-                    "TYPE": isEditMode ? "UPDATE" : "INSERT",
-                    "DOC_NO": id,
+                    "TYPE": isEditMode || id ? "UPDATE" : "INSERT",
+                    "DOC_NO": id || '',
                     "headerData": {
                         ...headerData,
                         "InvDate": headerData.InvDate,
@@ -932,8 +932,8 @@ export default function CreditNoteEntry() {
                     />
                     <Stack direction="row" justifyContent="flex-end" mb={2} mt={2}>
                         {isEditable && (
-                            <Button variant="contained" color={isEditMode ? 'warning' : 'success'} size='large' onClick={handleSave}>
-                                {isEditMode ? 'Update Credit Note' : 'Create Credit Note'}
+                            <Button variant="contained" color={isEditMode || id ? 'warning' : 'success'} size='large' onClick={handleSave}>
+                                {isEditMode || id ? 'Update Credit Note' : 'Create Credit Note'}
                             </Button>
                         )}
                     </Stack>

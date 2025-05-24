@@ -361,7 +361,7 @@ export default function PurchaseEntry() {
     }, []);
 
     const CreateInvoice = async () => {
-        Confirm(`Do you want to ${isEditMode ? 'update' : 'save'}?`).then(async () => {
+        Confirm(`Do you want to ${isEditMode || id ? 'update' : 'save'}?`).then(async () => {
             try {
                 setLoadingFull(false);
 
@@ -373,8 +373,8 @@ export default function PurchaseEntry() {
 
                 const base64Data = encodeJsonToBase64(JSON.stringify({
                     "key": "PURCH_INV_CRUD",
-                    "TYPE": isEditMode ? "UPDATE" : "INSERT",
-                    "DOC_NO": id,
+                    "TYPE": isEditMode || id ? "UPDATE" : "INSERT",
+                    "DOC_NO": id || '',
                     "headerData": {
                         ...headerData,
                         "GrossAmount": calculateTotal(items),
@@ -903,8 +903,8 @@ export default function PurchaseEntry() {
                     />
                     <Stack direction="row" justifyContent="flex-end" mb={2} mt={2}>
                         {isEditable && (
-                            <Button variant="contained" color={isEditMode ? 'warning' : 'success'} size='large' onClick={handleSave}>
-                                {isEditMode ? 'Update Invoice' : 'Create Invoice'}
+                            <Button variant="contained" color={isEditMode || id ? 'warning' : 'success'} size='large' onClick={handleSave}>
+                                {isEditMode || id ? 'Update Invoice' : 'Create Invoice'}
                             </Button>
                         )}
                     </Stack>
