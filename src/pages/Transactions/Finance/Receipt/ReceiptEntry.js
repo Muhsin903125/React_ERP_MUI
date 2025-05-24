@@ -834,7 +834,7 @@ export default function ReceiptEntry() {
                                                 srno: 1,
                                                 account: headerData.Account1,
                                                 type: "Credit",
-                                                amount: totalAlloc + totalDiscount,
+                                                amount: (totalAlloc + totalDiscount) || amount,
                                                 isManual: 0
                                             },
                                             {
