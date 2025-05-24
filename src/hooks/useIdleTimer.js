@@ -1,5 +1,6 @@
 
 import {useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import {useIdleTimer} from 'react-idle-timer'
 
 export default function useIdle({
@@ -7,9 +8,10 @@ export default function useIdle({
     idleTime=2
 }){
     const [isIdle, setIsIdle] = useState();
-
+    const location = useLocation()
     const handleOnIdle = event => {
-        setIsIdle(true);
+        setIsIdle(true); 
+        sessionStorage.setItem('redirectUrl', location.pathname + location.search);
         console.log("user is idle", event)
         console.log("Last Active", getLastActiveTime())
         onIdle();

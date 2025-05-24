@@ -21,9 +21,11 @@ import {
 import useAuth from '../hooks/useAuth';
 import { GetMultipleResult } from '../hooks/Api';
 import AppWidgetSummary2 from '../sections/@dashboard/app/AppWidgetSummary2';
+import { useToast } from '../hooks/Common';
 // ----------------------------------------------------------------------
 
 export default function DashboardAppPage() {
+  const { showToast } = useToast();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [anchorEl, setAnchorEl] = useState(null);
