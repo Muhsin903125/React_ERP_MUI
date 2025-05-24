@@ -16,9 +16,10 @@ import { blue } from '@mui/material/colors';
 import TextField from '@mui/material/TextField';
 import { Stack, Toolbar } from '@mui/material'; 
 import { GetSingleListResult, PostMultiSp } from '../hooks/Api';
+import { useToast } from '../hooks/Common';
 
 export default function SupplierDialog(props) {
-
+  const { showToast } = useToast();
   const [suppliers, setSuppliers] = useState([]);
   useEffect(() => {
     getSuppliers(); // Fetch customers when the component mounts
@@ -32,6 +33,8 @@ export default function SupplierDialog(props) {
       });
       if (Success) {
         setSuppliers(Data);
+      } else {
+        showToast(Message, "error");
       }
     } catch (error) {
       console.error("Error:", error); // More informative error handling

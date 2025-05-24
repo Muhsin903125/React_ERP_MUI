@@ -84,8 +84,7 @@ export default function PurchaseOrder() {
                     key: "PURCH_ORD_CRUD",
                     TYPE: "GET_ALL",
                 })
-                if (Success) {
-                    console.log("Purchase Order Data:", Data);
+                if (Success) { 
                     setPurchaseOrder(Data)
                 }
                 else {

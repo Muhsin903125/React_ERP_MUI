@@ -80,11 +80,12 @@ export default function Reciept() {
                     setReciept(Data)
                     //  showToast(Message, 'success');
                 }
-                else {
+                else { 
                     showToast(Message, "error");
                 }
-            }
+            } 
             finally {
+
                 setLoadingFull(false);
             }
         }

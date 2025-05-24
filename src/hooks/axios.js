@@ -91,7 +91,7 @@ export const Get = async (url, payload) => {
 };
 
 export function ErrorHandler(error, url, payload = {}) {
-  console.log("Error:", error);
+  console.log("Error:1", error.response.data.message);
   let errMsg = "";
 
   console.log(`REQUEST TO: ${url} with PAYLOAD: ${JSON.stringify(payload)} failed!`);
@@ -110,7 +110,11 @@ export function ErrorHandler(error, url, payload = {}) {
       if (status === 401) {
 
         errMsg = error?.response.data.message || 'Unauthorized access. Please login to continue.';
-      } else if (status === 404) {
+      } 
+      else if (status === 400) {
+        errMsg = error?.response.data.message || 'Bad Request. Please check the request and try again.';
+      }
+      else if (status === 404) {
         errMsg = 'The requested resource was not found. Please check the URL and try again.';
       } else if (status === 500) {
         errMsg = 'Internal server error. Please try again later.';

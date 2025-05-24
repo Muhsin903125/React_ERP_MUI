@@ -15,10 +15,11 @@ import Typography from '@mui/material/Typography';
 import { blue } from '@mui/material/colors';
 import TextField from '@mui/material/TextField';
 import { Stack, Toolbar } from '@mui/material'; 
-import { GetSingleListResult, PostMultiSp } from '../hooks/Api';
+import { GetSingleListResult, PostMultiSp } from '../hooks/Api'; 
+import { useToast } from '../hooks/Common';
 
 export default function CustomerDialog(props) {
-
+  const { showToast } = useToast();
   const [customers, setCustomers] = useState([]);
   useEffect(() => {
     getCustomers(); // Fetch customers when the component mounts
@@ -32,6 +33,8 @@ export default function CustomerDialog(props) {
       });
       if (Success) {
         setCustomers(Data);
+      } else {
+        showToast(Message, "error");
       }
     } catch (error) {
       console.error("Error:", error); // More informative error handling

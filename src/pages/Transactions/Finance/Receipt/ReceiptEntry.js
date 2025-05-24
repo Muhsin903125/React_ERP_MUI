@@ -133,6 +133,8 @@ export default function ReceiptEntry() {
         });
         if (Success) {
             setAccounts(Data);
+        } else {
+            showToast(Message, "error");
         }
     }
 

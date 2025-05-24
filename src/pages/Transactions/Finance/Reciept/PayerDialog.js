@@ -44,6 +44,9 @@ export default function PayerDialog({ open, onClose, onSelect }) {
                 setPayers(Data);
                 setFilteredPayers(Data);
             }
+            else {
+                showToast(Message, "error");
+            }
         } catch (error) {
             console.error('Error fetching payers:', error);
         }

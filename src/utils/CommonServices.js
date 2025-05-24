@@ -13,6 +13,7 @@ export async function getLastNumber(type) {
             const IsEditable = Data?.IS_EDITABLE;
             return { lastNo, IsEditable };  // Return the last number and IsEditable
         }
+        
     } catch (error) {
         console.error("Error:", error);
         return null; // Return null in case of an error  
@@ -32,7 +33,7 @@ export async function getLocationList() {
             console.log("Data", Data);
             // Safely grab the FIRST object’s LAST_NO
             return Data;
-        }
+        } 
     } catch (error) {
         console.error("Error:", error);
         return null; // Return null in case of an error  
