@@ -116,6 +116,8 @@ export default function CreditNoteEntry() {
         });
         if (Success) {
             setAccounts(Data);
+        } else {
+            showToast(Message, "error");
         }
     }
     const getUnits = async () => {
@@ -392,6 +394,8 @@ export default function CreditNoteEntry() {
             });
             if (Success) {
                 setProducts(Data);
+            } else {
+                showToast(Message, "error");
             }
         } catch (error) {
             console.error("Error:", error); // More informative error handling

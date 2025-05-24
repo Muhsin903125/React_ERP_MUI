@@ -418,6 +418,8 @@ export default function PurchaseEntry() {
             });
             if (Success) {
                 setProducts(Data);
+            } else {
+                showToast(Message, "error");
             }
         } catch (error) {
             console.error("Error:", error); // More informative error handling
@@ -521,6 +523,8 @@ export default function PurchaseEntry() {
             });
             if (Success) {
                 setSalesmenList(Data);
+            } else {
+                showToast(Message, "error");
             }
         } catch (error) {
             showToast("Error fetching salesmen", "error");

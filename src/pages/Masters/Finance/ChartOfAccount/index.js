@@ -168,6 +168,9 @@ export default function ChartOfAccount() {
             setAccDetails(Data)
             setAccCredit(Data?.Credit)
         }
+        else {
+            showToast(Message, "error");
+        }
     }
     const handleItemClick = (item) => {
         console.log('Item clicked:', item);
