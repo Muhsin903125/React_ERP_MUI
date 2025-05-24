@@ -16,6 +16,7 @@ import { GetSingleListResult, PostCommonSp, PostMultiSp } from '../../../../hook
 import { useToast } from '../../../../hooks/Common';
 import { AuthContext } from '../../../../App';
 import Iconify from '../../../../components/iconify';
+import PageHeader from '../../../../components/PageHeader';
 
 
 
@@ -140,19 +141,22 @@ export default function SalesInvoice() {
             <Helmet>
                 <title>Sale Invoice </title>
             </Helmet>
+
+            <PageHeader
+                title="Sale Invoice List"
+                actions={[
+                    {
+                        label: 'New Sales Invoice Entry',
+                        icon: 'eva:plus-fill',
+                        variant: 'contained',
+                        onClick: () => navigate('/sales-entry'),
+                        show: true,
+                        showInActions: false,
+                    },
+                ]}
+            />
+
             <Box component="main" sx={{ m: 1, p: 1 }}>
-
-                <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-                    <Typography variant="h4" gutterBottom>
-                        Sale Invoice List
-                    </Typography>
-                    <Link to="/sales-entry" style={{ textDecoration: 'none' }}>
-                        <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-                            New Sales Invoice Entry
-                        </Button>
-                    </Link>
-                </Stack>
-
                 <MaterialReactTable
                     columns={columns}
                     data={SalesInvoice}
@@ -165,7 +169,6 @@ export default function SalesInvoice() {
                     onEditingRowSave={handleSaveRowEdits}
                     onEditingRowCancel={handleCancelRowEdits}
                     enableRowActions
-                    // 👇 Add this
                     renderRowActions={({ row }) => (
                         <Stack direction="row" spacing={1}>
                             <Button

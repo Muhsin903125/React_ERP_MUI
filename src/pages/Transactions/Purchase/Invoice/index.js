@@ -16,6 +16,7 @@ import { GetSingleListResult, PostCommonSp, PostMultiSp } from '../../../../hook
 import { useToast } from '../../../../hooks/Common';
 import { AuthContext } from '../../../../App';
 import Iconify from '../../../../components/iconify';
+import PageHeader from '../../../../components/PageHeader';
 
 const columns = [
     {
@@ -129,18 +130,22 @@ export default function PurchaseInvoice() {
             <Helmet>
                 <title>Purchase Invoice</title>
             </Helmet>
-            <Box component="main" sx={{ m: 1, p: 1 }}>
-                <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-                    <Typography variant="h4" gutterBottom>
-                        Purchase Invoice List
-                    </Typography>
-                    <Link to="/purchase-entry" style={{ textDecoration: 'none' }}>
-                        <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-                            New Purchase Invoice Entry
-                        </Button>
-                    </Link>
-                </Stack>
 
+            <PageHeader
+                title="Purchase Invoice List"
+                actions={[
+                    {
+                        label: 'New Purchase Invoice Entry',
+                        icon: 'eva:plus-fill',
+                        variant: 'contained',
+                        onClick: () => navigate('/purchase-entry'),
+                        show: true,
+                        showInActions: false,
+                    },
+                ]}
+            />
+
+            <Box component="main" sx={{ m: 1, p: 1 }}>
                 <MaterialReactTable
                     columns={columns}
                     data={PurchaseInvoice}
@@ -148,7 +153,6 @@ export default function PurchaseInvoice() {
                         density: 'compact',
                         expanded: true,
                         pagination: { pageSize: 20, pageIndex: 0 },
-                        // sorting: [{ id: 'InvDate', desc: true }]
                     }}
                     enableColumnOrdering
                     enableGrouping

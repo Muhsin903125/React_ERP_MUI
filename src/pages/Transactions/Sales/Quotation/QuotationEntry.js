@@ -32,6 +32,7 @@ import PrintComponent from '../../../../components/PrintComponent';
 import TransactionItem from '../../../../components/TransactionItem';
 import SubTotalSec from '../../../../components/SubTotalSec';
 import PrintDialog from '../../../../components/PrintDialog';
+import PageHeader from '../../../../components/PageHeader';
 // import { head } from 'lodash';
 
 // ----------------------------------------------------------------------
@@ -566,45 +567,55 @@ export default function QuotationEntry() {
                 <title> Sales Quotation </title>
             </Helmet>
 
-            <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-                <Typography variant="h4" gutterBottom>
-                    {isEditMode ? 'Edit Sales Quotation' : 'New Sales Quotation'}
-                </Typography>
-                <Stack direction="row" spacing={2}>
-                    {!isEditable && (
-                        <>
-                            <Button
-                                variant="outlined"
-                                startIcon={<Iconify icon="eva:printer-fill" />}
-                                onClick={handlePrint}
-                            >
-                                Print
-                            </Button>
-                            <Button
-                                variant="contained"
-                                color="info"
-                                startIcon={<Iconify icon="eva:swap-fill" />}
-                                onClick={handleConvertToSales}
-                            >
-                                Convert to Sales
-                            </Button>
-                        </>
-                    )}
-                    {isEditMode && !isEditable && (
-                        <Button variant="contained" color="primary" startIcon={<Iconify icon="eva:edit-fill" />} onClick={toggleEditMode}>
-                            Enable Edit
-                        </Button>
-                    )}
-                    {isEditable && (
-                        <Button variant="contained" color="secondary" startIcon={<Iconify icon="eva:close-fill" />} onClick={toggleEditMode}>
-                            Cancel Edit
-                        </Button>
-                    )}
-                    <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleNewInvoice}>
-                        New Quotation
-                    </Button>
-                </Stack>
-            </Stack>
+            <PageHeader
+                title={isEditMode ? 'Edit Sales Quotation' : 'New Sales Quotation'}
+                actions={[
+                    {
+                        label: 'Print',
+                        icon: 'eva:printer-fill',
+                        variant: 'outlined',
+                        onClick: handlePrint,
+                        show: !isEditable,
+                        showInActions: true,
+                    },
+                    {
+                        label: 'Convert to Sales',
+                        icon: 'eva:swap-fill',
+                        variant: 'contained',
+                        color: 'info',
+                        onClick: handleConvertToSales,
+                        show: !isEditable,
+                        showInActions: true,
+                    },
+                    {
+                        label: 'Enable Edit',
+                        icon: 'eva:edit-fill',
+                        variant: 'contained',
+                        color: 'primary',
+                        onClick: toggleEditMode,
+                        show: isEditMode && !isEditable,
+                        showInActions: false,
+                    },
+                    {
+                        label: 'Cancel Edit',
+                        icon: 'eva:close-fill',
+                        variant: 'contained',
+                        color: 'secondary',
+                        onClick: toggleEditMode,
+                        show: isEditable,
+                        showInActions: false,
+                    },
+                    {
+                        label: 'New Quotation',
+                        icon: 'eva:plus-fill',
+                        variant: 'contained',
+                        onClick: handleNewInvoice,
+                        show: true,
+                        showInActions: true,
+                    },
+                ]}
+            />
+
             <Card  >
                 <Stack maxwidth={'lg'} padding={2.5} style={{ backgroundColor: '#e8f0fa', boxShadow: '#dbdbdb4f -1px 9px 20px 0px' }}>
                     <Grid container spacing={2} mt={1}  >

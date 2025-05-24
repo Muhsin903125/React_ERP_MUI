@@ -32,6 +32,7 @@ import PrintComponent from '../../../../components/PrintComponent';
 import TransactionItem from '../../../../components/TransactionItem';
 import SubTotalSec from '../../../../components/SubTotalSec';
 import PrintDialog from '../../../../components/PrintDialog';
+import PageHeader from '../../../../components/PageHeader';
 // import { head } from 'lodash';
 
 // ----------------------------------------------------------------------
@@ -557,45 +558,53 @@ export default function SalesEntry() {
                 <title> Sales Invoice </title>
             </Helmet>
 
-            <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-                <Typography variant="h4" gutterBottom>
-                    {isEditMode ? 'Edit Sales Invoice' : 'New Sales Invoice'}
-                </Typography>
-                <Stack direction="row" spacing={2}>
-                    {!isEditable && (id) && (
-                        <>
-                            <Button
-                                variant="outlined"
-                                startIcon={<Iconify icon="eva:printer-fill" />}
-                                onClick={handlePrint}
-                            >
-                                Print
-                            </Button>
-                            <Button
-                                variant="outlined"
-                                startIcon={<Iconify icon="eva:file-add-fill" />}
-                                onClick={handleAddCreditNote}
-                            >
-                                Add Credit Note
-                            </Button>
-                        </>
-
-                    )}
-                    {isEditMode && !isEditable && (
-                        <Button variant="contained" color="primary" startIcon={<Iconify icon="eva:edit-fill" />} onClick={toggleEditMode}>
-                            Enable Edit
-                        </Button>
-                    )}
-                    {isEditable && (
-                        <Button variant="contained" color="secondary" startIcon={<Iconify icon="eva:close-fill" />} onClick={toggleEditMode}>
-                            Cancel Edit
-                        </Button>
-                    )}
-                    <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleNewInvoice}>
-                        New Invoice
-                    </Button>
-                </Stack>
-            </Stack>
+            <PageHeader
+                title={isEditMode ? 'Edit Sales Invoice' : 'New Sales Invoice'}
+                actions={[
+                    {
+                        label: 'Print',
+                        icon: 'eva:printer-fill',
+                        variant: 'outlined',
+                        onClick: handlePrint,
+                        show: !isEditable && id,
+                        showInActions: true,
+                    },
+                    {
+                        label: 'Add Credit Note',
+                        icon: 'eva:file-add-fill',
+                        variant: 'outlined',
+                        onClick: handleAddCreditNote,
+                        show: !isEditable && id,
+                        showInActions: true,
+                    },
+                    {
+                        label: 'Enable Edit',
+                        icon: 'eva:edit-fill',
+                        variant: 'contained',
+                        color: 'primary',
+                        onClick: toggleEditMode,
+                        show: isEditMode && !isEditable,
+                        showInActions: false,
+                    },
+                    {
+                        label: 'Cancel Edit',
+                        icon: 'eva:close-fill',
+                        variant: 'contained',
+                        color: 'secondary',
+                        onClick: toggleEditMode,
+                        show: isEditable,
+                        showInActions: false,
+                    },
+                    {
+                        label: 'New Invoice',
+                        icon: 'eva:plus-fill',
+                        variant: 'contained',
+                        onClick: handleNewInvoice,
+                        show: true,
+                        showInActions: true,
+                    },
+                ]}
+            />
 
             <Card>
                 <Stack maxwidth={'lg'} padding={2.5} style={{ backgroundColor: '#e8f0fa', boxShadow: '#dbdbdb4f -1px 9px 20px 0px' }}>

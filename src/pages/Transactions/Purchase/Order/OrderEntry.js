@@ -32,6 +32,7 @@ import PrintComponent from '../../../../components/PrintComponent';
 import TransactionItem from '../../../../components/TransactionItem';
 import SubTotalSec from '../../../../components/SubTotalSec';
 import PrintDialog from '../../../../components/PrintDialog';
+import PageHeader from '../../../../components/PageHeader';
 // import { head } from 'lodash';
 
 // ----------------------------------------------------------------------
@@ -534,40 +535,54 @@ export default function OrderEntry() {
                 <title> Purchase Order </title>
             </Helmet>
 
-            <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-                <Typography variant="h4" gutterBottom>
-                    {isEditMode ? 'Edit Purchase Order' : 'New Purchase Order'}
-                </Typography>
-                <Stack direction="row" spacing={2}>
-                    {!isEditable && (id) && (
-                        <>
-                            <Button
-                                variant="outlined"
-                                startIcon={<Iconify icon="eva:printer-fill" />}
-                                onClick={handlePrint}
-                            >
-                                Print
-                            </Button>
-                            <Button variant="contained" color="primary" startIcon={<Iconify icon="eva:swap-fill" />} onClick={handleConvertToPurchase}>
-                                Convert to Purchase
-                            </Button>
-                        </>
-                    )}
-                    {isEditMode && !isEditable && (
-                        <Button variant="contained" color="primary" startIcon={<Iconify icon="eva:edit-fill" />} onClick={toggleEditMode}>
-                            Enable Edit
-                        </Button>
-                    )}
-                    {isEditable && (
-                        <Button variant="contained" color="secondary" startIcon={<Iconify icon="eva:close-fill" />} onClick={toggleEditMode}>
-                            Cancel Edit
-                        </Button>
-                    )}
-                    <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleNewInvoice}>
-                        New Order
-                    </Button>
-                </Stack>
-            </Stack>
+            <PageHeader
+                title={isEditMode ? 'Edit Purchase Order' : 'New Purchase Order'}
+                actions={[
+                    {
+                        label: 'Print',
+                        icon: 'eva:printer-fill',
+                        variant: 'outlined',
+                        onClick: handlePrint,
+                        show: !isEditable && id,
+                        showInActions: true,
+                    },
+                    {
+                        label: 'Convert to Purchase',
+                        icon: 'eva:swap-fill',
+                        variant: 'contained',
+                        color: 'primary',
+                        onClick: handleConvertToPurchase,
+                        show: !isEditable && id,
+                        showInActions: true,
+                    },
+                    {
+                        label: 'Enable Edit',
+                        icon: 'eva:edit-fill',
+                        variant: 'contained',
+                        color: 'primary',
+                        onClick: toggleEditMode,
+                        show: isEditMode && !isEditable,
+                        showInActions: false,
+                    },
+                    {
+                        label: 'Cancel Edit',
+                        icon: 'eva:close-fill',
+                        variant: 'contained',
+                        color: 'secondary',
+                        onClick: toggleEditMode,
+                        show: isEditable,
+                        showInActions: false,
+                    },
+                    {
+                        label: 'New Order',
+                        icon: 'eva:plus-fill',
+                        variant: 'contained',
+                        onClick: handleNewInvoice,
+                        show: true,
+                        showInActions: true,
+                    },
+                ]}
+            />
 
             <Card>
                 <Stack maxwidth={'lg'} padding={2.5} style={{ backgroundColor: '#e8f0fa', boxShadow: '#dbdbdb4f -1px 9px 20px 0px' }}>

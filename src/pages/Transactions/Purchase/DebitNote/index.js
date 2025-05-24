@@ -12,6 +12,7 @@ import { GetSingleListResult } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 import { AuthContext } from '../../../../App';
 import Iconify from '../../../../components/iconify';
+import PageHeader from '../../../../components/PageHeader';
 
 const columns = [
     {
@@ -91,18 +92,22 @@ export default function DebitNote() {
             <Helmet>
                 <title>Purchase Debit Note</title>
             </Helmet>
-            <Box component="main" sx={{ m: 1, p: 1 }}>
-                <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-                    <Typography variant="h4" gutterBottom>
-                        Debit Note List
-                    </Typography>
-                    <Link to="/purchase" style={{ textDecoration: 'none' }}>
-                        <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-                            New Debit Note Entry
-                        </Button>
-                    </Link>
-                </Stack>
 
+            <PageHeader
+                title="Debit Note List"
+                actions={[
+                    {
+                        label: 'New Debit Note Entry',
+                        icon: 'eva:plus-fill',
+                        variant: 'contained',
+                        onClick: () => navigate('/debitnote-entry'),
+                        show: true,
+                        showInActions: false,
+                    },
+                ]}
+            />
+
+            <Box component="main" sx={{ m: 1, p: 1 }}>
                 <MaterialReactTable
                     columns={columns}
                     data={debitNote}

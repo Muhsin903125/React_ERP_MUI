@@ -16,6 +16,7 @@ import { GetSingleListResult, PostCommonSp, PostMultiSp } from '../../../../hook
 import { useToast } from '../../../../hooks/Common';
 import { AuthContext } from '../../../../App';
 import Iconify from '../../../../components/iconify';
+import PageHeader from '../../../../components/PageHeader';
 
 
 
@@ -143,19 +144,22 @@ export default function SalesQuotation() {
             <Helmet>
                 <title>Sales Quotation </title>
             </Helmet>
+
+            <PageHeader
+                title="Sales Quotation List"
+                actions={[
+                    {
+                        label: 'New Sales Quotation Entry',
+                        icon: 'eva:plus-fill',
+                        variant: 'contained',
+                        onClick: () => navigate('/quotation-entry'),
+                        show: true,
+                        showInActions: false,
+                    },
+                ]}
+            />
+
             <Box component="main" sx={{ m: 1, p: 1 }}>
-
-                <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-                    <Typography variant="h4" gutterBottom>
-                        Sales Quotation List
-                    </Typography>
-                    <Link to="/quotation-entry" style={{ textDecoration: 'none' }}>
-                        <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-                            New Sales Quotation Entry
-                        </Button>
-                    </Link>
-                </Stack>
-
                 <MaterialReactTable
                     columns={columns}
                     data={SalesQuotation}
@@ -168,7 +172,6 @@ export default function SalesQuotation() {
                     onEditingRowSave={handleSaveRowEdits}
                     onEditingRowCancel={handleCancelRowEdits}
                     enableRowActions
-                    // 👇 Add this
                     renderRowActions={({ row }) => (
                         <Stack direction="row" spacing={1}>
                             <Button

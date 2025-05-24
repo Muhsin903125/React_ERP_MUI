@@ -16,6 +16,7 @@ import { GetSingleListResult    } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 import { AuthContext } from '../../../../App';
 import Iconify from '../../../../components/iconify';
+import PageHeader from '../../../../components/PageHeader';
 
 
 
@@ -107,21 +108,24 @@ export default function CreditNote() {
     return (
         <>
             <Helmet>
-                <title>Sale Invoice </title>
+                <title>Credit Note </title>
             </Helmet>
+
+            <PageHeader
+                title="Credit Note List"
+                actions={[
+                    {
+                        label: 'New Credit Note Entry',
+                        icon: 'eva:plus-fill',
+                        variant: 'contained',
+                        onClick: () => navigate('/creditnote-entry'),
+                        show: true,
+                        showInActions: false,
+                    },
+                ]}
+            />
+
             <Box component="main" sx={{ m: 1, p: 1 }}>
-
-                <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-                    <Typography variant="h4" gutterBottom>
-                        Credit Note List
-                    </Typography>
-                    <Link to="/salesinvoice" style={{ textDecoration: 'none' }}>
-                        <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-                            New Credit Note Entry
-                        </Button>
-                    </Link>
-                </Stack>
-
                 <MaterialReactTable
                     columns={columns}
                     data={CreditNote}
@@ -131,16 +135,14 @@ export default function CreditNote() {
                     }}
                     enableColumnOrdering
                     enableGrouping 
-                    
                     enableRowActions
-                    // 👇 Add this
                     renderRowActions={({ row }) => (
                         <Stack direction="row" spacing={1}>
                             <Button
                                 variant="text"
                                 onClick={() => handleView(row.original)}
                                 color="primary"
-                                title="View/Edit Invoice"
+                                title="View/Edit Credit Note"
                             >
                                 <Iconify icon="mdi:eye" />
                             </Button>

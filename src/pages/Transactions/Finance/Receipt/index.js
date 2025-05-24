@@ -16,6 +16,7 @@ import { GetSingleListResult    } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 import { AuthContext } from '../../../../App';
 import Iconify from '../../../../components/iconify';
+import PageHeader from '../../../../components/PageHeader';
 
 
 
@@ -59,17 +60,15 @@ const columns = [
 ];
 
 
-export default function Reciept() {
+export default function Receipt() {
     const navigate = useNavigate();
     const { setLoadingFull } = useContext(AuthContext);
     const { showToast } = useToast();
-    const [Reciept, setReciept] = useState([]);
+    const [receipt, setReceipt] = useState([]);
     const [validationErrors, setValidationErrors] = useState({}); 
 
     useEffect(() => {
-
         async function fetchList() {
-
             try {
                 setLoadingFull(false);
                 const { Success, Data, Message } = await GetSingleListResult({
@@ -77,24 +76,19 @@ export default function Reciept() {
                     "TYPE": "GET_ALL",
                 })
                 if (Success) {
-                    setReciept(Data)
-                    //  showToast(Message, 'success');
+                    setReceipt(Data)
                 }
                 else { 
                     showToast(Message, "error");
                 }
             } 
             finally {
-
                 setLoadingFull(false);
             }
         }
         fetchList();
-
     }, [])
 
- 
- 
     const handleView = (rowData) => {
         navigate(`/receipt-entry/${rowData.RpNo}`);
     };
@@ -102,40 +96,41 @@ export default function Reciept() {
     return (
         <>
             <Helmet>
-                <title>Sale Invoice </title>
+                <title>Receipt</title>
             </Helmet>
+
+            <PageHeader
+                title="Receipt List"
+                actions={[
+                    {
+                        label: 'New Receipt Entry',
+                        icon: 'eva:plus-fill',
+                        variant: 'contained',
+                        onClick: () => navigate('/receipt-entry'),
+                        show: true,
+                        showInActions: false,
+                    },
+                ]}
+            />
+
             <Box component="main" sx={{ m: 1, p: 1 }}>
-
-                <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-                    <Typography variant="h4" gutterBottom>
-                        Reciept List
-                    </Typography> 
-                    <Link to="/receipt-entry" style={{ textDecoration: 'none' }}>
-                        <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-                            New Reciept Entry 
-                        </Button>
-                    </Link>
-                </Stack>
-
                 <MaterialReactTable
                     columns={columns}
-                    data={Reciept}
+                    data={receipt}
                     initialState={{
                         density: 'compact',
                         expanded: true,
                     }}
                     enableColumnOrdering
-                    enableGrouping 
-                    
+                    enableGrouping
                     enableRowActions
-                    // 👇 Add this
                     renderRowActions={({ row }) => (
                         <Stack direction="row" spacing={1}>
                             <Button
                                 variant="text"
                                 onClick={() => handleView(row.original)}
                                 color="primary"
-                                title="View/Edit Reciept"
+                                title="View/Edit Receipt"
                             >
                                 <Iconify icon="mdi:eye" />
                             </Button>
