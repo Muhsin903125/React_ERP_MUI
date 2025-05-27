@@ -857,15 +857,41 @@ export default function ReceiptEntry() {
                                     size="small"
                                     value={headerData?.Amount || 0}
                                     min={totalAllocatedAmount}
-
+                                    type="number"
+                                    inputProps={{
+                                        min: 0,
+                                        step: "0.01",
+                                        inputMode: "decimal",
+                                        pattern: "[0-9]*"
+                                    }}
                                     onChange={(e) => {
                                         if (!headerData.Account1 || !headerData.Account2 || headerData.Account1 === '' || headerData.Account2 === '') {
                                             showToast("Please select both accounts before changing amount", "error");
                                             return;
                                         }
 
-                                        handleInputChange(e);
-                                        const amount = Number(e.target.value);
+                                        // Only allow numbers and decimal point
+                                        const value = e.target.value.replace(/[^0-9.]/g, '');
+                                        
+                                        // Prevent multiple decimal points
+                                        const parts = value.split('.');
+                                        if (parts.length > 2) {
+                                            return;
+                                        }
+
+                                        // Limit to 2 decimal places
+                                        if (parts[1] && parts[1].length > 2) {
+                                            return;
+                                        }
+
+                                        handleInputChange({
+                                            target: {
+                                                name: 'Amount',
+                                                value
+                                            }
+                                        });
+
+                                        const amount = Number(value) || 0;
                                         const totalAlloc = detailData.reduce((sum, bill) => sum + (bill.alloc_amount - bill.discount), 0);
                                         const totalDiscount = detailData.reduce((sum, bill) => sum + Number(bill.discount || 0), 0);
                                         const journalEntries = [
