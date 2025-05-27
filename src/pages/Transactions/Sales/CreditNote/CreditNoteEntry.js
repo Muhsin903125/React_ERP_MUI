@@ -603,8 +603,8 @@ export default function CreditNoteEntry() {
                         icon: 'eva:edit-fill',
                         variant: 'contained',
                         color: 'primary',
-                        onClick: toggleEditMode,
-                        show: isEditMode && !isEditable,
+                        type: 'enableEdit',
+                        show: !isEditable,
                         showInActions: false,
                     },
                     {

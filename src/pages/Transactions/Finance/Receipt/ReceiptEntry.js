@@ -39,6 +39,7 @@ import JournalTable from './JournalTable';
 import ReceiptPrint from './ReceiptPrint';
 import PrintDialog from '../../../../components/PrintDialog';
 import PageHeader from '../../../../components/PageHeader';
+import EnableEditConfirmation from '../../../../components/EnableEditConfirmation';
 // import { head } from 'lodash';
 
 // ----------------------------------------------------------------------
@@ -129,7 +130,7 @@ export default function ReceiptEntry() {
 
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [pendingPayerChange, setPendingPayerChange] = useState(null);
-
+ 
     const getAccounts = async () => {
         const { Success, Data, Message } = await GetSingleListResult({
             "key": "COA_CRUD",
@@ -455,62 +456,7 @@ export default function ReceiptEntry() {
 
 
 
-
-    const handleItemSelect = (item) => {
-        if (Array.isArray(item)) {
-            // Handle select all
-            const newItems = item.map(itemss => ({
-                ...itemss,
-                type: 'inventory',
-                previous_docno: itemss.name,
-                previous_docsrno: itemss.srno,
-            }));
-            setSelectedItems(prev => [...prev, ...newItems]);
-            return;
-        }
-
-        setSelectedItems(prev => {
-            const exists = prev.some(i => i.name === item.name);
-            if (exists) {
-                return prev.filter(i => i.name !== item.name);
-            }
-
-            // Add the new item with required fields
-            const newItem = {
-                ...item,
-                type: 'inventory',
-                previous_docno: item.name,
-                previous_docsrno: item.srno,
-            };
-            return [...prev, newItem];
-        });
-    };
-
-    const handleConfirmItems = () => {
-        const itemsWithType = selectedItems.map(item => ({
-            ...item,
-            type: 'inventory',
-            previous_docno: item.name,
-            previous_docsrno: item.srno,
-            unit: item.unit || '',
-            price: item.price || 0,
-            qty: item.qty || 1
-        }));
-
-        // Update items state
-        setItems(prev => {
-            // Get existing item names to avoid duplicates
-            const existingNames = new Set(prev.map(item => item.name));
-
-            // Filter out items that already exist
-            const newItems = itemsWithType.filter(item => !existingNames.has(item.name));
-
-            // Add new items to existing items
-            return [...prev, ...newItems];
-        });
-
-        setShowItemDialog(false);
-    };
+ 
 
     const fetchPendingBills = async (payer) => {
         if (!payer) {
@@ -651,6 +597,18 @@ export default function ReceiptEntry() {
         setPendingPayerChange(null);
     };
 
+ 
+
+    const handleEditConfirm = () => {
+        if (id) {
+            loadInvoiceDetails(id);
+        }
+        if (invoiceData && isEditable) {
+            handleNewInvoice();
+        }
+        setIsEditable(!isEditable);
+    };
+
     return (
         <>
             <Helmet>
@@ -673,7 +631,7 @@ export default function ReceiptEntry() {
                         icon: 'eva:edit-fill',
                         variant: 'contained',
                         color: 'primary',
-                        onClick: toggleEditMode,
+                        type: 'enableEdit',
                         show: !isEditable,
                         showInActions: false,
                     },
@@ -695,6 +653,10 @@ export default function ReceiptEntry() {
                         showInActions: true,
                     },
                 ]}
+                onEditConfirm={handleEditConfirm}
+                editCheckApiKey="RV_CRUD"
+                editCheckApiType="CHECK_EDIT_PERMISSION"
+                editCheckDocNo={id}
             />
 
             <Card>
@@ -1068,6 +1030,18 @@ export default function ReceiptEntry() {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            {/* <EnableEditConfirmation
+                open={showEditConfirmDialog}
+                onClose={() => setShowEditConfirmDialog(false)}
+                onConfirm={handleEditConfirm}
+                loading={editCheckLoading}
+                title="Enable Edit Mode"
+                message="Are you sure you want to enable edit mode for this receipt? This will allow you to modify the document."
+                confirmText="Enable Edit"
+                cancelText="Cancel"
+                confirmColor="primary"
+            /> */}
         </>
     );
 }

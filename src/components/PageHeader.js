@@ -1,33 +1,45 @@
 // @mui
-import { Stack, Typography, Button, useTheme, useMediaQuery, alpha, Menu, MenuItem, IconButton } from '@mui/material';
+import { Stack, Typography, Button, useTheme, useMediaQuery, alpha, Menu, MenuItem, IconButton, Container } from '@mui/material';
 import PropTypes from 'prop-types';
-import { useState } from 'react';
+import React, { useState } from 'react';
 // components
 import Iconify from './iconify';
+import EnableEditConfirmation from './EnableEditConfirmation';
+import { GetSingleResult } from '../hooks/Api';
+import { useToast } from '../hooks/Common';
 
 // ----------------------------------------------------------------------
 
 PageHeader.propTypes = {
-  title: PropTypes.string.isRequired,
+  title: PropTypes.string,
   actions: PropTypes.arrayOf(
     PropTypes.shape({
-      label: PropTypes.string.isRequired,
+      label: PropTypes.string,
       icon: PropTypes.string,
-      onClick: PropTypes.func.isRequired,
-      variant: PropTypes.oneOf(['contained', 'outlined', 'text']),
-      color: PropTypes.oneOf(['primary', 'secondary', 'error', 'info', 'success', 'warning']),
+      variant: PropTypes.string,
+      color: PropTypes.string,
+      onClick: PropTypes.func,
       show: PropTypes.bool,
       showInActions: PropTypes.bool,
+      type: PropTypes.string,
+      disabled: PropTypes.bool,
     })
   ),
   sx: PropTypes.object,
+  onEditConfirm: PropTypes.func,
+  editCheckApiKey: PropTypes.string,
+  editCheckApiType: PropTypes.string,
+  editCheckDocNo: PropTypes.string,
 };
 
-export default function PageHeader({ title, actions = [], sx }) {
+export default function PageHeader({ title, actions = [], onEditConfirm, editCheckApiKey, editCheckApiType, editCheckDocNo, sx }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+  const { showToast } = useToast();
+  const [showEditConfirmDialog, setShowEditConfirmDialog] = useState(false);
+  const [editCheckLoading, setEditCheckLoading] = useState(false);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -35,6 +47,47 @@ export default function PageHeader({ title, actions = [], sx }) {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const checkEditPermission = async () => {
+    if (!editCheckApiKey || !editCheckApiType) {
+      setShowEditConfirmDialog(true);
+      return;
+    }
+setShowEditConfirmDialog(true);
+    // try {
+    //   setEditCheckLoading(true);
+    //   const { Success, Data, Message } = await GetSingleResult({
+    //     "key": editCheckApiKey,
+    //     "TYPE": editCheckApiType,
+    //     "DOC_NO": editCheckDocNo
+    //   });
+
+    //   if (Success) {
+    //     setShowEditConfirmDialog(true);
+    //   } else {
+    //     showToast(Message, "error");
+    //   }
+    // } catch (error) {
+    //   showToast("Error checking edit permission", "error");
+    // } finally {
+    //   setEditCheckLoading(false);
+    // }
+  };
+
+  const handleEditConfirm = () => {
+    if (onEditConfirm) {
+      onEditConfirm();
+    }
+    setShowEditConfirmDialog(false);
+  };
+
+  const processAction = (action) => {
+    if (action.type === 'enableEdit') {
+      checkEditPermission();
+    } else if (action.onClick) {
+      action.onClick();
+    }
   };
 
   const buttonStyles = {
@@ -60,10 +113,11 @@ export default function PageHeader({ title, actions = [], sx }) {
   const renderActionButton = (action, index) => (
     <Button
       key={index}
-      variant={action.variant || 'contained'}
-      color={action.color || 'primary'}
+      variant={action.variant || "contained"}
+      color={action.color || "primary"}
       startIcon={action.icon && <Iconify icon={action.icon} />}
-      onClick={action.onClick}
+      onClick={() => processAction(action)}
+      disabled={action.disabled}
       sx={{
         ...buttonStyles,
         ...(action.variant === 'contained' && {
@@ -140,7 +194,7 @@ export default function PageHeader({ title, actions = [], sx }) {
             <MenuItem
               key={index}
               onClick={() => {
-                action.onClick();
+                processAction(action);
                 handleClose();
               }}
               sx={{
@@ -169,51 +223,65 @@ export default function PageHeader({ title, actions = [], sx }) {
   );
 
   return (
-    <Stack 
-      direction={{ xs: 'column', sm: 'row' }} 
-      alignItems={{ xs: 'stretch', sm: 'center' }} 
-      justifyContent="space-between" 
-      spacing={2}
-      sx={{
-        mb: 1,
-        p: 1,
-        borderRadius: '12px',
-        background: isMobile ? 'linear-gradient(to right, rgba(255,255,255,0.9), rgba(255,255,255,0.7))' : 'none',
-        boxShadow: isMobile ? '0 8px 32px rgba(0,0,0,0.05)' : 'none',
-        backdropFilter: 'blur(8px)',
-        ...sx,
-      }}
-    >
-      <Typography 
-        variant="h4" 
-        sx={{ 
-          fontWeight: 700,
-          background: 'linear-gradient(45deg, #1976D2 30%, #2196F3 90%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          fontSize: { xs: '1.25rem', sm: '1.5rem' },
-          letterSpacing: '-0.5px',
-        }}
-      >
-        {title}
-      </Typography>
-
+    <Container maxWidth="xl">
       <Stack 
-        direction="row"
-        spacing={1.5}
-        sx={{ 
-          width: { xs: '100%', sm: 'auto' },
-          '& .MuiButton-root': {
-            width: { xs: 'auto', sm: 'auto' },
-            flex: { xs: 1, sm: 'none' },
-          }
+        direction={{ xs: 'column', sm: 'row' }} 
+        alignItems={{ xs: 'stretch', sm: 'center' }} 
+        justifyContent="space-between"
+        spacing={2}
+        sx={{
+          mb: 1,
+          p: 1,
+          borderRadius: '12px',
+          background: isMobile ? 'linear-gradient(to right, rgba(255,255,255,0.9), rgba(255,255,255,0.7))' : 'none',
+          boxShadow: isMobile ? '0 8px 32px rgba(0,0,0,0.05)' : 'none',
+          backdropFilter: 'blur(8px)',
+          ...sx,
         }}
       >
-        {actions.map((action, index) => (
-          action.show !== false && !action.showInActions && renderActionButton(action, index)
-        ))}
-        {actions.some(action => action.show !== false && action.showInActions) && renderMobileActions()}
+        <Typography 
+          variant="h4" 
+          sx={{ 
+            fontWeight: 700,
+            background: 'linear-gradient(45deg, #1976D2 30%, #2196F3 90%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            fontSize: { xs: '1.25rem', sm: '1.5rem' },
+            letterSpacing: '-0.5px',
+          }}
+        >
+          {title}
+        </Typography>
+
+        <Stack 
+          direction="row"
+          spacing={1.5}
+          sx={{ 
+            width: { xs: '100%', sm: 'auto' },
+            '& .MuiButton-root': {
+              width: { xs: 'auto', sm: 'auto' },
+              flex: { xs: 1, sm: 'none' },
+            }
+          }}
+        >
+          {actions.map((action, index) => (
+            action.show && !action.showInActions && renderActionButton(action, index)
+          ))}
+          {actions.some(action => action.show !== false && action.showInActions) && renderMobileActions()}
+        </Stack>
       </Stack>
-    </Stack>
+
+      <EnableEditConfirmation
+        open={showEditConfirmDialog}
+        onClose={() => setShowEditConfirmDialog(false)}
+        onConfirm={handleEditConfirm}
+        loading={editCheckLoading}
+        title="Enable Edit Mode"
+        message="Are you sure you want to enable edit mode? This will allow you to modify the document."
+        confirmText="Enable Edit"
+        cancelText="Cancel"
+        confirmColor="primary"
+      />
+    </Container>
   );
 } 
