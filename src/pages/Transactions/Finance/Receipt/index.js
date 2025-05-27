@@ -88,7 +88,7 @@ export default function Receipt() {
         }
         fetchList();
     }, [])
-
+ 
     const handleView = (rowData) => {
         navigate(`/receipt-entry/${rowData.RpNo}`);
     };
@@ -122,7 +122,7 @@ export default function Receipt() {
                         expanded: true,
                     }}
                     enableColumnOrdering
-                    enableGrouping
+                    enableGrouping 
                     enableRowActions
                     renderRowActions={({ row }) => (
                         <Stack direction="row" spacing={1}>

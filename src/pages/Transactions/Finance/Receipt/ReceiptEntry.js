@@ -127,6 +127,9 @@ export default function ReceiptEntry() {
 
     const printRef = useRef(null);
 
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+    const [pendingPayerChange, setPendingPayerChange] = useState(null);
+
     const getAccounts = async () => {
         const { Success, Data, Message } = await GetSingleListResult({
             "key": "COA_CRUD",
@@ -618,6 +621,36 @@ export default function ReceiptEntry() {
         setCurrentTab(newValue);
     };
 
+    const handlePayerChange = (newValue) => {
+        if (detailData.length > 0) {
+            setPendingPayerChange(newValue);
+            setShowConfirmDialog(true);
+        } else {
+            setheaderData(prev => ({
+                ...prev,
+                Account1: newValue?.AC_CODE || ''
+            }));
+            fetchPendingBills(newValue?.AC_CODE || '');
+        }
+    };
+
+    const handleConfirmPayerChange = () => {
+        if (pendingPayerChange) {
+            setheaderData(prev => ({
+                ...prev,
+                Account1: pendingPayerChange?.AC_CODE || '',
+                Amount:0,
+            }));
+            setDetailData([]);
+
+            setJournal([]);
+            setSelectedBills([]);
+            fetchPendingBills(pendingPayerChange?.AC_CODE || '');
+        }
+        setShowConfirmDialog(false);
+        setPendingPayerChange(null);
+    };
+
     return (
         <>
             <Helmet>
@@ -710,13 +743,7 @@ export default function ReceiptEntry() {
                                     }
                                     value={accounts?.find(p => p.AC_CODE === headerData.Account1) || null}
                                     loading={payerLoading}
-                                    onChange={(_, newValue) => {
-                                        setheaderData(prev => ({
-                                            ...prev,
-                                            Account1: newValue?.AC_CODE || ''
-                                        }))
-                                        fetchPendingBills(newValue?.AC_CODE || '');
-                                    }}
+                                    onChange={(_, newValue) => handlePayerChange(newValue)}
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
@@ -989,6 +1016,32 @@ export default function ReceiptEntry() {
                 onAllocatedAmountChange={handleAllocatedAmountChange}
                 onDiscountChange={handleDiscountChange}
             />
+
+            <Dialog
+                open={showConfirmDialog}
+                onClose={() => {
+                    setShowConfirmDialog(false);
+                    setPendingPayerChange(null);
+                }}
+            >
+                <DialogTitle>Confirm Payer Change</DialogTitle>
+                <DialogContent>
+                    <Typography>
+                        Changing the payer will remove all selected bills and journal details. Do you want to continue?
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => {
+                        setShowConfirmDialog(false);
+                        setPendingPayerChange(null);
+                    }}>
+                        Cancel
+                    </Button>
+                    <Button onClick={handleConfirmPayerChange} color="primary" variant="contained">
+                        Confirm
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     );
 }
