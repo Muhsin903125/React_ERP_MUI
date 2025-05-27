@@ -289,12 +289,13 @@ export default function PrintComponent({ headerData, items, documentType }) {
 
                     .print-container {
                         width: 210mm !important;
-                        margin: 0 auto !important;
+                        margin: 0 auto !important;                        
                         padding: 0 !important;
                         background: white !important;
                         overflow: visible !important;
                         page-break-after: avoid !important;
                         break-after: avoid !important;
+                        border-top: 20px solid rgb(0, 0, 0) !important;
                     }
 
                     .print-page {
@@ -434,6 +435,7 @@ export default function PrintComponent({ headerData, items, documentType }) {
                             break-after: avoid !important;
                             page-break-after: avoid !important;
                             overflow: visible !important;
+                           
                         }
                         
                         .print-page {
@@ -506,13 +508,14 @@ export default function PrintComponent({ headerData, items, documentType }) {
                     width: 210mm;
                     margin: 20px auto;
                     box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                    
                 }
 
                 .print-page {
                     padding: 20px;
                     background: white;
                     position: relative;
-                    min-height: 297mm;
+                    min-height: 297mm; 
                 }
             `}</style>
         </Box>

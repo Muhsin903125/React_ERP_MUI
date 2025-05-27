@@ -950,6 +950,7 @@ export default function ReceiptEntry() {
                             <JournalTable 
                                 journal={journal} 
                                 isEditable={isEditable}
+                                id={id || null}
                                 accounts={accounts} 
                                 onJournalChange={(newJournal) => {
                                     setJournal(newJournal);

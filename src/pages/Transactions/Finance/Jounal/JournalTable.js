@@ -53,7 +53,7 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
             // Edit existing entry
             updatedJournal = journal.map((entry, idx) =>
                 idx === editIndex
-                    ? { ...entry, account: newEntry.account, type: newEntry.type, amount: parsedAmount }
+                    ? { ...entry, account: newEntry.account, type: newEntry.type, amount: parsedAmount, narration: newEntry.narration }
                     : entry
             );
         } else {
@@ -63,7 +63,8 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
                 account: newEntry.account,
                 type: newEntry.type,
                 amount: parsedAmount,
-                isManual: 1
+                isManual: 1,
+                narration: newEntry.narration
             }];
         }
         // Calculate total amount and determine default type
@@ -75,7 +76,8 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
         setNewEntry({
             account: '',
             type: totalAmount >= 0 ? 'Credit' : 'Debit',
-            amount: Math.abs(totalAmount)
+            amount: Math.abs(totalAmount),
+            narration: ''
         });
         setOpen(false);
         setEditIndex(null);
@@ -126,6 +128,7 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
                         }}>
                             <TableCell>Sr. No</TableCell>
                             <TableCell>Account</TableCell>
+                            <TableCell>Narration</TableCell>
                             <TableCell>Type</TableCell>
                             <TableCell align="right">Amount</TableCell>
                             <TableCell align="center">Actions</TableCell>
@@ -146,6 +149,7 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
                             >
                                 <TableCell>{entry.srno}</TableCell>
                                 <TableCell>{getAccountName(entry.account)}</TableCell>
+                                <TableCell>{entry.narration}</TableCell>
                                 <TableCell>
                                     <Typography
                                         sx={{
@@ -164,38 +168,39 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
                                     })}
                                 </TableCell>
                                 <TableCell align="center">
-                                    {(entry.isManual === 1) && (
-                                        <>
-                                            {id === null && (
-                                                <IconButton
-                                                    size="small"
-                                                    color="primary"
-                                                    disabled={!isEditable}
-                                                    onClick={() => {
-                                                        setNewEntry({
-                                                            account: entry.account,
-                                                            type: entry.type,
-                                                            amount: entry.amount
-                                                        });
-                                                        setOpen(true);
-                                                        // Store index for editing
-                                                        setEditIndex(index);
-                                                    }}
-                                                    sx={{ mr: 1 }}
-                                                >
-                                                    <Iconify icon="eva:edit-2-outline" />
-                                                </IconButton>
-                                            )}
+
+                                    <>
+                                        {id === null && (
                                             <IconButton
                                                 size="small"
-                                                color="error"
+                                                color="primary"
                                                 disabled={!isEditable}
-                                                onClick={() => handleDeleteEntry(index)}
+                                                onClick={() => {
+                                                    setNewEntry({
+                                                        account: entry.account,
+                                                        type: entry.type,
+                                                        amount: entry.amount,
+                                                        narration: entry.narration
+                                                    });
+                                                    setOpen(true);
+                                                    // Store index for editing
+                                                    setEditIndex(index);
+                                                }}
+                                                sx={{ mr: 1 }}
                                             >
-                                                <Iconify icon="eva:trash-2-outline" />
+                                                <Iconify icon="eva:edit-2-outline" />
                                             </IconButton>
-                                        </>
-                                    )}
+                                        )}
+                                        <IconButton
+                                            size="small"
+                                            color="error"
+                                            disabled={!isEditable}
+                                            onClick={() => handleDeleteEntry(index)}
+                                        >
+                                            <Iconify icon="eva:trash-2-outline" />
+                                        </IconButton>
+                                    </>
+
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -239,6 +244,7 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
                                 )}
                             />
                         </FormControl>
+
                         <FormControl fullWidth>
                             <Autocomplete
                                 size="small"
@@ -276,6 +282,20 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
                             fullWidth
                             inputProps={{ min: 0, step: 'any' }}
                         />
+                        <FormControl fullWidth>
+                            <TextField
+                                size="small"
+                                multiline
+                                rows={2}
+                                label="Narration"
+                                value={newEntry.narration}
+                                onChange={(e) => setNewEntry(prev => ({
+                                    ...prev,
+                                    narration: e.target.value
+                                }))}
+                                fullWidth
+                            />
+                        </FormControl>
                     </Box>
                 </DialogContent>
                 <DialogActions>

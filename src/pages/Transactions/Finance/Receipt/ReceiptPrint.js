@@ -97,23 +97,26 @@ export default function ReceiptPrint({ headerData, journal, accounts, detailData
                             {headerData.PaymentMode}
                         </Typography>
                     </Box>
-                    <Box sx={{ mb: 2 }}>
-                        <Typography variant="subtitle2" color="text.secondary">
-                            Reference No
-                        </Typography>
+                    {headerData.RefNo && (
+                        <Box sx={{ mb: 2 }}>
+                            <Typography variant="subtitle2" color="text.secondary">
+                                Reference No
+                            </Typography>
                         <Typography variant="body1">
                             {headerData.RefNo || '-'}
-                        </Typography>
-                    </Box>
-                    <Box sx={{ mb: 2 }}>
-                        <Typography variant="subtitle2" color="text.secondary">
-                            Reference Date
+                            </Typography>
+                        </Box>
+                    )}
+                    {headerData.RefDate && (
+                        <Box sx={{ mb: 2 }}>
+                            <Typography variant="subtitle2" color="text.secondary">
+                                Reference Date
                         </Typography>
                         <Typography variant="body1">
                             {formatDate(headerData.RefDate)}
                         </Typography>
-                    </Box>
-
+                        </Box>
+                    )}
                 </Grid>
             </Grid>
 

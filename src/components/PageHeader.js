@@ -223,7 +223,7 @@ setShowEditConfirmDialog(true);
   );
 
   return (
-    <Container maxWidth="xl">
+    <>
       <Stack 
         direction={{ xs: 'column', sm: 'row' }} 
         alignItems={{ xs: 'stretch', sm: 'center' }} 
@@ -282,6 +282,6 @@ setShowEditConfirmDialog(true);
         cancelText="Cancel"
         confirmColor="primary"
       />
-    </Container>
+    </>
   );
 } 

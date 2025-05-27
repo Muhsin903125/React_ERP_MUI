@@ -59,6 +59,8 @@ import DebitNote from './pages/Transactions/Purchase/DebitNote';
 import Receipt from './pages/Transactions/Finance/Receipt';
 import ReceiptEntry from './pages/Transactions/Finance/Receipt/ReceiptEntry';
 import ComingSoon from './components/ComingSoon';
+import Journal from './pages/Transactions/Finance/Jounal';
+import JournalEntry from './pages/Transactions/Finance/Jounal/JournalEntry';
 
 // ----------------------------------------------------------------------
 
@@ -106,9 +108,9 @@ const adminMenus = [
   { path: 'lookups', element: <Lookups /> },
   { path: 'companyprofile', element: <CompanyProfile /> },
 
-  { path: 'journal', element: <ComingSoon title="Journal"  /> },
-  { path: 'journal-entry', element: <ComingSoon title="Journal Entry" /> },
-  { path: 'journal-entry/:id', element: <ComingSoon title="Journal Entry" /> },
+  { path: 'journal', element: <Journal /> },
+  { path: 'journal-entry', element: <JournalEntry /> },
+  { path: 'journal-entry/:id', element: <JournalEntry /> },
 
   { path: 'allocation', element: <ComingSoon title="Allocation" /> },
   { path: 'allocation-entry', element: <ComingSoon title="Allocation Entry" /> },
