@@ -528,12 +528,23 @@ export default function OrderEntry() {
         fetchSalesmen();
     }, []);
 
-    const handleEditConfirm = () => {
-        if (id) {
-            loadOrderDetails(id);
-        }       
-        setIsEditable(!isEditable);
-    }
+    const handleEditConfirm = async (messages = []) => {
+        if (messages && messages.length > 0) {
+            const { Success, Message } = await GetSingleResult({
+                "key": "PURCH_ORD_CRUD",
+                "TYPE": "EDIT_CONFIRM",
+                "DOC_NO": id,
+                "message_types": messages
+            });
+            if (!Success) {
+                setIsEditable(false);
+                showToast(Message, "error");
+            }
+        } else {
+            setIsEditable(!isEditable);
+        }
+    };
+
     return (
         <>
             <Helmet>
@@ -588,6 +599,9 @@ export default function OrderEntry() {
                     },
                 ]}
                 onEditConfirm={handleEditConfirm}
+                editCheckApiKey="PURCH_ORD_CRUD"
+                editCheckApiType="EDIT_VALIDATE"
+                editCheckDocNo={id}
             />
 
             <Card>

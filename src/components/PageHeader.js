@@ -53,10 +53,10 @@ export default function PageHeader({ title, actions = [], onEditConfirm, editChe
   
 
   const checkEditPermission = async () => {
-    // if (!editCheckApiKey || !editCheckApiType) {
-    //   setShowEditConfirmDialog(true);
-    //   return;
-    // }
+    if (!editCheckApiKey || !editCheckApiType) {
+      setShowEditConfirmDialog(true);
+      return;
+    }
 
     try {
       setEditCheckLoading(true);
@@ -80,9 +80,9 @@ export default function PageHeader({ title, actions = [], onEditConfirm, editChe
     }
   };
 
-  const handleEditConfirm = (error) => {
+  const handleEditConfirm = (messages) => {
     if (onEditConfirm) {
-      onEditConfirm(error ? editCheckDocNo : null);
+      onEditConfirm(messages);
     }
     setShowEditConfirmDialog(false);
   };
@@ -282,7 +282,8 @@ export default function PageHeader({ title, actions = [], onEditConfirm, editChe
         onConfirm={handleEditConfirm}
         loading={editCheckLoading}
         title="Enable Edit Mode"
-        message="Are you sure you want to enable edit mode? This will allow you to modify the document."
+        messageList={message}
+        message= { "Are you sure you want to enable edit mode? This will allow you to modify the document."}
         confirmText="Enable Edit"
         cancelText="Cancel"
         confirmColor="primary"

@@ -599,15 +599,16 @@ export default function ReceiptEntry() {
 
 
 
-    const handleEditConfirm = async (code) => {
+    const handleEditConfirm = async (messages = []) => {
         if (id) {
             loadInvoiceDetails(id);
         }
-        if (code) {
+        if (messages && messages.length > 0) {
             const { Success, Message } = await GetSingleResult({
                 "key": "RV_CRUD",
                 "TYPE": "EDIT_CONFIRM",
-                "DOC_NO": code
+                "DOC_NO": id,
+                "message_types": messages
             });
             if (!Success) {
                 setIsEditable(false);
