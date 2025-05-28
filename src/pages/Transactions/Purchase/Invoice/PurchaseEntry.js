@@ -548,7 +548,12 @@ export default function PurchaseEntry() {
         });
     }; 
 
-
+    const handleEditConfirm = () => {
+        if (id) {
+            loadInvoiceDetails(id);
+        }
+        setIsEditable(!isEditable);
+    }
 
 
     return (
@@ -603,7 +608,7 @@ export default function PurchaseEntry() {
                         showInActions: true,
                     },
                 ]}
-                
+                onEditConfirm={handleEditConfirm}
             />
 
             <Card>

@@ -320,7 +320,7 @@ export default function CreditNoteEntry() {
     function calculateTotal(items) {
         return items.reduce((total, item) => total + item.price * item.qty, 0);
     }
- 
+
     const getLocations = async () => {
         const Data = await getLocationList();
         setLocations(Data);
@@ -329,7 +329,7 @@ export default function CreditNoteEntry() {
     useEffect(() => {
         getLocations();
 
-        if (invoiceData && invoiceData.invNo !== null) { 
+        if (invoiceData && invoiceData.invNo !== null) {
             getInvoiceItems(invoiceData.invNo?.replace("INV", ''));
         }
     }, []);
@@ -580,7 +580,12 @@ export default function CreditNoteEntry() {
 
         setShowItemDialog(false);
     };
-
+    const handleEditConfirm = () => {
+        if (id) {
+            loadInvoiceDetails(id);
+        }    
+        setIsEditable(!isEditable);
+    }
     return (
         <>
             <Helmet>
@@ -625,6 +630,7 @@ export default function CreditNoteEntry() {
                         showInActions: true,
                     },
                 ]}
+                onEditConfirm={handleEditConfirm}
             />
 
             <Card>
@@ -955,7 +961,7 @@ export default function CreditNoteEntry() {
                 open={showItemDialog}
                 onClose={() => setShowItemDialog(false)}
                 items={invoiceItems || []}
-                selectedItems={selectedItems  }
+                selectedItems={selectedItems}
                 onItemSelect={handleItemSelect}
                 onConfirm={handleConfirmItems}
             />

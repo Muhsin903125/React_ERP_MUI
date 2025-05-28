@@ -550,7 +550,12 @@ export default function SalesEntry() {
     useEffect(() => {
         fetchSalesmen();
     }, []);
-
+    const handleEditConfirm = () => {
+        if (id) {
+            loadInvoiceDetails(id);
+        }
+        setIsEditable(!isEditable);
+    }
 
     return (
         <>
@@ -604,6 +609,7 @@ export default function SalesEntry() {
                         showInActions: true,
                     },
                 ]}
+                onEditConfirm={handleEditConfirm}
             />
 
             <Card>

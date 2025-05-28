@@ -560,7 +560,12 @@ export default function QuotationEntry() {
             }
         });
     };
-
+    const handleEditConfirm = () => {
+        if (id) {
+            loadInvoiceDetails(id);
+        }
+        setIsEditable(!isEditable);
+    }
     return (
         <>
             <Helmet>
@@ -614,6 +619,7 @@ export default function QuotationEntry() {
                         showInActions: true,
                     },
                 ]}
+                onEditConfirm={handleEditConfirm}
             />
 
             <Card  >

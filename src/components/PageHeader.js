@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 // components
 import Iconify from './iconify';
 import EnableEditConfirmation from './EnableEditConfirmation';
-import { GetSingleResult } from '../hooks/Api';
+import { GetSingleListResult, GetSingleResult } from '../hooks/Api';
 import { useToast } from '../hooks/Common';
 
 // ----------------------------------------------------------------------
@@ -32,7 +32,7 @@ PageHeader.propTypes = {
   editCheckDocNo: PropTypes.string,
 };
 
-export default function PageHeader({ title, actions = [], onEditConfirm, editCheckApiKey, editCheckApiType, editCheckDocNo, sx }) {
+export default function PageHeader({ title, actions = [], onEditConfirm, editCheckApiKey, editCheckApiType = "EDIT_VALIDATE", editCheckDocNo, sx }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [anchorEl, setAnchorEl] = useState(null);
@@ -40,6 +40,8 @@ export default function PageHeader({ title, actions = [], onEditConfirm, editChe
   const { showToast } = useToast();
   const [showEditConfirmDialog, setShowEditConfirmDialog] = useState(false);
   const [editCheckLoading, setEditCheckLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [message, setMessage] = useState();
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -48,36 +50,39 @@ export default function PageHeader({ title, actions = [], onEditConfirm, editChe
   const handleClose = () => {
     setAnchorEl(null);
   };
+  
 
   const checkEditPermission = async () => {
-    if (!editCheckApiKey || !editCheckApiType) {
-      setShowEditConfirmDialog(true);
-      return;
-    }
-setShowEditConfirmDialog(true);
-    // try {
-    //   setEditCheckLoading(true);
-    //   const { Success, Data, Message } = await GetSingleResult({
-    //     "key": editCheckApiKey,
-    //     "TYPE": editCheckApiType,
-    //     "DOC_NO": editCheckDocNo
-    //   });
-
-    //   if (Success) {
-    //     setShowEditConfirmDialog(true);
-    //   } else {
-    //     showToast(Message, "error");
-    //   }
-    // } catch (error) {
-    //   showToast("Error checking edit permission", "error");
-    // } finally {
-    //   setEditCheckLoading(false);
+    // if (!editCheckApiKey || !editCheckApiType) {
+    //   setShowEditConfirmDialog(true);
+    //   return;
     // }
+
+    try {
+      setEditCheckLoading(true);
+      const { Success, Data, Message } = await GetSingleListResult({
+        "key": editCheckApiKey,
+        "TYPE": editCheckApiType,
+        "DOC_NO": editCheckDocNo
+      });
+
+      if (Success) {
+        setMessage(Data);
+        console.log("permission--",Data);
+        setShowEditConfirmDialog(true);
+      } else {
+        showToast(Message, "error");
+      }
+    } catch (error) {
+      showToast("Error checking edit permission", "error");
+    } finally {
+      setEditCheckLoading(false);
+    }
   };
 
-  const handleEditConfirm = () => {
+  const handleEditConfirm = (error) => {
     if (onEditConfirm) {
-      onEditConfirm();
+      onEditConfirm(error ? editCheckDocNo : null);
     }
     setShowEditConfirmDialog(false);
   };
@@ -224,9 +229,9 @@ setShowEditConfirmDialog(true);
 
   return (
     <>
-      <Stack 
-        direction={{ xs: 'column', sm: 'row' }} 
-        alignItems={{ xs: 'stretch', sm: 'center' }} 
+      <Stack
+        direction={{ xs: 'column', sm: 'row' }}
+        alignItems={{ xs: 'stretch', sm: 'center' }}
         justifyContent="space-between"
         spacing={2}
         sx={{
@@ -239,9 +244,9 @@ setShowEditConfirmDialog(true);
           ...sx,
         }}
       >
-        <Typography 
-          variant="h4" 
-          sx={{ 
+        <Typography
+          variant="h4"
+          sx={{
             fontWeight: 700,
             background: 'linear-gradient(45deg, #1976D2 30%, #2196F3 90%)',
             WebkitBackgroundClip: 'text',
@@ -253,10 +258,10 @@ setShowEditConfirmDialog(true);
           {title}
         </Typography>
 
-        <Stack 
+        <Stack
           direction="row"
           spacing={1.5}
-          sx={{ 
+          sx={{
             width: { xs: '100%', sm: 'auto' },
             '& .MuiButton-root': {
               width: { xs: 'auto', sm: 'auto' },

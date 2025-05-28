@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Grid, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Stack, Divider } from '@mui/material';
+import { Box, Grid, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Stack, Divider, useTheme } from '@mui/material';
 import useAuth from '../hooks/useAuth';
 
 // Helper to add days to a date
@@ -124,7 +124,7 @@ const PrintHeader = ({ headerData, companyName, companyAddress, companyPhone, co
 export default function PrintComponent({ headerData, items, documentType }) {
     const { companyName, companyAddress, companyPhone, companyEmail, companyLogoUrl, companyTRN } = useAuth();
     const pages = paginateItems(items);
-
+    const theme = useTheme();
     // Add print function
     // const handlePrint = () => {
     //     // Set the document title to the document number
@@ -144,6 +144,17 @@ export default function PrintComponent({ headerData, items, documentType }) {
 
     return (
         <Box className="print-container">
+            <Box sx={{ 
+                width: '100%', 
+                height: '10px', 
+                backgroundColor: theme.palette.primary.main,
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                zIndex: 1000,
+                mb: 2
+            }} />
             {pages.map((pageItems, pageIndex) => (
                 <Box key={pageIndex} className="print-page">
                     <PrintHeader 
@@ -295,7 +306,19 @@ export default function PrintComponent({ headerData, items, documentType }) {
                         overflow: visible !important;
                         page-break-after: avoid !important;
                         break-after: avoid !important;
-                        border-top: 20px solid rgb(0, 0, 0) !important;
+                          position: relative;
+                    }
+
+                    .print-container > div:first-child {
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        height: 5px;
+                        margin-bottom: 15px;
+                        background-color: ${theme.palette.primary.main} !important;
+                        -webkit-print-color-adjust: exact;
+                        print-color-adjust: exact;
                     }
 
                     .print-page {
@@ -508,7 +531,7 @@ export default function PrintComponent({ headerData, items, documentType }) {
                     width: 210mm;
                     margin: 20px auto;
                     box-shadow: 0 0 10px rgba(0,0,0,0.1);
-                    
+                    position: relative;
                 }
 
                 .print-page {

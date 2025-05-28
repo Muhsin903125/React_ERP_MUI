@@ -528,7 +528,12 @@ export default function OrderEntry() {
         fetchSalesmen();
     }, []);
 
-
+    const handleEditConfirm = () => {
+        if (id) {
+            loadOrderDetails(id);
+        }       
+        setIsEditable(!isEditable);
+    }
     return (
         <>
             <Helmet>
@@ -582,6 +587,7 @@ export default function OrderEntry() {
                         showInActions: true,
                     },
                 ]}
+                onEditConfirm={handleEditConfirm}
             />
 
             <Card>

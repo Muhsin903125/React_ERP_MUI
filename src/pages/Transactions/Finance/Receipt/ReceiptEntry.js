@@ -130,7 +130,7 @@ export default function ReceiptEntry() {
 
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [pendingPayerChange, setPendingPayerChange] = useState(null);
- 
+
     const getAccounts = async () => {
         const { Success, Data, Message } = await GetSingleListResult({
             "key": "COA_CRUD",
@@ -143,7 +143,7 @@ export default function ReceiptEntry() {
         }
     }
 
-    
+
     const validate = () => {
         const errors = {};
         let hasError = false;
@@ -186,7 +186,7 @@ export default function ReceiptEntry() {
             showToast('Allocated amount cannot be greater than the total amount', "error");
             hasError = true;
         }
-        
+
 
         // Validate journal entries sum to zero
         const journalSum = journal.reduce((sum, entry) => {
@@ -254,7 +254,7 @@ export default function ReceiptEntry() {
         }
     };
     useEffect(() => {
-       getAccounts();
+        getAccounts();
         if (id) {
             loadInvoiceDetails(id);
 
@@ -426,7 +426,7 @@ export default function ReceiptEntry() {
 
 
         setIsEditable(!isEditable);
-        
+
 
     };
 
@@ -456,7 +456,7 @@ export default function ReceiptEntry() {
 
 
 
- 
+
 
     const fetchPendingBills = async (payer) => {
         if (!payer) {
@@ -585,7 +585,7 @@ export default function ReceiptEntry() {
             setheaderData(prev => ({
                 ...prev,
                 Account1: pendingPayerChange?.AC_CODE || '',
-                Amount:0,
+                Amount: 0,
             }));
             setDetailData([]);
 
@@ -597,16 +597,25 @@ export default function ReceiptEntry() {
         setPendingPayerChange(null);
     };
 
- 
 
-    const handleEditConfirm = () => {
+
+    const handleEditConfirm = async (code) => {
         if (id) {
             loadInvoiceDetails(id);
         }
-        if (invoiceData && isEditable) {
-            handleNewInvoice();
+        if (code) {
+            const { Success, Message } = await GetSingleResult({
+                "key": "RV_CRUD",
+                "TYPE": "EDIT_CONFIRM",
+                "DOC_NO": code
+            });
+            if (!Success) {
+                setIsEditable(false);
+                showToast(Message, "error");
+            }
+        } else {
+            setIsEditable(!isEditable);
         }
-        setIsEditable(!isEditable);
     };
 
     return (
@@ -655,7 +664,7 @@ export default function ReceiptEntry() {
                 ]}
                 onEditConfirm={handleEditConfirm}
                 editCheckApiKey="RV_CRUD"
-                editCheckApiType="CHECK_EDIT_PERMISSION"
+                editCheckApiType="EDIT_VALIDATE"
                 editCheckDocNo={id}
             />
 
@@ -684,7 +693,7 @@ export default function ReceiptEntry() {
                                     label="Receipt Date"
                                     disableFuture={disableFutureDate}
                                     value={headerData?.RpDate}
-                                    size="small"        
+                                    size="small"
                                     onChange={setSelectedReceiptDate}
                                     disable={!isEditable}
                                     error={Boolean(errors.RpDate)}
@@ -787,7 +796,7 @@ export default function ReceiptEntry() {
                         <Grid item xs={6} md={6}  >
                             <FormControl fullWidth error={Boolean(errors.PaymentMode)}>
                                 <Autocomplete
-                                    size="small"        
+                                    size="small"
                                     disabled={!isEditable}
                                     options={PaymentModeOptions || []}
                                     getOptionLabel={(option) => option.label || ''}
@@ -834,7 +843,7 @@ export default function ReceiptEntry() {
 
                                         // Only allow numbers and decimal point
                                         const value = e.target.value.replace(/[^0-9.]/g, '');
-                                        
+
                                         // Prevent multiple decimal points
                                         const parts = value.split('.');
                                         if (parts.length > 2) {
@@ -869,19 +878,19 @@ export default function ReceiptEntry() {
                                                 account: headerData.Account2,
                                                 type: "Debit",
                                                 amount,
-                                                isManual: 0 
+                                                isManual: 0
                                             },
                                             ...(totalDiscount > 0 ? [{
                                                 srno: 3,
                                                 account: "10001",
-                                                type: "Debit", 
+                                                type: "Debit",
                                                 amount: totalDiscount,
                                                 isManual: 0
                                             }] : []),
                                             ...journal.filter(entry => entry.isManual === 1).map((entry, index) => ({
                                                 ...entry,
                                                 srno: index + 4
-                                            })) 
+                                            }))
                                         ];
                                         setJournal(journalEntries);
                                     }}
@@ -945,13 +954,13 @@ export default function ReceiptEntry() {
                     )}
 
                     {currentTab === 'journal' && (
-                        <Box> 
-                            
-                            <JournalTable 
-                                journal={journal} 
+                        <Box>
+
+                            <JournalTable
+                                journal={journal}
                                 isEditable={isEditable}
                                 id={id || null}
-                                accounts={accounts} 
+                                accounts={accounts}
                                 onJournalChange={(newJournal) => {
                                     setJournal(newJournal);
                                 }}

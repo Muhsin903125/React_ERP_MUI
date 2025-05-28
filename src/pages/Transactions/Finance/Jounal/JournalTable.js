@@ -11,10 +11,6 @@ import {
     useTheme,
     Button,
     IconButton,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
     TextField,
     Autocomplete,
     Box,
@@ -24,16 +20,16 @@ import Iconify from '../../../../components/iconify';
 
 export default function JournalTable({ journal, accounts, onJournalChange, isEditable, id = null }) {
     const theme = useTheme();
-    const [open, setOpen] = useState(false);
+    const [editingIndex, setEditingIndex] = useState(null);
     const [newEntry, setNewEntry] = useState(() => {
         const total = journal.reduce((sum, entry) => sum + (entry.type === 'Credit' ? -entry.amount : entry.amount), 0);
         return {
             account: '',
             type: total >= 0 ? 'Credit' : 'Debit',
-            amount: Math.abs(total)
+            amount: Math.abs(total),
+            narration: ''
         };
     });
-    const [editIndex, setEditIndex] = useState(null);
 
     const getAccountName = (accountCode) => {
         const account = accounts?.find(acc => acc.AC_CODE === accountCode);
@@ -44,43 +40,71 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
         return type === 'Debit' ? theme.palette.error.main : theme.palette.success.main;
     };
 
+    const calculateBalance = () => {
+        return journal.reduce((sum, entry) => sum + (entry.type === 'Credit' ? -entry.amount : entry.amount), 0);
+    };
+
     const handleAddEntry = () => {
         if (!newEntry.account || !newEntry.amount) return;
         const parsedAmount = Number(newEntry.amount);
         if (Number.isNaN(parsedAmount) || parsedAmount <= 0) return;
-        let updatedJournal;
-        if (editIndex !== null) {
-            // Edit existing entry
-            updatedJournal = journal.map((entry, idx) =>
-                idx === editIndex
-                    ? { ...entry, account: newEntry.account, type: newEntry.type, amount: parsedAmount, narration: newEntry.narration }
-                    : entry
-            );
-        } else {
-            // Add new entry
-            updatedJournal = [...journal, {
-                srno: journal.length + 1,
-                account: newEntry.account,
-                type: newEntry.type,
-                amount: parsedAmount,
-                isManual: 1,
-                narration: newEntry.narration
-            }];
-        }
-        // Calculate total amount and determine default type
-        const totalAmount = updatedJournal.reduce((sum, entry) => {
-            const amt = Number(entry.amount) || 0;
-            return sum + (entry.type === 'Credit' ? -amt : amt);
-        }, 0);
+
+        const updatedJournal = [...journal, {
+            srno: journal.length + 1,
+            account: newEntry.account,
+            type: newEntry.type,
+            amount: parsedAmount,
+            isManual: 1,
+            narration: newEntry.narration
+        }];
+
+        // Calculate new total to determine next entry type
+        const newTotal = updatedJournal.reduce((sum, entry) => 
+            sum + (entry.type === 'Credit' ? -entry.amount : entry.amount), 0);
+
         onJournalChange(updatedJournal);
         setNewEntry({
             account: '',
-            type: totalAmount >= 0 ? 'Credit' : 'Debit',
-            amount: Math.abs(totalAmount),
+            type: newTotal >= 0 ? 'Credit' : 'Debit',
+            amount: Math.abs(newTotal),
             narration: ''
         });
-        setOpen(false);
-        setEditIndex(null);
+    };
+
+    const handleEditEntry = (index) => {
+        const entry = journal[index];
+        setNewEntry({
+            account: entry.account,
+            type: entry.type,
+            amount: entry.amount,
+            narration: entry.narration
+        });
+        setEditingIndex(index);
+    };
+
+    const handleSaveEdit = () => {
+        if (!newEntry.account || !newEntry.amount) return;
+        const parsedAmount = Number(newEntry.amount);
+        if (Number.isNaN(parsedAmount) || parsedAmount <= 0) return;
+
+        const updatedJournal = journal.map((entry, idx) =>
+            idx === editingIndex
+                ? { ...entry, account: newEntry.account, type: newEntry.type, amount: parsedAmount, narration: newEntry.narration }
+                : entry
+        );
+
+        // Calculate new total to determine next entry type
+        const newTotal = updatedJournal.reduce((sum, entry) => 
+            sum + (entry.type === 'Credit' ? -entry.amount : entry.amount), 0);
+
+        onJournalChange(updatedJournal);
+        setEditingIndex(null);
+        setNewEntry({
+            account: '',
+            type: newTotal >= 0 ? 'Credit' : 'Debit',
+            amount: Math.abs(newTotal),
+            narration: ''
+        });
     };
 
     const handleDeleteEntry = (index) => {
@@ -91,20 +115,20 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
         onJournalChange(updatedJournal);
     };
 
+    // Add effect to update amount when type changes
+    React.useEffect(() => {
+        const balance = calculateBalance();
+        if (balance !== 0) {
+            setNewEntry(prev => ({
+                ...prev,
+                type: balance >= 0 ? 'Credit' : 'Debit',
+                amount: Math.abs(balance)
+            }));
+        }
+    }, [journal]);
+
     return (
         <>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-
-                <Button
-                    variant="contained"
-                    startIcon={<Iconify icon="eva:plus-fill" />}
-                    onClick={() => setOpen(true)}
-                    size="small"
-                    disabled={!isEditable}
-                >
-                    Add new entry
-                </Button>
-            </Box>
             <TableContainer component={Paper} sx={{ boxShadow: 'none', border: `1px solid ${theme.palette.divider}` }}>
                 <Table size="small" sx={{
                     '& .MuiTableCell-root': {
@@ -125,13 +149,13 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
                                 color: theme.palette.text.primary,
                                 fontSize: '0.875rem'
                             }
-                        }}>
-                            <TableCell>Sr. No</TableCell>
-                            <TableCell>Account</TableCell>
-                            <TableCell>Narration</TableCell>
-                            <TableCell>Type</TableCell>
-                            <TableCell align="right">Amount</TableCell>
-                            <TableCell align="center">Actions</TableCell>
+                        }}> 
+                            <TableCell sx={{ minWidth: '50px' }}>Sr. No</TableCell>
+                            <TableCell sx={{ minWidth: '200px' }}>Account</TableCell>
+                            <TableCell sx={{ minWidth: '200px' }}>Narration</TableCell>
+                            <TableCell sx={{ minWidth: '100px' }}>Type</TableCell>
+                            <TableCell sx={{ minWidth: '100px' }} align="right">Amount</TableCell>
+                            <TableCell sx={{ minWidth: '100px' }} align="center">Actions</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -148,167 +172,350 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
                                 }}
                             >
                                 <TableCell>{entry.srno}</TableCell>
-                                <TableCell>{getAccountName(entry.account)}</TableCell>
-                                <TableCell>{entry.narration}</TableCell>
                                 <TableCell>
-                                    <Typography
-                                        sx={{
-                                            color: getTypeColor(entry.type),
-                                            fontWeight: 500,
-                                            fontSize: '0.875rem'
-                                        }}
-                                    >
-                                        {entry.type}
-                                    </Typography>
+                                    {editingIndex === index ? (
+                                        <Autocomplete
+                                            size="small"
+                                            options={accounts || []}
+                                            getOptionLabel={(option) =>
+                                                option ? `${option.AC_DESC} (${option.AC_CODE})` : ''
+                                            }
+                                            value={accounts?.find(p => p.AC_CODE === newEntry.account) || null}
+                                            onChange={(_, newValue) => {
+                                                setNewEntry(prev => ({
+                                                    ...prev,
+                                                    account: newValue?.AC_CODE || ''
+                                                }));
+                                            }}
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    size="small"
+                                                    required
+                                                />
+                                            )}
+                                        />
+                                    ) : (
+                                        getAccountName(entry.account)
+                                    )}
                                 </TableCell>
-                                <TableCell align="right">
-                                    {Number(entry.amount).toLocaleString('en-US', {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2
-                                    })}
+                                <TableCell>
+                                    {editingIndex === index ? (
+                                        <TextField
+                                            size="small"
+                                            value={newEntry.narration}
+                                            onChange={(e) => setNewEntry(prev => ({
+                                                ...prev,
+                                                narration: e.target.value
+                                            }))}
+                                            fullWidth
+                                        />
+                                    ) : (
+                                        entry.narration
+                                    )}
+                                </TableCell>
+                                <TableCell sx={{ width: '200px' }}>
+                                    {editingIndex === index ? (
+                                        <Autocomplete
+                                            size="small"
+                                            options={[
+                                                { value: 'Debit', label: 'Debit' },
+                                                { value: 'Credit', label: 'Credit' }
+                                            ]}
+                                            getOptionLabel={(option) => option.label || ''}
+                                            value={{ value: newEntry.type, label: newEntry.type }}
+                                            onChange={(_, newValue) => {
+                                                const balance = calculateBalance();
+                                                setNewEntry(prev => ({
+                                                    ...prev,
+                                                    type: newValue ? newValue.value : 'Debit',
+                                                    amount: Math.abs(balance)
+                                                }));
+                                            }}
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    size="small"
+                                                    required
+                                                />
+                                            )}
+                                        />
+                                    ) : (
+                                        <Typography
+                                            sx={{
+                                                color: getTypeColor(entry.type),
+                                                fontWeight: 500,
+                                                fontSize: '0.875rem'
+                                            }}
+                                        >
+                                            {entry.type}
+                                        </Typography>
+                                    )}
+                                </TableCell>
+                                <TableCell align="right" sx={{ width: '200px' }}>
+                                    {editingIndex === index ? (
+                                        <TextField
+                                            size="small"
+                                            type="number" 
+                                            value={newEntry.amount}
+                                            onChange={(e) => setNewEntry(prev => ({
+                                                ...prev,
+                                                amount: e.target.value
+                                            }))}
+                                            required
+                                            inputProps={{ min: 0, step: 'any' }}
+                                        />
+                                    ) : (
+                                        Number(entry.amount).toLocaleString('en-US', {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        })
+                                    )}
                                 </TableCell>
                                 <TableCell align="center">
-
-                                    <>
-                                        {id === null && (
+                                    {editingIndex === index ? (
+                                        <>
                                             <IconButton
                                                 size="small"
-                                                color="primary"
-                                                disabled={!isEditable}
-                                                onClick={() => {
-                                                    setNewEntry({
-                                                        account: entry.account,
-                                                        type: entry.type,
-                                                        amount: entry.amount,
-                                                        narration: entry.narration
-                                                    });
-                                                    setOpen(true);
-                                                    // Store index for editing
-                                                    setEditIndex(index);
-                                                }}
+                                                color="success"
+                                                onClick={handleSaveEdit}
                                                 sx={{ mr: 1 }}
                                             >
-                                                <Iconify icon="eva:edit-2-outline" />
+                                                <Iconify icon="eva:checkmark-outline" />
                                             </IconButton>
-                                        )}
-                                        <IconButton
-                                            size="small"
-                                            color="error"
-                                            disabled={!isEditable}
-                                            onClick={() => handleDeleteEntry(index)}
-                                        >
-                                            <Iconify icon="eva:trash-2-outline" />
-                                        </IconButton>
-                                    </>
-
+                                            <IconButton
+                                                size="small"
+                                                color="error"
+                                                onClick={() => {
+                                                    setEditingIndex(null);
+                                                    setNewEntry({
+                                                        account: '',
+                                                        type: 'Debit',
+                                                        amount: '',
+                                                        narration: ''
+                                                    });
+                                                }}
+                                            >
+                                                <Iconify icon="eva:close-outline" />
+                                            </IconButton>
+                                        </>
+                                    ) : (
+                                        <>
+                                            {id === null && (
+                                                <IconButton
+                                                    size="small"
+                                                    color="primary"
+                                                    disabled={!isEditable}
+                                                    onClick={() => handleEditEntry(index)}
+                                                    sx={{ mr: 1 }}
+                                                >
+                                                    <Iconify icon="eva:edit-2-outline" />
+                                                </IconButton>
+                                            )}
+                                            <IconButton
+                                                size="small"
+                                                color="error"
+                                                disabled={!isEditable}
+                                                onClick={() => handleDeleteEntry(index)}
+                                            >
+                                                <Iconify icon="eva:trash-2-outline" />
+                                            </IconButton>
+                                        </>
+                                    )}
                                 </TableCell>
                             </TableRow>
                         ))}
-                        {journal.length === 0 && (
-                            <TableRow>
-                                <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
-                                    <Typography variant="body2" color="text.secondary">
-                                        No journal entries found
-                                    </Typography>
-                                </TableCell>
-                            </TableRow>
-                        )}
+                      {isEditable && <TableRow>
+                            <TableCell>{journal.length + 1}</TableCell>
+                            <TableCell>
+                                <Autocomplete
+                                    size="small"
+                                    options={accounts || []}
+                                    getOptionLabel={(option) =>
+                                        option ? `${option.AC_DESC} (${option.AC_CODE})` : ''
+                                    }
+                                    value={accounts?.find(p => p.AC_CODE === newEntry.account) || null}
+                                    onChange={(_, newValue) => {
+                                        setNewEntry(prev => ({
+                                            ...prev,
+                                            account: newValue?.AC_CODE || ''
+                                        }));
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            size="small"
+                                            required
+                                        />
+                                    )}
+                                />
+                            </TableCell>
+                            <TableCell>
+                                <TextField
+                                    size="small"
+                                    value={newEntry.narration}
+                                    onChange={(e) => setNewEntry(prev => ({
+                                        ...prev,
+                                        narration: e.target.value
+                                    }))}
+                                    fullWidth
+                                />
+                            </TableCell>
+                            <TableCell>
+                                <Autocomplete
+                                    size="small"
+                                    options={[
+                                        { value: 'Debit', label: 'Debit' },
+                                        { value: 'Credit', label: 'Credit' }
+                                    ]}
+                                    getOptionLabel={(option) => option.label || ''}
+                                    value={{ value: newEntry.type, label: newEntry.type }}
+                                    onChange={(_, newValue) => {
+                                        const balance = calculateBalance();
+                                        setNewEntry(prev => ({
+                                            ...prev,
+                                            type: newValue ? newValue.value : 'Debit',
+                                            amount: Math.abs(balance)
+                                        }));
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            size="small"
+                                            required
+                                        />
+                                    )}
+                                />
+                            </TableCell>
+                            <TableCell align="right">
+                                <TextField
+                                    size="small"
+                                    type="number"
+                                    value={newEntry.amount}
+                                    onChange={(e) => setNewEntry(prev => ({
+                                        ...prev,
+                                        amount: e.target.value
+                                    }))}
+                                    required
+                                    inputProps={{ min: 0, step: 'any' }}
+                                />
+                            </TableCell>
+                            <TableCell align="center">
+                                <IconButton
+                                    size="small"
+                                    color="success"
+                                    onClick={handleAddEntry}
+                                    disabled={!newEntry.account || !newEntry.amount || !isEditable}
+                                >
+                                    <Iconify icon="eva:plus-fill" />
+                                </IconButton>
+                            </TableCell>
+                        </TableRow>}
                     </TableBody>
                 </Table>
             </TableContainer>
 
-            <Dialog open={open} onClose={() => { setOpen(false); setEditIndex(null); }} maxWidth="sm" fullWidth>
-                <DialogTitle>Add Journal Entry</DialogTitle>
-                <DialogContent>
-                    <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-                        <FormControl fullWidth>
-                            <Autocomplete
-                                size="small"
-                                options={accounts || []}
-                                getOptionLabel={(option) =>
-                                    option ? `${option.AC_DESC} (${option.AC_CODE})` : ''
-                                }
-                                value={accounts?.find(p => p.AC_CODE === newEntry.account) || null}
-                                onChange={(_, newValue) => {
-                                    setNewEntry(prev => ({
-                                        ...prev,
-                                        account: newValue?.AC_CODE || ''
-                                    }));
-                                }}
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        label="Account"
-                                        required
-                                    />
-                                )}
-                            />
-                        </FormControl>
-
-                        <FormControl fullWidth>
-                            <Autocomplete
-                                size="small"
-                                options={[
-                                    { value: 'Debit', label: 'Debit' },
-                                    { value: 'Credit', label: 'Credit' }
-                                ]}
-                                getOptionLabel={(option) => option.label || ''}
-                                value={{ value: newEntry.type, label: newEntry.type }}
-                                onChange={(_, newValue) => {
-                                    setNewEntry(prev => ({
-                                        ...prev,
-                                        type: newValue ? newValue.value : 'Debit'
-                                    }));
-                                }}
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        label="Type"
-                                        required
-                                    />
-                                )}
-                            />
-                        </FormControl>
-                        <TextField
-                            size="small"
-                            label="Amount"
-                            type="number"
-                            value={newEntry.amount}
-                            onChange={(e) => setNewEntry(prev => ({
-                                ...prev,
-                                amount: e.target.value
-                            }))}
-                            required
-                            fullWidth
-                            inputProps={{ min: 0, step: 'any' }}
-                        />
-                        <FormControl fullWidth>
-                            <TextField
-                                size="small"
-                                multiline
-                                rows={2}
-                                label="Narration"
-                                value={newEntry.narration}
-                                onChange={(e) => setNewEntry(prev => ({
-                                    ...prev,
-                                    narration: e.target.value
-                                }))}
-                                fullWidth
-                            />
-                        </FormControl>
+            {/* Totals Section */}
+            <Box sx={{ 
+                mt: 2,
+                p: 2,
+                backgroundColor: theme.palette.grey[50],
+                borderRadius: 1,
+                border: `1px solid ${theme.palette.divider}`,
+                display: 'flex',
+                justifyContent: 'flex-end',
+                alignItems: 'center'
+            }}>
+                <Box sx={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography sx={{ 
+                            color: theme.palette.error.main,
+                            fontWeight: 600,
+                            fontSize: '0.875rem'
+                        }}>
+                            Debit:
+                        </Typography>
+                        <Typography sx={{ 
+                            color: theme.palette.error.main,
+                            fontWeight: 600,
+                            fontSize: '0.875rem'
+                        }}>
+                            {journal
+                                .filter(entry => entry.type === 'Debit')
+                                .reduce((sum, entry) => sum + Number(entry.amount), 0)
+                                .toLocaleString('en-US', {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                })}
+                        </Typography>
                     </Box>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpen(false)}>Cancel</Button>
-                    <Button
-                        variant="contained"
-                        onClick={handleAddEntry}
-                        disabled={!newEntry.account || !newEntry.amount}
-                    >
-                        Add
-                    </Button>
-                </DialogActions>
-            </Dialog>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography sx={{ 
+                            color: theme.palette.success.main,
+                            fontWeight: 600,
+                            fontSize: '0.875rem'
+                        }}>
+                            Credit:
+                        </Typography>
+                        <Typography sx={{ 
+                            color: theme.palette.success.main,
+                            fontWeight: 600,
+                            fontSize: '0.875rem'
+                        }}>
+                            {journal
+                                .filter(entry => entry.type === 'Credit')
+                                .reduce((sum, entry) => sum + Number(entry.amount), 0)
+                                .toLocaleString('en-US', {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                })}
+                        </Typography>
+                    </Box>
+                    {(() => {
+                        const totalDebit = journal
+                            .filter(entry => entry.type === 'Debit')
+                            .reduce((sum, entry) => sum + Number(entry.amount), 0);
+                        const totalCredit = journal
+                            .filter(entry => entry.type === 'Credit')
+                            .reduce((sum, entry) => sum + Number(entry.amount), 0);
+                        const difference = totalDebit - totalCredit;
+                        
+                        if (difference !== 0) {
+                            return (
+                                <Box sx={{ 
+                                      
+                                    pl: 2, 
+                                    borderLeft: `1px solid ${theme.palette.divider}`,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1
+                                }}>
+                                    <Typography sx={{ 
+                                        color: 'text.secondary',
+                                        fontWeight: 600,
+                                        fontSize: '0.875rem'
+                                    }}>
+                                        Difference:
+                                    </Typography>
+                                    <Typography sx={{ 
+                                        color: difference > 0 ? theme.palette.error.main : theme.palette.success.main,
+                                        fontWeight: 600,
+                                        fontSize: '0.875rem'
+                                    }}>
+                                        {Math.abs(difference).toLocaleString('en-US', {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        })}
+                                        {' '}
+                                        ({difference > 0 ? 'Debit' : 'Credit'})
+                                    </Typography>
+                                </Box>
+                            );
+                        }
+                        return null;
+                    })()}
+                </Box>
+            </Box>
         </>
     );
 }
