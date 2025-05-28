@@ -548,12 +548,26 @@ export default function PurchaseEntry() {
         });
     }; 
 
-    const handleEditConfirm = () => {
+   const handleEditConfirm = async (messages = []) => {
         if (id) {
             loadInvoiceDetails(id);
         }
-        setIsEditable(!isEditable);
-    }
+        if (messages && messages.length > 0) {
+            const { Success, Message } = await GetSingleResult({
+                "key": "PURCH_INV_CRUD",
+                "TYPE": "EDIT_CONFIRM",
+                "DOC_NO": id,
+                "message_types": messages
+            });
+            if (!Success) {
+                setIsEditable(false);
+                showToast(Message, "error");
+            }
+        } else {
+            setIsEditable(!isEditable);
+        }
+    };
+
 
 
     return (
@@ -609,6 +623,9 @@ export default function PurchaseEntry() {
                     },
                 ]}
                 onEditConfirm={handleEditConfirm}
+                editCheckApiKey="PURCH_INV_CRUD"
+                editCheckApiType="EDIT_VALIDATE"
+                editCheckDocNo={id || headerData.InvNo}
             />
 
             <Card>
