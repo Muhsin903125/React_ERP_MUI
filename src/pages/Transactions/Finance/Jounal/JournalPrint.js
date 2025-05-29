@@ -89,8 +89,8 @@ export default function JournalPrint({ headerData, journal, accounts }) {
                                     <TableCell width="50px">No.</TableCell>
                                     <TableCell>Account</TableCell>
                                     <TableCell>Narration</TableCell>
-                                    <TableCell>Type</TableCell>
-                                    <TableCell align="right">Amount</TableCell>
+                                    <TableCell align="right">Debit</TableCell>
+                                    <TableCell align="right">Credit</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -99,118 +99,75 @@ export default function JournalPrint({ headerData, journal, accounts }) {
                                         <TableCell>{entry.srno}</TableCell>
                                         <TableCell>{getAccountName(entry.account)}</TableCell>
                                         <TableCell>{entry.narration}</TableCell>
-                                        <TableCell>
+                                        <TableCell align="right">
                                             <Typography
                                                 sx={{
-                                                    color: entry.type === 'Debit' ? 'error.main' : 'success.main',
+                                                    
                                                     fontWeight: 500,
                                                     fontSize: '0.875rem'
                                                 }}
                                             >
-                                                {entry.type}
+                                                {entry.type === 'Debit' ?
+                                                    Number(entry.amount).toLocaleString('en-US', {
+                                                        minimumFractionDigits: 2,
+                                                        maximumFractionDigits: 2
+                                                    }) : null}
                                             </Typography>
                                         </TableCell>
                                         <TableCell align="right">
-                                            {Number(entry.amount).toLocaleString('en-US', {
-                                                minimumFractionDigits: 2,
-                                                maximumFractionDigits: 2
-                                            })}
+                                            <Typography
+                                                sx={{
+                                                    
+                                                    fontWeight: 500,
+                                                    fontSize: '0.95rem'
+                                                }}
+                                            >
+                                                {entry.type === 'Credit' ?
+                                                    Number(entry.amount).toLocaleString('en-US', {
+                                                        minimumFractionDigits: 2,
+                                                        maximumFractionDigits: 2
+                                                    }) : null}
+                                            </Typography>
                                         </TableCell>
                                     </TableRow>
                                 ))}
+                                <TableRow   className='itemrow'>
+
+                                    <TableCell colSpan={4} align="right">
+                                        <Typography
+                                            sx={{ 
+                                                fontWeight: 800,
+                                                fontSize: '0.875rem'
+                                            }}
+                                        >
+                                            {totalDebit.toLocaleString('en-US', {
+                                                minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2
+                                            })}
+                                        </Typography>
+                                    </TableCell>
+                                    <TableCell align="right">
+                                        <Typography
+                                            sx={{ 
+                                                fontWeight: 800,
+                                                fontSize: '0.875rem'
+                                            }}
+                                        >
+                                            {totalCredit.toLocaleString('en-US', {
+                                                minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2
+                                            })}
+                                        </Typography>
+                                    </TableCell>
+                                </TableRow>
+
 
                             </TableBody>
                         </Table>
                     </TableContainer>
 
                     {/* Totals Section */}
-                    <Box sx={{
-                        mt: 2,
-                        p: 2,
-                        // backgroundColor: 'rgb(226, 226, 226)', 
-                        borderTop: '1px solid rgb(211, 211, 211)',
-                        borderBottom: '1px solid rgb(211, 211, 211)',
-                        display: 'flex',
-                        justifyContent: 'flex-end',
-                        alignItems: 'center'
-                    }}>
-                        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Typography sx={{
-                                    color: 'rgb(139, 0, 0)',
-                                    fontWeight: 600,
-                                    fontSize: '0.875rem'
-                                }}>
-                                    Debit:
-                                </Typography>
-                                <Typography sx={{
-                                    color: 'rgb(139, 0, 0)',
-                                    fontWeight: 600,
-                                    fontSize: '0.875rem'
-                                }}>
-                                    {totalDebit.toLocaleString('en-US', {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2
-                                    })}
-                                </Typography>
-                            </Box>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Typography sx={{
-                                    color: 'rgb(0, 100, 0)',
-                                    fontWeight: 600,
-                                    fontSize: '0.875rem'
-                                }}>
-                                    Credit:
-                                </Typography>
-                                <Typography sx={{
-                                    color: 'rgb(0, 100, 0)',
-                                    fontWeight: 600,
-                                    fontSize: '0.875rem'
-                                }}>
-                                    {totalCredit.toLocaleString('en-US', {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2
-                                    })}
-                                </Typography>
-                            </Box>
-                            {(() => {
-                                const difference = totalDebit - totalCredit;
-                                if (difference !== 0) {
-                                    return (
-                                        <Box sx={{
-                                            // ml: 1, 
-                                            pl: 2,
-                                            borderLeft: '1px solid rgb(211, 211, 211)',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: 1
-                                        }}>
-                                            <Typography sx={{
-                                                color: 'text.secondary',
-                                                fontWeight: 600,
-                                                fontSize: '0.875rem'
-                                            }}>
-                                                Difference:
-                                            </Typography>
-                                            <Typography sx={{
-                                                color: difference > 0 ? 'rgb(139, 0, 0)' : 'rgb(0, 100, 0)',
-                                                fontWeight: 600,
-                                                fontSize: '0.875rem'
-                                            }}>
-                                                {Math.abs(difference).toLocaleString('en-US', {
-                                                    minimumFractionDigits: 2,
-                                                    maximumFractionDigits: 2
-                                                })}
-                                                {' '}
-                                                ({difference > 0 ? 'Debit' : 'Credit'})
-                                            </Typography>
-                                        </Box>
-                                    );
-                                }
-                                return null;
-                            })()}
-                        </Box>
-                    </Box>
+                
 
                     {headerData.Remarks && (
                         <Box className="remarks-section" sx={{
@@ -239,6 +196,7 @@ export default function JournalPrint({ headerData, journal, accounts }) {
                         backgroundColor: 'white',
                         zIndex: 10,
                         py: 2,
+                        mt: 3,
                         px: 3,
                         boxShadow: { xs: 'none', print: '0 -2px 8px rgba(0,0,0,0.04)' },
                         '@media print': {
@@ -251,7 +209,7 @@ export default function JournalPrint({ headerData, journal, accounts }) {
                     }}
                 >
                     <Typography variant="caption" align="center" sx={{ width: '100%', display: 'block', mb: 1, color: 'text.secondary' }}>
-                        Computer generated document, hence sign not required.
+                        This is a computer generated document, hence does not require any signature.
                     </Typography>
                     <Grid container spacing={4}>
                         <Grid item xs={4}>
