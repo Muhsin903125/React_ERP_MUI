@@ -460,7 +460,7 @@ export default function PaymentEntry() {
 
     const fetchPendingBills = async (payer) => {
         if (!payer) {
-            showToast("Please select a paid from account first", "error");
+            showToast("Please select a paid To account first", "error");
             return;
         } 
         try {
