@@ -625,7 +625,7 @@ export default function PaymentEntry() {
             </Helmet>
 
             <PageHeader
-                title={isEditMode ? 'Edit Sales Payment' : 'New Sales Payment'}
+                title={isEditMode ? 'Edit Payment' : 'New Payment'}
                 actions={[
                     {
                         label: 'Print',
