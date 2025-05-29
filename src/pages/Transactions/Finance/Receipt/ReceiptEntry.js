@@ -626,7 +626,7 @@ export default function ReceiptEntry() {
             </Helmet>
 
             <PageHeader
-                title={isEditMode ? 'Edit Sales Receipt' : 'New Sales Receipt'}
+                title={isEditMode ? 'Edit Receipt' : 'New Receipt'}
                 actions={[
                     {
                         label: 'Print',
