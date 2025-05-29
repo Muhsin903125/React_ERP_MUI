@@ -150,13 +150,13 @@ export default function PaymentEntry() {
 
         // Payer validation
         if (validator.isEmpty(headerData.Account1)) {
-            errors.Account1 = 'Paid From is required';
-            showToast('Paid From is required', "error");
+            errors.Account1 = 'Paid To is required';
+            showToast('Paid To is required', "error");
             hasError = true;
         }
         if (validator.isEmpty(headerData.Account2)) {
-            errors.Account2 = 'Paid To is required';
-            showToast('Paid To is required', "error");
+            errors.Account2 = 'Paid From is required';
+            showToast('Paid From is required', "error");
             hasError = true;
         }
 
@@ -460,7 +460,7 @@ export default function PaymentEntry() {
 
     const fetchPendingBills = async (payer) => {
         if (!payer) {
-            showToast("Please select a paid from account first", "error");
+            showToast("Please select a paid To account first", "error");
             return;
         } 
         try {
@@ -526,21 +526,21 @@ export default function PaymentEntry() {
             {
                 srno: 1,
                 account: headerData.Account1,
-                type: "Credit",
+                type: "Debit",
                 amount: totalAlloc + totalDiscount,
                 isManual: 0
             },
             {
                 srno: 2,
                 account: headerData.Account2,
-                type: "Debit",
+                type: "Credit",
                 amount: totalAlloc,
                 isManual: 0
             },
             ...(totalDiscount > 0 ? [{
                 srno: 3,
                 account: "10001",
-                type: "Debit",
+                type: "Credit",
                 amount: totalDiscount,
                 isManual: 0
             }] : []),
@@ -718,7 +718,7 @@ export default function PaymentEntry() {
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
-                                            label="Paid From"
+                                            label="Paid To"
                                             size="small"
                                             required
                                             error={Boolean(errors.Account1)}
@@ -749,7 +749,7 @@ export default function PaymentEntry() {
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
-                                            label="Paid To"
+                                            label="Paid From"
                                             required
                                             error={Boolean(errors.Account2)}
                                             helperText={errors.Account2}
@@ -869,21 +869,21 @@ export default function PaymentEntry() {
                                             {
                                                 srno: 1,
                                                 account: headerData.Account1,
-                                                type: "Credit",
+                                                type: "Debit",
                                                 amount: (totalAlloc + totalDiscount) || amount,
                                                 isManual: 0
                                             },
                                             {
                                                 srno: 2,
                                                 account: headerData.Account2,
-                                                type: "Debit",
+                                                type: "Credit",
                                                 amount,
                                                 isManual: 0
                                             },
                                             ...(totalDiscount > 0 ? [{
                                                 srno: 3,
                                                 account: "10001",
-                                                type: "Debit",
+                                                type: "Credit",
                                                 amount: totalDiscount,
                                                 isManual: 0
                                             }] : []),
