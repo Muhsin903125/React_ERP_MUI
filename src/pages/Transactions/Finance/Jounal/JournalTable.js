@@ -301,7 +301,7 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
                                         </>
                                     ) : (
                                         <>
-                                            {id === null && (
+                                              
                                                 <IconButton
                                                     size="small"
                                                     color="primary"
@@ -311,7 +311,7 @@ export default function JournalTable({ journal, accounts, onJournalChange, isEdi
                                                 >
                                                     <Iconify icon="eva:edit-2-outline" />
                                                 </IconButton>
-                                            )}
+                                             
                                             <IconButton
                                                 size="small"
                                                 color="error"

@@ -118,13 +118,13 @@ export default function JournalPrint({ headerData, journal, accounts }) {
                                         </TableCell>
                                     </TableRow>
                                 ))}
-                                
+
                             </TableBody>
                         </Table>
                     </TableContainer>
 
                     {/* Totals Section */}
-                    <Box sx={{ 
+                    <Box sx={{
                         mt: 2,
                         p: 2,
                         // backgroundColor: 'rgb(226, 226, 226)', 
@@ -136,14 +136,14 @@ export default function JournalPrint({ headerData, journal, accounts }) {
                     }}>
                         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Typography sx={{ 
+                                <Typography sx={{
                                     color: 'rgb(139, 0, 0)',
                                     fontWeight: 600,
                                     fontSize: '0.875rem'
                                 }}>
                                     Debit:
                                 </Typography>
-                                <Typography sx={{ 
+                                <Typography sx={{
                                     color: 'rgb(139, 0, 0)',
                                     fontWeight: 600,
                                     fontSize: '0.875rem'
@@ -155,14 +155,14 @@ export default function JournalPrint({ headerData, journal, accounts }) {
                                 </Typography>
                             </Box>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Typography sx={{ 
+                                <Typography sx={{
                                     color: 'rgb(0, 100, 0)',
                                     fontWeight: 600,
                                     fontSize: '0.875rem'
                                 }}>
                                     Credit:
                                 </Typography>
-                                <Typography sx={{ 
+                                <Typography sx={{
                                     color: 'rgb(0, 100, 0)',
                                     fontWeight: 600,
                                     fontSize: '0.875rem'
@@ -177,22 +177,22 @@ export default function JournalPrint({ headerData, journal, accounts }) {
                                 const difference = totalDebit - totalCredit;
                                 if (difference !== 0) {
                                     return (
-                                        <Box sx={{ 
+                                        <Box sx={{
                                             // ml: 1, 
-                                            pl: 2, 
+                                            pl: 2,
                                             borderLeft: '1px solid rgb(211, 211, 211)',
                                             display: 'flex',
                                             alignItems: 'center',
                                             gap: 1
                                         }}>
-                                            <Typography sx={{ 
+                                            <Typography sx={{
                                                 color: 'text.secondary',
                                                 fontWeight: 600,
                                                 fontSize: '0.875rem'
                                             }}>
                                                 Difference:
                                             </Typography>
-                                            <Typography sx={{ 
+                                            <Typography sx={{
                                                 color: difference > 0 ? 'rgb(139, 0, 0)' : 'rgb(0, 100, 0)',
                                                 fontWeight: 600,
                                                 fontSize: '0.875rem'
@@ -228,22 +228,65 @@ export default function JournalPrint({ headerData, journal, accounts }) {
                     )}
                 </Box>
 
-                {/* Page Number Footer */}
-                <Box className="page-footer" sx={{
-                    position: 'absolute',
-                    bottom: 10,
-                    left: 0,
-                    right: 0,
-                    textAlign: 'center',
-                    borderTop: '1px solid #e3f2fd',
-                    paddingTop: 5,
-                    marginTop: 20
-                }}>
-                    <Typography variant="caption" color="text.secondary">
-                        Page 1 of 1
+                {/* Footer */}
+                <Box
+                    sx={{
+                        position: { xs: 'static', print: 'absolute' },
+                        bottom: { print: 0 },
+                        left: { print: 0 },
+                        right: { print: 0 },
+                        width: { xs: '100%', print: '100%' },
+                        backgroundColor: 'white',
+                        zIndex: 10,
+                        py: 2,
+                        px: 3,
+                        boxShadow: { xs: 'none', print: '0 -2px 8px rgba(0,0,0,0.04)' },
+                        '@media print': {
+                            position: 'absolute',
+                            bottom: 0,
+                            left: 0,
+                            pageBreakInside: 'avoid',
+                            boxShadow: 'none',
+                        },
+                    }}
+                >
+                    <Typography variant="caption" align="center" sx={{ width: '100%', display: 'block', mb: 1, color: 'text.secondary' }}>
+                        Computer generated document, hence sign not required.
                     </Typography>
+                    <Grid container spacing={4}>
+                        <Grid item xs={4}>
+                            <Box sx={{ borderTop: '1px solid', borderColor: 'divider', pt: 2 }}>
+                                <Typography variant="body2" align="center">
+                                    Prepared By
+                                </Typography>
+                                <Typography variant="body2" align="center">
+                                    {headerData?.PreparedByName || ''}
+                                </Typography>
+                            </Box>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <Box sx={{ borderTop: '1px solid', borderColor: 'divider', pt: 2 }}>
+                                <Typography variant="body2" align="center">
+                                    Checked By
+                                </Typography>
+                                <Typography variant="body2" align="center">
+                                    {headerData?.CheckedByName || ''}
+                                </Typography>
+                            </Box>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <Box sx={{ borderTop: '1px solid', borderColor: 'divider', pt: 2 }}>
+                                <Typography variant="body2" align="center">
+                                    Authorized By
+                                </Typography>
+                                <Typography variant="body2" align="center">
+                                    {headerData?.AuthorizerName || ''}
+                                </Typography>
+                            </Box>
+                        </Grid>
+                    </Grid>
                 </Box>
             </Box>
         </Box>
     );
-} 
+}

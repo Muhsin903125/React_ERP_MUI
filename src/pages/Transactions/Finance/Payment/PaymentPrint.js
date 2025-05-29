@@ -16,7 +16,7 @@ import {
 import { format } from 'date-fns';
 import useAuth from '../../../../hooks/useAuth';
 
-export default function ReceiptPrint({ headerData, journal, accounts, detailData }) {
+export default function PaymentPrint({ headerData, journal, accounts, detailData }) {
     const { companyName, companyAddress, companyPhone, companyEmail, companyLogoUrl, companyTRN } = useAuth();
 
     const getAccountName = (accountCode) => {
@@ -53,18 +53,18 @@ export default function ReceiptPrint({ headerData, journal, accounts, detailData
                 </Grid>
                 <Grid item xs={6}>
                     <Box sx={{ textAlign: 'right' }}>
-                        <Typography variant="h3" color='black' fontWeight={400} gutterBottom>RECEIPT VOUCHER</Typography>
+                        <Typography variant="h3" color='black' fontWeight={400} gutterBottom>PAYMENT VOUCHER</Typography>
                         <Typography variant="body1" fontWeight={600}>#{headerData.RpNo}</Typography>
                     </Box>
                 </Grid>
             </Grid>
 
-            {/* Receipt Details */}
+            {/* Payment Details */}
             <Grid container spacing={2} sx={{ mb: 4 }}>
                 <Grid item xs={6}>
                     <Box sx={{ mb: 2 }}>
                         <Typography variant="subtitle2" color="text.secondary">
-                            Receipt Date
+                            Payment Date
                         </Typography>
                         <Typography variant="body1">
                             {formatDate(headerData.RpDate)}
@@ -72,7 +72,7 @@ export default function ReceiptPrint({ headerData, journal, accounts, detailData
                     </Box>
                     <Box sx={{ mb: 2 }}>
                         <Typography variant="subtitle2" color="text.secondary">
-                            Payer
+                            Paid From
                         </Typography>
                         <Typography variant="body1">
                             {getAccountName(headerData.Account1)}
@@ -80,7 +80,7 @@ export default function ReceiptPrint({ headerData, journal, accounts, detailData
                     </Box>
                     <Box>
                         <Typography variant="subtitle2" color="text.secondary">
-                            Deposit To
+                            Paid To
                         </Typography>
                         <Typography variant="body1">
                             {getAccountName(headerData.Account2)}
@@ -240,6 +240,7 @@ export default function ReceiptPrint({ headerData, journal, accounts, detailData
                 </Box>
             )}
 
+            {/* Footer */}
             <Box
                 sx={{
                     position: { xs: 'static', print: 'absolute' },

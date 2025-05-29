@@ -61,6 +61,8 @@ import ReceiptEntry from './pages/Transactions/Finance/Receipt/ReceiptEntry';
 import ComingSoon from './components/ComingSoon';
 import Journal from './pages/Transactions/Finance/Jounal';
 import JournalEntry from './pages/Transactions/Finance/Jounal/JournalEntry';
+import Payment from './pages/Transactions/Finance/Payment';
+import PaymentEntry from './pages/Transactions/Finance/Payment/PaymentEntry';
 
 // ----------------------------------------------------------------------
 
@@ -116,9 +118,9 @@ const adminMenus = [
   { path: 'allocation-entry', element: <ComingSoon title="Allocation Entry" /> },
   { path: 'allocation-entry/:id', element: <ComingSoon title="Allocation Entry" /> },
 
-  { path: 'payment', element: <ComingSoon title="Payment" /> },
-  { path: 'payment-entry', element: <ComingSoon title="Payment Entry" /> },
-  { path: 'payment-entry/:id', element: <ComingSoon title="Payment Entry" /> },
+  { path: 'payment', element: <Payment /> },
+  { path: 'payment-entry', element: <PaymentEntry /> },
+  { path: 'payment-entry/:id', element: <PaymentEntry /> },
 
   { path: 'stock-adjustment', element: <ComingSoon title="Stock Adjustment" /> },
   { path: 'stock-adjustment-entry', element: <ComingSoon title="Stock Adjustment Entry" /> },
