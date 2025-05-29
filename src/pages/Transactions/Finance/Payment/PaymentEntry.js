@@ -446,6 +446,11 @@ export default function PaymentEntry() {
         setDetailData([]);
         setJournal([]);
         setItems([]);
+        setSelectedPaymentDate(new Date());
+        setselectedRefDate(new Date());
+        setPendingBills([]);
+        setSelectedBills([]);
+        setTotalAllocatedAmount(0);
         setSelectedItems([]);
         setErrors({});
         setIsEditable(true);

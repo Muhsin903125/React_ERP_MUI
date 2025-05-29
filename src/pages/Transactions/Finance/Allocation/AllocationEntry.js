@@ -34,18 +34,19 @@ import { AuthContext } from '../../../../App';
 import TransactionItem from '../../../../components/TransactionItem';
 import PrintComponent from '../../../../components/PrintComponent';
 import PendingBillsDialog from './PendingBillsDialog';
-import PendingBillsTable from './PendingBillsTable'; 
+import PendingBillsTable from './PendingBillsTable';
 import AllocationPrint from './AllocationPrint';
 import PrintDialog from '../../../../components/PrintDialog';
-import PageHeader from '../../../../components/PageHeader'; 
-// import { head } from 'lodash';
+import PageHeader from '../../../../components/PageHeader';
+import DocumentDialog from '../../../../components/DocumentDialog'; 
 
 // ----------------------------------------------------------------------
- 
+
 
 export default function AllocationEntry() {
     const navigate = useNavigate();
     const { id } = useParams();
+
     const { showToast } = useToast();
     const { setLoadingFull } = useContext(AuthContext);
     const [code, setCode] = useState('');
@@ -55,7 +56,7 @@ export default function AllocationEntry() {
     const [errors, setErrors] = useState({});
     const [isEditMode, setIsEditMode] = useState(false);
     const [isEditable, setIsEditable] = useState(true);
-    const [documents, setDocuments] = useState([]);
+    const [accounts, setAccounts] = useState([]);
     const [showPrintView, setShowPrintView] = useState(false);
     const [printDialogOpen, setPrintDialogOpen] = useState(false);
     const { state } = useLocation();
@@ -67,46 +68,54 @@ export default function AllocationEntry() {
     const [pendingDocumentChange, setPendingDocumentChange] = useState(null);
 
     const [headerData, setheaderData] = useState({
-        AlNo: code,
-        AlDate: selectedAllocationDate,
-        DocumentNo: '',
-        DocumentName: '',
-        DocumentPendingAmount: 0,       
+        AllocNo: code,
+        AllocDate: selectedAllocationDate,
+        account: '',
+        fromDocCode: '',
+        fromDocSrNo: '',
+        fromDocDate: '',
+        fromDocAmount: 0,
+        fromDocBalAmount: 0,
         Amount: 0,
         Remarks: ''
     });
+    const [isNew, setIsNew] = useState(true);
+    const [detailData, setDetailData] = useState([]);
 
-    const [detailData, setDetailData] = useState([]);  
-  
     const [totalAllocatedAmount, setTotalAllocatedAmount] = useState(0);
     const [documentLoading, setDocumentLoading] = useState(false);
 
     const printRef = useRef(null);
 
-    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-    const getDocuments = async () => {
-        setDocumentLoading(true);
-        try {
-            const { Success, Data, Message } = await GetSingleListResult({
-                key: "ALLOC_CRUD",
-                TYPE: "GET_DOCUMENTS",
-                DOC_NO: id || '',
-            });
-            if (Success) {
-                setDocuments(Data);
-            } else {
-                showToast(Message, "error");
-            }
-        } catch (error) {
-            showToast(error.message, "error");
-        } finally {
-            setDocumentLoading(false);
+    useEffect(() => {
+        if (id !== undefined && id !== null) {
+            setIsNew(false);
         }
-    };
+    }, [id]);
+
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+    const getAccounts = async () => {
+        const { Success, Data, Message } = await GetSingleListResult({
+            "key": "COA_CRUD",
+            "TYPE": "GET_ALL_ACCOUNT",
+        });
+        if (Success) {
+            setAccounts(Data);
+        } else {
+            showToast(Message, "error");
+        }
+    }
+
+
 
     const validate = () => {
         const errors = {};
         let hasError = false;
+        if (validator.isEmpty(headerData.account)) {
+            errors.account = 'Account is required';
+            showToast('Account is required', "error");
+            hasError = true;
+        }
 
         // Payer validation
         if (validator.isEmpty(headerData.DocumentNo)) {
@@ -116,13 +125,13 @@ export default function AllocationEntry() {
         }
 
         // Allocation date validation
-        if (!headerData.AlDate) {
-            errors.AlDate = 'Allocation date is required';
+        if (!headerData.AllocDate) {
+            errors.AllocDate = 'Allocation date is required';
             showToast('Allocation date is required', "error");
             hasError = true;
         }
 
-         
+
 
         // Amount validation
         if (!headerData.Amount || Number(headerData.Amount) <= 0) {
@@ -137,7 +146,7 @@ export default function AllocationEntry() {
         //     hasError = true;
         // }
 
- 
+
 
         // Validate allocated amounts match total
         // const totalAllocated = items.reduce((sum, item) => sum + (item.price * item.qty), 0);
@@ -157,13 +166,13 @@ export default function AllocationEntry() {
 
         setheaderData({
             ...headerData,
-            'AlDate': selectedAllocationDate,
+            'AllocDate': selectedAllocationDate,
         });
     }, [selectedAllocationDate]);
 
     // Calculate total allocated amount from detailData
     useEffect(() => {
-        const totalAllocated = detailData.reduce((sum, bill) => sum + (Number(bill.alloc_amount)  ), 0);
+        const totalAllocated = detailData.reduce((sum, bill) => sum + (Number(bill.alloc_amount)), 0);
         setTotalAllocatedAmount(totalAllocated);
     }, [detailData]);
 
@@ -191,7 +200,7 @@ export default function AllocationEntry() {
         }
     };
     useEffect(() => {
-        getDocuments();
+        getAccounts();
         if (id) {
             loadInvoiceDetails(id);
 
@@ -209,11 +218,11 @@ export default function AllocationEntry() {
         setCode(lastNo);
         setheaderData(prev => ({
             ...prev,
-            AlNo: lastNo
+            AllocNo: lastNo
         }));
     };
 
- 
+
 
     // For Customer Dialog
     const [open, setOpen] = useState(false);
@@ -231,7 +240,7 @@ export default function AllocationEntry() {
                     "TYPE": isEditMode || id ? "UPDATE" : "INSERT",
                     "DOC_NO": id || '',
                     "headerData": {
-                        ...headerData,                        
+                        ...headerData,
                         Amount: headerData.Amount,
                         Remarks: headerData.Remarks
                     },
@@ -245,8 +254,8 @@ export default function AllocationEntry() {
                         doc_bal_amount: item.doc_bal_amount,
                         alloc_amount: item.alloc_amount,
                         amount_type: item.amount_type,
-                        actrn_srno: item.actrn_srno 
-                    }))                  
+                        actrn_srno: item.actrn_srno
+                    }))
                 }));
 
                 const { Success, Message, Data } = await GetSingleResult({
@@ -282,29 +291,31 @@ export default function AllocationEntry() {
                 // Data[0] contains header data, Data[1] contains items
                 const headData = Data[0][0]; // First array's first element
                 const itemsData = Data[1]; // Second array contains all items
-                
+
                 setheaderData({
                     ...headData,
-                    AlNo: headData?.AlNo,
-                    AlDate: new Date(headData?.AlDate),
-                    DocumentNo: headData?.DocumentNo,
-                    DocumentName: headData?.DocumentName,
-                    DocumentPendingAmount: headData?.DocumentPendingAmount || 0,
-                 
+                    AllocNo: headData?.AllocNo,
+                    AllocDate: new Date(headData?.AllocDate),
+                    account: headData?.account || '',
+                    fromDocBalAmount: headData?.fromDocBalAmount || 0,
+                    fromDocCode: headData?.fromDocCode || '',
+                    fromDocSrNo: headData?.fromDocSrNo || '',
+                    fromDocDate: new Date(headData?.fromDocDate) || null,
+                    fromDocAmount: headData?.fromDocAmount || 0,
                     Amount: headData?.Amount,
                     Remarks: headData?.Remarks
                 });
-                setSelectedAllocationDate(new Date(headData?.AlDate)); 
+                setSelectedAllocationDate(new Date(headData?.AllocDate));
                 setDetailData(itemsData || []);
                 if (headData?.DocumentNo) {
                     fetchPendingBills(headData?.DocumentNo);
                     setSelectedBills(itemsData?.map(item => ({
                         ...item,
-                        allocatedAmount: item.alloc_amount, 
+                        allocatedAmount: item.alloc_amount,
                         amount_type: item.amount_type,
                         actrn_srno: item.actrn_srno
                     })));
-                   
+
 
                 }
             } else {
@@ -337,15 +348,24 @@ export default function AllocationEntry() {
     const handleNewInvoice = () => {
         // Reset all data
         setheaderData({
-            AlNo: '',
-            AlDate: selectedAllocationDate,
-            DocumentNo: '',
-            DocumentName: '',
-            DocumentPendingAmount: 0,
+            AllocNo: '',
+            AllocDate: selectedAllocationDate,
+            account: '',
+            fromDocCode: '',
+            fromDocSrNo: '',
+            fromDocDate: '',
+            fromDocAmount: 0,
+            fromDocBalAmount: 0,
             Amount: 0,
             Remarks: ''
         });
-        setDetailData([]);  
+        setDetailData([]);
+        setSelectedBills([]);
+        setSelectedAllocationDate(new Date());
+        setTotalAllocatedAmount(0);
+        setIsNew(true);
+        setIsEditMode(false);
+        setShowPendingBillsDialog(false);
         setErrors({});
         setIsEditable(true);
         setIsEditMode(false);
@@ -357,19 +377,19 @@ export default function AllocationEntry() {
 
 
 
-    const fetchPendingBills = async (DocumentNo) => {
-        if (!DocumentNo) {
-            showToast("Please select a document first", "error");
+    const fetchPendingBills = async (account) => {
+        if (!account) {
+            showToast("Please select an account first", "error");
             return;
         }
-        console.log("DocumentNo", DocumentNo);
+        console.log("Account", account);
         try {
             setLoadingFull(true);
             const { Success, Data, Message } = await GetSingleListResult({
                 "key": "ALLOC_CRUD",
                 "TYPE": "GET_OUTSTANDING",
-                "ac_code": DocumentNo,
-                "DOC_NO": id || ''
+                "ac_code": account,
+                // "DOC_NO": id || ''
             });
             if (Success) {
                 console.log("Data", Data);
@@ -397,17 +417,17 @@ export default function AllocationEntry() {
         ));
     };
 
-     
+
     const handleConfirmBillSelection = () => {
         // Format the selected bills into detailData format
         const formattedBills = selectedBills.map((bill, index) => ({
             srno: index + 1,
-            account: headerData.DocumentNo,
+            account: headerData.account,
             doc_code: bill.doc_code,
             doc_date: bill.doc_date,
             doc_amount: bill.doc_amount,
             doc_bal_amount: bill.doc_bal_amount,
-            alloc_amount: Number(bill.allocatedAmount) || 0, 
+            alloc_amount: Number(bill.allocatedAmount) || 0,
             amount_type: bill.amount_type,
             actrn_srno: bill.actrn_srno
         }));
@@ -426,8 +446,21 @@ export default function AllocationEntry() {
             Amount: totalAlloc
         }));
     };
- 
 
+    const handleAccountChange = (newValue) => {
+        if (detailData.length > 0) {
+            setPendingDocumentChange(newValue);
+            setShowConfirmDialog(true);
+        } else {
+            setheaderData(prev => ({
+                ...prev,
+                account: newValue?.AC_CODE || '',
+                DocumentNo: '',
+            }));
+            setSelectedBills([]);
+            setDetailData([]);
+        }
+    };
     const handleDocumentChange = (newValue) => {
         if (detailData.length > 0) {
             setPendingDocumentChange(newValue);
@@ -450,7 +483,7 @@ export default function AllocationEntry() {
                 DocumentNo: pendingDocumentChange?.AC_CODE || '',
                 Amount: 0,
             }));
-            setDetailData([]); 
+            setDetailData([]);
             setSelectedBills([]);
             fetchPendingBills(pendingDocumentChange?.AC_CODE || '');
         }
@@ -458,28 +491,51 @@ export default function AllocationEntry() {
         setPendingDocumentChange(null);
     };
 
-
-
-    const handleEditConfirm = async (messages = []) => {
-        if (id) {
-            loadInvoiceDetails(id);
-        }
-        if (messages && messages.length > 0) {
-            const { Success, Message } = await GetSingleResult({
-                "key": "ALLOC_CRUD",
-                "TYPE": "EDIT_CONFIRM",
-                "DOC_NO": id,
-                "message_types": messages
-            });
-            if (!Success) {
-                setIsEditable(false);
-                showToast(Message, "error");
+    const HandleDelete = () => {
+        Confirm("Are you sure you want to delete this allocation?").then(async () => {
+            try {
+                setLoadingFull(true);
+                const { Success, Message } = await GetSingleResult({
+                    "key": "ALLOC_CRUD",
+                    "TYPE": "DELETE",
+                    "DOC_NO": id
+                });
+                if (Success) {
+                    showToast("Allocation deleted successfully", 'success');
+                    navigate('/allocation');
+                } else {
+                    showToast(Message, 'error');
+                }
+            } catch (error) {
+                showToast("Error deleting allocation", 'error');
+            } finally {
+                setLoadingFull(false);
             }
-        } else {
-            setIsEditable(!isEditable);
-        }
+        });
+    }
+    const handleClickOpen = () => {
+        setOpen(true);
     };
 
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    const handleSelect = (value) => {
+        setOpen(false);
+        setheaderData({
+            ...headerData,
+            "fromDocCode": value.fromDocCode,
+            "fromDocSrNo": value.fromDocSrNo,
+            "fromDocDate": value.fromDocDate,
+            "fromDocAmount": value.fromDocAmount,
+            "fromDocBalAmount": value.fromDocBalAmount,
+            "Amount": value.Amount,
+
+        });
+        fetchPendingBills(headerData.account);
+        // setSelectedValue(value.name);
+    };
     return (
         <>
             <Helmet>
@@ -494,25 +550,17 @@ export default function AllocationEntry() {
                         icon: 'eva:printer-fill',
                         variant: 'outlined',
                         onClick: handlePrint,
-                        show: !isEditable && id,
-                        showInActions: true,
-                    },
-                    {
-                        label: 'Enable Edit',
-                        icon: 'eva:edit-fill',
-                        variant: 'contained',
-                        color: 'primary',
-                        type: 'enableEdit',
-                        show: !isEditable,
+                        show: !isNew,
                         showInActions: false,
                     },
                     {
-                        label: 'Cancel Edit',
-                        icon: 'eva:close-fill',
+                        label: 'Delete',
+                        icon: 'eva:trash-2-outline',
                         variant: 'contained',
-                        color: 'secondary',
-                        onClick: toggleEditMode,
-                        show: isEditable,
+                        color: 'primary',
+                        type: 'Delete',
+                        onClick: HandleDelete,
+                        show: !isNew,
                         showInActions: false,
                     },
                     {
@@ -521,174 +569,212 @@ export default function AllocationEntry() {
                         variant: 'contained',
                         onClick: handleNewInvoice,
                         show: true,
-                        showInActions: true,
+                        showInActions: false,
                     },
                 ]}
-                onEditConfirm={handleEditConfirm}
-                editCheckApiKey="ALLOC_CRUD"
-                editCheckApiType="EDIT_VALIDATE"
-                editCheckDocNo={id}
             />
 
             <Card>
                 <Stack maxwidth={'md'} padding={2.5} style={{ backgroundColor: '#e8f0fa', boxShadow: '#dbdbdb4f -1px 9px 20px 0px' }}>
                     <Grid container spacing={3} mt={1} maxwidth={'md'}  >
-                        <Grid item xs={6} md={6}  >
-                            <FormControl fullWidth>
-                                <TextField
-                                    id="allocation-no"
-                                    label="Allocation#"
-                                    size="small"
-                                    name="AlNo"
-                                    value={headerData?.AlNo}
-                                    onChange={handleInputChange}
-                                    inputProps={{
-                                        readOnly: true
-                                    }}
-                                    disabled={!isEditable}
-                                />
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={6} md={6} >
-                            <FormControl fullWidth error={Boolean(errors.AlDate)}>
-                                <DateSelector
-                                    label="Allocation Date"
-                                    disableFuture={disableFutureDate}
-                                    value={headerData?.AlDate}
-                                    size="small"
-                                    onChange={setSelectedAllocationDate}
-                                    disable={!isEditable}
-                                    error={Boolean(errors.AlDate)}
-                                    helperText={errors.AlDate}
-                                    required
-                                />
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={12} md={6}>
+                        <Grid item xs={12} md={5}>
+                            <Grid container spacing={2}  >
+                                <Grid item xs={12} md={12}>
 
-                            <FormControl fullWidth error={Boolean(errors.DocumentNo)}>
-                                <Autocomplete
-                                    size="small"
-                                    disabled={!isEditable}
-                                    options={documents || []}
-                                    getOptionLabel={(option) =>
-                                        option ? `${option.AC_DESC} ` : ''
-                                    }
-                                    value={documents?.find(p => p.AC_CODE === headerData.DocumentNo) || null}
-                                    loading={documentLoading}
-                                    onChange={(_, newValue) => handleDocumentChange(newValue)}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            label="Document"
+                                    <FormControl fullWidth error={Boolean(errors.account)}>
+                                        <Autocomplete
                                             size="small"
-                                            required
-                                            error={Boolean(errors.DocumentNo)}
-                                            helperText={errors.DocumentNo}
-                                        />
-                                    )}
-                                />
-                            </FormControl>
-                        </Grid>
-              
-
-                         
-                        <Grid item xs={6} md={6} >
-                            <FormControl fullWidth error={Boolean(errors.Amount)}>
-                                <TextField
-                                    id="amount"
-                                    label="Amount"
-                                    name="Amount"
-                                    size="small"
-                                    value={headerData?.Amount || 0}
-                                    min={totalAllocatedAmount}
-                                    type="number"
-                                    inputProps={{
-                                        min: 0,
-                                        step: "0.01",
-                                        inputMode: "decimal",
-                                        pattern: "[0-9]*"
-                                    }}
-                                    onChange={(e) => {
-                                        if (!headerData.DocumentNo  || headerData.DocumentNo === '') {
-                                            showToast("Please select a document before changing amount", "error");
-                                            return;
-                                        }
-
-                                        // Only allow numbers and decimal point
-                                        const value = e.target.value.replace(/[^0-9.]/g, '');
-
-                                        // Prevent multiple decimal points
-                                        const parts = value.split('.');
-                                        if (parts.length > 2) {
-                                            return;
-                                        }
-
-                                        // Limit to 2 decimal places
-                                        if (parts[1] && parts[1].length > 2) {
-                                            return;
-                                        }
-
-                                        handleInputChange({
-                                            target: {
-                                                name: 'Amount',
-                                                value
+                                            disabled={!isNew}
+                                            options={accounts || []}
+                                            getOptionLabel={(option) =>
+                                                option ? `${option.AC_DESC} ` : ''
                                             }
-                                        });                                       
-                                    }}
-                                    disabled={!isEditable}
-                                    error={Boolean(errors.Amount)}
-                                    helperText={errors.Amount}
-                                />
-                            </FormControl>
+                                            value={accounts?.find(p => p.AC_CODE === headerData.account) || null}
+                                            loading={documentLoading}
+                                            onChange={(_, newValue) => handleAccountChange(newValue)}
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    label="Select Account"
+                                                    name="account"
+                                                    size="small"
+                                                    required
+                                                    error={Boolean(errors.account)}
+                                                    helperText={errors.account}
+                                                />
+                                            )}
+                                        />
+                                    </FormControl>
+                                </Grid>
+
+                                <Grid item xs={8} md={8}>
+                                    <Typography variant="subtitle1" ml={2} mb={1}   >
+                                        Document Name:  {headerData.fromDocCode ? ` ${headerData.fromDocCode} - ${headerData.fromDocSrNo}` : 'No Document Selected'}
+
+                                    </Typography>
+                                    {headerData.fromDocDate !== null ?
+                                        <Typography variant="body1" ml={2} style={{ color: "gray" }} >
+                                            Date: {headerData.fromDocDate}
+                                        </Typography>
+                                        : null}
+                                    <Typography variant="body1" ml={2} style={{ color: "gray" }} >
+                                        {headerData.fromDocBalAmount > 0 ? `Pending Amount: ${headerData.fromDocBalAmount?.toFixed(2)}` : 'No Pending Amount'}
+                                    </Typography>
+                                </Grid>
+                                <Grid item xs={4} md={4} align='right'>
+                                    {headerData.account && (
+                                        <Button size="small" disabled={!isNew} startIcon={<Iconify icon={headerData?.fromDocCode ? "eva:edit-fill" : "eva:person-add-fill"} />} onClick={handleClickOpen}>
+                                            {headerData?.fromDocCode ? 'change' : 'Add'}
+                                        </Button>
+                                    )}
+                                    <DocumentDialog
+                                        open={open}
+                                        account={headerData.account}
+                                        onClose={handleClose}
+                                        onSelect={handleSelect}
+                                    />
+                                </Grid>
+                                {/* <Grid item xs={12} md={12}>
+                                    <Typography variant="body2" ml={2} style={{ color: "black" }} >
+                                        </Typography>
+                                </Grid> */}
+
+                            </Grid>
                         </Grid>
+                        <Grid item xs={12} md={7}>
+                            <Grid container spacing={1}>
+                                <Grid item xs={6} md={4}  >
+                                    <FormControl fullWidth>
+                                        <TextField
+                                            id="allocation-no"
+                                            label="Allocation#"
+                                            size="small"
+                                            name="AllocNo"
+                                            value={headerData?.AllocNo}
+                                            onChange={handleInputChange}
+                                            inputProps={{
+                                                readOnly: true
+                                            }}
+                                            disabled={!isNew}
+                                        />
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={6} md={4} >
+                                    <FormControl fullWidth error={Boolean(errors.AllocDate)}>
+                                        <DateSelector
+                                            label="Allocation Date"
+                                            disableFuture={disableFutureDate}
+                                            value={headerData?.AllocDate}
+                                            size="small"
+                                            onChange={setSelectedAllocationDate}
+                                            disable={!isNew}
+                                            error={Boolean(errors.AllocDate)}
+                                            helperText={errors.AllocDate}
+                                            required
+                                        />
+                                    </FormControl>
+                                </Grid>
 
 
-                        <Grid item xs={12} md={12}>
-                            <FormControl fullWidth>
-                                <TextField
-                                    id="remarks"
-                                    label="Remarks"
-                                    name="Remarks"
-                                    size="small"
-                                    multiline
-                                    rows={2}
-                                    value={headerData.Remarks}
-                                    onChange={handleInputChange}
-                                    disabled={!isEditable}
-                                    placeholder="Enter any additional notes or remarks "
-                                />
-                            </FormControl>
+
+                                <Grid item xs={6} md={4} >
+                                    <FormControl fullWidth error={Boolean(errors.Amount)}>
+                                        <TextField
+                                            id="amount"
+                                            label="Amount"
+                                            name="Amount"
+                                            size="small"
+                                            value={headerData?.Amount || 0}
+                                            min={totalAllocatedAmount}
+                                            type="number"
+                                            inputProps={{
+                                                min: 0,
+                                                step: "0.01",
+                                                inputMode: "decimal",
+                                                pattern: "[0-9]*"
+                                            }}
+                                            onChange={(e) => {
+                                                if (!headerData.DocumentNo || headerData.DocumentNo === '') {
+                                                    showToast("Please select a document before changing amount", "error");
+                                                    return;
+                                                }
+
+                                                // Only allow numbers and decimal point
+                                                const value = e.target.value.replace(/[^0-9.]/g, '');
+
+                                                // Prevent multiple decimal points
+                                                const parts = value.split('.');
+                                                if (parts.length > 2) {
+                                                    return;
+                                                }
+
+                                                // Limit to 2 decimal places
+                                                if (parts[1] && parts[1].length > 2) {
+                                                    return;
+                                                }
+
+                                                handleInputChange({
+                                                    target: {
+                                                        name: 'Amount',
+                                                        value
+                                                    }
+                                                });
+                                            }}
+                                            disabled={!isNew}
+                                            error={Boolean(errors.Amount)}
+                                            helperText={errors.Amount}
+                                        />
+                                    </FormControl>
+                                </Grid>
+
+
+                                <Grid item xs={12} md={12}>
+                                    <FormControl fullWidth>
+                                        <TextField
+                                            id="remarks"
+                                            label="Remarks"
+                                            name="Remarks"
+                                            size="small"
+                                            multiline
+                                            rows={2}
+                                            value={headerData.Remarks}
+                                            onChange={handleInputChange}
+                                            disabled={!isNew}
+                                            placeholder="Enter any additional notes or remarks "
+                                        />
+                                    </FormControl>
+                                </Grid>
+
+                            </Grid>
                         </Grid>
-
                     </Grid>
                 </Stack>
                 <Stack m={2.5} maxwidth={'lg'}>
-                 
- 
-                        <>
-                            <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                                {isEditable && (
-                                    <Button
-                                        variant="contained"
-                                        size="small"
-                                        disabled={!headerData.Account1}
-                                        startIcon={<Iconify icon="eva:file-add-outline" />}
-                                        onClick={() => setShowPendingBillsDialog(true)}
-                                    >
-                                        View Pending Bills
-                                    </Button>
-                                )}
-                            </Box>
 
-                            <PendingBillsTable detailData={detailData} />
-                        </>
-                    
+
+                    <>
+                        <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                            {isEditable && (
+                                <Button
+                                    variant="contained"
+                                    size="small"
+                                    disabled={!headerData.account || !headerData.fromDocCode}
+                                    startIcon={<Iconify icon="eva:file-add-outline" />}
+                                    onClick={() => setShowPendingBillsDialog(true)}
+                                >
+                                    View Allocations
+                                </Button>
+                            )}
+                        </Box>
+
+                        <PendingBillsTable detailData={detailData} />
+                    </>
+
 
                     <Stack direction="row" justifyContent="flex-end" mb={2} mt={2}>
-                        {isEditable && (
-                            <Button variant="contained" color={isEditMode || id ? 'warning' : 'success'} size='large' onClick={handleSave}>
-                                {isEditMode || id ? 'Update Allocation' : 'Create Allocation'}
+                        {!id && (
+                            <Button variant="contained" color={'success'} size='large' onClick={handleSave}>
+                                'Create Allocation'
                             </Button>
                         )}
                     </Stack>
@@ -706,8 +792,8 @@ export default function AllocationEntry() {
             >
                 <AllocationPrint
                     ref={printRef}
-                    headerData={headerData}                    
-                    documents={documents}
+                    headerData={headerData}
+                    accounts={accounts}
                     detailData={detailData}
                 />
             </PrintDialog>
@@ -728,7 +814,7 @@ export default function AllocationEntry() {
                 selectedBills={selectedBills}
                 onBillSelect={setSelectedBills}
                 onConfirm={handleConfirmBillSelection}
-                onAllocatedAmountChange={handleAllocatedAmountChange} 
+                onAllocatedAmountChange={handleAllocatedAmountChange}
             />
 
             <Dialog
@@ -756,7 +842,7 @@ export default function AllocationEntry() {
                     </Button>
                 </DialogActions>
             </Dialog>
- 
+
         </>
     );
 }

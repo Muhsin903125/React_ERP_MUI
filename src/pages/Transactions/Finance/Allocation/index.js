@@ -22,13 +22,13 @@ import PageHeader from '../../../../components/PageHeader';
 
 const columns = [
     {
-        accessorKey: 'AlNo',
+        accessorKey: 'AllocNo',
         header: 'Code',
         enableEditing: false,
         size: 0
     },
     {
-        accessorKey: 'AlDate',
+        accessorKey: 'AllocDate',
         header: 'Date',
         cell: info => {
             const rawDate = info.getValue();
@@ -86,7 +86,7 @@ export default function Allocation() {
     }, [])
  
     const handleView = (rowData) => {
-        navigate(`/allocation-entry/${rowData.AlNo}`);
+        navigate(`/allocation-entry/${rowData.AllocNo}`);
     };
 
     return (

@@ -16,12 +16,12 @@ import {
 import { format } from 'date-fns';
 import useAuth from '../../../../hooks/useAuth';
 
-export default function AllocationPrint({ headerData,  documents, detailData }) {
+export default function AllocationPrint({ headerData,  accounts, detailData }) {
     const { companyName, companyAddress, companyPhone, companyEmail, companyLogoUrl, companyTRN } = useAuth();
 
-    const getAccountName = (accountCode) => {
-        const account = documents?.find(doc => doc.ACCOUNT_CODE === accountCode);
-        return account ? `${account.ACCOUNT_DESC} (${account.ACCOUNT_CODE})` : accountCode;
+     const getAccountName = (accountCode) => {
+        const account = accounts?.find(acc => acc.AC_CODE === accountCode);
+        return account ? `${account.AC_DESC} (${account.AC_CODE})` : accountCode;
     };
 
     const formatDate = (date) => {
@@ -54,7 +54,7 @@ export default function AllocationPrint({ headerData,  documents, detailData }) 
                 <Grid item xs={6}>
                     <Box sx={{ textAlign: 'right' }}>
                         <Typography variant="h3" color='black' fontWeight={400} gutterBottom>ALLOCATION</Typography>
-                        <Typography variant="body1" fontWeight={600}>#{headerData.AlNo}</Typography>
+                        <Typography variant="body1" fontWeight={600}>#{headerData.AllocNo}</Typography>
                     </Box>
                 </Grid>
             </Grid>
@@ -67,7 +67,7 @@ export default function AllocationPrint({ headerData,  documents, detailData }) 
                             Allocation Date
                         </Typography>
                         <Typography variant="body1">
-                            {formatDate(headerData.AlDate)}
+                            {formatDate(headerData.AllocDate)}
                         </Typography>
                     </Box>
                     <Box sx={{ mb: 2 }}>
@@ -79,6 +79,14 @@ export default function AllocationPrint({ headerData,  documents, detailData }) 
                         </Typography>
                     </Box>
                    
+                    <Box sx={{ mb: 2 }}>
+                        <Typography variant="subtitle2" color="text.secondary">
+                            Account
+                        </Typography>
+                        <Typography variant="body1">
+                            {getAccountName(headerData.AccountNo)}
+                        </Typography>
+                    </Box>
 
                 </Grid>
                 
