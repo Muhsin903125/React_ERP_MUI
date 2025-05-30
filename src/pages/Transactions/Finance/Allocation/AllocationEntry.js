@@ -456,10 +456,17 @@ export default function AllocationEntry() {
             setheaderData(prev => ({
                 ...prev,
                 account: newValue?.AC_CODE || '',
-                DocumentNo: '',
+                fromDocCode: '',
+
+                fromDocSrNo: '',
+                fromDocDate: '',
+                fromDocAmount: 0,
+                fromDocBalAmount: 0,
+                amount_type:  '',
             }));
             setSelectedBills([]);
             setDetailData([]);
+              fetchPendingBills(newValue?.AC_CODE || '');
         }
     };
     const handleDocumentChange = (newValue) => {
@@ -481,11 +488,12 @@ export default function AllocationEntry() {
         if (pendingDocumentChange) {
             setheaderData(prev => ({
                 ...prev,
-                DocumentNo: pendingDocumentChange?.AC_CODE || '',
+                account: pendingDocumentChange?.AC_CODE || '',
                 Amount: 0,
             }));
             setDetailData([]);
             setSelectedBills([]);
+
             fetchPendingBills(pendingDocumentChange?.AC_CODE || '');
         }
         setShowConfirmDialog(false);
@@ -539,7 +547,65 @@ export default function AllocationEntry() {
         // setSelectedValue(value.name);
     };
     const handleAutoAllocate = () => {
-        // Logic for auto allocating bills
+        if (!headerData.fromDocBalAmount || !pendingBills.length) {
+            showToast("No amount or pending bills available for allocation", "error");
+            return;
+        }
+
+        // Sort pending bills by date (FIFO)
+        const sortedBills = [...pendingBills].sort((a, b) => 
+            new Date(a.doc_date) - new Date(b.doc_date)
+        );
+
+        // Allocate amounts to bills using reduce
+        const { allocatedBills, remainingAmount } = sortedBills.reduce(
+            (acc, bill) => {
+                if (acc.remainingAmount <= 0) return acc;
+
+                const allocAmount = Math.min(bill.doc_bal_amount, acc.remainingAmount);
+                if (allocAmount > 0) {
+                    acc.allocatedBills.push({
+                        ...bill,
+                        allocatedAmount: allocAmount
+                    });
+                    acc.remainingAmount -= allocAmount;
+                }
+                return acc;
+            },
+            { allocatedBills: [], remainingAmount: headerData.fromDocBalAmount }
+        );
+
+        if (allocatedBills.length === 0) {
+            showToast("No bills could be allocated", "info");
+            return;
+        }
+
+        // Update selected bills
+        setSelectedBills(allocatedBills);
+
+        // Format and update detail data
+        const formattedBills = allocatedBills.map((bill, index) => ({
+            srno: index + 1,
+            account: headerData.account,
+            doc_code: bill.doc_code,
+            doc_date: bill.doc_date,
+            doc_amount: bill.doc_amount,
+            doc_bal_amount: bill.doc_bal_amount,
+            alloc_amount: Number(bill.allocatedAmount),
+            amount_type: bill.amount_type,
+            actrn_srno: bill.actrn_srno
+        }));
+
+        // Update detail data and total amount
+        setDetailData(formattedBills);
+        const totalAlloc = formattedBills.reduce((sum, bill) => sum + bill.alloc_amount, 0);
+        setTotalAllocatedAmount(totalAlloc);
+        setheaderData(prev => ({
+            ...prev,
+            Amount: totalAlloc
+        }));
+
+        showToast(`Auto-allocated ${allocatedBills.length} bills for amount ${totalAlloc.toFixed(2)}`, "success");
     };
     return (
         <>
@@ -821,8 +887,8 @@ export default function AllocationEntry() {
 
 
                     <>
-                        <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                            
+                        <Box display="flex" justifyContent="flex-start" alignItems="center" mb={1} gap={1}>
+
                                 <Button
                                     variant="contained"
                                     size="small"
@@ -835,8 +901,9 @@ export default function AllocationEntry() {
                                 <Button
                                     variant="outlined"
                                     size="small"
+                                    ml={1}
                                     disabled={!headerData.account || !headerData.fromDocCode}
-                                    startIcon={<Iconify icon="eva:plus-fill" />}
+                                    startIcon={<Iconify icon="eva:refresh-fill" />}
                                     onClick={() => handleAutoAllocate()}
                                 >
                                     Auto Allocate Bills
