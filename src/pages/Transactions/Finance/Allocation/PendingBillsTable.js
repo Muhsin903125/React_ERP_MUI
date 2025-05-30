@@ -21,14 +21,14 @@ export default function PendingBillsTable({ detailData }) {
     }
     return (
         <Box sx={{ 
-            border: `1px solid ${theme.palette.primary.lighter}`,
+            border: `1px solid ${theme.palette.secondary.lighter}`,
             borderRadius: 1,
             overflow: 'hidden',
             mb: 2
         }}>
             <Grid container sx={{ 
-                bgcolor: theme.palette.primary.lighter,
-                borderBottom: `1px solid ${theme.palette.primary.lighter}`,
+                bgcolor: theme.palette.secondary.lighter,
+                borderBottom: `1px solid ${theme.palette.secondary.lighter}`,
                 py: 1.5
             }}>
                 <Grid item xs={2} md={1}>

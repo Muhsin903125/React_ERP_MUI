@@ -12,13 +12,14 @@ import {
     Grid,
     Divider,
     Stack,
+    useTheme,
 } from '@mui/material';
 import { format } from 'date-fns';
 import useAuth from '../../../../hooks/useAuth';
 
 export default function AllocationPrint({ headerData,  accounts, detailData }) {
     const { companyName, companyAddress, companyPhone, companyEmail, companyLogoUrl, companyTRN } = useAuth();
-
+const theme = useTheme();
      const getAccountName = (accountCode) => {
         const account = accounts?.find(acc => acc.AC_CODE === accountCode);
         return account ? `${account.AC_DESC} (${account.AC_CODE})` : accountCode;
@@ -62,32 +63,94 @@ export default function AllocationPrint({ headerData,  accounts, detailData }) {
             {/* Allocation Details */}
             <Grid container spacing={2} sx={{ mb: 4 }}>
                 <Grid item xs={6}>
-                    <Box sx={{ mb: 2 }}>
-                        <Typography variant="subtitle2" color="text.secondary">
-                            Allocation Date
-                        </Typography>
-                        <Typography variant="body1">
-                            {formatDate(headerData.AllocDate)}
-                        </Typography>
-                    </Box>
-                    <Box sx={{ mb: 2 }}>
+                   
+                    {/* <Box sx={{ mb: 2 }}>
                         <Typography variant="subtitle2" color="text.secondary">
                             Document 
                         </Typography>
                         <Typography variant="body1">
                             {getAccountName(headerData.DocumentNo)}
                         </Typography>
-                    </Box>
+                    </Box> */}
                    
                     <Box sx={{ mb: 2 }}>
                         <Typography variant="subtitle2" color="text.secondary">
                             Account
                         </Typography>
                         <Typography variant="body1">
-                            {getAccountName(headerData.AccountNo)}
+                            {getAccountName(headerData.account)}
                         </Typography>
                     </Box>
+                    </Grid>
+                <Grid item xs={12}>
+   <Box sx={{
+                        border: `1px solid ${theme.palette.primary.lighter}`,
+                        borderRadius: 1,
+                        overflow: 'hidden',
+                        mb: 2
+                    }}>
+                        <Grid container sx={{
+                            bgcolor: theme.palette.primary.lighter,
+                            borderBottom: `1px solid ${theme.palette.primary.lighter}`,
+                            py: 1.5
+                        }}>
+                            <Grid item xs={2} md={2}>
+                                <Typography variant="subtitle2" sx={{ px: 2, fontWeight: 600 }}>Doc Code</Typography>
+                            </Grid>
+                            <Grid item xs={2} md={2}>
+                                <Typography variant="subtitle2" sx={{ px: 2, fontWeight: 600 }}>Doc Sr No</Typography>
+                            </Grid>
+                            <Grid item xs={2} md={3}>
+                                <Typography variant="subtitle2" sx={{ px: 2, fontWeight: 600 }}>Doc Date</Typography>
+                            </Grid>
 
+                            <Grid item xs={2} md={2} align="right">
+                                <Typography variant="subtitle2" sx={{ px: 2, fontWeight: 600 }}>Doc Amount</Typography>
+                            </Grid>
+                            <Grid item xs={2} md={3} align="right">
+                                <Typography variant="subtitle2" sx={{ px: 2, fontWeight: 600 }}>Doc Bal Amount</Typography>
+                            </Grid>
+
+                            {/* <Grid item xs={2} md={2}>
+                                <Typography variant="subtitle2" sx={{ px: 2, fontWeight: 600 }}>Amount</Typography>
+                            </Grid> */}
+
+
+                        </Grid>
+
+                        <Grid
+                            container
+
+                            sx={{
+                                borderBottom: `1px solid ${theme.palette.primary.lighter}`,
+                                // '&:hover': {
+                                //     bgcolor: theme.palette.primary.light
+                                // },
+                                transition: 'background-color 0.2s'
+                            }}
+                        >
+                            <Grid item xs={2} md={2}>
+                                <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{headerData?.fromDocCode}</Typography>
+                            </Grid>
+                            <Grid item xs={2} md={2}>
+                                <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{headerData?.fromDocSrNo}</Typography>
+                            </Grid>
+                            <Grid item xs={2} md={3}>
+                                <Typography variant="body2" sx={{ px: 2, py: 1.5 }}> {headerData?.fromDocDate}</Typography>
+                            </Grid>
+                            <Grid item xs={2} md={2} align="right">
+                                <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{headerData?.fromDocAmount?.toFixed(2)}</Typography>
+                            </Grid>
+                            <Grid item xs={2} md={3} align="right">
+                                <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{headerData?.fromDocBalAmount?.toFixed(2)}</Typography>
+                            </Grid>
+                            {/* <Grid item xs={2} md={2}>
+                                <Typography variant="body2" sx={{ fontWeight: 600, px: 2, py: 1.5 }}>{headerData?.Amount?.toFixed(2)}</Typography>
+                            </Grid> */}
+
+                        </Grid>
+
+                    </Box>
                 </Grid>
                 
             </Grid>

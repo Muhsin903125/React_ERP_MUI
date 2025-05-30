@@ -17,6 +17,7 @@ import {
     Autocomplete,
     Tab,
     Tabs,
+    useTheme,
 } from '@mui/material';
 import validator from 'validator';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
@@ -38,7 +39,7 @@ import PendingBillsTable from './PendingBillsTable';
 import AllocationPrint from './AllocationPrint';
 import PrintDialog from '../../../../components/PrintDialog';
 import PageHeader from '../../../../components/PageHeader';
-import DocumentDialog from '../../../../components/DocumentDialog'; 
+import DocumentDialog from '../../../../components/DocumentDialog';
 
 // ----------------------------------------------------------------------
 
@@ -46,7 +47,7 @@ import DocumentDialog from '../../../../components/DocumentDialog';
 export default function AllocationEntry() {
     const navigate = useNavigate();
     const { id } = useParams();
-
+    const theme = useTheme();
     const { showToast } = useToast();
     const { setLoadingFull } = useContext(AuthContext);
     const [code, setCode] = useState('');
@@ -69,7 +70,7 @@ export default function AllocationEntry() {
 
     const [headerData, setheaderData] = useState({
         AllocNo: code,
-        AllocDate: selectedAllocationDate,
+        AllocDate: new Date(),
         account: '',
         fromDocCode: '',
         fromDocSrNo: '',
@@ -88,7 +89,13 @@ export default function AllocationEntry() {
     const printRef = useRef(null);
 
     useEffect(() => {
-        if (id !== undefined && id !== null) {
+        if (id) {
+            console.log("ID--", id);
+            setheaderData(prev => ({
+                ...prev,
+                AllocNo: id
+            }));
+
             setIsNew(false);
         }
     }, [id]);
@@ -118,8 +125,8 @@ export default function AllocationEntry() {
         }
 
         // Payer validation
-        if (validator.isEmpty(headerData.DocumentNo)) {
-            errors.DocumentNo = 'Document is required';
+        if (validator.isEmpty(headerData.fromDocCode)) {
+            errors.fromDocCode = 'Document is required';
             showToast('Document is required', "error");
             hasError = true;
         }
@@ -163,7 +170,6 @@ export default function AllocationEntry() {
 
 
     useEffect(() => {
-
         setheaderData({
             ...headerData,
             'AllocDate': selectedAllocationDate,
@@ -203,18 +209,14 @@ export default function AllocationEntry() {
         getAccounts();
         if (id) {
             loadInvoiceDetails(id);
-
-            setIsEditMode(true);
-            setIsEditable(false);
+ 
         } else {
-            getCode();
-            setIsEditMode(false);
-            setIsEditable(true);
+            getCode(); 
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
     const getCode = async () => {
-        const { lastNo, IsEditable } = await getLastNumber('AL');
+        const { lastNo, IsEditable } = await getLastNumber('ALLOC');
         setCode(lastNo);
         setheaderData(prev => ({
             ...prev,
@@ -295,20 +297,20 @@ export default function AllocationEntry() {
                 setheaderData({
                     ...headData,
                     AllocNo: headData?.AllocNo,
-                    AllocDate: new Date(headData?.AllocDate),
+                    // AllocDate: new Date(headData?.AllocDate),
                     account: headData?.account || '',
                     fromDocBalAmount: headData?.fromDocBalAmount || 0,
                     fromDocCode: headData?.fromDocCode || '',
                     fromDocSrNo: headData?.fromDocSrNo || '',
-                    fromDocDate: new Date(headData?.fromDocDate) || null,
+                    // fromDocDate: new Date(headData?.fromDocDate) || null,
                     fromDocAmount: headData?.fromDocAmount || 0,
                     Amount: headData?.Amount,
                     Remarks: headData?.Remarks
                 });
                 setSelectedAllocationDate(new Date(headData?.AllocDate));
                 setDetailData(itemsData || []);
-                if (headData?.DocumentNo) {
-                    fetchPendingBills(headData?.DocumentNo);
+                if (headData?.account) {
+                    fetchPendingBills(headData?.account);
                     setSelectedBills(itemsData?.map(item => ({
                         ...item,
                         allocatedAmount: item.alloc_amount,
@@ -342,14 +344,13 @@ export default function AllocationEntry() {
 
         setIsEditable(!isEditable);
 
-
     };
 
     const handleNewInvoice = () => {
         // Reset all data
         setheaderData({
             AllocNo: '',
-            AllocDate: selectedAllocationDate,
+            AllocDate: new Date(),
             account: '',
             fromDocCode: '',
             fromDocSrNo: '',
@@ -577,158 +578,154 @@ export default function AllocationEntry() {
             <Card>
                 <Stack maxwidth={'md'} padding={2.5} style={{ backgroundColor: '#e8f0fa', boxShadow: '#dbdbdb4f -1px 9px 20px 0px' }}>
                     <Grid container spacing={3} mt={1} maxwidth={'md'}  >
-                        <Grid item xs={12} md={5}>
-                            <Grid container spacing={2}  >
-                                <Grid item xs={12} md={12}>
 
-                                    <FormControl fullWidth error={Boolean(errors.account)}>
-                                        <Autocomplete
-                                            size="small"
-                                            disabled={!isNew}
-                                            options={accounts || []}
-                                            getOptionLabel={(option) =>
-                                                option ? `${option.AC_DESC} ` : ''
-                                            }
-                                            value={accounts?.find(p => p.AC_CODE === headerData.account) || null}
-                                            loading={documentLoading}
-                                            onChange={(_, newValue) => handleAccountChange(newValue)}
-                                            renderInput={(params) => (
-                                                <TextField
-                                                    {...params}
-                                                    label="Select Account"
-                                                    name="account"
-                                                    size="small"
-                                                    required
-                                                    error={Boolean(errors.account)}
-                                                    helperText={errors.account}
-                                                />
-                                            )}
-                                        />
-                                    </FormControl>
-                                </Grid>
 
-                                <Grid item xs={8} md={8}>
-                                    <Typography variant="subtitle1" ml={2} mb={1}   >
-                                        Document Name:  {headerData.fromDocCode ? ` ${headerData.fromDocCode} - ${headerData.fromDocSrNo}` : 'No Document Selected'}
-
-                                    </Typography>
-                                    {headerData.fromDocDate !== null ?
-                                        <Typography variant="body1" ml={2} style={{ color: "gray" }} >
-                                            Date: {headerData.fromDocDate}
-                                        </Typography>
-                                        : null}
-                                    <Typography variant="body1" ml={2} style={{ color: "gray" }} >
-                                        {headerData.fromDocBalAmount > 0 ? `Pending Amount: ${headerData.fromDocBalAmount?.toFixed(2)}` : 'No Pending Amount'}
-                                    </Typography>
-                                </Grid>
-                                <Grid item xs={4} md={4} align='right'>
-                                    {headerData.account && (
-                                        <Button size="small" disabled={!isNew} startIcon={<Iconify icon={headerData?.fromDocCode ? "eva:edit-fill" : "eva:person-add-fill"} />} onClick={handleClickOpen}>
-                                            {headerData?.fromDocCode ? 'change' : 'Add'}
-                                        </Button>
-                                    )}
-                                    <DocumentDialog
-                                        open={open}
-                                        account={headerData.account}
-                                        onClose={handleClose}
-                                        onSelect={handleSelect}
-                                    />
-                                </Grid>
-                                {/* <Grid item xs={12} md={12}>
-                                    <Typography variant="body2" ml={2} style={{ color: "black" }} >
-                                        </Typography>
-                                </Grid> */}
-
-                            </Grid>
+                        <Grid item xs={6} md={3}  >
+                            <FormControl fullWidth>
+                                <TextField
+                                    id="allocation-no"
+                                    label="Allocation#"
+                                    size="small"
+                                    name="AllocNo"
+                                    value={headerData?.AllocNo}
+                                    onChange={handleInputChange}
+                                    inputProps={{
+                                        readOnly: true
+                                    }}
+                                    disabled={!isNew}
+                                />
+                            </FormControl>
                         </Grid>
-                        <Grid item xs={12} md={7}>
-                            <Grid container spacing={1}>
-                                <Grid item xs={6} md={4}  >
-                                    <FormControl fullWidth>
+                        <Grid item xs={6} md={3}>
+
+                            <FormControl fullWidth error={Boolean(errors.account)}>
+                                <Autocomplete
+                                    size="small"
+                                    disabled={!isNew}
+                                    options={accounts || []}
+                                    getOptionLabel={(option) =>
+                                        option ? `${option.AC_DESC} ` : ''
+                                    }
+                                    value={accounts?.find(p => p.AC_CODE === headerData.account) || null}
+                                    loading={documentLoading}
+                                    onChange={(_, newValue) => handleAccountChange(newValue)}
+                                    renderInput={(params) => (
                                         <TextField
-                                            id="allocation-no"
-                                            label="Allocation#"
+                                            {...params}
+                                            label="Select Account"
+                                            name="account"
                                             size="small"
-                                            name="AllocNo"
-                                            value={headerData?.AllocNo}
-                                            onChange={handleInputChange}
-                                            inputProps={{
-                                                readOnly: true
-                                            }}
-                                            disabled={!isNew}
-                                        />
-                                    </FormControl>
-                                </Grid>
-                                <Grid item xs={6} md={4} >
-                                    <FormControl fullWidth error={Boolean(errors.AllocDate)}>
-                                        <DateSelector
-                                            label="Allocation Date"
-                                            disableFuture={disableFutureDate}
-                                            value={headerData?.AllocDate}
-                                            size="small"
-                                            onChange={setSelectedAllocationDate}
-                                            disable={!isNew}
-                                            error={Boolean(errors.AllocDate)}
-                                            helperText={errors.AllocDate}
                                             required
+                                            error={Boolean(errors.account)}
+                                            helperText={errors.account}
                                         />
-                                    </FormControl>
-                                </Grid>
+                                    )}
+                                />
+                            </FormControl>
+                        </Grid>
 
-
-
-                                <Grid item xs={6} md={4} >
-                                    <FormControl fullWidth error={Boolean(errors.Amount)}>
-                                        <TextField
-                                            id="amount"
-                                            label="Amount"
-                                            name="Amount"
-                                            size="small"
-                                            value={headerData?.Amount || 0}
-                                            min={totalAllocatedAmount}
-                                            type="number"
-                                            inputProps={{
-                                                min: 0,
-                                                step: "0.01",
-                                                inputMode: "decimal",
-                                                pattern: "[0-9]*"
+                        <Grid item xs={6} md={3}  >
+                            {headerData.account ? (
+                                <FormControl fullWidth error={Boolean(errors.fromDocCode)}>
+                                    <Box sx={{ position: 'relative' }}>
+                                        <Typography
+                                            variant="caption"
+                                            component="label"
+                                            sx={{
+                                                position: 'absolute',
+                                                backgroundColor: '#e8f0fa',
+                                                px: 0.5,
+                                                top: -8,
+                                                left: 8,
+                                                zIndex: 1,
+                                                color: isNew ? 'text.secondary' : 'text.disabled',
                                             }}
-                                            onChange={(e) => {
-                                                if (!headerData.DocumentNo || headerData.DocumentNo === '') {
-                                                    showToast("Please select a document before changing amount", "error");
-                                                    return;
-                                                }
-
-                                                // Only allow numbers and decimal point
-                                                const value = e.target.value.replace(/[^0-9.]/g, '');
-
-                                                // Prevent multiple decimal points
-                                                const parts = value.split('.');
-                                                if (parts.length > 2) {
-                                                    return;
-                                                }
-
-                                                // Limit to 2 decimal places
-                                                if (parts[1] && parts[1].length > 2) {
-                                                    return;
-                                                }
-
-                                                handleInputChange({
-                                                    target: {
-                                                        name: 'Amount',
-                                                        value
-                                                    }
-                                                });
+                                        >
+                                            Document *
+                                        </Typography>
+                                        <Box
+                                            onClick={isNew ? handleClickOpen : undefined}
+                                            sx={{
+                                                p: 1,
+                                                border: 1,
+                                                borderColor: isNew ? 'grey.400' : 'action.disabled',
+                                                borderRadius: 1,
+                                                cursor: isNew ? 'pointer' : 'not-allowed',
+                                                backgroundColor: isNew ? '#e8f0fa' : 'action.disabledBackground',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                minHeight: '40px',
+                                                width: '100%',
+                                                '&:hover': isNew ? { borderColor: 'black', backgroundColor: 'action.hover' } : {},
+                                                color: isNew ? 'text.primary' : 'text.disabled',
                                             }}
-                                            disabled={!isNew}
-                                            error={Boolean(errors.Amount)}
-                                            helperText={errors.Amount}
-                                        />
-                                    </FormControl>
-                                </Grid>
+                                        >
+                                            {headerData.fromDocCode ? (
+                                                <Typography variant="body1" sx={{ flexGrow: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 500 }}>
+                                                    {`${headerData.fromDocCode} / ${headerData.fromDocSrNo}`}
+                                                </Typography>
+                                            ) : (
+                                                <Typography variant="body2" sx={{ flexGrow: 1, color: isNew ? 'text.secondary' : 'text.disabled' }}>
+                                                    Select Document
+                                                </Typography>
+                                            )}
+                                            {isNew && <Iconify icon="eva:arrow-ios-downward-fill" sx={{ ml: 1, color: 'text.secondary' }} />}
+                                        </Box>
+                                    </Box>
+                                </FormControl>
+                            ) : (
+                                <FormControl fullWidth>
+                                    <Box sx={{ position: 'relative' }}>
+                                        <Typography
+                                            variant="caption"
+                                            component="label"
+                                            sx={{
+                                                position: 'absolute',
+                                                backgroundColor: '#e8f0fa',
+                                                px: 1,
+                                                top: -8,
+                                                left: 8,
+                                                zIndex: 1,
+                                                color: 'text.disabled',
+                                            }}
+                                        >
+                                            Document
+                                        </Typography>
+                                        <Box sx={{ p: 1, border: 1, borderColor: 'action.disabled', borderRadius: 1, minHeight: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#e8f0fa', width: '100%' }}>
+                                            <Typography variant="body2" color="text.disabled">
+                                                Select Account First
+                                            </Typography>
+                                        </Box>
+                                    </Box>
+                                </FormControl>
+                            )}
+                            <DocumentDialog
+                                open={open}
+                                account={headerData.account}
+                                onClose={handleClose}
+                                onSelect={handleSelect}
+                            />
+                        </Grid>
+
+                        <Grid item xs={6} md={3} >
+                            <FormControl fullWidth error={Boolean(errors.AllocDate)}>
+                                <DateSelector
+                                    label="Allocation Date"
+                                    disableFuture={disableFutureDate}
+                                    value={headerData?.AllocDate}
+                                    size="small"
+                                    onChange={setSelectedAllocationDate}
+                                    disable={!isNew}
+                                    error={Boolean(errors.AllocDate)}
+                                    helperText={errors.AllocDate}
+                                    required
+                                />
+                            </FormControl>
+                        </Grid>
 
 
-                                <Grid item xs={12} md={12}>
+                        {/* <Grid item xs={12} md={12}>
                                     <FormControl fullWidth>
                                         <TextField
                                             id="remarks"
@@ -743,13 +740,80 @@ export default function AllocationEntry() {
                                             placeholder="Enter any additional notes or remarks "
                                         />
                                     </FormControl>
-                                </Grid>
+                                </Grid> */}
 
-                            </Grid>
-                        </Grid>
+
                     </Grid>
-                </Stack>
+                </Stack >
                 <Stack m={2.5} maxwidth={'lg'}>
+                    <Box sx={{
+                        border: `1px solid ${theme.palette.primary.lighter}`,
+                        borderRadius: 1,
+                        overflow: 'hidden',
+                        mb: 2
+                    }}>
+                        <Grid container sx={{
+                            bgcolor: theme.palette.primary.lighter,
+                            borderBottom: `1px solid ${theme.palette.primary.lighter}`,
+                            py: 1.5
+                        }}>
+                            <Grid item xs={2} md={2}>
+                                <Typography variant="subtitle2" sx={{ px: 2, fontWeight: 600 }}>Doc Code</Typography>
+                            </Grid>
+                            <Grid item xs={2} md={2}>
+                                <Typography variant="subtitle2" sx={{ px: 2, fontWeight: 600 }}>Doc Sr No</Typography>
+                            </Grid>
+                            <Grid item xs={2} md={2}>
+                                <Typography variant="subtitle2" sx={{ px: 2, fontWeight: 600 }}>Doc Date</Typography>
+                            </Grid>
+
+                            <Grid item xs={2} md={2}>
+                                <Typography variant="subtitle2" sx={{ px: 2, fontWeight: 600 }}>Doc Amount</Typography>
+                            </Grid>
+                            <Grid item xs={2} md={2}>
+                                <Typography variant="subtitle2" sx={{ px: 2, fontWeight: 600 }}>Doc Bal Amount</Typography>
+                            </Grid>
+
+                            <Grid item xs={2} md={2}>
+                                <Typography variant="subtitle2" sx={{ px: 2, fontWeight: 600 }}>Amount</Typography>
+                            </Grid>
+
+
+                        </Grid>
+
+                        <Grid
+                            container
+
+                            sx={{
+                                borderBottom: `1px solid ${theme.palette.primary.lighter}`,
+                                // '&:hover': {
+                                //     bgcolor: theme.palette.primary.light
+                                // },
+                                transition: 'background-color 0.2s'
+                            }}
+                        >
+                            <Grid item xs={2} md={2}>
+                                <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{headerData?.fromDocCode}</Typography>
+                            </Grid>
+                            <Grid item xs={2} md={2}>
+                                <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{headerData?.fromDocSrNo}</Typography>
+                            </Grid>
+                            <Grid item xs={2} md={2}>
+                                <Typography variant="body2" sx={{ px: 2, py: 1.5 }}> {headerData?.fromDocDate}</Typography>
+                            </Grid>
+                            <Grid item xs={2} md={2}>
+                                <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{headerData?.fromDocAmount?.toFixed(2)}</Typography>
+                            </Grid>
+                            <Grid item xs={2} md={2}>
+                                <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{headerData?.fromDocBalAmount?.toFixed(2)}</Typography>
+                            </Grid>
+                            <Grid item xs={2} md={2}>
+                                <Typography variant="body2" sx={{ fontWeight: 600, px: 2, py: 1.5 }}>{headerData?.Amount?.toFixed(2)}</Typography>
+                            </Grid>
+
+                        </Grid>
+
+                    </Box>
 
 
                     <>
@@ -774,7 +838,7 @@ export default function AllocationEntry() {
                     <Stack direction="row" justifyContent="flex-end" mb={2} mt={2}>
                         {!id && (
                             <Button variant="contained" color={'success'} size='large' onClick={handleSave}>
-                                'Create Allocation'
+                                Create Allocation
                             </Button>
                         )}
                     </Stack>
@@ -783,9 +847,10 @@ export default function AllocationEntry() {
 
 
             {/* Print Dialog */}
-            <PrintDialog
+            < PrintDialog
                 open={printDialogOpen}
-                onClose={() => setPrintDialogOpen(false)}
+                onClose={() => setPrintDialogOpen(false)
+                }
                 title="Allocation Print Preview"
                 printRef={printRef}
                 documentTitle={`Allocation Voucher-${headerData.RpNo}`}
@@ -796,7 +861,7 @@ export default function AllocationEntry() {
                     accounts={accounts}
                     detailData={detailData}
                 />
-            </PrintDialog>
+            </PrintDialog >
 
             {
                 IsAlertDialog && (
