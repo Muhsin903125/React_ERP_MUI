@@ -531,11 +531,15 @@ export default function AllocationEntry() {
             "fromDocDate": value.fromDocDate,
             "fromDocAmount": value.fromDocAmount,
             "fromDocBalAmount": value.fromDocBalAmount,
+            "amount_type": value.amount_type,
             "Amount": value.Amount,
 
         });
         fetchPendingBills(headerData.account);
         // setSelectedValue(value.name);
+    };
+    const handleAutoAllocate = () => {
+        // Logic for auto allocating bills
     };
     return (
         <>
@@ -818,7 +822,7 @@ export default function AllocationEntry() {
 
                     <>
                         <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                            {isEditable && (
+                            
                                 <Button
                                     variant="contained"
                                     size="small"
@@ -828,8 +832,16 @@ export default function AllocationEntry() {
                                 >
                                     View Allocations
                                 </Button>
-                            )}
-                        </Box>
+                                <Button
+                                    variant="outlined"
+                                    size="small"
+                                    disabled={!headerData.account || !headerData.fromDocCode}
+                                    startIcon={<Iconify icon="eva:plus-fill" />}
+                                    onClick={() => handleAutoAllocate()}
+                                >
+                                    Auto Allocate Bills
+                                </Button>
+                            </Box>
 
                         <PendingBillsTable detailData={detailData} />
                     </>
