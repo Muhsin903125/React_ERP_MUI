@@ -169,7 +169,7 @@ export default function PendingBillsDialog({
                                             <TextField
                                                 type="number"
                                                 disabled={!isSelected}
-                                                value={selectedBill?.allocatedAmount || 0}
+                                                value={selectedBill?.allocatedAmount?.toFixed(3) || 0}
                                                 onChange={(e) => handleAmountChange(bill.srno, Number(e.target.value))}
                                                 inputProps={{
                                                     min: 0,
