@@ -488,6 +488,12 @@ export default function AllocationEntry() {
         if (pendingDocumentChange) {
             setheaderData(prev => ({
                 ...prev,
+                fromDocCode:"",
+                fromDocSrNo: '',
+                fromDocDate: '',
+                fromDocAmount: 0,
+                fromDocBalAmount: 0,
+                amount_type:  '',
                 account: pendingDocumentChange?.AC_CODE || '',
                 Amount: 0,
             }));
@@ -557,34 +563,61 @@ export default function AllocationEntry() {
             new Date(a.doc_date) - new Date(b.doc_date)
         );
 
-        // Allocate amounts to bills using reduce
-        const { allocatedBills, remainingAmount } = sortedBills.reduce(
-            (acc, bill) => {
-                if (acc.remainingAmount <= 0) return acc;
-
-                const allocAmount = Math.min(bill.doc_bal_amount, acc.remainingAmount);
-                if (allocAmount > 0) {
-                    acc.allocatedBills.push({
-                        ...bill,
-                        allocatedAmount: allocAmount
-                    });
-                    acc.remainingAmount -= allocAmount;
-                }
-                return acc;
-            },
-            { allocatedBills: [], remainingAmount: headerData.fromDocBalAmount }
+        // Calculate current sum of allocated amounts
+        const previouslyAllocatedSum = selectedBills.reduce((sum, bill) => 
+            sum + Number(bill.allocatedAmount || 0), 0
         );
 
-        if (allocatedBills.length === 0) {
-            showToast("No bills could be allocated", "info");
+        // Get remaining amount that can be allocated
+        let remainingAmount = headerData.fromDocBalAmount - previouslyAllocatedSum;
+
+        // If nothing can be allocated
+        if (remainingAmount <= 0) {
+            showToast("No remaining amount available for allocation", "info");
+            return;
+        }
+
+        // Allocate amounts to bills using reduce
+        const allocatedBills = sortedBills.map(bill => {
+            // Skip if bill is already in selectedBills
+            const existingBill = selectedBills.find(selected => 
+                selected.doc_code === bill.doc_code && selected.srno === bill.srno
+            );
+            if (existingBill) {
+                return existingBill;
+            }
+
+            // For new bills, calculate allocation
+            if (remainingAmount <= 0) {
+                return null;
+            }
+
+            const allocAmount = Math.min(bill.doc_bal_amount, remainingAmount);
+            remainingAmount -= allocAmount;
+
+            return {
+                ...bill,
+                allocatedAmount: allocAmount
+            };
+        }).filter(Boolean); // Remove null entries
+
+        // Combine with existing selected bills
+        const combinedBills = [...selectedBills, ...allocatedBills.filter(newBill => 
+            !selectedBills.some(selected => 
+                selected.doc_code === newBill.doc_code && selected.srno === newBill.srno
+            )
+        )];
+
+        if (combinedBills.length === selectedBills.length) {
+            showToast("No additional bills could be allocated", "info");
             return;
         }
 
         // Update selected bills
-        setSelectedBills(allocatedBills);
+        setSelectedBills(combinedBills);
 
         // Format and update detail data
-        const formattedBills = allocatedBills.map((bill, index) => ({
+        const formattedBills = combinedBills.map((bill, index) => ({
             srno: index + 1,
             account: headerData.account,
             doc_code: bill.doc_code,
@@ -605,7 +638,7 @@ export default function AllocationEntry() {
             Amount: totalAlloc
         }));
 
-        showToast(`Auto-allocated ${allocatedBills.length} bills for amount ${totalAlloc.toFixed(2)}`, "success");
+        showToast(`Auto-allocated ${allocatedBills.length} new bills for amount ${totalAlloc.toFixed(2)}`, "success");
     };
     return (
         <>
@@ -959,6 +992,7 @@ export default function AllocationEntry() {
                 onBillSelect={setSelectedBills}
                 onConfirm={handleConfirmBillSelection}
                 onAllocatedAmountChange={handleAllocatedAmountChange}
+                maxAllowedAllocation={headerData.fromDocBalAmount}
             />
 
             <Dialog
