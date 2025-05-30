@@ -446,6 +446,14 @@ export default function ReceiptEntry() {
         setDetailData([]);
         setJournal([]);
         setItems([]);
+        setSelectedReceiptDate(new Date());
+
+        setselectedRefDate(new Date());
+        setPendingBills([]);
+        setSelectedBills([]);
+        setShowPendingBillsDialog(false);
+        setShowItemDialog(false);
+        
         setSelectedItems([]);
         setErrors({});
         setIsEditable(true);

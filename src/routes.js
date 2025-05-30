@@ -63,6 +63,8 @@ import Journal from './pages/Transactions/Finance/Jounal';
 import JournalEntry from './pages/Transactions/Finance/Jounal/JournalEntry';
 import Payment from './pages/Transactions/Finance/Payment';
 import PaymentEntry from './pages/Transactions/Finance/Payment/PaymentEntry';
+import Allocation from './pages/Transactions/Finance/Allocation';
+import AllocationEntry from './pages/Transactions/Finance/Allocation/AllocationEntry';
 
 // ----------------------------------------------------------------------
 
@@ -114,9 +116,9 @@ const adminMenus = [
   { path: 'journal-entry', element: <JournalEntry /> },
   { path: 'journal-entry/:id', element: <JournalEntry /> },
 
-  { path: 'allocation', element: <ComingSoon title="Allocation" /> },
-  { path: 'allocation-entry', element: <ComingSoon title="Allocation Entry" /> },
-  { path: 'allocation-entry/:id', element: <ComingSoon title="Allocation Entry" /> },
+  { path: 'allocation', element: <Allocation /> },
+  { path: 'allocation-entry', element: <AllocationEntry /> },
+  { path: 'allocation-entry/:id', element: <AllocationEntry /> },
 
   { path: 'payment', element: <Payment /> },
   { path: 'payment-entry', element: <PaymentEntry /> },

@@ -12,14 +12,15 @@ import {
     Grid,
     Divider,
     Stack,
+    useTheme,
 } from '@mui/material';
 import { format } from 'date-fns';
 import useAuth from '../../../../hooks/useAuth';
 
-export default function ReceiptPrint({ headerData, journal, accounts, detailData }) {
+export default function AllocationPrint({ headerData,  accounts, detailData }) {
     const { companyName, companyAddress, companyPhone, companyEmail, companyLogoUrl, companyTRN } = useAuth();
-
-    const getAccountName = (accountCode) => {
+const theme = useTheme();
+     const getAccountName = (accountCode) => {
         const account = accounts?.find(acc => acc.AC_CODE === accountCode);
         return account ? `${account.AC_DESC} (${account.AC_CODE})` : accountCode;
     };
@@ -53,71 +54,105 @@ export default function ReceiptPrint({ headerData, journal, accounts, detailData
                 </Grid>
                 <Grid item xs={6}>
                     <Box sx={{ textAlign: 'right' }}>
-                        <Typography variant="h3" color='black' fontWeight={400} gutterBottom>RECEIPT VOUCHER</Typography>
-                        <Typography variant="body1" fontWeight={600}>#{headerData.RpNo}</Typography>
+                        <Typography variant="h3" color='black' fontWeight={400} gutterBottom>ALLOCATION</Typography>
+                        <Typography variant="body1" fontWeight={600}>#{headerData.AllocNo}</Typography>
                     </Box>
                 </Grid>
             </Grid>
 
-            {/* Receipt Details */}
+            {/* Allocation Details */}
             <Grid container spacing={2} sx={{ mb: 4 }}>
                 <Grid item xs={6}>
+                   
+                    {/* <Box sx={{ mb: 2 }}>
+                        <Typography variant="subtitle2" color="text.secondary">
+                            Document 
+                        </Typography>
+                        <Typography variant="body1">
+                            {getAccountName(headerData.DocumentNo)}
+                        </Typography>
+                    </Box> */}
+                   
                     <Box sx={{ mb: 2 }}>
                         <Typography variant="subtitle2" color="text.secondary">
-                            Receipt Date
+                            Account
                         </Typography>
                         <Typography variant="body1">
-                            {formatDate(headerData.RpDate)}
+                            {getAccountName(headerData.account)}
                         </Typography>
                     </Box>
-                    <Box sx={{ mb: 2 }}>
-                        <Typography variant="subtitle2" color="text.secondary">
-                            Payer
-                        </Typography>
-                        <Typography variant="body1">
-                            {getAccountName(headerData.Account1)}
-                        </Typography>
-                    </Box>
-                    <Box>
-                        <Typography variant="subtitle2" color="text.secondary">
-                            Deposit To
-                        </Typography>
-                        <Typography variant="body1">
-                            {getAccountName(headerData.Account2)}
-                        </Typography>
-                    </Box>
+                    </Grid>
+                <Grid item xs={12}>
+   <Box sx={{
+                        border: `1px solid ${theme.palette.primary.lighter}`,
+                        borderRadius: 1,
+                        overflow: 'hidden',
+                        mb: 2
+                    }}>
+                        <Grid container sx={{
+                            bgcolor: theme.palette.primary.lighter,
+                            borderBottom: `1px solid ${theme.palette.primary.lighter}`,
+                            py: 1.5
+                        }}>
+                            <Grid item xs={2} md={2}>
+                                <Typography variant="subtitle2" sx={{ px: 2, fontWeight: 600 }}>Doc Code</Typography>
+                            </Grid>
+                            <Grid item xs={2} md={2}>
+                                <Typography variant="subtitle2" sx={{ px: 2, fontWeight: 600 }}>Doc Sr No</Typography>
+                            </Grid>
+                            <Grid item xs={2} md={3}>
+                                <Typography variant="subtitle2" sx={{ px: 2, fontWeight: 600 }}>Doc Date</Typography>
+                            </Grid>
 
-                </Grid>
-                <Grid item xs={6}>
-                    <Box>
-                        <Typography variant="subtitle2" color="text.secondary">
-                            Payment Mode
-                        </Typography>
-                        <Typography variant="body1">
-                            {headerData.PaymentMode}
-                        </Typography>
+                            <Grid item xs={2} md={2} align="right">
+                                <Typography variant="subtitle2" sx={{ px: 2, fontWeight: 600 }}>Doc Amount</Typography>
+                            </Grid>
+                            <Grid item xs={2} md={3} align="right">
+                                <Typography variant="subtitle2" sx={{ px: 2, fontWeight: 600 }}>Doc Bal Amount</Typography>
+                            </Grid>
+
+                            {/* <Grid item xs={2} md={2}>
+                                <Typography variant="subtitle2" sx={{ px: 2, fontWeight: 600 }}>Amount</Typography>
+                            </Grid> */}
+
+
+                        </Grid>
+
+                        <Grid
+                            container
+
+                            sx={{
+                                borderBottom: `1px solid ${theme.palette.primary.lighter}`,
+                                // '&:hover': {
+                                //     bgcolor: theme.palette.primary.light
+                                // },
+                                transition: 'background-color 0.2s'
+                            }}
+                        >
+                            <Grid item xs={2} md={2}>
+                                <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{headerData?.fromDocCode}</Typography>
+                            </Grid>
+                            <Grid item xs={2} md={2}>
+                                <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{headerData?.fromDocSrNo}</Typography>
+                            </Grid>
+                            <Grid item xs={2} md={3}>
+                                <Typography variant="body2" sx={{ px: 2, py: 1.5 }}> {headerData?.fromDocDate}</Typography>
+                            </Grid>
+                            <Grid item xs={2} md={2} align="right">
+                                <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{headerData?.fromDocAmount?.toFixed(2)}</Typography>
+                            </Grid>
+                            <Grid item xs={2} md={3} align="right">
+                                <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{headerData?.fromDocBalAmount?.toFixed(2)}</Typography>
+                            </Grid>
+                            {/* <Grid item xs={2} md={2}>
+                                <Typography variant="body2" sx={{ fontWeight: 600, px: 2, py: 1.5 }}>{headerData?.Amount?.toFixed(2)}</Typography>
+                            </Grid> */}
+
+                        </Grid>
+
                     </Box>
-                    {headerData.RefNo && (
-                        <Box sx={{ mb: 2 }}>
-                            <Typography variant="subtitle2" color="text.secondary">
-                                Reference No
-                            </Typography>
-                            <Typography variant="body1">
-                                {headerData.RefNo || '-'}
-                            </Typography>
-                        </Box>
-                    )}
-                    {headerData.RefDate && (
-                        <Box sx={{ mb: 2 }}>
-                            <Typography variant="subtitle2" color="text.secondary">
-                                Reference Date
-                            </Typography>
-                            <Typography variant="body1">
-                                {formatDate(headerData.RefDate)}
-                            </Typography>
-                        </Box>
-                    )}
                 </Grid>
+                
             </Grid>
 
             {/* Amount Section */}
@@ -179,54 +214,7 @@ export default function ReceiptPrint({ headerData, journal, accounts, detailData
                 </Box>
             )}
 
-            {/* Journal Entries */}
-            {/* <Box sx={{ mb: 4 }}>
-                <Typography variant="h6" sx={{ mb: 2 }}>
-                    Journal Entries
-                </Typography>
-                <TableContainer component={Paper} sx={{ boxShadow: 'none', border: '1px solid', borderColor: 'divider' }}>
-                    <Table size="small">
-                        <TableHead>
-                            <TableRow sx={{ bgcolor: 'grey.50' }}>
-                                <TableCell>Sr. No</TableCell>
-                                <TableCell>Account</TableCell>
-                                <TableCell>Type</TableCell>
-                                <TableCell align="right">Amount</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {journal && journal.map((entry, index) => (
-                                <TableRow key={index}>
-                                    <TableCell>{entry.srno}</TableCell>
-                                    <TableCell>{getAccountName(entry.account)}</TableCell>
-                                    <TableCell>
-                                        <Typography
-                                            sx={{
-                                                color: entry.type === 'Debit' ? 'error.main' : 'success.main',
-                                                fontWeight: 500
-                                            }}
-                                        >
-                                            {entry.type}
-                                        </Typography>
-                                    </TableCell>
-                                    <TableCell align="right">
-                                        {formatAmount(entry.amount)}
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                            {journal && journal.length === 0 && (
-                                <TableRow>
-                                    <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
-                                        <Typography variant="body2" color="text.secondary">
-                                            No journal entries found
-                                        </Typography>
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </Box> */}
+           
 
             {/* Remarks */}
             {headerData.Remarks && (
@@ -250,6 +238,7 @@ export default function ReceiptPrint({ headerData, journal, accounts, detailData
                     backgroundColor: 'white',
                     zIndex: 10,
                     py: 2,
+                    mt: 4,
                     px: 3,
                     boxShadow: { xs: 'none', print: '0 -2px 8px rgba(0,0,0,0.04)' },
                     '@media print': {

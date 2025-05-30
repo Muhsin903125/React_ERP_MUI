@@ -263,7 +263,7 @@ export default function PaymentPrint({ headerData, journal, accounts, detailData
                 }}
             >
                 <Typography variant="caption" align="center" sx={{ width: '100%', display: 'block', mb: 1, color: 'text.secondary' }}>
-                    Computer generated document, hence sign not required.
+                   This is a computer generated document, hence does not require any signature.
                 </Typography>
                 <Grid container spacing={4}>
                     <Grid item xs={4}>

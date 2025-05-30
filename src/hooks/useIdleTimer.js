@@ -11,6 +11,9 @@ export default function useIdle({
     const location = useLocation()
     const handleOnIdle = event => {
         setIsIdle(true); 
+        if(location.pathname === '/login'){
+            return;
+        }
         sessionStorage.setItem('redirectUrl', location.pathname + location.search);
         console.log("user is idle", event)
         console.log("Last Active", getLastActiveTime())
