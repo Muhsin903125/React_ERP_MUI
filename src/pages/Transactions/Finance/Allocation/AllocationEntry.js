@@ -550,6 +550,9 @@ export default function AllocationEntry() {
 
         });
         fetchPendingBills(headerData.account);
+        setTotalAllocatedAmount(0);
+        setDetailData([]); // Reset detail data when a new document is selected
+        setSelectedBills([]); // Reset selected bills when a new document is selected
         // setSelectedValue(value.name);
     };
     const handleAutoAllocate = () => {
