@@ -1,4 +1,5 @@
 import { Box, Grid, Typography, useTheme } from '@mui/material'; 
+import { format } from 'date-fns';
 import PropTypes from 'prop-types';
 
 PendingBillsTable.propTypes = {
@@ -19,6 +20,9 @@ export default function PendingBillsTable({ detailData }) {
         const balance = Number(balAmount) - Number(allocAmount);
         return balance.toFixed(2);
     }
+    const formatDate = (date) => {
+            return date ? format(new Date(date), 'dd-MM-yyyy') : '';
+        };
     return (
         <Box sx={{ 
             border: `1px solid ${theme.palette.secondary.lighter}`,
@@ -67,7 +71,7 @@ export default function PendingBillsTable({ detailData }) {
                         <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{field.doc_code}</Typography>
                     </Grid>
                     <Grid item xs={2} md={2}>
-                        <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{field.doc_date}</Typography>
+                        <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{formatDate(field.doc_date)}</Typography>
                     </Grid>
                     <Grid item xs={2} md={2}>
                         <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{Number(field.doc_bal_amount).toFixed(2)}</Typography>

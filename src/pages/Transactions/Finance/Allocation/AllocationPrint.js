@@ -26,7 +26,7 @@ const theme = useTheme();
     };
 
     const formatDate = (date) => {
-        return date ? format(new Date(date), 'dd/MM/yyyy') : '';
+        return date ? format(new Date(date), 'dd-MM-yyyy') : '';
     };
 
     const formatAmount = (amount) => {

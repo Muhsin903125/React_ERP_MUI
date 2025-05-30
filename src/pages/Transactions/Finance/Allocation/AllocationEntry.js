@@ -21,6 +21,7 @@ import {
 } from '@mui/material';
 import validator from 'validator';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { format } from 'date-fns';
 import { getLastNumber, getLocationList, getUnitList } from '../../../../utils/CommonServices';
 import Confirm from '../../../../components/Confirm';
 import Iconify from '../../../../components/iconify';
@@ -643,6 +644,9 @@ export default function AllocationEntry() {
 
         showToast(`Auto-allocated ${allocatedBills.length} new bills for amount ${totalAlloc.toFixed(2)}`, "success");
     };
+    const formatDate = (date) => {
+            return date ? format(new Date(date), 'dd-MM-yyyy') : '';
+        };
     return (
         <>
             <Helmet>
@@ -905,7 +909,7 @@ export default function AllocationEntry() {
                                 <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{headerData?.fromDocSrNo}</Typography>
                             </Grid>
                             <Grid item xs={2} md={2}>
-                                <Typography variant="body2" sx={{ px: 2, py: 1.5 }}> {headerData?.fromDocDate}</Typography>
+                                <Typography variant="body2" sx={{ px: 2, py: 1.5 }}> {formatDate(headerData?.fromDocDate)}</Typography>
                             </Grid>
                             <Grid item xs={2} md={2}>
                                 <Typography variant="body2" sx={{ px: 2, py: 1.5 }}>{headerData?.fromDocAmount?.toFixed(2)}</Typography>
