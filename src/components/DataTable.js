@@ -1,25 +1,31 @@
 import React, { useState } from 'react';
 import MaterialReactTable from 'material-react-table';
-import { 
-  Box, 
-  Button, 
-  IconButton, 
-  Tooltip, 
-  useTheme, 
-  useMediaQuery, 
-  Stack, 
-  Menu, 
+import {
+  Box,
+  Button,
+  IconButton,
+  Tooltip,
+  useTheme,
+  useMediaQuery,
+  Stack,
+  Menu,
   MenuItem,
   CircularProgress,
   Snackbar,
-  Alert
+  Alert,
+  Dialog,
+  DialogActions,
+  DialogContent
 } from '@mui/material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import * as XLSX from 'xlsx';
-import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import html2pdf from 'html2pdf.js';
+import PrintComponent from './PrintComponent';
+import PrintDialog from './PrintDialog';
 
 // https://www.material-react-table.com/docs/examples
 
@@ -27,13 +33,18 @@ export default function DataTable({
   columns,
   data,
   enableExport = true,
-  fileTitle = "Data"
+  fileTitle = "Data",
+  PrintPreviewComponent, // NEW: custom print preview component
+  printPreviewProps = {}, // NEW: extra props for print preview
 }, props) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [anchorEl, setAnchorEl] = useState(null);
   const [isExporting, setIsExporting] = useState(false);
   const [error, setError] = useState(null);
+  const [printPreviewOpen, setPrintPreviewOpen] = useState(false);
+  const [printRows, setPrintRows] = useState([]);
+  const printRef = React.useRef();
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -47,7 +58,7 @@ export default function DataTable({
     try {
       setIsExporting(true);
       const columnsToExport = columns.filter((column) => column.excelColumnDisable !== true);
-    
+
       const worksheet = XLSX.utils.json_to_sheet(
         rows.map((row) => {
           return columnsToExport.reduce((obj, column) => {
@@ -56,7 +67,7 @@ export default function DataTable({
           }, {});
         })
       );
-    
+
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
       XLSX.writeFile(workbook, `${fileTitle}.xlsx`);
@@ -66,60 +77,57 @@ export default function DataTable({
       setIsExporting(false);
     }
   };
-
   const handleExportPdf = async (rows) => {
-    try {      setIsExporting(true);
-      const JsPDF = jsPDF;  // Create properly cased constructor alias
-      const doc = new JsPDF();
-      const columnsToExport = columns.filter((column) => column.excelColumnDisable !== true);
-      
-      const tableData = rows.map((row) => 
-        columnsToExport.map((column) => row.original[column.accessorKey])
-      );
+    setPrintRows(rows);
+    setPrintPreviewOpen(true);
+  };
 
-      const pageWidth = doc.internal.pageSize.width;
-      const pageHeight = doc.internal.pageSize.height;
-      const margin = 15;
-      
-      // Add title to PDF
-      doc.setFontSize(15);
-      doc.text(fileTitle, margin, margin);
+  const handlePrintDialogClose = () => {
+    setPrintPreviewOpen(false);
+    setPrintRows([]);
+  };
 
-      doc.autoTable({
-        head: [columnsToExport.map((column) => column.header)],
-        body: tableData,
-        theme: 'grid',
-        headStyles: { 
-          fillColor: theme.palette.primary.main,
-          textColor: theme.palette.primary.contrastText,
-          fontSize: 10,
-          fontStyle: 'bold',
-          cellPadding: 3,
-        },
-        bodyStyles: {
-          fontSize: 9,
-          cellPadding: 2,
-        },
-        alternateRowStyles: {
-          fillColor: theme.palette.action.hover,
-        },
-        margin: { top: margin + 10 },
-        columnStyles: columnsToExport.reduce((styles, _, index) => {
-          styles[index] = { cellWidth: 'auto' };
-          return styles;
-        }, {}),
-        didDrawPage: (data) => {
-          // Add page numbers
-          doc.setFontSize(8);
-          doc.text(
-            `Page ${data.pageNumber} of ${data.pageCount}`,
-            data.settings.margin.left,
-            pageHeight - 10
-          );
-        },
-      });
-      
-      doc.save(`${fileTitle}.pdf`);
+  const handlePrintDownload = async () => {
+    try {
+      setIsExporting(true);
+      if (printRef.current) {
+        const element = printRef.current;
+        // Clone the node to avoid mutation
+        const clone = element.cloneNode(true);
+        // Inline all images (e.g., logo) as data URLs for html2pdf
+        const imgPromises = Array.from(clone.querySelectorAll('img')).map(async (img) => {
+          if (img.src && !img.src.startsWith('data:')) {
+            try {
+              const response = await fetch(img.src, { mode: 'cors' });
+              const blob = await response.blob();
+              return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                  img.src = reader.result;
+                  resolve();
+                };
+                reader.readAsDataURL(blob);
+              });
+            } catch (e) {
+              // If fetch fails, skip inlining
+              return Promise.resolve();
+            }
+          }
+          return Promise.resolve();
+        });
+        await Promise.all(imgPromises);
+        // Create a container for html2pdf
+        const container = document.createElement('div');
+        container.appendChild(clone);
+        await html2pdf().set({
+          margin: 10,
+          filename: `${fileTitle}.pdf`,
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        }).from(container).save();
+      }
+      setPrintPreviewOpen(false);
+      setPrintRows([]);
     } catch (err) {
       setError('Failed to export PDF file. Please try again.');
     } finally {
@@ -137,7 +145,7 @@ export default function DataTable({
     if (isMobile) {
       return (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <IconButton 
+          <IconButton
             onClick={handleMenuClick}
             disabled={isExporting}
           >
@@ -197,8 +205,8 @@ export default function DataTable({
       <Stack
         direction="row"
         spacing={1}
-        sx={{ 
-          p: '0.5rem', 
+        sx={{
+          p: '0.5rem',
           flexWrap: 'wrap',
           gap: '0.5rem'
         }}
@@ -247,8 +255,8 @@ export default function DataTable({
 
   return (
     <>
-      <MaterialReactTable 
-        columns={columns} 
+      <MaterialReactTable
+        columns={columns}
         data={data}
         initialState={{
           density: 'compact',
@@ -286,9 +294,9 @@ export default function DataTable({
         }}
         {...props}
       />
-      <Snackbar 
-        open={!!error} 
-        autoHideDuration={6000} 
+      <Snackbar
+        open={!!error}
+        autoHideDuration={6000}
         onClose={handleCloseError}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
@@ -296,6 +304,34 @@ export default function DataTable({
           {error}
         </Alert>
       </Snackbar>
+      <PrintDialog
+        open={printPreviewOpen}
+        onClose={handlePrintDialogClose}
+        title={' Print Preview'}
+        printRef={printRef}
+        documentTitle={fileTitle}
+        showDownload
+        onDownload={handlePrintDownload}
+        maxWidth="lg"
+        fullWidth
+      >
+        <div ref={printRef} style={{ width: '100%' }}>
+          {PrintPreviewComponent ? (
+            <PrintPreviewComponent
+              columns={columns.filter((column) => column.excelColumnDisable !== true)}
+              rows={printRows.map(row => row.original)}
+              title={fileTitle}
+              {...printPreviewProps}
+            />
+          ) : (
+            <PrintComponent
+              columns={columns.filter((column) => column.excelColumnDisable !== true)}
+              rows={printRows.map(row => row.original)}
+              title={fileTitle}
+            />
+          )}
+        </div>
+      </PrintDialog>
     </>
   );
 }

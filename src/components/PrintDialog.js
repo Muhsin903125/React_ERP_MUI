@@ -10,6 +10,8 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import PrintIcon from '@mui/icons-material/Print';
+import Link from '@mui/material/Link';
+import { Download } from '@mui/icons-material';
 
 export default function PrintDialog({ 
     open, 
@@ -19,7 +21,9 @@ export default function PrintDialog({
     maxWidth = 'md',
     fullWidth = true,
     printRef,
-    documentTitle
+    documentTitle,
+    showDownload = false, // NEW: show/hide download button
+    onDownload 
 }) {
     const handlePrint = () => {
         const printContent = printRef.current;
@@ -116,7 +120,8 @@ export default function PrintDialog({
                         {title}
                     </Typography>
                     <Stack direction="row" spacing={1}>
-                    <Button
+                        
+                        <Button
                             variant="contained"
                             color="error"
                             startIcon={<CloseIcon />}
@@ -124,6 +129,17 @@ export default function PrintDialog({
                         >
                             Close
                         </Button>
+                        {showDownload && (
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                startIcon={<Download />}
+                                onClick={onDownload}
+                                sx={{ minWidth: 120 }}
+                            >
+                                Download
+                            </Button>
+                        )}
                         <Button
                             variant="contained"
                             startIcon={<PrintIcon />}
@@ -131,7 +147,6 @@ export default function PrintDialog({
                         >
                             Print
                         </Button>
-                         
                     </Stack>
                 </Box>
 
@@ -149,4 +164,4 @@ export default function PrintDialog({
             </DialogContent>
         </Dialog>
     );
-} 
+}

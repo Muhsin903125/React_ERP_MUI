@@ -23,11 +23,8 @@ const ReportHeader = ({
     children
 }) => {
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
-    const buttonStyles = {
-        borderRadius: '12px',
-        boxShadow: (theme) => `0 8px 16px ${alpha(theme.palette.grey[500], 0.16)}`,
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));    const buttonStyles = {
+        borderRadius: '8px',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         position: 'relative',
         overflow: 'hidden',
@@ -55,12 +52,12 @@ const ReportHeader = ({
                 <PageHeader title={title} sx={{ mb: 1 }} />
 
                 <Paper
-                    elevation={0}
+                    elevation={1}
                     sx={{
                         p: { xs: 2, md: 3 },
                         mb: 1,
                         borderRadius: 3,
-                        background: (theme) => `linear-gradient(135deg, ${alpha(theme.palette.background.paper, 0.9)}, ${alpha(theme.palette.background.paper, 0.95)})`,
+                        // background: (theme) => `linear-gradient(135deg, ${alpha(theme.palette.background.paper, 0.9)}, ${alpha(theme.palette.background.paper, 0.95)})`,
                         backdropFilter: 'blur(8px)',
                         border: (theme) => `1px solid ${alpha(theme.palette.grey[500], 0.08)}`,
                         position: 'relative',
@@ -76,15 +73,15 @@ const ReportHeader = ({
                         },
                     }}
                 >
-                    {children}
-                    <Stack
+                    {children}                    <Stack
                         direction={isMobile ? 'column' : 'row'}
                         spacing={2}
                         justifyContent="flex-end"
                         sx={{
                             mt: 1,
-                            pt: 1,
-                            borderTop: (theme) => `1px solid ${alpha(theme.palette.grey[500], 0.08)}`,
+                            p: 1,
+                            // bgcolor: theme.palette.background.neutral,
+                            // borderRadius: 2,
                         }}
                     >
                         <Button

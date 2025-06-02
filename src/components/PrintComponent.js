@@ -23,8 +23,8 @@ const ITEMS_PER_PAGE = 15; // Fixed number of items per page
 // Split items into pages
 function paginateItems(items) {
     const pages = [];
-    for (let i = 0; i < items.length; i += ITEMS_PER_PAGE) {
-        pages.push(items.slice(i, Math.min(i + ITEMS_PER_PAGE, items.length)));
+    for (let i = 0; i < items?.length; i += ITEMS_PER_PAGE) {
+        pages.push(items.slice(i, Math.min(i + ITEMS_PER_PAGE, items?.length)));
     }
     return pages;
 }
