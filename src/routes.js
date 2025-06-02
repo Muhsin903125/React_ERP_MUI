@@ -65,6 +65,7 @@ import Payment from './pages/Transactions/Finance/Payment';
 import PaymentEntry from './pages/Transactions/Finance/Payment/PaymentEntry';
 import Allocation from './pages/Transactions/Finance/Allocation';
 import AllocationEntry from './pages/Transactions/Finance/Allocation/AllocationEntry';
+import StatementOfAccount from './pages/Reports/Finance/StatementOfAccount';
 
 // ----------------------------------------------------------------------
 
@@ -132,7 +133,7 @@ const adminMenus = [
   { path: 'transfer-entry', element: <ComingSoon title="Transfer Entry" /> },
   { path: 'transfer-entry/:id', element: <ComingSoon title="Transfer Entry" /> },
 
-  { path: 'statement-of-account', element: <ComingSoon title="Statement of Account" /> },
+  { path: 'statement-of-account', element: <StatementOfAccount /> },
   { path: 'statement-of-account-entry', element: <ComingSoon title="Statement of Account Entry" /> },
   { path: 'statement-of-account-entry/:id', element: <ComingSoon title="Statement of Account Entry" /> },
 
