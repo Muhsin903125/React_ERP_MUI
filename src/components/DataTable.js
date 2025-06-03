@@ -109,21 +109,29 @@ export default function DataTable({
                 reader.readAsDataURL(blob);
               });
             } catch (e) {
-              // If fetch fails, skip inlining
               return Promise.resolve();
             }
           }
           return Promise.resolve();
         });
         await Promise.all(imgPromises);
+        // Wait a bit to ensure images are loaded
+        await new Promise(res => setTimeout(res, 200));
         // Create a container for html2pdf
         const container = document.createElement('div');
         container.appendChild(clone);
+        // Use html2pdf with improved settings for better fidelity
         await html2pdf().set({
-          margin: 10,
+          margin: [1, 1, 1, 1], // Reduced margin for more content space
           filename: `${fileTitle}.pdf`,
-          html2canvas: { scale: 2 },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+          html2canvas: {
+            scale: 1,
+            useCORS: true,
+            allowTaint: true,
+            logging: false,
+            backgroundColor: null
+          },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         }).from(container).save();
       }
       setPrintPreviewOpen(false);

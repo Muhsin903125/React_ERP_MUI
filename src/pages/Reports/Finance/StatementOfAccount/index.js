@@ -19,6 +19,7 @@ import {
     Autocomplete,
     FormControl,
 } from '@mui/material';
+import moment from 'moment';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
@@ -56,10 +57,9 @@ const columns = [
     { accessorKey: 'debit', header: 'Debit', muiTableBodyCellProps: { align: 'right' }, headerProps: { align: 'right' } },
     { accessorKey: 'credit', header: 'Credit', muiTableBodyCellProps: { align: 'right' }, headerProps: { align: 'right' } },
     { accessorKey: 'balance', header: 'Balance', muiTableBodyCellProps: { align: 'right' }, headerProps: { align: 'right' } },
-    { accessorKey: 'salesman', header: 'Salesman' },
-    
-    { accessorKey: 'ref_no', header: 'Ref No' },
-    { accessorKey: 'narration', header: 'Narration' },
+    // { accessorKey: 'salesman', header: 'Salesman' },    
+    // { accessorKey: 'ref_no', header: 'Ref No' },
+    // { accessorKey: 'narration', header: 'Narration' },
 ];
 const statementTypes = ["Ledger", "Outstanding"];
 
@@ -171,8 +171,7 @@ const StatementOfAccount = () => {
     };
     const handleReset = () => {
         setFromDate(dayjs().startOf('month').format('YYYY-MM-DD'));
-        setToDate(dayjs().format('YYYY-MM-DD'));
-        setSearchKey('');
+        setToDate(dayjs().format('YYYY-MM-DD')); 
         setAccount(null);
         setErrors({
             account: '',
@@ -192,7 +191,7 @@ const StatementOfAccount = () => {
             // searchDisabled={!isFormValid}
             >
                 <Box sx={{ width: '100%', }}>
-                    <Grid container spacing={2} mb={2}>
+                    {/* <Grid container spacing={2} mb={2}>
                         <Grid item xs={12} md={4}>
                             <Card sx={{ p: 1, height: '100%', minHeight: 80, bgcolor: theme.palette.primary.lighter, boxShadow: 'none' }}>
                                 <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
@@ -238,7 +237,7 @@ const StatementOfAccount = () => {
                                 </CardContent>
                             </Card>
                         </Grid>
-                    </Grid>
+                    </Grid> */}
                     <Paper
                         sx={{
                             p: 2,
@@ -385,7 +384,7 @@ const StatementOfAccount = () => {
                         fileTitle={`Statement of Account - ${account || 'All Accounts'}`}
                         printPreviewProps={{
                             title: `Statement of Account `,
-                            dateRange: `${fromDate} - ${toDate}`,
+                            dateRange: `${moment(fromDate).format('DD-MM-YYYY')} - ${moment(toDate).format('DD-MM-YYYY')}`,
                             statementType: statementType || 'All Types',
                             toAccount: account ? `${accounts.find(acc => acc.AC_CODE === account)?.AC_DESC} - ${account}` || 'All Accounts' : 'All Accounts',
                         }}
