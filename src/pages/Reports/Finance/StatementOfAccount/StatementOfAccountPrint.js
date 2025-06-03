@@ -70,7 +70,7 @@ export default function StatementOfAccountPrint({ columns, rows, title, dateRang
           <TableHead>
             <TableRow>
               {columns.map((col) => (
-                <TableCell key={col.accessorKey} align={col.muiTableBodyCellProps?.align || 'left'}>
+                <TableCell   key={col.accessorKey} align={col.muiTableBodyCellProps?.align || 'left'}>
                   {col.header}
                 </TableCell>
               ))}
@@ -80,7 +80,7 @@ export default function StatementOfAccountPrint({ columns, rows, title, dateRang
             {rows.map((row, idx) => (
               <TableRow key={idx}>
                 {columns.map((col) => (
-                  <TableCell key={col.accessorKey} align={col.muiTableBodyCellProps?.align || 'left'}>
+                  <TableCell   key={col.accessorKey} align={col.muiTableBodyCellProps?.align || 'left'}>
                     {row[col.accessorKey]}
                   </TableCell>
                 ))}

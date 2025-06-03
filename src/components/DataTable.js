@@ -87,62 +87,7 @@ export default function DataTable({
     setPrintRows([]);
   };
 
-  const handlePrintDownload = async () => {
-    try {
-      setIsExporting(true);
-      if (printRef.current) {
-        const element = printRef.current;
-        // Clone the node to avoid mutation
-        const clone = element.cloneNode(true);
-        // Inline all images (e.g., logo) as data URLs for html2pdf
-        const imgPromises = Array.from(clone.querySelectorAll('img')).map(async (img) => {
-          if (img.src && !img.src.startsWith('data:')) {
-            try {
-              const response = await fetch(img.src, { mode: 'cors' });
-              const blob = await response.blob();
-              return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                  img.src = reader.result;
-                  resolve();
-                };
-                reader.readAsDataURL(blob);
-              });
-            } catch (e) {
-              return Promise.resolve();
-            }
-          }
-          return Promise.resolve();
-        });
-        await Promise.all(imgPromises);
-        // Wait a bit to ensure images are loaded
-        await new Promise(res => setTimeout(res, 200));
-        // Create a container for html2pdf
-        const container = document.createElement('div');
-        container.appendChild(clone);
-        // Use html2pdf with improved settings for better fidelity
-        await html2pdf().set({
-          margin: [1, 1, 1, 1], // Reduced margin for more content space
-          filename: `${fileTitle}.pdf`,
-          html2canvas: {
-            scale: 1,
-            useCORS: true,
-            allowTaint: true,
-            logging: false,
-            backgroundColor: null
-          },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        }).from(container).save();
-      }
-      setPrintPreviewOpen(false);
-      setPrintRows([]);
-    } catch (err) {
-      setError('Failed to export PDF file. Please try again.');
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
+  
   const handleCloseError = () => {
     setError(null);
   };
@@ -318,8 +263,7 @@ export default function DataTable({
         title={' Print Preview'}
         printRef={printRef}
         documentTitle={fileTitle}
-        showDownload
-        onDownload={handlePrintDownload}
+        showDownload 
         maxWidth="lg"
         fullWidth
       >

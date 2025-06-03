@@ -12,18 +12,19 @@ import CloseIcon from '@mui/icons-material/Close';
 import PrintIcon from '@mui/icons-material/Print';
 import Link from '@mui/material/Link';
 import { Download } from '@mui/icons-material';
+import html2pdf from 'html2pdf.js';
 
-export default function PrintDialog({ 
-    open, 
-    onClose, 
+export default function PrintDialog({
+    open,
+    onClose,
     title = 'Print Preview',
     children,
     maxWidth = 'md',
     fullWidth = true,
     printRef,
     documentTitle,
-    showDownload = false, // NEW: show/hide download button
-    onDownload 
+    showDownload = true, // NEW: show/hide download button
+    onDownload
 }) {
     const handlePrint = () => {
         const printContent = printRef.current;
@@ -60,10 +61,26 @@ export default function PrintDialog({
                         body {
                             padding: 20px;
                         }
+                            th { 
+                                    font-size: 12px !important; 
+                                    font-weight: bold;
+                                }
+        
+                                td {
+                                    font-size: 11px !important;
+                                }
                         @media print {
                             body {
                                 padding: 0;
                             }
+                                th { 
+                                    font-size: 12px !important; 
+                                    font-weight: bold;
+                                }
+         
+                                td {
+                                    font-size: 11px !important;
+                                }
                             @page {
                                 size: A4;
                                 margin: 1cm;
@@ -89,6 +106,60 @@ export default function PrintDialog({
         }, 500);
     };
 
+    const handleDownload = async () => {
+        const printContent = printRef.current;
+        if (!printContent) {
+            console.error('Print content not found');
+            return;
+        }
+        // Clone the node to avoid mutation
+        const clone = printContent.cloneNode(true);
+        // Inline all images as data URLs for html2pdf
+        const imgPromises = Array.from(clone.querySelectorAll('img')).map(async (img) => {
+            if (img.src && !img.src.startsWith('data:')) {
+                try {
+                    const response = await fetch(img.src, { mode: 'cors' });
+                    const blob = await response.blob();
+                    return new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            img.src = reader.result;
+                            resolve();
+                        };
+                        reader.readAsDataURL(blob);
+                    });
+                } catch (e) {
+                    return Promise.resolve();
+                }
+            }
+            return Promise.resolve();
+        });
+        await Promise.all(imgPromises);
+        await new Promise(res => setTimeout(res, 200));
+        // Create a container for html2pdf
+        const container = document.createElement('div');
+        // Add custom style for th/td before content
+        const style = document.createElement('style');
+        style.textContent = `
+            th { font-size: 12px !important; font-weight: bold; }
+            td { font-size: 11px !important; }
+        `;
+        container.appendChild(style);
+        container.appendChild(clone);
+        await html2pdf().set({
+            margin: [2, 2, 2, 2],
+            filename: `${documentTitle || title}.pdf`,
+            html2canvas: {
+                scale: 2,
+                useCORS: true,
+                allowTaint: true,
+                logging: false,
+                backgroundColor: null
+            },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        }).from(container).save();
+    };
+
     return (
         <Dialog
             open={open}
@@ -104,8 +175,8 @@ export default function PrintDialog({
         >
             <DialogContent sx={{ p: 0, position: 'relative' }}>
                 {/* Header */}
-                <Box sx={{ 
-                    p: 2, 
+                <Box sx={{
+                    p: 2,
                     borderBottom: '1px solid',
                     borderColor: 'divider',
                     display: 'flex',
@@ -120,7 +191,7 @@ export default function PrintDialog({
                         {title}
                     </Typography>
                     <Stack direction="row" spacing={1}>
-                        
+
                         <Button
                             variant="contained"
                             color="error"
@@ -134,7 +205,7 @@ export default function PrintDialog({
                                 variant="contained"
                                 color="primary"
                                 startIcon={<Download />}
-                                onClick={onDownload}
+                                onClick={handleDownload}
                                 sx={{ minWidth: 120 }}
                             >
                                 Download
@@ -151,9 +222,9 @@ export default function PrintDialog({
                 </Box>
 
                 {/* Print Content */}
-                <Box 
+                <Box
                     ref={printRef}
-                    sx={{ 
+                    sx={{
                         p: 3,
                         height: 'calc(100% - 64px)',
                         overflow: 'auto'

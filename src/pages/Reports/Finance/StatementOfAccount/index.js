@@ -59,7 +59,7 @@ const columns = [
     { accessorKey: 'balance', header: 'Balance', muiTableBodyCellProps: { align: 'right' }, headerProps: { align: 'right' } },
     // { accessorKey: 'salesman', header: 'Salesman' },    
     // { accessorKey: 'ref_no', header: 'Ref No' },
-    // { accessorKey: 'narration', header: 'Narration' },
+    { accessorKey: 'narration', header: 'Narration' },
 ];
 const statementTypes = ["Ledger", "Outstanding"];
 
