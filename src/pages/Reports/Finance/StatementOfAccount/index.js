@@ -32,38 +32,37 @@ import StatementOfAccountPrint from './StatementOfAccountPrint';
 
 // Add isBetween plugin to dayjs
 dayjs.extend(isBetween);
-
-const columns = [
-    { accessorKey: 'date', header: 'Date' },
-    { accessorKey: 'description', header: 'Description' },
+// docdate	
+// doc_code
+// ref_no	
+// duedate	
+// od_days	
+// debit	
+// credit	
+// balance	
+// salesman
+// narration
+const columns = [ 
+    {
+        accessorKey: 'docdate',
+        header: 'Date',
+        width: 50,
+     
+    },
+    { accessorKey: 'doc_code', header: 'Code'  ,width: 50,},
+    { accessorKey: 'duedate', header: 'Due Date'        
+    },
+    { accessorKey: 'od_days', header: 'Overdue Days' },
     { accessorKey: 'debit', header: 'Debit', muiTableBodyCellProps: { align: 'right' }, headerProps: { align: 'right' } },
     { accessorKey: 'credit', header: 'Credit', muiTableBodyCellProps: { align: 'right' }, headerProps: { align: 'right' } },
     { accessorKey: 'balance', header: 'Balance', muiTableBodyCellProps: { align: 'right' }, headerProps: { align: 'right' } },
+    { accessorKey: 'salesman', header: 'Salesman' },
+    
+    { accessorKey: 'ref_no', header: 'Ref No' },
+    { accessorKey: 'narration', header: 'Narration' },
 ];
 const statementTypes = ["Ledger", "Outstanding"];
-const mockData = [
-    {
-        date: '2025-06-01',
-        description: 'Opening Balance',
-        debit: '',
-        credit: '',
-        balance: '1000.00',
-    },
-    {
-        date: '2025-06-02',
-        description: 'Invoice Payment',
-        debit: '500.00',
-        credit: '',
-        balance: '1500.00',
-    },
-    {
-        date: '2025-06-03',
-        description: 'Purchase',
-        debit: '',
-        credit: '200.00',
-        balance: '1300.00',
-    },
-];
+
 
 const StatementOfAccount = () => {
     const theme = useTheme();
@@ -73,7 +72,7 @@ const StatementOfAccount = () => {
     const [searchKey, setSearchKey] = useState('');
     const [accounts, setAccounts] = useState([]);
     const [account, setAccount] = useState(null);
-    const [data, setData] = useState(mockData);
+    const [data, setData] = useState([]);
     const [statementType, setStatementType] = useState();
     const [errors, setErrors] = useState({
         account: '',
@@ -98,6 +97,29 @@ const StatementOfAccount = () => {
     useEffect(() => {
         getAccounts();
     }, []);
+
+    const getreportData = async () => {
+        setLoader(true);
+        const { Success, Data, Message } = await GetSingleListResult({
+            "key": "GET_R_SOA",
+            "fromDate": fromDate,
+            "toDate": toDate,
+            "AC_CODE": account,
+            "statementTypes": statementType,
+        });
+        if (Success) {
+            setData(Data);
+        }
+        else {
+            showToast(Message, "error");
+        }
+        setLoader(false);
+    };
+    useEffect(() => {
+        if (isFormValid) {
+            getreportData();
+        }
+    }, [fromDate, toDate, account, statementType, isFormValid]);
     // Calculate summary statistics
     const summary = data.reduce((acc, curr) => {
         acc.totalDebit += parseFloat(curr.debit || 0);
@@ -116,37 +138,37 @@ const StatementOfAccount = () => {
 
         if (isFormValid) {
             setLoader(true);
+            getreportData();
+            // const filteredData = Data?.filter(item => {
+            //     try {
+            //         const isInDateRange = dayjs(item.docdate).isBetween(fromDate, toDate, 'day', '[]');
+            //         const searchKeyMatch = !searchKey ||
+            //             Object.values(item).some(prop =>
+            //                 prop && prop.toString().toLowerCase().includes(searchKey.toLowerCase())
+            //             );
+            //         return searchKeyMatch && isInDateRange;
+            //     } catch (error) {
+            //         console.error('Date comparison error:', error);
+            //         return false;
+            //     }
+            // });
 
-            const filteredData = mockData.filter(item => {
-                try {
-                    const isInDateRange = dayjs(item.date).isBetween(fromDate, toDate, 'day', '[]');
-                    const searchKeyMatch = !searchKey ||
-                        Object.values(item).some(prop =>
-                            prop && prop.toString().toLowerCase().includes(searchKey.toLowerCase())
-                        );
-                    return searchKeyMatch && isInDateRange;
-                } catch (error) {
-                    console.error('Date comparison error:', error);
-                    return false;
-                }
-            });
-
-            setData(filteredData);
+            // setData(filteredData);
         }
         setLoader(false);
     };
-const handleAccountChange = (newValue) => {
-    console.log('Selected account:', newValue);
-    if (newValue) {
-        setAccount(newValue.AC_CODE);
-        setErrors(prev => ({
-            ...prev,
-            account: ''
-        }));
-    } else {
-        setAccount(null);
-    }
-};
+    const handleAccountChange = (newValue) => {
+        console.log('Selected account:', newValue);
+        if (newValue) {
+            setAccount(newValue.AC_CODE);
+            setErrors(prev => ({
+                ...prev,
+                account: ''
+            }));
+        } else {
+            setAccount(null);
+        }
+    };
     const handleReset = () => {
         setFromDate(dayjs().startOf('month').format('YYYY-MM-DD'));
         setToDate(dayjs().format('YYYY-MM-DD'));
@@ -156,8 +178,8 @@ const handleAccountChange = (newValue) => {
             account: '',
             statementType: ''
         });
-        setStatementType(null); 
-        setData(mockData);
+        setStatementType(null);
+        getreportData();
         setTouched(false);
     };
 
@@ -167,55 +189,55 @@ const handleAccountChange = (newValue) => {
                 title="Statement of Account"
                 onSearch={handleSearch}
                 onReset={handleReset}
-                // searchDisabled={!isFormValid}
+            // searchDisabled={!isFormValid}
             >
                 <Box sx={{ width: '100%', }}>
                     <Grid container spacing={2} mb={2}>
-                      <Grid item xs={12} md={4}>
-                        <Card sx={{ p: 1, height: '100%', minHeight: 80, bgcolor: theme.palette.primary.lighter, boxShadow: 'none' }}>
-                          <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
-                            <Stack direction="row" alignItems="center" spacing={1}>
-                              <AccountBalanceWalletIcon color="primary" fontSize="small" />
-                              <Typography variant="caption" color="text.secondary">
-                                Balance
-                              </Typography>
-                            </Stack>
-                            <Typography variant="h6" sx={{ mt: 1, mb: 0 }}>
-                              {summary.currentBalance.toFixed(2)}
-                            </Typography>
-                          </CardContent>
-                        </Card>
-                      </Grid>
-                      <Grid item xs={12} sm={6} md={4}>
-                        <Card sx={{ p: 1, height: '100%', minHeight: 80, bgcolor: theme.palette.success.lighter, boxShadow: 'none' }}>
-                          <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
-                            <Stack direction="row" alignItems="center" spacing={1}>
-                              <TrendingUpIcon color="success" fontSize="small" />
-                              <Typography variant="caption" color="text.secondary">
-                                Debits
-                              </Typography>
-                            </Stack>
-                            <Typography variant="h6" sx={{ mt: 1, mb: 0 }}>
-                              {summary.totalDebit.toFixed(2)}
-                            </Typography>
-                          </CardContent>
-                        </Card>
-                      </Grid>
-                      <Grid item xs={12} sm={6} md={4}>
-                        <Card sx={{ p: 1, height: '100%', minHeight: 80, bgcolor: theme.palette.error.lighter, boxShadow: 'none' }}>
-                          <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
-                            <Stack direction="row" alignItems="center" spacing={1}>
-                              <TrendingDownIcon color="error" fontSize="small" />
-                              <Typography variant="caption" color="text.secondary">
-                                Credits
-                              </Typography>
-                            </Stack>
-                            <Typography variant="h6" sx={{ mt: 1, mb: 0 }}>
-                              {summary.totalCredit.toFixed(2)}
-                            </Typography>
-                          </CardContent>
-                        </Card>
-                      </Grid>
+                        <Grid item xs={12} md={4}>
+                            <Card sx={{ p: 1, height: '100%', minHeight: 80, bgcolor: theme.palette.primary.lighter, boxShadow: 'none' }}>
+                                <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
+                                    <Stack direction="row" alignItems="center" spacing={1}>
+                                        <AccountBalanceWalletIcon color="primary" fontSize="small" />
+                                        <Typography variant="caption" color="text.secondary">
+                                            Balance
+                                        </Typography>
+                                    </Stack>
+                                    <Typography variant="h6" sx={{ mt: 1, mb: 0 }}>
+                                        {summary.currentBalance.toFixed(2)}
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={4}>
+                            <Card sx={{ p: 1, height: '100%', minHeight: 80, bgcolor: theme.palette.success.lighter, boxShadow: 'none' }}>
+                                <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
+                                    <Stack direction="row" alignItems="center" spacing={1}>
+                                        <TrendingUpIcon color="success" fontSize="small" />
+                                        <Typography variant="caption" color="text.secondary">
+                                            Debits
+                                        </Typography>
+                                    </Stack>
+                                    <Typography variant="h6" sx={{ mt: 1, mb: 0 }}>
+                                        {summary.totalDebit.toFixed(2)}
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={4}>
+                            <Card sx={{ p: 1, height: '100%', minHeight: 80, bgcolor: theme.palette.error.lighter, boxShadow: 'none' }}>
+                                <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
+                                    <Stack direction="row" alignItems="center" spacing={1}>
+                                        <TrendingDownIcon color="error" fontSize="small" />
+                                        <Typography variant="caption" color="text.secondary">
+                                            Credits
+                                        </Typography>
+                                    </Stack>
+                                    <Typography variant="h6" sx={{ mt: 1, mb: 0 }}>
+                                        {summary.totalCredit.toFixed(2)}
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                        </Grid>
                     </Grid>
                     <Paper
                         sx={{
@@ -263,57 +285,57 @@ const handleAccountChange = (newValue) => {
                                     />
                                 </Grid> */}
                                 <Grid item xs={12} md={3}>                                    <FormControl fullWidth error={Boolean(errors.account)}>
-                                        <Autocomplete
-                                            size="small"
-                                            options={accounts || []}
-                                            getOptionLabel={(option) =>
-                                                option ? `${option.AC_DESC}` : ''
-                                            }
-                                            isOptionEqualToValue={(option, value) => 
-                                                option.AC_CODE === value?.AC_CODE
-                                            }
-                                            value={accounts?.find(p => p.AC_CODE === account) || null}
-                                            onChange={(_, newValue) => handleAccountChange(newValue)}
-                                            renderInput={(params) => (
-                                                <TextField
-                                                    {...params}
-                                                    label="Select Account"
-                                                    name="account"
-                                                    size="small"
-                                                    required
-                                                    error={Boolean(errors.account)}
-                                                    helperText={errors.account}
-                                                />
-                                            )}
-                                        />
-                                    </FormControl>
+                                    <Autocomplete
+                                        size="small"
+                                        options={accounts || []}
+                                        getOptionLabel={(option) =>
+                                            option ? `${option.AC_DESC}` : ''
+                                        }
+                                        isOptionEqualToValue={(option, value) =>
+                                            option.AC_CODE === value?.AC_CODE
+                                        }
+                                        value={accounts?.find(p => p.AC_CODE === account) || null}
+                                        onChange={(_, newValue) => handleAccountChange(newValue)}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Select Account"
+                                                name="account"
+                                                size="small"
+                                                required
+                                                error={Boolean(errors.account)}
+                                                helperText={errors.account}
+                                            />
+                                        )}
+                                    />
+                                </FormControl>
                                 </Grid>
                                 <Grid item xs={12} md={3}>                                    <FormControl fullWidth error={Boolean(errors.statementType)}>
-                                        <Autocomplete
-                                            size="small"
-                                            options={statementTypes}
-                                            getOptionLabel={(option) => option || ''}
-                                            value={statementType || null}
-                                            onChange={(_, newValue) => {
-                                                setStatementType(newValue);
-                                                setErrors(prev => ({
-                                                    ...prev,
-                                                    statementType: ''
-                                                }));
-                                            }}
-                                            renderInput={(params) => (
-                                                <TextField
-                                                    {...params}
-                                                    label="Select Statement Type"
-                                                    name="statementType"
-                                                    size="small"
-                                                    required
-                                                    error={Boolean(errors.statementType)}
-                                                    helperText={errors.statementType}
-                                                />
-                                            )}
-                                        />
-                                    </FormControl>
+                                    <Autocomplete
+                                        size="small"
+                                        options={statementTypes}
+                                        getOptionLabel={(option) => option || ''}
+                                        value={statementType || null}
+                                        onChange={(_, newValue) => {
+                                            setStatementType(newValue);
+                                            setErrors(prev => ({
+                                                ...prev,
+                                                statementType: ''
+                                            }));
+                                        }}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Select Statement Type"
+                                                name="statementType"
+                                                size="small"
+                                                required
+                                                error={Boolean(errors.statementType)}
+                                                helperText={errors.statementType}
+                                            />
+                                        )}
+                                    />
+                                </FormControl>
 
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={3}>
