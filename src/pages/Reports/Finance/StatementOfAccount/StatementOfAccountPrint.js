@@ -22,16 +22,29 @@ export default function StatementOfAccountPrint({ columns, rows, title, dateRang
             <img src={companyLogoUrl} alt="Company Logo" style={{ maxHeight: 60, maxWidth: 200 }} />
           </Box>
         </Grid>
-        <Grid item xs={6}>
-          <Box sx={{ textAlign: 'left' }}>
-            <Typography variant="body2" fontWeight={300} >To,</Typography>
-            <Typography variant="body2" fontWeight={300} fontSize={13} >Account: {toAccount}</Typography>
+        <Grid item xs={12}>
+          <Box sx={{ textAlign: 'center', py: 1 }}>
+            <Typography variant="h6" fontWeight={700} fontSize={16}>{title}</Typography>
           </Box>
         </Grid>
-        <Grid item xs={6}>
-          <Box sx={{ textAlign: 'right' }} >
+        <Grid item xs={6} py={1} sx={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-start' }}>
+          <Box sx={{ textAlign: 'left' }}>
+            <Typography variant="body2" fontWeight={300} >To,</Typography>
+            <Typography variant="body2" fontWeight={300} fontSize={13} >Account: {toAccount}</Typography> 
+          </Box>
+        </Grid>
+        <Grid item xs={6} py={1} sx={{ display: 'flex', alignItems: 'flex-end' ,justifyContent: 'flex-end'}}>
+          <Box sx={{
+            textAlign: 'left', 
+            display: 'flex', flexDirection: 'column',
+            alignContent: "flex-end",
+            flexWrap: "wrap",
+            alignItems: "flex-start",
+            height: '100%',
+            justifyContent: 'flex-end',
+          }} >
             <Typography variant="body1" fontSize={13} py={0.15}>Date Range: {dateRange}</Typography>
-            <Typography variant="body1" fontSize={13} py={0.15}>Statement Type: {statementType}</Typography>
+            <Typography variant="body1" fontSize={13} py={0.15}>Statement Type: {statementType}</Typography> 
           </Box>
         </Grid>
       </Grid>
@@ -52,7 +65,6 @@ export default function StatementOfAccountPrint({ columns, rows, title, dateRang
         toAccount={toAccount}
         statementType={statementType}
       />
-      <Typography variant="h5" py={2} align="center" gutterBottom >{title || 'Statement of Account'}</Typography>
       <TableContainer component={Paper} sx={{ boxShadow: 'none', border: '1px solid', borderColor: 'divider', }}>
         <Table size="small">
           <TableHead>
