@@ -53,13 +53,13 @@ const columns = [
     { accessorKey: 'doc_code', header: 'Code'  ,width: 50,},
     { accessorKey: 'duedate', header: 'Due Date'        
     },
+    { accessorKey: 'narration', header: 'Narration' },
     { accessorKey: 'od_days', header: 'Overdue Days' },
     { accessorKey: 'debit', header: 'Debit', muiTableBodyCellProps: { align: 'right' }, headerProps: { align: 'right' } },
     { accessorKey: 'credit', header: 'Credit', muiTableBodyCellProps: { align: 'right' }, headerProps: { align: 'right' } },
     { accessorKey: 'balance', header: 'Balance', muiTableBodyCellProps: { align: 'right' }, headerProps: { align: 'right' } },
     // { accessorKey: 'salesman', header: 'Salesman' },    
     // { accessorKey: 'ref_no', header: 'Ref No' },
-    { accessorKey: 'narration', header: 'Narration' },
 ];
 const statementTypes = ["Ledger", "Outstanding"];
 
