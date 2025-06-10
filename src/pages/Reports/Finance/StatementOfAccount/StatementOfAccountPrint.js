@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Grid, Stack } from '@mui/material';
 import useAuth from '../../../../hooks/useAuth';
+import { extractDateOnly, isValidDate } from '../../../../utils/formatDate';
 
 export default function StatementOfAccountPrint({ columns, rows, title, dateRange, statementType, toAccount }) {
   const PrintHeader = ({ dateRange, statementType, toAccount, companyName, companyAddress, companyPhone, companyEmail, companyLogoUrl, companyTRN }) => (
@@ -30,12 +31,12 @@ export default function StatementOfAccountPrint({ columns, rows, title, dateRang
         <Grid item xs={6} py={1} sx={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-start' }}>
           <Box sx={{ textAlign: 'left' }}>
             <Typography variant="body2" fontWeight={300} >To,</Typography>
-            <Typography variant="body2" fontWeight={300} fontSize={13} >Account: {toAccount}</Typography> 
+            <Typography variant="body2" fontWeight={300} fontSize={13} >Account: {toAccount}</Typography>
           </Box>
         </Grid>
-        <Grid item xs={6} py={1} sx={{ display: 'flex', alignItems: 'flex-end' ,justifyContent: 'flex-end'}}>
+        <Grid item xs={6} py={1} sx={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end' }}>
           <Box sx={{
-            textAlign: 'left', 
+            textAlign: 'left',
             display: 'flex', flexDirection: 'column',
             alignContent: "flex-end",
             flexWrap: "wrap",
@@ -44,12 +45,26 @@ export default function StatementOfAccountPrint({ columns, rows, title, dateRang
             justifyContent: 'flex-end',
           }} >
             <Typography variant="body1" fontSize={13} py={0.15}>Date Range: {dateRange}</Typography>
-            <Typography variant="body1" fontSize={13} py={0.15}>Statement Type: {statementType}</Typography> 
+            <Typography variant="body1" fontSize={13} py={0.15}>Statement Type: {statementType}</Typography>
           </Box>
         </Grid>
       </Grid>
     </Box>
   );
+  const formatValue = (value) => {
+    if (value === 0 || value === null || value === undefined) return '';
+    return  Math.abs(value)?.toFixed(2);
+  };
+  const formatBalanceValue = (value) => {
+    if (value === 0 || value === null || value === undefined) return '';
+
+    const absValue = Math.abs(value)?.toFixed(2);
+    return value < 0 ? `${absValue} CR` : `${absValue} DR`;
+  };
+  const formatDate = (date) => {
+    if (!isValidDate(date)) return date;
+    return extractDateOnly(date);
+  }
   const { companyName, companyAddress, companyPhone, companyEmail, companyLogoUrl, companyTRN } = useAuth();
   return (
     <Box sx={{ p: 2, minWidth: 600 }}>
@@ -69,8 +84,8 @@ export default function StatementOfAccountPrint({ columns, rows, title, dateRang
         <Table size="small">
           <TableHead>
             <TableRow>
-              {columns.map((col) => (
-                <TableCell   key={col.accessorKey} align={col.muiTableBodyCellProps?.align || 'left'}>
+              {columns.filter(col => col.accessorKey !== "od_days" && col.accessorKey !== "duedate").map((col) => (
+                <TableCell key={col.accessorKey} align={col.muiTableBodyCellProps?.align || 'left'} width={col.size || 'auto'}  >
                   {col.header}
                 </TableCell>
               ))}
@@ -79,9 +94,11 @@ export default function StatementOfAccountPrint({ columns, rows, title, dateRang
           <TableBody>
             {rows.map((row, idx) => (
               <TableRow key={idx}>
-                {columns.map((col) => (
-                  <TableCell   key={col.accessorKey} align={col.muiTableBodyCellProps?.align || 'left'}>
-                    {row[col.accessorKey]}
+                {columns.filter(col => col.accessorKey !== "od_days" && col.accessorKey !== "duedate").map((col) => (
+                  <TableCell key={col.accessorKey} align={col.muiTableBodyCellProps?.align || 'left'} width={col.size || 'auto'}  >
+                    {(col.accessorKey === 'docdate' || col.accessorKey === 'duedate') ? formatDate(row[col.accessorKey]) :
+                      col.accessorKey === 'balance' ? formatBalanceValue(row[col.accessorKey]) :
+                        formatValue(row[col.accessorKey])}
                   </TableCell>
                 ))}
               </TableRow>

@@ -32,7 +32,11 @@ import PrintDialog from './PrintDialog';
 export default function DataTable({
   columns,
   data,
+  enablePagination = true,
+  enableSorting = true,
   enableExport = true,
+  enablePageExport = true,
+  enableColumnHiding = true,
   fileTitle = "Data",
   PrintPreviewComponent, // NEW: custom print preview component
   printPreviewProps = {}, // NEW: extra props for print preview
@@ -87,7 +91,7 @@ export default function DataTable({
     setPrintRows([]);
   };
 
-  
+
   const handleCloseError = () => {
     setError(null);
   };
@@ -119,7 +123,7 @@ export default function DataTable({
               {isExporting ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
               Export All to Excel
             </MenuItem>
-            <MenuItem
+            {enablePageExport && <MenuItem
               disabled={table.getRowModel().rows.length === 0 || isExporting}
               onClick={() => {
                 handleExportRows(table.getRowModel().rows);
@@ -128,7 +132,7 @@ export default function DataTable({
             >
               {isExporting ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
               Export Page to Excel
-            </MenuItem>
+            </MenuItem>}
             <MenuItem
               disabled={table.getPrePaginationRowModel().rows.length === 0 || isExporting}
               onClick={() => {
@@ -139,7 +143,7 @@ export default function DataTable({
               {isExporting ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
               Export All to PDF
             </MenuItem>
-            <MenuItem
+            {enablePageExport && <MenuItem
               disabled={table.getRowModel().rows.length === 0 || isExporting}
               onClick={() => {
                 handleExportPdf(table.getRowModel().rows);
@@ -148,7 +152,7 @@ export default function DataTable({
             >
               {isExporting ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
               Export Page to PDF
-            </MenuItem>
+            </MenuItem>}
           </Menu>
         </Box>
       );
@@ -173,7 +177,7 @@ export default function DataTable({
         >
           Export All to Excel
         </Button>
-        <Button
+        {enablePageExport && <Button
           disabled={table.getRowModel().rows.length === 0 || isExporting}
           onClick={() => handleExportRows(table.getRowModel().rows)}
           startIcon={isExporting ? <CircularProgress size={20} /> : <FileDownloadIcon />}
@@ -181,7 +185,7 @@ export default function DataTable({
           size="small"
         >
           Export Page to Excel
-        </Button>
+        </Button>}
         <Button
           disabled={table.getPrePaginationRowModel().rows.length === 0 || isExporting}
           onClick={() => handleExportPdf(table.getPrePaginationRowModel().rows)}
@@ -192,7 +196,7 @@ export default function DataTable({
         >
           Export All to PDF
         </Button>
-        <Button
+        {enablePageExport && <Button
           disabled={table.getRowModel().rows.length === 0 || isExporting}
           onClick={() => handleExportPdf(table.getRowModel().rows)}
           startIcon={isExporting ? <CircularProgress size={20} /> : <PictureAsPdfIcon />}
@@ -201,20 +205,25 @@ export default function DataTable({
           color="error"
         >
           Export Page to PDF
-        </Button>
+        </Button>}
       </Stack>
     );
   };
 
   return (
-    <>
-      <MaterialReactTable
+    <>      <MaterialReactTable
         columns={columns}
         data={data}
         initialState={{
           density: 'compact',
           expanded: true,
-          pagination: { pageSize: 10, pageIndex: 0 }
+          columnVisibility: columns.reduce((acc, column) => {
+            // Hide columns by default if they have hideByDefault: true
+            if (column.hideByDefault) {
+              acc[column.accessorKey] = false;
+            }
+            return acc;
+          }, {})
         }}
         muiTablePaperProps={{
           sx: {
@@ -232,21 +241,23 @@ export default function DataTable({
         columnResizeMode="onChange"
         positionToolbarAlertBanner="bottom"
         renderTopToolbarCustomActions={renderExportActions}
-        enablePagination
+        enablePagination={enablePagination}
+        enableSorting={enableSorting}
+        enableHiding={enableColumnHiding}
         muiTableBodyCellProps={{
           sx: {
             wordBreak: 'break-word',
           },
-        }}
-        displayColumnDefOptions={{
-          'mrt-row-expand': {
-            size: 40,
-            minSize: 40,
-            maxSize: 40,
-          },
-        }}
-        {...props}
-      />
+      }}
+      displayColumnDefOptions={{
+        'mrt-row-expand': {
+          size: 40,
+          minSize: 40,
+          maxSize: 40,
+        },
+      }}
+      {...props}
+    />
       <Snackbar
         open={!!error}
         autoHideDuration={6000}
@@ -263,7 +274,7 @@ export default function DataTable({
         title={' Print Preview'}
         printRef={printRef}
         documentTitle={fileTitle}
-        showDownload 
+        showDownload
         maxWidth="lg"
         fullWidth
       >

@@ -30,34 +30,62 @@ import DateSelector from '../../../../components/DateSelector';
 import { useToast } from '../../../../hooks/Common';
 import { GetSingleListResult } from '../../../../hooks/Api';
 import StatementOfAccountPrint from './StatementOfAccountPrint';
+import { extractDateOnly, formatDateForDisplay, isValidDate } from '../../../../utils/formatDate';
+ 
+ 
+ 
 
 // Add isBetween plugin to dayjs
 dayjs.extend(isBetween);
-// docdate	
-// doc_code
-// ref_no	
-// duedate	
-// od_days	
-// debit	
-// credit	
-// balance	
-// salesman
-// narration
-const columns = [ 
-    {
-        accessorKey: 'docdate',
-        header: 'Date',
-        width: 50,
-     
+
+const columns = [{
+    accessorKey: 'docdate',
+    header: 'Date', 
+    size: 180,
+    Cell: ({ cell }) => {
+        return extractDateOnly(cell.getValue());
+    }
+},
+{ accessorKey: 'doc_code', header: 'Code', size: 100, },
+{ accessorKey: 'narration', header: 'Narration' ,size: 500,},
+{
+    accessorKey: 'debit', header: 'Debit',size: 150,
+    Cell: ({ cell }) => {
+        const value = cell.getValue();
+        if (value === 0 || value === null || value === undefined) return '';
+        return value === 0 ? '' : value?.toFixed(2);
     },
-    { accessorKey: 'doc_code', header: 'Code'  ,width: 50,},
-    { accessorKey: 'duedate', header: 'Due Date'        
+    muiTableBodyCellProps: { align: 'right' }, headerProps: { align: 'right',width: 50 }
+},
+{
+    accessorKey: 'credit', header: 'Credit', size: 150,
+    Cell: ({ cell }) => {
+        const value = cell.getValue();
+        if (value === 0 || value === null || value === undefined) return '';
+        return  Math.abs(value)?.toFixed(2);
     },
-    { accessorKey: 'narration', header: 'Narration' },
-    { accessorKey: 'od_days', header: 'Overdue Days' },
-    { accessorKey: 'debit', header: 'Debit', muiTableBodyCellProps: { align: 'right' }, headerProps: { align: 'right' } },
-    { accessorKey: 'credit', header: 'Credit', muiTableBodyCellProps: { align: 'right' }, headerProps: { align: 'right' } },
-    { accessorKey: 'balance', header: 'Balance', muiTableBodyCellProps: { align: 'right' }, headerProps: { align: 'right' } },
+    muiTableBodyCellProps: { align: 'right' }, headerProps: { align: 'right' }
+},
+{
+    accessorKey: 'balance', header: 'Balance', size: 150,
+    Cell: ({ cell }) => {
+        const value = cell.getValue();
+        if (value === 0 || value === null || value === undefined) return '';
+        
+        const absValue = Math.abs(value)?.toFixed(2);
+        return value < 0 ? `${absValue} CR` : `${absValue} DR`;
+    },
+    muiTableBodyCellProps: { align: 'right' }, headerProps: { align: 'right' }
+},
+{ accessorKey: 'od_days', filterVisible: false, header: 'Overdue Days', size: 150, hideByDefault: true, muiTableBodyCellProps: { align: 'right' }, headerProps: { align: 'right' }},
+{
+    accessorKey: 'duedate',
+    header: 'Due Date', size: 100,
+    hideByDefault: true,
+    Cell: ({ cell }) => {
+        return extractDateOnly(cell.getValue());
+    }
+},
     // { accessorKey: 'salesman', header: 'Salesman' },    
     // { accessorKey: 'ref_no', header: 'Ref No' },
 ];
@@ -67,13 +95,13 @@ const statementTypes = ["Ledger", "Outstanding"];
 const StatementOfAccount = () => {
     const theme = useTheme();
     const { showToast } = useToast();
-    const [fromDate, setFromDate] = useState(dayjs().startOf('month').format('YYYY-MM-DD'));
+    const [fromDate, setFromDate] = useState(dayjs().startOf('year').format('YYYY-MM-DD'));
     const [toDate, setToDate] = useState(dayjs().format('YYYY-MM-DD'));
     const [searchKey, setSearchKey] = useState('');
     const [accounts, setAccounts] = useState([]);
     const [account, setAccount] = useState(null);
     const [data, setData] = useState([]);
-    const [statementType, setStatementType] = useState();
+    const [statementType, setStatementType] = useState(statementTypes[1]); // Default to "Ledger"
     const [errors, setErrors] = useState({
         account: '',
         statementType: ''
@@ -90,6 +118,7 @@ const StatementOfAccount = () => {
         });
         if (Success) {
             setAccounts(Data);
+            setAccount(Data[0]?.AC_CODE || null);
         } else {
             showToast(Message, "error");
         }
@@ -119,7 +148,7 @@ const StatementOfAccount = () => {
         if (isFormValid) {
             getreportData();
         }
-    }, [fromDate, toDate, account, statementType, isFormValid]);
+    }, []);
     // Calculate summary statistics
     const summary = data.reduce((acc, curr) => {
         acc.totalDebit += parseFloat(curr.debit || 0);
@@ -170,14 +199,14 @@ const StatementOfAccount = () => {
         }
     };
     const handleReset = () => {
-        setFromDate(dayjs().startOf('month').format('YYYY-MM-DD'));
-        setToDate(dayjs().format('YYYY-MM-DD')); 
-        setAccount(null);
+        setFromDate(dayjs().startOf('year').format('YYYY-MM-DD'));
+        setToDate(dayjs().format('YYYY-MM-DD'));
+        setAccount(accounts[0]?.AC_CODE || null);
         setErrors({
             account: '',
             statementType: ''
         });
-        setStatementType(null);
+        setStatementType(statementTypes[1]); // Reset to "Ledger"
         getreportData();
         setTouched(false);
     };
@@ -380,7 +409,9 @@ const StatementOfAccount = () => {
                         enableRowSelection
                         enableGrouping
                         enableExport
-
+                        enablePageExport={false}
+                        enableSorting={false}
+                        enablePagination={false}
                         fileTitle={`Statement of Account - ${account || 'All Accounts'}`}
                         printPreviewProps={{
                             title: `Statement of Account `,
