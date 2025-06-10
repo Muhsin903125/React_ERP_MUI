@@ -30,7 +30,7 @@ import DateSelector from '../../../../components/DateSelector';
 import { useToast } from '../../../../hooks/Common';
 import { GetSingleListResult } from '../../../../hooks/Api';
 import StatementOfAccountPrint from './StatementOfAccountPrint';
-import { extractDateOnly, formatDateForDisplay, isValidDate } from '../../../../utils/formatDate';
+import { extractDateOnly, formatDateForDisplay, formatDateCustom, isValidDate } from '../../../../utils/formatDate';
  
  
  
@@ -43,7 +43,7 @@ const columns = [{
     header: 'Date', 
     size: 180,
     Cell: ({ cell }) => {
-        return extractDateOnly(cell.getValue());
+       return formatDateCustom(cell.getValue(), 'DD-MMM-YYYY');
     }
 },
 { accessorKey: 'doc_code', header: 'Code', size: 100, },
@@ -83,7 +83,7 @@ const columns = [{
     header: 'Due Date', size: 100,
     hideByDefault: true,
     Cell: ({ cell }) => {
-        return extractDateOnly(cell.getValue());
+        return formatDateCustom(cell.getValue(), 'DD-MMM-YYYY');
     }
 },
     // { accessorKey: 'salesman', header: 'Salesman' },    

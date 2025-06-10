@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Grid, Stack } from '@mui/material';
 import useAuth from '../../../../hooks/useAuth';
-import { extractDateOnly, isValidDate } from '../../../../utils/formatDate';
+import { extractDateOnly, formatDateCustom, isValidDate } from '../../../../utils/formatDate';
 
 export default function StatementOfAccountPrint({ columns, rows, title, dateRange, statementType, toAccount }) {
   const PrintHeader = ({ dateRange, statementType, toAccount, companyName, companyAddress, companyPhone, companyEmail, companyLogoUrl, companyTRN }) => (
@@ -63,7 +63,7 @@ export default function StatementOfAccountPrint({ columns, rows, title, dateRang
   };
   const formatDate = (date) => {
     if (!isValidDate(date)) return date;
-    return extractDateOnly(date);
+    return formatDateCustom(date, 'DD-MMM-YYYY');
   }
   const { companyName, companyAddress, companyPhone, companyEmail, companyLogoUrl, companyTRN } = useAuth();
   return (
