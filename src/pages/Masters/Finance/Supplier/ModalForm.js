@@ -171,22 +171,21 @@ const ModalForm = ({ open, onClose, initialValues }) => {
               display: 'flex',
               flexDirection: 'column',
             }}
-          >
-            {/* Mobile-Friendly Header */}
+          >            {/* Mobile-Friendly Header */}
             <Box
               sx={{
                 background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
                 color: 'white',
-                p: { xs: 2, sm: 3 },
+                p: { xs: 1.5, sm: 2 },
                 position: 'relative',
                 flexShrink: 0
               }}
             >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 } }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
                 <Box
                   sx={{
-                    width: { xs: 40, sm: 48 },
-                    height: { xs: 40, sm: 48 },
+                    width: { xs: 36, sm: 40 },
+                    height: { xs: 36, sm: 40 },
                     borderRadius: 2,
                     backgroundColor: alpha('#fff', 0.2),
                     display: 'flex',
@@ -194,14 +193,14 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                     justifyContent: 'center'
                   }}
                 >
-                  <BusinessIcon fontSize={isSmallMobile ? 'medium' : 'large'} />
+                  <BusinessIcon fontSize={isSmallMobile ? 'small' : 'medium'} />
                 </Box>
                 <Box sx={{ flex: 1, minWidth: 0 }}>
                   <Typography
-                    variant={isSmallMobile ? "h6" : "h5"}
+                    variant={isSmallMobile ? "subtitle1" : "h6"}
                     sx={{
                       fontWeight: 600,
-                      mb: 0.5,
+                      mb: 0.25,
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap'
@@ -216,11 +215,13 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                       sx={{
                         backgroundColor: alpha('#fff', 0.2),
                         color: 'white',
-                        fontWeight: 600
+                        fontWeight: 600,
+                        fontSize: '0.7rem',
+                        height: 20
                       }}
                     />
                     {!isNew && initialValues && !isSmallMobile && (
-                      <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                      <Typography variant="caption" sx={{ opacity: 0.9 }}>
                         ID: {initialValues.SUP_DOCNO}
                       </Typography>
                     )}
@@ -233,23 +234,21 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                 disabled={loading}
                 sx={{
                   position: 'absolute',
-                  right: { xs: 8, sm: 16 },
-                  top: { xs: 8, sm: 16 },
+                  right: { xs: 6, sm: 12 },
+                  top: { xs: 6, sm: 12 },
                   color: 'white',
                   backgroundColor: alpha('#fff', 0.1),
-                  width: { xs: 36, sm: 44 },
-                  height: { xs: 36, sm: 44 },
+                  width: { xs: 32, sm: 36 },
+                  height: { xs: 32, sm: 36 },
                   '&:hover': {
                     backgroundColor: alpha('#fff', 0.2),
                   }
                 }}
               >
-                <CloseIcon fontSize={isSmallMobile ? 'small' : 'medium'} />
+                <CloseIcon fontSize="small" />
               </IconButton>
-            </Box>
-
-            {/* Form Content */}
-            <Box sx={{ p: { xs: 2, sm: 3 } }}>
+            </Box>            {/* Form Content */}
+            <Box sx={{ p: { xs: 2, sm: 3 }, overflowY: 'auto', flex: 1 }}>
               <Formik
                 initialValues={{
                   docNo: initialValues?.SUP_DOCNO || code || '',

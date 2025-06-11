@@ -22,7 +22,9 @@ import {
   alpha,
   Paper,
   useMediaQuery,
-  Slide
+  Slide,
+  Tabs,
+  Tab
 } from '@mui/material';
 import { Formik, Form, Field, FieldArray } from 'formik';
 import * as yup from 'yup';
@@ -30,11 +32,32 @@ import CloseIcon from '@mui/icons-material/Close';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import BusinessIcon from '@mui/icons-material/Business';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
-import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';  
 import Iconify from '../../../../components/iconify';
 import { GetMultipleResult, GetSingleListResult, GetSingleResult } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 import { getLookupList } from '../../../../utils/CommonServices';
+
+// TabPanel component for tab content
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`product-tabpanel-${index}`}
+      aria-labelledby={`product-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box sx={{ pt: 2 }}>
+          {children}
+        </Box>
+      )}
+    </div>
+  );
+}
 
 const ModalForm = ({ open, onClose, initialValues }) => {
   const theme = useTheme();
@@ -44,8 +67,8 @@ const ModalForm = ({ open, onClose, initialValues }) => {
   const [isNew, setIsNew] = useState(true);
   const [code, setCode] = useState(null);
   const [unit, setUnit] = useState([]);
-  const [codeEditable, setCodeEditable] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [codeEditable, setCodeEditable] = useState(false);  const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
   const [formData, setFormData] = useState({
     code: '',
     desc: '',
@@ -58,10 +81,10 @@ const ModalForm = ({ open, onClose, initialValues }) => {
   useEffect(() => {
     getUnit();
   }, []);
-
   // Handle form data loading
   useEffect(() => {
     if (open) {
+      setActiveTab(0); // Reset to first tab when opening
       if (initialValues !== null) {
         setIsNew(false);
         getDetails();
@@ -78,6 +101,11 @@ const ModalForm = ({ open, onClose, initialValues }) => {
       }
     }
   }, [initialValues, open]);
+
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
+  };
+
   const validationSchema = yup.object().shape({
     code: yup.string().required('Product code is required'),
     desc: yup.string().required('Product description is required').min(2, 'Description must be at least 2 characters'),
@@ -222,22 +250,21 @@ const ModalForm = ({ open, onClose, initialValues }) => {
               display: 'flex',
               flexDirection: 'column',
             }}
-          >
-            {/* Mobile-Friendly Header */}
+          >            {/* Mobile-Friendly Header */}
             <Box
               sx={{
                 background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
                 color: 'white',
-                p: { xs: 2, sm: 3 },
+                p: { xs: 1.5, sm: 2 },
                 position: 'relative',
                 flexShrink: 0
               }}
             >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 } }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
                 <Box
                   sx={{
-                    width: { xs: 40, sm: 48 },
-                    height: { xs: 40, sm: 48 },
+                    width: { xs: 36, sm: 40 },
+                    height: { xs: 36, sm: 40 },
                     borderRadius: 2,
                     backgroundColor: alpha('#fff', 0.2),
                     display: 'flex',
@@ -245,14 +272,14 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                     justifyContent: 'center'
                   }}
                 >
-                  <InventoryIcon fontSize={isSmallMobile ? 'medium' : 'large'} />
+                  <InventoryIcon fontSize={isSmallMobile ? 'small' : 'medium'} />
                 </Box>
                 <Box sx={{ flex: 1, minWidth: 0 }}>
                   <Typography
-                    variant={isSmallMobile ? "h6" : "h5"}
+                    variant={isSmallMobile ? "subtitle1" : "h6"}
                     sx={{
                       fontWeight: 600,
-                      mb: 0.5,
+                      mb: 0.25,
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap'
@@ -267,11 +294,13 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                       sx={{
                         backgroundColor: alpha('#fff', 0.2),
                         color: 'white',
-                        fontWeight: 600
+                        fontWeight: 600,
+                        fontSize: '0.7rem',
+                        height: 20
                       }}
                     />
                     {!isNew && initialValues && !isSmallMobile && (
-                      <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                      <Typography variant="caption" sx={{ opacity: 0.9 }}>
                         ID: {initialValues.IM_CODE}
                       </Typography>
                     )}
@@ -284,29 +313,26 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                 disabled={isLoading}
                 sx={{
                   position: 'absolute',
-                  right: { xs: 8, sm: 16 },
-                  top: { xs: 8, sm: 16 },
+                  right: { xs: 6, sm: 12 },
+                  top: { xs: 6, sm: 12 },
                   color: 'white',
                   backgroundColor: alpha('#fff', 0.1),
-                  width: { xs: 36, sm: 44 },
-                  height: { xs: 36, sm: 44 },
+                  width: { xs: 32, sm: 36 },
+                  height: { xs: 32, sm: 36 },
                   '&:hover': {
                     backgroundColor: alpha('#fff', 0.2),
                   }
                 }}
               >
-                <CloseIcon fontSize={isSmallMobile ? 'small' : 'medium'} />
+                <CloseIcon fontSize="small" />
               </IconButton>
-            </Box>
-
-            {/* Form Content */}
-            <Box sx={{ p: { xs: 2, sm: 3 }, overflow: 'auto', flex: 1 }}>
+            </Box>            {/* Form Content */}
+            <Box sx={{ p: { xs: 2, sm: 3 }, overflowY: 'auto', flex: 1 }}>
               {isLoading ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 200 }}>
                   <CircularProgress />
                 </Box>
-              ) : (
-                <Formik
+              ) : (<Formik
                   enableReinitialize
                   initialValues={formData}
                   validationSchema={validationSchema}
@@ -320,267 +346,334 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                 >
                   {({ values, errors, touched, handleChange, setFieldValue, isSubmitting }) => (
                     <Form>
-                      <Grid container spacing={{ xs: 2 }}>
-                        {/* Product Code & Description */}
-                        <Grid item xs={12}>
-                          <Typography variant="h6" sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
-                            <BusinessIcon color="primary" fontSize="small" />
-                            Basic Information
-                          </Typography>
-                        </Grid>
-
-                        <Grid item xs={12} sm={4}>
-                          <TextField
-                            fullWidth
-                            size="small"
-                            label="Product Code"
-                            disabled={isNew ? !codeEditable : true}
-                            name="code"
-                            value={values.code || ''}
-                            onChange={handleChange}
-                            error={Boolean(touched.code && errors.code)}
-                            helperText={touched.code && errors.code}
-                            InputProps={{
-                              startAdornment: (
-                                <Box sx={{ mr: 1, color: 'text.secondary', fontSize: '0.875rem' }}>
-                                  #
-                                </Box>
-                              ),
-                            }}
+                      {/* Tabs Navigation */}
+                      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
+                        <Tabs 
+                          value={activeTab} 
+                          onChange={handleTabChange} 
+                          aria-label="product form tabs"
+                          variant={isMobile ? "fullWidth" : "standard"}
+                          sx={{
+                            '& .MuiTabs-indicator': {
+                              height: 3,
+                              borderRadius: '3px 3px 0 0'
+                            },
+                            '& .MuiTab-root': {
+                              textTransform: 'none',
+                              fontSize: { xs: '0.875rem', sm: '1rem' },
+                              fontWeight: 600,
+                              minHeight: { xs: 44, sm: 48 }
+                            }
+                          }}
+                        >
+                          <Tab 
+                            icon={<BusinessIcon fontSize="small" />}
+                            iconPosition="start"
+                            label="Basic Information" 
+                            id="product-tab-0"
+                            aria-controls="product-tabpanel-0"
                           />
-                        </Grid>
-
-                        <Grid item xs={12} sm={8}>
-                          <TextField
-                            fullWidth
-                            size="small"
-                            label="Product Description"
-                            name="desc"
-                            value={values.desc || ''}
-                            onChange={handleChange}
-                            error={Boolean(touched.desc && errors.desc)}
-                            helperText={touched.desc && errors.desc}
-                            placeholder="Enter product description"
+                          <Tab 
+                            icon={<SwapHorizIcon fontSize="small" />}
+                            iconPosition="start"
+                            label="Unit Conversion" 
+                            id="product-tab-1"
+                            aria-controls="product-tabpanel-1"
                           />
-                        </Grid>
+                        </Tabs>
+                      </Box>
 
-                        {/* Pricing & Unit Information */}
-                        <Grid item xs={12}>
-                          <Divider sx={{ my: { xs: 1 } }} />
-                          <Typography variant="h6" sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
-                            <MonetizationOnIcon color="primary" fontSize="small" />
-                            Pricing & Unit Information
-                          </Typography>
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
-                          <TextField
-                            fullWidth
-                            type="number"
-                            size="small"
-                            label="Base Price"
-                            name="price"
-                            value={values.price || ''}
-                            onChange={handleChange}
-                            error={Boolean(touched.price && errors.price)}
-                            helperText={touched.price && errors.price}
-                            placeholder="0.00"
-                            InputProps={{
-                              startAdornment: (
-                                <MonetizationOnIcon sx={{ mr: 1, color: 'text.secondary', fontSize: '1.125rem' }} />
-                              ),
-                            }}
-                          />
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
-                          <FormControl fullWidth size="small" error={Boolean(touched.unit && errors.unit)}>
-                            <InputLabel>Base Unit</InputLabel>
-                            <Field
-                              as={Select}
-                              label="Base Unit"
-                              name="unit"
-                              value={values.unit || ''}
+                      {/* Tab Content */}
+                      <TabPanel value={activeTab} index={0}>
+                        <Grid container spacing={{ xs: 2 }}>
+                          {/* Product Code & Description */}
+                          <Grid item xs={12} sm={4}>
+                            <TextField
+                              fullWidth
+                              size="small"
+                              label="Product Code"
+                              disabled={isNew ? !codeEditable : true}
+                              name="code"
+                              value={values.code || ''}
                               onChange={handleChange}
-                            >
-                              {unit.map((item) => (
-                                <MenuItem key={item.LK_KEY} value={item.LK_KEY}>
-                                  {item.LK_VALUE}
-                                </MenuItem>
-                              ))}
-                            </Field>
-                            {touched.unit && errors.unit && (
-                              <Typography color="error" variant="caption">
-                                {errors.unit}
-                              </Typography>
-                            )}
-                          </FormControl>
-                        </Grid>
+                              error={Boolean(touched.code && errors.code)}
+                              helperText={touched.code && errors.code}
+                              InputProps={{
+                                startAdornment: (
+                                  <Box sx={{ mr: 1, color: 'text.secondary', fontSize: '0.875rem' }}>
+                                    #
+                                  </Box>
+                                ),
+                              }}
+                            />
+                          </Grid>
 
-                        {/* Unit Conversions */}
-                        <Grid item xs={12}>
-                          <Divider sx={{ my: { xs: 1 } }} />
-                          <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
-                            <SwapHorizIcon color="primary" fontSize="small" />
-                            Unit Conversions
-                          </Typography>
-                          <FieldArray name="conversions">
-                            {({ push, remove }) => (
-                              <Stack spacing={1}>
-                                {values.conversions.length > 0 && 
-                                  <Paper
-                                    elevation={2}
-                                    sx={{
-                                      p: 1,
-                                      border: '1px solid',
-                                      borderColor: 'divider',
-                                      borderRadius: 2
-                                    }}
+                          <Grid item xs={12} sm={8}>
+                            <TextField
+                              fullWidth
+                              size="small"
+                              label="Product Description"
+                              name="desc"
+                              value={values.desc || ''}
+                              onChange={handleChange}
+                              error={Boolean(touched.desc && errors.desc)}
+                              helperText={touched.desc && errors.desc}
+                              placeholder="Enter product description"
+                            />
+                          </Grid>
+
+                          {/* Pricing & Unit Information */}
+                          <Grid item xs={12}>
+                            <Divider sx={{ my: { xs: 1 } }} />
+                            <Typography variant="h6" sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+                              <MonetizationOnIcon color="primary" fontSize="small" />
+                              Pricing & Unit Information
+                            </Typography>
+                          </Grid>
+
+                          <Grid item xs={12} sm={6}>
+                            <TextField
+                              fullWidth
+                              type="number"
+                              size="small"
+                              label="Base Price"
+                              name="price"
+                              value={values.price || ''}
+                              onChange={handleChange}
+                              error={Boolean(touched.price && errors.price)}
+                              helperText={touched.price && errors.price}
+                              placeholder="0.00"
+                              InputProps={{
+                                startAdornment: (
+                                  <MonetizationOnIcon sx={{ mr: 1, color: 'text.secondary', fontSize: '1.125rem' }} />
+                                ),
+                              }}
+                            />
+                          </Grid>
+
+                          <Grid item xs={12} sm={6}>
+                            <FormControl fullWidth size="small" error={Boolean(touched.unit && errors.unit)}>
+                              <InputLabel>Base Unit</InputLabel>
+                              <Field
+                                as={Select}
+                                label="Base Unit"
+                                name="unit"
+                                value={values.unit || ''}
+                                onChange={handleChange}
+                              >
+                                {unit.map((item) => (
+                                  <MenuItem key={item.LK_KEY} value={item.LK_KEY}>
+                                    {item.LK_VALUE}
+                                  </MenuItem>
+                                ))}
+                              </Field>
+                              {touched.unit && errors.unit && (
+                                <Typography color="error" variant="caption">
+                                  {errors.unit}
+                                </Typography>
+                              )}
+                            </FormControl>
+                          </Grid>
+                        </Grid>
+                      </TabPanel>                      <TabPanel value={activeTab} index={1}>
+                        <Grid container spacing={{ xs: 2 }}>
+                          {/* Unit Conversions */}
+                          <Grid item xs={12}>
+                            <FieldArray name="conversions">
+                              {({ push, remove }) => (
+                                <Stack spacing={2}>
+                                  {values.conversions.length === 0 && (
+                                    <Paper
+                                      elevation={1}
+                                      sx={{
+                                        p: 3,
+                                        textAlign: 'center',
+                                        border: '2px dashed',
+                                        borderColor: 'divider',
+                                        borderRadius: 2,
+                                        backgroundColor: alpha(theme.palette.primary.main, 0.03)
+                                      }}
+                                    >
+                                      <SwapHorizIcon 
+                                        sx={{ 
+                                          fontSize: 48, 
+                                          color: 'text.secondary', 
+                                          mb: 1 
+                                        }} 
+                                      />
+                                      <Typography 
+                                        variant="h6" 
+                                        color="text.secondary" 
+                                        gutterBottom
+                                        sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}
+                                      >
+                                        No Unit Conversions
+                                      </Typography>
+                                      <Typography 
+                                        variant="body2" 
+                                        color="text.secondary" 
+                                        sx={{ mb: 2 }}
+                                      >
+                                        Add conversions to define relationships between different units for this product.
+                                      </Typography>
+                                    </Paper>
+                                  )}
+
+                                  {values.conversions.length > 0 && 
+                                    <Paper
+                                      elevation={2}
+                                      sx={{
+                                        p: 2,
+                                        border: '1px solid',
+                                        borderColor: 'divider',
+                                        borderRadius: 2
+                                      }}
+                                    >
+                                      {values.conversions.map((conversion, index) => (
+                                        <Grid container key={index} spacing={2} sx={{ mb: 2 }} alignItems="center">
+                                          <Grid item xs={12} sm={4}>
+                                            <FormControl
+                                              size="small"
+                                              fullWidth
+                                              error={Boolean(touched.conversions?.[index]?.conversionUnit && errors.conversions?.[index]?.conversionUnit)}
+                                            >
+                                              <InputLabel>Conversion Unit</InputLabel>
+                                              <Field
+                                                as={Select}
+                                                label="Conversion Unit"
+                                                name={`conversions.${index}.conversionUnit`}
+                                                value={conversion.conversionUnit || ''}
+                                                onChange={handleChange}
+                                              >
+                                                {unit.map((item) => (
+                                                  <MenuItem key={item.LK_KEY} value={item.LK_KEY}>
+                                                    {item.LK_VALUE}
+                                                  </MenuItem>
+                                                ))}
+                                              </Field>
+                                              {touched.conversions?.[index]?.conversionUnit && errors.conversions?.[index]?.conversionUnit && (
+                                                <Typography color="error" variant="caption">
+                                                  {errors.conversions[index].conversionUnit}
+                                                </Typography>
+                                              )}
+                                            </FormControl>
+                                          </Grid>
+
+                                          <Grid item xs={12} sm={3}>
+                                            <TextField
+                                              size="small"
+                                              fullWidth
+                                              type="number"
+                                              label="Conversion Rate"
+                                              name={`conversions.${index}.conversionRate`}
+                                              value={conversion.conversionRate || ''}
+                                              onChange={handleChange}
+                                              error={Boolean(touched.conversions?.[index]?.conversionRate && errors.conversions?.[index]?.conversionRate)}
+                                              helperText={touched.conversions?.[index]?.conversionRate && errors.conversions?.[index]?.conversionRate}
+                                              placeholder="1.0"
+                                            />
+                                          </Grid>
+
+                                          <Grid item xs={12} sm={4}>
+                                            <TextField
+                                              size="small"
+                                              fullWidth
+                                              type="number"
+                                              label="Conversion Price"
+                                              name={`conversions.${index}.conversionPrice`}
+                                              value={conversion.conversionPrice || ''}
+                                              onChange={handleChange}
+                                              error={Boolean(touched.conversions?.[index]?.conversionPrice && errors.conversions?.[index]?.conversionPrice)}
+                                              helperText={touched.conversions?.[index]?.conversionPrice && errors.conversions?.[index]?.conversionPrice}
+                                              placeholder="0.00"
+                                            />
+                                          </Grid>
+
+                                          <Grid item xs={12} sm={1}>
+                                            <IconButton
+                                              color="error"
+                                              onClick={() => remove(index)}
+                                              size="small"
+                                              sx={{
+                                                width: '100%',
+                                                borderRadius: 2,
+                                                border: '1px solid',
+                                                borderColor: 'error.main'
+                                              }}
+                                            >
+                                              <Iconify icon="mdi:delete" />
+                                            </IconButton>
+                                          </Grid>
+                                        </Grid>
+                                      ))}
+                                    </Paper>
+                                  }
+
+                                  <Button
+                                    startIcon={<Iconify icon="mdi:plus" />}
+                                    onClick={() => push({ conversionUnit: '', conversionRate: '', conversionPrice: '' })}
+                                    variant="outlined"
+                                    size="small"
+                                    sx={{ alignSelf: 'flex-start' }}
                                   >
-                                    {values.conversions.map((conversion, index) => (
-
-                                    <Grid container key={index} spacing={2} my={1} alignItems="center">
-                                      <Grid item xs={12} sm={4}>
-                                        <FormControl
-                                          size="small"
-                                          fullWidth
-                                          error={Boolean(touched.conversions?.[index]?.conversionUnit && errors.conversions?.[index]?.conversionUnit)}
-                                        >
-                                          <InputLabel>Conversion Unit</InputLabel>
-                                          <Field
-                                            as={Select}
-                                            label="Conversion Unit"
-                                            name={`conversions.${index}.conversionUnit`}
-                                            value={conversion.conversionUnit || ''}
-                                            onChange={handleChange}
-                                          >
-                                            {unit.map((item) => (
-                                              <MenuItem key={item.LK_KEY} value={item.LK_KEY}>
-                                                {item.LK_VALUE}
-                                              </MenuItem>
-                                            ))}
-                                          </Field>
-                                          {touched.conversions?.[index]?.conversionUnit && errors.conversions?.[index]?.conversionUnit && (
-                                            <Typography color="error" variant="caption">
-                                              {errors.conversions[index].conversionUnit}
-                                            </Typography>
-                                          )}
-                                        </FormControl>
-                                      </Grid>
-
-                                      <Grid item xs={12} sm={3}>
-                                        <TextField
-                                          size="small"
-                                          fullWidth
-                                          type="number"
-                                          label="Conversion Rate"
-                                          name={`conversions.${index}.conversionRate`}
-                                          value={conversion.conversionRate || ''}
-                                          onChange={handleChange}
-                                          error={Boolean(touched.conversions?.[index]?.conversionRate && errors.conversions?.[index]?.conversionRate)}
-                                          helperText={touched.conversions?.[index]?.conversionRate && errors.conversions?.[index]?.conversionRate}
-                                          placeholder="1.0"
-                                        />
-                                      </Grid>
-
-                                      <Grid item xs={12} sm={4}>
-                                        <TextField
-                                          size="small"
-                                          fullWidth
-                                          type="number"
-                                          label="Conversion Price"
-                                          name={`conversions.${index}.conversionPrice`}
-                                          value={conversion.conversionPrice || ''}
-                                          onChange={handleChange}
-                                          error={Boolean(touched.conversions?.[index]?.conversionPrice && errors.conversions?.[index]?.conversionPrice)}
-                                          helperText={touched.conversions?.[index]?.conversionPrice && errors.conversions?.[index]?.conversionPrice}
-                                          placeholder="0.00"
-                                        />
-                                      </Grid>
-
-                                      <Grid item xs={12} sm={1}>
-                                        <IconButton
-                                          color="error"
-                                          onClick={() => remove(index)}
-                                          size="small"
-                                          sx={{
-                                            width: '100%',
-                                            borderRadius: 2,
-                                            border: '1px solid',
-                                            borderColor: 'error.main'
-                                          }}
-                                        >
-                                          <Iconify icon="mdi:delete" />
-                                        </IconButton>
-                                      </Grid>
-                                    </Grid>
-                                  ))}
-                                </Paper>}
-
-                                <Button
-                                  startIcon={<Iconify icon="mdi:plus" />}
-                                  onClick={() => push({ conversionUnit: '', conversionRate: '', conversionPrice: '' })}
-                                  variant="outlined"
-                                  size="small"
-                                  sx={{ alignSelf: 'flex-start', mt: 1 }}
-                                >
-                                  Add Conversion
-                                </Button>
-                              </Stack>
-                            )}
-                          </FieldArray>
+                                    Add Conversion
+                                  </Button>
+                                </Stack>
+                              )}
+                            </FieldArray>
+                          </Grid>
                         </Grid>
+                      </TabPanel>
 
-                        {/* Form Actions */}
-                        <Grid item xs={12}>
-                          <Divider sx={{ my: { xs: 1, sm: 2 } }} />
-                          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="flex-end">
-                            <Button
-                              variant="outlined"
-                              color="inherit"
-                              startIcon={<CloseIcon />}
-                              onClick={onClose}
-                              disabled={isLoading}
-                              size="small"
-                              sx={{ minWidth: { xs: '100%', sm: 120 } }}
-                            >
-                              Cancel
-                            </Button>
-                            <Button
-                              type="submit"
-                              variant="contained"
-                              color={isNew ? "success" : "warning"}
-                              startIcon={
-                                isLoading ? (
-                                  <Box
-                                    component="div"
-                                    sx={{
-                                      width: 14,
-                                      height: 14,
-                                      borderRadius: '50%',
-                                      border: '2px solid',
-                                      borderColor: 'currentColor',
-                                      borderTopColor: 'transparent',
-                                      animation: 'spin 1s linear infinite',
-                                      '@keyframes spin': {
-                                        '0%': { transform: 'rotate(0deg)' },
-                                        '100%': { transform: 'rotate(360deg)' },
-                                      },
-                                    }}
-                                  />
-                                ) : (
-                                  <Iconify icon="basil:save-outline" />
-                                )
-                              }
-                              disabled={isLoading}
-                              size="small"
-                              sx={{ minWidth: { xs: '100%', sm: 140 } }}
-                            >
-                              {isLoading ? 'Saving...' : `${isNew ? "Create" : "Update"} Product`}
-                            </Button>
-                          </Stack>
-                        </Grid>
-                      </Grid>
+                      {/* Form Actions */}
+                      <Box sx={{ mt: 3 }}>
+                        <Divider sx={{ my: { xs: 1, sm: 2 } }} />
+                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="flex-end">
+                          <Button
+                            variant="outlined"
+                            color="inherit"
+                            startIcon={<CloseIcon />}
+                            onClick={onClose}
+                            disabled={isLoading}
+                            size="small"
+                            sx={{ minWidth: { xs: '100%', sm: 120 } }}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            type="submit"
+                            variant="contained"
+                            color={isNew ? "success" : "warning"}
+                            startIcon={
+                              isLoading ? (
+                                <Box
+                                  component="div"
+                                  sx={{
+                                    width: 14,
+                                    height: 14,
+                                    borderRadius: '50%',
+                                    border: '2px solid',
+                                    borderColor: 'currentColor',
+                                    borderTopColor: 'transparent',
+                                    animation: 'spin 1s linear infinite',
+                                    '@keyframes spin': {
+                                      '0%': { transform: 'rotate(0deg)' },
+                                      '100%': { transform: 'rotate(360deg)' },
+                                    },
+                                  }}
+                                />
+                              ) : (
+                                <Iconify icon="basil:save-outline" />
+                              )
+                            }
+                            disabled={isLoading}
+                            size="small"
+                            sx={{ minWidth: { xs: '100%', sm: 140 } }}
+                          >
+                            {isLoading ? 'Saving...' : `${isNew ? "Create" : "Update"} Product`}
+                          </Button>
+                        </Stack>
+                      </Box>
                     </Form>
                   )}
                 </Formik>
