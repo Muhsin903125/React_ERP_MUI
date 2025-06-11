@@ -98,7 +98,8 @@ export default function StatementOfAccountPrint({ columns, rows, title, dateRang
                   <TableCell key={col.accessorKey} align={col.muiTableBodyCellProps?.align || 'left'} width={col.size || 'auto'}  >
                     {(col.accessorKey === 'docdate' || col.accessorKey === 'duedate') ? formatDate(row[col.accessorKey]) :
                       col.accessorKey === 'balance' ? formatBalanceValue(row[col.accessorKey]) :
-                        formatValue(row[col.accessorKey])}
+                      col.accessorKey === 'credit' ? formatValue(row[col.accessorKey]) :
+                         row[col.accessorKey]}
                   </TableCell>
                 ))}
               </TableRow>

@@ -23,7 +23,8 @@ import { deleteRole, GetRoleList, GetSingleListResult, GetSingleResult,  saveRol
 import { useToast } from '../../../../hooks/Common';
 import DataTable from '../../../../components/DataTable';
 import Confirm from '../../../../components/Confirm';
-import ModalForm from './ModalForm'; 
+import PageHeader from '../../../../components/PageHeader';
+import ModalForm from './ModalForm';
 
 export default function Salesman() {
   const columns = [
@@ -137,20 +138,21 @@ export default function Salesman() {
   return <>
     <Helmet>
       <title> Salesman </title>
-    </Helmet> 
-      <Card>
+    </Helmet>      <Card>
         <Stack m={5} >
-          <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-            <Typography variant="h4" gutterBottom>
-            Salesman
-            </Typography>
-
-            <Button variant="contained"
-              onClick={() => handleNew()}
-              startIcon={<Iconify icon="eva:plus-fill" />}>
-              New  
-            </Button>
-          </Stack>
+          <PageHeader 
+            title="Salesman"
+            actions={[
+              {
+                label: 'New Salesman',
+                icon: 'eva:plus-fill',
+                variant: 'contained',
+                color: 'primary',
+                onClick: handleNew,
+                show: true
+              }
+            ]}
+          />
 
           {
                     (!loader && data) ? <DataTable

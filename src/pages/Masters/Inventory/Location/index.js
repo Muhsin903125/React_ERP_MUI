@@ -23,7 +23,8 @@ import { deleteRole, GetRoleList, GetSingleListResult, GetSingleResult, PostComm
 import { useToast } from '../../../../hooks/Common';
 import DataTable from '../../../../components/DataTable';
 import Confirm from '../../../../components/Confirm';
-import ModalForm from './ModalForm'; 
+import PageHeader from '../../../../components/PageHeader';
+import ModalForm from './ModalForm';
 
 export default function Location() {
   const columns = [
@@ -149,20 +150,21 @@ export default function Location() {
   return <>
     <Helmet>
         <title> Location </title>
-    </Helmet> 
-      <Card>
+    </Helmet>      <Card>
         <Stack m={5} >
-          <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-            <Typography variant="h4" gutterBottom>
-            Location
-            </Typography>
-
-            <Button variant="contained"
-              onClick={() => handleNew()}
-              startIcon={<Iconify icon="eva:plus-fill" />}>
-              New  
-            </Button>
-          </Stack>
+          <PageHeader 
+            title="Location"
+            actions={[
+              {
+                label: 'New Location',
+                icon: 'eva:plus-fill',
+                variant: 'contained',
+                color: 'primary',
+                onClick: handleNew,
+                show: true
+              }
+            ]}
+          />
 
           {
                     (!loader && data) ? <DataTable
