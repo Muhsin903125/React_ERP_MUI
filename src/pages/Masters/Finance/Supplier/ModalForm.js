@@ -30,6 +30,7 @@ import BusinessIcon from '@mui/icons-material/Business';
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
+import { Comment } from '@mui/icons-material';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import Iconify from '../../../../components/iconify';
 import { GetSingleListResult, GetSingleResult } from '../../../../hooks/Api';
@@ -62,6 +63,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
     mobile: yup.string().matches(/^[0-9+\-\s()]*$/, 'Please enter a valid mobile number'),
     trn: yup.string().max(15, 'TRN must not exceed 15 characters'),
     address: yup.string().max(500, 'Address must not exceed 500 characters'),
+    remarks: yup.string().max(500, 'Remarks must not exceed 500 characters'),
     tax: yup.string(),
   });
 
@@ -75,7 +77,9 @@ const ModalForm = ({ open, onClose, initialValues }) => {
         SUP_DESC: data.desc,
         SUP_EMAIL: data.email,
         SUP_TRN: data.trn,
+        SUP_REMARKS: data.remarks || '',
         SUP_ADDRESS: data.address,
+
         SUP_MOB: data.mobile.toString(),
         SUP_TAX_TREATMENT: data.tax || 'SR',
       });
@@ -253,6 +257,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                   email: initialValues?.SUP_EMAIL || '',
                   mobile: initialValues?.SUP_MOB || '',
                   address: initialValues?.SUP_ADDRESS || '',
+                  remarks: initialValues?.SUP_REMARKS || '',
                   trn: initialValues?.SUP_TRN || '',
                   tax: initialValues?.SUP_TAX_TREATMENT || '',
                 }}
@@ -423,6 +428,26 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                           InputProps={{
                             startAdornment: (
                               <LocationOnIcon sx={{ mr: 1, color: 'text.secondary', fontSize: '1.125rem', alignSelf: 'flex-start', mt: 1 }} />
+                            ),
+                          }}
+                        />
+                      </Grid>
+                        <Grid item xs={12}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="Remarks"
+                          name="remarks"
+                          value={values.remarks || ''}
+                          onChange={handleChange}
+                          error={Boolean(touched.remarks && errors.remarks)}
+                          helperText={touched.remarks && errors.remarks}
+                          placeholder="Enter remarks"
+                          multiline
+                          rows={2}
+                          InputProps={{
+                            startAdornment: (
+                              <Comment sx={{ mr: 1, color: 'text.secondary', fontSize: '1.125rem', alignSelf: 'flex-start', mt: 1 }} />
                             ),
                           }}
                         />

@@ -20,9 +20,13 @@ import {
   Slide,
   AppBar,
   Toolbar,
-  Collapse
+  Collapse,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select
 } from '@mui/material';
-import { Formik, Form } from 'formik';
+import { Formik, Form, Field } from 'formik';
 import * as yup from 'yup';
 import CloseIcon from '@mui/icons-material/Close';
 import PersonIcon from '@mui/icons-material/Person';
@@ -31,7 +35,7 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import BusinessIcon from '@mui/icons-material/Business';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import Iconify from '../../../../components/iconify';
-import { GetSingleResult, PostCommonSp } from '../../../../hooks/Api';
+import { GetSingleListResult, GetSingleResult, PostCommonSp } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 
 const ModalForm = ({ open, onClose, initialValues }) => {
@@ -42,7 +46,9 @@ const ModalForm = ({ open, onClose, initialValues }) => {
   const [isNew, setIsNew] = useState(true);
   const [code, setCode] = useState(null);
   const [codeEditable, setCodeEditable] = useState(false);
-  const [loading, setLoading] = useState(false); const [expandedSections, setExpandedSections] = useState({
+  const [taxTreat, setTaxTreat] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [expandedSections, setExpandedSections] = useState({
     basic: true,
     contact: true,
     address: true
@@ -62,6 +68,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
       setIsNew(true);
       getCode();
     }
+    getTaxTreat();
   }, [initialValues, open]);
   const validationSchema = yup.object().shape({
     docNo: yup.string().required('Customer code is required'),
@@ -85,6 +92,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
         "CUS_ADDRESS": data.address,
         "CUS_REMARKS": data.remarks,
         "CUS_MOB": (data.mobile).toString(),
+        "CUS_TAX_TREATMENT": data.tax || 'SR',
       });
 
       if (Success) {
@@ -105,7 +113,22 @@ const ModalForm = ({ open, onClose, initialValues }) => {
       setLoading(false);
     }
   };
+  const getTaxTreat = async () => {
+    try {
+      const { Success, Data, Message } = await GetSingleListResult({
+        key: 'LOOKUP',
+        TYPE: 'TAX_TREAT',
+      });
 
+      if (Success) {
+        setTaxTreat(Data); // Updated to set the entire Data instead of Data[0]
+      } else {
+        showToast(Message, 'error');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
   const getCode = async () => {
     try {
       const { Success, Data, Message } = await GetSingleResult({
@@ -239,6 +262,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                   email: initialValues?.CUS_EMAIL || '',
                   mobile: initialValues?.CUS_MOB || '',
                   address: initialValues?.CUS_ADDRESS || '',
+                  tax: initialValues?.CUS_TAX_TREATMENT || 'SR',
                   remarks: initialValues?.CUS_REMARKS || '',
                   trn: initialValues?.CUS_TRN || '',
                 }}
@@ -253,98 +277,101 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                 }}
               >
                 {({ values, errors, touched, handleChange, isSubmitting }) => (
-                  <Form>                    <Grid container spacing={{ xs: 2  }}>
-                      {/* Customer Code & Name */}
-                      <Grid item xs={12}>
-                        <Typography variant="h6" sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
-                          <BusinessIcon color="primary" fontSize="small" />
-                          Basic Information
-                        </Typography>
-                      </Grid><Grid item xs={12} sm={4}>
-                        <TextField
-                          fullWidth
-                          size="small"
-                          label="Customer Code"
-                          disabled={isNew ? !codeEditable : true}
-                          name="docNo"
-                          value={values.docNo}
-                          onChange={handleChange}
-                          error={Boolean(touched.docNo && errors.docNo)}
-                          helperText={touched.docNo && errors.docNo}
-                          InputProps={{
-                            startAdornment: (
-                              <Box sx={{ mr: 1, color: 'text.secondary', fontSize: '0.875rem' }}>
-                                #
-                              </Box>
-                            ),
-                          }}
-                        />
-                      </Grid>
+                  <Form>                    <Grid container spacing={{ xs: 2 }}>
+                    {/* Customer Code & Name */}
+                    <Grid item xs={12}>
+                      <Typography variant="h6" sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+                        <BusinessIcon color="primary" fontSize="small" />
+                        Basic Information
+                      </Typography>
+                    </Grid><Grid item xs={12} sm={4}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="Customer Code"
+                        disabled={isNew ? !codeEditable : true}
+                        name="docNo"
+                        value={values.docNo}
+                        onChange={handleChange}
+                        error={Boolean(touched.docNo && errors.docNo)}
+                        helperText={touched.docNo && errors.docNo}
+                        InputProps={{
+                          startAdornment: (
+                            <Box sx={{ mr: 1, color: 'text.secondary', fontSize: '0.875rem' }}>
+                              #
+                            </Box>
+                          ),
+                        }}
+                      />
+                    </Grid>
 
-                      <Grid item xs={12} sm={8}>
-                        <TextField
-                          fullWidth
-                          size="small"
-                          label="Customer Name"
-                          name="desc"
-                          value={values.desc}
-                          onChange={handleChange}
-                          error={Boolean(touched.desc && errors.desc)}
-                          helperText={touched.desc && errors.desc}
-                          placeholder="Enter customer name"
-                        />
-                      </Grid>                      {/* Contact Information */}
-                      <Grid item xs={12}>
-                        <Divider sx={{ my: { xs: 1 } }} />
-                        <Typography variant="h6" sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
-                          <EmailIcon color="primary" fontSize="small" />
-                          Contact Information
-                        </Typography>
-                      </Grid><Grid item xs={12} sm={6}>
-                        <TextField
-                          fullWidth
-                          size="small"
-                          type='email'
-                          label="Email Address"
-                          name="email"
-                          value={values.email}
-                          onChange={handleChange}
-                          error={Boolean(touched.email && errors.email)}
-                          helperText={touched.email && errors.email}
-                          placeholder="customer@example.com"
-                          InputProps={{
-                            startAdornment: (
-                              <EmailIcon sx={{ mr: 1, color: 'text.secondary', fontSize: '1.125rem' }} />
-                            ),
-                          }}
-                        />
-                      </Grid>
+                    <Grid item xs={12} sm={8}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="Customer Name"
+                        name="desc"
+                        value={values.desc}
+                        onChange={handleChange}
+                        error={Boolean(touched.desc && errors.desc)}
+                        helperText={touched.desc && errors.desc}
+                        placeholder="Enter customer name"
+                      />
+                    </Grid>                      {/* Contact Information */}
+                    <Grid item xs={12}>
+                      <Divider sx={{ my: { xs: 1 } }} />
+                      <Typography variant="h6" sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+                        <EmailIcon color="primary" fontSize="small" />
+                        Contact Information
+                      </Typography>
+                    </Grid><Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        type='email'
+                        label="Email Address"
+                        name="email"
+                        value={values.email}
+                        onChange={handleChange}
+                        error={Boolean(touched.email && errors.email)}
+                        helperText={touched.email && errors.email}
+                        placeholder="customer@example.com"
+                        InputProps={{
+                          startAdornment: (
+                            <EmailIcon sx={{ mr: 1, color: 'text.secondary', fontSize: '1.125rem' }} />
+                          ),
+                        }}
+                      />
+                    </Grid>
 
-                      <Grid item xs={12} sm={6}>
-                        <TextField
-                          fullWidth
-                          size="small"
-                          label="Mobile Number"
-                          name="mobile"
-                          value={values.mobile}
-                          onChange={handleChange}
-                          error={Boolean(touched.mobile && errors.mobile)}
-                          helperText={touched.mobile && errors.mobile}
-                          placeholder="+971 XX XXX XXXX"
-                          InputProps={{
-                            startAdornment: (
-                              <PhoneIcon sx={{ mr: 1, color: 'text.secondary', fontSize: '1.125rem' }} />
-                            ),
-                          }}
-                        />
-                      </Grid>                      {/* Address & Tax Information */}
-                      <Grid item xs={12}>
-                        <Divider sx={{ my: { xs: 1 } }} />
-                        <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
-                          <LocationOnIcon color="primary" fontSize="small" />
-                          Address & Tax Information
-                        </Typography>  
-                        <Grid item xs={12} sm={12}>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="Mobile Number"
+                        name="mobile"
+                        value={values.mobile}
+                        onChange={handleChange}
+                        error={Boolean(touched.mobile && errors.mobile)}
+                        helperText={touched.mobile && errors.mobile}
+                        placeholder="+971 XX XXX XXXX"
+                        InputProps={{
+                          startAdornment: (
+                            <PhoneIcon sx={{ mr: 1, color: 'text.secondary', fontSize: '1.125rem' }} />
+                          ),
+                        }}
+                      />
+                    </Grid>                      {/* Address & Tax Information */}
+                    <Grid item xs={12}>
+                      <Divider sx={{ my: { xs: 1 } }} />
+                      <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+                        <LocationOnIcon color="primary" fontSize="small" />
+                        Address & Tax Information
+                      </Typography>
+                      
+                     
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
                         <TextField
                           fullWidth
                           size="small"
@@ -356,94 +383,115 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                           helperText={touched.trn && errors.trn}
                           placeholder="Tax Registration Number"
                         />
-                      </Grid> 
-                      </Grid>
-                      <Grid item xs={12} sm={12}>
-                        <TextField
-                          fullWidth
-                          size="small"
-                          label="Address"
-                          name="address"
-                          value={values.address}
-                          onChange={handleChange}
-                          error={Boolean(touched.address && errors.address)}
-                          helperText={touched.address && errors.address}
-                          placeholder="Enter complete address"
-                          multiline
-                          rows={2}
-                        />
-                      </Grid>
- <Grid item xs={12} sm={12}>
-                        <TextField
-                          fullWidth
-                          size="small"
-                          label="Remarks"
-                          name="remarks"
-                          value={values.remarks || ''}
-                          onChange={handleChange}
-                          error={Boolean(touched.remarks && errors.remarks)}
-                          helperText={touched.remarks && errors.remarks}
-                          placeholder="Enter remarks"
-                          multiline
-                          rows={2}
-                        />
-                      </Grid>
-
-                                         {/* Form Actions */}
-                      <Grid item xs={12}>
-                        <Divider sx={{ my: { xs: 1, sm: 2 } }} /><Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="flex-end">
-                          <Button
-                            variant="outlined"
-                            color="inherit"
-                            startIcon={<CloseIcon />}
-                            onClick={onClose}
-                            disabled={loading}
-                            size="small"
-                            sx={{ minWidth: { xs: '100%', sm: 120 } }}
+                      </Grid>  <Grid item xs={12} sm={6}>
+                        <FormControl fullWidth size="small" error={Boolean(touched.tax && errors.tax)}>
+                          <InputLabel>Tax Treatment</InputLabel>
+                          <Field
+                            as={Select}
+                            label="Tax Treatment"
+                            name="tax"
+                            value={values.tax}
+                            onChange={handleChange}
                           >
-                            Cancel
-                          </Button>
-                          <Button
-                            type="submit"
-                            variant="contained"
-                            color={isNew ? "success" : "warning"}
-                            startIcon={
-                              loading ? (
-                                <Box
-                                  component="div"
-                                  sx={{
-                                    width: 14,
-                                    height: 14,
-                                    borderRadius: '50%',
-                                    border: '2px solid',
-                                    borderColor: 'currentColor',
-                                    borderTopColor: 'transparent',
-                                    animation: 'spin 1s linear infinite',
-                                    '@keyframes spin': {
-                                      '0%': { transform: 'rotate(0deg)' },
-                                      '100%': { transform: 'rotate(360deg)' },
-                                    },
-                                  }}
-                                />
-                              ) : (
-                                <Iconify icon="basil:save-outline" />
-                              )
-                            }
-                            disabled={loading}
-                            size="small"
-                            sx={{ minWidth: { xs: '100%', sm: 140 } }}
-                          >
-                            {loading ? 'Saving...' : `${isNew ? "Create" : "Update"} Customer`}
-                          </Button>
-                        </Stack>
+                            {taxTreat.map((item) => (
+                              <MenuItem key={item.LK_KEY} value={item.LK_KEY}>
+                                {item.LK_VALUE}
+                              </MenuItem>
+                            ))}
+                          </Field>
+                          {touched.tax && errors.tax && (
+                            <Typography color="error" variant="caption">
+                              {errors.tax}
+                            </Typography>
+                          )}
+                        </FormControl>
                       </Grid>
+                    <Grid item xs={12} sm={12}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="Address"
+                        name="address"
+                        value={values.address}
+                        onChange={handleChange}
+                        error={Boolean(touched.address && errors.address)}
+                        helperText={touched.address && errors.address}
+                        placeholder="Enter complete address"
+                        multiline
+                        rows={2}
+                      />
                     </Grid>
+                    <Grid item xs={12} sm={12}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="Remarks"
+                        name="remarks"
+                        value={values.remarks || ''}
+                        onChange={handleChange}
+                        error={Boolean(touched.remarks && errors.remarks)}
+                        helperText={touched.remarks && errors.remarks}
+                        placeholder="Enter remarks"
+                        multiline
+                        rows={2}
+                      />
+                    </Grid>
+
+                    {/* Form Actions */}
+                    <Grid item xs={12}>
+                      <Divider sx={{ my: { xs: 1, sm: 2 } }} /><Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="flex-end">
+                        <Button
+                          variant="outlined"
+                          color="inherit"
+                          startIcon={<CloseIcon />}
+                          onClick={onClose}
+                          disabled={loading}
+                          size="small"
+                          sx={{ minWidth: { xs: '100%', sm: 120 } }}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          type="submit"
+                          variant="contained"
+                          color={isNew ? "success" : "warning"}
+                          startIcon={
+                            loading ? (
+                              <Box
+                                component="div"
+                                sx={{
+                                  width: 14,
+                                  height: 14,
+                                  borderRadius: '50%',
+                                  border: '2px solid',
+                                  borderColor: 'currentColor',
+                                  borderTopColor: 'transparent',
+                                  animation: 'spin 1s linear infinite',
+                                  '@keyframes spin': {
+                                    '0%': { transform: 'rotate(0deg)' },
+                                    '100%': { transform: 'rotate(360deg)' },
+                                  },
+                                }}
+                              />
+                            ) : (
+                              <Iconify icon="basil:save-outline" />
+                            )
+                          }
+                          disabled={loading}
+                          size="small"
+                          sx={{ minWidth: { xs: '100%', sm: 140 } }}
+                        >
+                          {loading ? 'Saving...' : `${isNew ? "Create" : "Update"} Customer`}
+                        </Button>
+                      </Stack>
+                    </Grid>
+                  </Grid>
                   </Form>
                 )}
               </Formik>
             </Box>
           </Paper>
-        </Box> 
+        </Box>
       </Slide>
     </Modal>
   );
