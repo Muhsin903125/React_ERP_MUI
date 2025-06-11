@@ -112,7 +112,7 @@ export default function Supplier() {
         // const { Success, Data, Message } = await deleteRole(id)
         if (Success) {
           fetchList();
-          showToast(Message, 'success');
+          showToast('Supplier deleted !', 'success');
         }
         else {
           showToast(Message, "error");

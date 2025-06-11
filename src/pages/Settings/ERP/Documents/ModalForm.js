@@ -55,6 +55,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
       });
 
       if (Success) {
+
         setCode(Data.LAST_NO);
         setCodeEditable(Data?.IS_EDITABLE);
       } else {
@@ -86,7 +87,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
       });
 
       if (Success) {
-        showToast(Message, 'success');
+        showToast(type=== "ADD" ? 'Document created !' : 'Document updated !', 'success');
         onClose();
       } else {
         showToast(Message, "error");

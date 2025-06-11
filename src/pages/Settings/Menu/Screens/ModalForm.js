@@ -53,7 +53,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
       });
 
       if (Success) {
-        showToast(Message, 'success');
+        showToast(type=== "ADD" ? 'Screen created !' : 'Screen updated !', 'success');
         onClose();
       } else {
         showToast(Message, "error");

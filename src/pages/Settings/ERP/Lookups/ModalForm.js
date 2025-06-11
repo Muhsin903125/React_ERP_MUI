@@ -39,7 +39,7 @@ const ModalForm = ({ open, onClose, initialValues, onSuccess }) => {
       });
 
       if (Success) {
-        showToast("Lookup created successfully", 'success');
+        showToast("Lookup created ", 'success');
         if (onSuccess) onSuccess(Data);
         onClose();
       } else {

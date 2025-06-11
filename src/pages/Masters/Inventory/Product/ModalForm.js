@@ -76,7 +76,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
       });
 
       if (Success) {
-        showToast(Message, 'success');
+        showToast(type=== "ADD" ? 'Product created !' : 'Product updated !', 'success');
         onClose();
       } else {
         showToast(Message, 'error');

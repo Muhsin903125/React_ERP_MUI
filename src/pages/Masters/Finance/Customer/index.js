@@ -112,7 +112,7 @@ export default function Customer() {
         // const { Success, Data, Message } = await deleteRole(id)
         if (Success) {
           fetchList();
-          showToast(Message, 'success');
+          showToast('Customer deleted !', 'success');
         }
         else {
           showToast(Message, "error");

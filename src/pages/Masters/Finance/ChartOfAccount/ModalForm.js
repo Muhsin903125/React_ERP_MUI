@@ -108,7 +108,7 @@ const validationSchema = yup.object().shape({
       });
 
       if (Success) {
-        showToast(Message, 'success');
+        showToast(type=== "ADD" ? 'Account created !' : 'Account updated !', 'success');
         onClose();
       } else {
         showToast(Message, "error");

@@ -119,7 +119,7 @@ export default function Product1() {
                         "isEditing": isEditing ? 1 : 0
                     })}); // !isEditing ? await saveRole(data) : await UpdateRole(data);
                 if (Success) {
-                    showToast(Message, 'success');
+                    showToast(type=== "ADD" ? 'Product created !' : 'Product updated !', 'success');
                     if (isEditing)
                         setView(true); 
                     else

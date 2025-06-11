@@ -381,7 +381,7 @@ export default function DebitNoteEntry() {
                     setIsEditMode(false);
                     setIsEditable(false);
                     navigate(`/debitnote-entry/${Data.id}`, { replace: true });
-                    showToast(id ? "Debit Note Updated Successfully" : "Debit Note Saved Successfully", 'success');
+                    showToast(id ? "Debit Note Updated !" : "Debit Note Saved !", 'success');
                 }
                 else {
                     showToast(Message, "error");

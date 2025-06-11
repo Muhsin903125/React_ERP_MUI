@@ -269,7 +269,7 @@ export default function AllocationEntry() {
                     setIsEditMode(false);
                     setIsEditable(false);
                     navigate(`/allocation-entry/${Data.id}`, { replace: true });
-                    showToast(id ? "Allocation Updated Successfully" : "Allocation Saved Successfully", 'success');
+                    showToast(id ? "Allocation Updated ! " : "Allocation Saved ! ", 'success');
                 }
                 else {
                     showToast(Message, "error");
@@ -517,7 +517,7 @@ export default function AllocationEntry() {
                     "DOC_NO": id
                 });
                 if (Success) {
-                    showToast("Allocation deleted successfully", 'success');
+                    showToast("Allocation deleted !", 'success');
                     navigate('/allocation');
                 } else {
                     showToast(Message, 'error');

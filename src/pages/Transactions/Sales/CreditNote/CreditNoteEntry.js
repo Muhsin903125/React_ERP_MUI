@@ -375,7 +375,7 @@ export default function CreditNoteEntry() {
                     setIsEditMode(false);
                     setIsEditable(false);
                     navigate(`/creditnote-entry/${Data.id}`, { replace: true });
-                    showToast(id ? "Credit Note Updated Successfully" : "Credit Note Saved Successfully", 'success');
+                    showToast(id ? "Credit Note Updated !" : "Credit Note Saved !", 'success');
                 }
                 else {
                     showToast(Message, "error");

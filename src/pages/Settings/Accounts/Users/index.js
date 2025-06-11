@@ -19,7 +19,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Iconify from '../../../../components/iconify/Iconify'; 
-import { deleteRole, GetRoleList, GetSingleListResult, GetSingleResult, PostCommonSp, saveRole } from '../../../../hooks/Api';
+import {   GetSingleListResult, GetSingleResult,  } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 import DataTable from '../../../../components/DataTable';
 import Confirm from '../../../../components/Confirm';
@@ -127,7 +127,7 @@ export default function Users() {
         // const { Success, Data, Message } = await deleteRole(id)
         if (Success) {
           fetchList();
-          showToast(Message, 'success');
+          showToast('User deleted !', 'success');
         }
         else {
           showToast(Message, "error");

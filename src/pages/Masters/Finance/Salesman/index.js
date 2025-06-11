@@ -108,7 +108,7 @@ export default function Salesman() {
         // const { Success, Data, Message } = await deleteRole(id)
         if (Success) {
           fetchList();
-          showToast(Message, 'success');
+          showToast('Salesman deleted !', 'success');
         }
         else {
           showToast(Message, "error");

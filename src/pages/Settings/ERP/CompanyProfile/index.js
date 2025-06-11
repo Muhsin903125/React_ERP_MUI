@@ -70,6 +70,7 @@ export default function CompanyProfile() {
                 if (Data.CP_LOGO_PATH) {
                     setPreviewUrl(Data.CP_LOGO_PATH);
                 }
+                
             } else {
                 showToast(Message || "Error fetching company profile", "error");
             }
@@ -133,7 +134,7 @@ export default function CompanyProfile() {
             });
 
             if (response.Success) {
-                showToast("Company profile updated successfully", "success");
+                showToast("Company profile updated", "success");
                 setCompanyData(response.Data);
             } else {
                 showToast(response.Message || "Error updating company profile", "error");

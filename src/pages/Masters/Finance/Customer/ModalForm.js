@@ -44,7 +44,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
       });
 
       if (Success) {
-        showToast(Message, 'success');
+        showToast(type=== "ADD" ? 'Customer created !' : 'Customer updated !', 'success');
         onClose();
       } else {
         showToast(Message, "error");

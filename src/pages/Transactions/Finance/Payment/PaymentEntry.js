@@ -346,7 +346,7 @@ export default function PaymentEntry() {
                     setIsEditMode(false);
                     setIsEditable(false);
                     navigate(`/payment-entry/${Data.id}`, { replace: true });
-                    showToast(id ? "Payment Voucher Updated Successfully" : "Payment Voucher Saved Successfully", 'success');
+                    showToast(id ? "Payment Voucher Updated ! " : "Payment Voucher Saved ! ", 'success');
                 }
                 else {
                     showToast(Message, "error");

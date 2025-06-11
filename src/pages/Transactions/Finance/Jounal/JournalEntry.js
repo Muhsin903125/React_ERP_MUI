@@ -226,7 +226,7 @@ export default function JournalEntry() {
                     setIsEditMode(false);
                     setIsEditable(false);
                     navigate(`/journal-entry/${Data.id}`, { replace: true });
-                    showToast(id ? "Journal Voucher Updated Successfully" : "Journal Voucher Saved Successfully", 'success');
+                    showToast(id ? "Journal Voucher Updated ! " : "Journal Voucher Saved Successfully", 'success');
                 }
                 else {
                     showToast(Message, "error");

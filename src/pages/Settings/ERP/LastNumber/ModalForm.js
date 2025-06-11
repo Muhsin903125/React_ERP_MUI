@@ -41,7 +41,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
       });
 
       if (Success) {
-        showToast(Message, 'success');
+        showToast(type=== "ADD" ? 'Last number created !' : 'Last number updated !', 'success');
         onClose();
       } else {
         showToast(Message, "error");

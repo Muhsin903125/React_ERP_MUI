@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 // components
 import Iconify from './iconify';
 import EnableEditConfirmation from './EnableEditConfirmation';
-import { GetSingleListResult, GetSingleResult } from '../hooks/Api';
+import { GetSingleListResult  } from '../hooks/Api';
 import { useToast } from '../hooks/Common';
 
 // ----------------------------------------------------------------------

@@ -123,7 +123,7 @@ export default function UserRoleList() {
         // const { Success, Data, Message } = await deleteRole(id)
         if (Success) {
           fetchList();
-          showToast(Message, 'success');
+          showToast('Role deleted !', 'success');
         }
         else {
           showToast(Message, "error");

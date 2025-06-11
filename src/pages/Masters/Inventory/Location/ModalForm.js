@@ -51,7 +51,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
       });
 
       if (Success) {
-        showToast(Message, 'success');
+        showToast(type=== "ADD" ? 'Location created !' : 'Location updated !', 'success');
         onClose();
       } else {
         showToast(Message, 'error');

@@ -39,7 +39,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
       });
 
       if (Success) {
-        showToast(Message, 'success');
+        showToast(type=== "ADD" ? 'Unit created !' : 'Unit updated !', 'success');
         onClose();
       } else {
         showToast(Message, 'error');

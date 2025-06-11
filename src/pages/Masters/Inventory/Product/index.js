@@ -112,7 +112,7 @@ export default function Product() {
         // const { Success, Data, Message } = await deleteRole(id)
         if (Success) {
           fetchList();
-          showToast(Message, 'success');
+          showToast('Product deleted !', 'success');
         }
         else {
           showToast(Message, "error");

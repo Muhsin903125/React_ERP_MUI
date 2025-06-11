@@ -43,7 +43,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
       });
 
       if (Success) {
-        showToast(Message, 'success');
+        showToast(type=== "ADD" ? 'Salesman created !' : 'Salesman updated !', 'success');
         onClose();
       } else {
         showToast(Message, "error");
@@ -73,7 +73,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
         }}
       >
         <Typography variant="h4" component="h2" sx={{ mb: 3.5, display: 'flex', justifyContent: 'space-between' }}>
-          {isNew ? "Create SalesMan" : "Update Salesman"}
+          {isNew ? "Create Salesman" : "Update Salesman"}
         </Typography>
 
         <Formik

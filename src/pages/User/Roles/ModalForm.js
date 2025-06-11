@@ -33,7 +33,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
         "R_IS_ACTIVE":data.active
       })
       if (Success) {
-        showToast(Message, 'success');
+        showToast( 'Role created !', 'success');
         onClose()
       }
       else {
@@ -55,7 +55,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
 
       })
       if (Success) {
-        showToast(Message, 'success');
+        showToast( 'Role updated !', 'success');
         onClose()
       }
       else {

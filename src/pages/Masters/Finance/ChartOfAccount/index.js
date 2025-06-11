@@ -132,7 +132,7 @@ export default function ChartOfAccount() {
                 // const { Success, Data, Message } = await deleteRole(id)
                 if (Success) {
                     fetchList();
-                    showToast(Message, 'success');
+                    showToast("Account deleted !", 'success');
                 }
                 else {
                     showToast(Message, "error");

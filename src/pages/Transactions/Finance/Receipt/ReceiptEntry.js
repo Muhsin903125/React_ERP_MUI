@@ -346,7 +346,7 @@ export default function ReceiptEntry() {
                     setIsEditMode(false);
                     setIsEditable(false);
                     navigate(`/receipt-entry/${Data.id}`, { replace: true });
-                    showToast(id ? "Receipt Voucher Updated Successfully" : "Receipt Voucher Saved Successfully", 'success');
+                    showToast(id ? "Receipt Voucher Updated ! " : "Receipt Voucher Saved ! ", 'success');
                 }
                 else {
                     showToast(Message, "error");

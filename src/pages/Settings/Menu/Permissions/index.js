@@ -148,7 +148,7 @@ export default function Permissions() {
             // const { Success, Data, Message } = await deleteRole(id)
             if (Success) {
               fetchList();
-              showToast(Message, 'success');
+              showToast('Menu deleted !', 'success');
             }
             else {
               showToast(Message, "error");

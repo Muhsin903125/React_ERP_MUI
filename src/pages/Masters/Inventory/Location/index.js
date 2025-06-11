@@ -120,7 +120,7 @@ export default function Location() {
         // const { Success, Data, Message } = await deleteRole(id)
         if (Success) {
           fetchList();
-          showToast(Message, 'success');
+          showToast('Location deleted !', 'success'); 
         }
         else {
           showToast(Message, "error");
