@@ -1,5 +1,6 @@
 
 import React from 'react';
+import PersonIcon from '@mui/icons-material/Person';
 import MasterListing from '../../../../components/MasterListing';
 import ModalForm from './ModalForm';
 
@@ -12,7 +13,7 @@ export default function Customer() {
     },
     {
       accessorKey: 'CUS_DESC',
-      header: 'Desc',
+      header: 'Customer Name',
     },
     {
       accessorKey: 'CUS_EMAIL',
@@ -30,13 +31,15 @@ export default function Customer() {
 
   return (
     <MasterListing
-      title="Customer"
+      title="Customers"
       apiKey="CUS_CRUD"
       columns={columns}
       deleteIdField="CUS_DOCNO"
       ModalForm={ModalForm}
       newButtonLabel="New Customer"
       deleteSuccessMessage="Customer deleted!"
+      icon={<PersonIcon />}
+      emptyMessage="No customers found. Start by adding your first customer to build your client database."
     />
   );
 }

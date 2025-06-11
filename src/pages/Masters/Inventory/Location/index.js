@@ -1,5 +1,6 @@
 
 import React from 'react';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 import MasterListing from '../../../../components/MasterListing';
 import ModalForm from './ModalForm';
 
@@ -35,16 +36,17 @@ export default function Location() {
       header: 'Country',
     },
   ];
-
   return (
     <MasterListing
-      title="Location"
+      title="Locations"
       apiKey="LOCATION_CRUD"
       columns={columns}
       deleteIdField="LM_LOCATION_CODE"
       ModalForm={ModalForm}
       newButtonLabel="New Location"
       deleteSuccessMessage="Location deleted!"
+      icon={<LocationOnIcon />}
+      emptyMessage="No locations found. Start by adding your first location to manage your inventory storage."
     />
   );
 }

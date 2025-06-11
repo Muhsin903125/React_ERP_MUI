@@ -117,8 +117,7 @@ const StatementOfAccount = () => {
             "TYPE": "GET_ALL_ACCOUNT",
         });
         if (Success) {
-            setAccounts(Data);
-            setAccount(Data[0]?.AC_CODE || null);
+            setAccounts(Data); 
         } else {
             showToast(Message, "error");
         }
@@ -201,7 +200,7 @@ const StatementOfAccount = () => {
     const handleReset = () => {
         setFromDate(dayjs().startOf('year').format('YYYY-MM-DD'));
         setToDate(dayjs().format('YYYY-MM-DD'));
-        setAccount(accounts[0]?.AC_CODE || null);
+        setAccount( null);
         setErrors({
             account: '',
             statementType: ''

@@ -1,5 +1,6 @@
 
 import React from 'react';
+import StraightenIcon from '@mui/icons-material/Straighten';
 import MasterListing from '../../../../components/MasterListing';
 import ModalForm from './ModalForm';
 
@@ -24,10 +25,9 @@ export default function Unit() {
       ),
     },
   ];
-
   return (
     <MasterListing
-      title="Unit"
+      title="Units"
       apiKey="LOOKUP"
       columns={columns}
       deleteIdField="LK_KEY"
@@ -35,6 +35,8 @@ export default function Unit() {
       newButtonLabel="New Unit"
       deleteSuccessMessage="Unit deleted!"
       additionalApiParams={{ TYPE: "UNITS" }}
+      icon={<StraightenIcon />}
+      emptyMessage="No units found. Start by adding your first unit of measurement for your products."
     />
   );
 }

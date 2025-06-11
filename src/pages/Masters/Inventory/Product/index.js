@@ -1,5 +1,6 @@
 
 import React from 'react';
+import InventoryIcon from '@mui/icons-material/Inventory';
 import MasterListing from '../../../../components/MasterListing';
 import ModalForm from './ModalForm';
 
@@ -27,16 +28,17 @@ export default function Product() {
       header: 'In Stock Qty',
     },
   ];
-
   return (
     <MasterListing
-      title="Product"
+      title="Products"
       apiKey="ITEM_CRUD"
       columns={columns}
       deleteIdField="IM_CODE"
       ModalForm={ModalForm}
       newButtonLabel="New Product"
       deleteSuccessMessage="Product deleted!"
+      icon={<InventoryIcon />}
+      emptyMessage="No products found. Start by adding your first product to build your inventory catalog."
     />
   );
 }
