@@ -6,7 +6,7 @@ import * as yup from 'yup';
 import Iconify from '../../../../components/iconify';
 import { GetMultipleResult, GetSingleListResult, GetSingleResult } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
-import { GetLookupList } from '../../../../utils/CommonServices';
+import { getLookupList } from '../../../../utils/CommonServices';
 
 const ModalForm = ({ open, onClose, initialValues }) => {
   const { showToast } = useToast();
@@ -113,7 +113,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
   };
 
   const getUnit = async () => {
-    const data = await GetLookupList('UNITS');
+    const data = await getLookupList('UNITS');
     setUnit(data);   
   };
 

@@ -18,7 +18,7 @@ import {
 } from '@mui/material';
 import validator from 'validator';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { getLastNumber, getLocationList, GetLookupList, getUnitList } from '../../../../utils/CommonServices';
+import { getLastNumber, getLocationList, getLookupList, getUnitList } from '../../../../utils/CommonServices';
 import Confirm from '../../../../components/Confirm';
 import Iconify from '../../../../components/iconify';
 import DateSelector from '../../../../components/DateSelector';
@@ -103,7 +103,7 @@ export default function SalesEntry() {
         })
 
     const getUnits = async () => {
-        const Data = await GetLookupList('UNITS');
+        const Data = await getLookupList('UNITS');
         setUnitList(Data);
     };
     const [items, setItems] = useState(invoiceData?.items || [{

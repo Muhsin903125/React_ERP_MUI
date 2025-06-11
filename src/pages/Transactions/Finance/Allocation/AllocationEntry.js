@@ -21,8 +21,7 @@ import {
 } from '@mui/material';
 import validator from 'validator';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { format } from 'date-fns';
-import { getLastNumber, getLocationList, getUnitList } from '../../../../utils/CommonServices';
+import { format } from 'date-fns'; 
 import Confirm from '../../../../components/Confirm';
 import Iconify from '../../../../components/iconify';
 import DateSelector from '../../../../components/DateSelector';
@@ -41,6 +40,7 @@ import AllocationPrint from './AllocationPrint';
 import PrintDialog from '../../../../components/PrintDialog';
 import PageHeader from '../../../../components/PageHeader';
 import DocumentDialog from '../../../../components/DocumentDialog';
+import { getLastNumber } from '../../../../utils/CommonServices';
 
 // ----------------------------------------------------------------------
 
