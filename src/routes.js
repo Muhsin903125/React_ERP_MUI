@@ -27,7 +27,7 @@ import UserRoleList from './pages/User/Roles/UserRoleList';
 import CustomerMaster from './pages/Masters/CustomerMaster';
 import CustomerMasterV2 from './pages/Masters/CustomerMasterV2';
 import ProductList from './pages/Masters/Inventory/Product/ProductList';
-import ChartOfAccount from './pages/Masters/Finance/ChartOfAccount';
+import ChartOfAccount from './pages/Masters/Finance/ChartOfAccount/index';
 import Supplier from './pages/Masters/Finance/Supplier';
 import Salesman from './pages/Masters/Finance/Salesman';
 import Customer from './pages/Masters/Finance/Customer';

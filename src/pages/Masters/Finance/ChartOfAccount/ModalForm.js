@@ -1,39 +1,97 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { Button, Modal, Grid, TextField, Stack, Box, Typography, FormControl, InputLabel, Select, MenuItem, FormControlLabel, Checkbox, Paper } from '@mui/material';
+import { 
+  Button, 
+  Modal, 
+  Grid, 
+  TextField, 
+  Stack, 
+  Box, 
+  Typography, 
+  FormControl, 
+  InputLabel, 
+  Select, 
+  MenuItem, 
+  FormControlLabel, 
+  Checkbox, 
+  Paper,
+  Divider,
+  Chip,
+  useTheme,
+  alpha,
+  useMediaQuery,
+  Slide,
+  IconButton,
+  Tabs,
+  Tab,
+  CircularProgress
+} from '@mui/material';
 import { Formik, Form, Field } from 'formik';
 import * as yup from 'yup';
+import CloseIcon from '@mui/icons-material/Close';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
+import BusinessIcon from '@mui/icons-material/Business';
+import ReceiptIcon from '@mui/icons-material/Receipt';
 import Iconify from '../../../../components/iconify';
 import { GetSingleListResult, GetSingleResult } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 
-const ModalForm = ({ open, onClose, initialValues, parentId, grpCode,IsAllowToCreateGH,IsAllowToCreateGL }) => {
+// TabPanel component for tab content
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`account-tabpanel-${index}`}
+      aria-labelledby={`account-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box sx={{ pt: 2 }}>
+          {children}
+        </Box>
+      )}
+    </div>
+  );
+}
+
+const ModalForm = ({ open, onClose, initialValues, parentId, grpCode, IsAllowToCreateGH, IsAllowToCreateGL }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { showToast } = useToast();
   const [isNew, setIsNew] = useState(true);
   const [code, setCode] = useState(null);
   const [codeEditable, setCodeEditable] = useState(false);
   const [parents, setParents] = useState([]);
   const [accountType, setAccountType] = useState([]);
-  const [taxTreat, setTaxTreat] = useState([]);
-  const [defaultBalance, setDefaultBalance] = useState([]);
+  const [taxTreat, setTaxTreat] = useState([]);  const [defaultBalance, setDefaultBalance] = useState([]);
   const [accountCode, setAccountCode] = useState(null);
   const [accountCodeEditable, setAccountCodeEditable] = useState(false);
-  useEffect(() => {
-    if (initialValues !== null) {
-      setIsNew(false);
-    } else {
-      setIsNew(true);
-      getCOACode();
-      getParents();
-      getAccountType();
-      getTaxTreat();
-      getAccountCode();
+  const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);  useEffect(() => {
+    if (open) {
+      setActiveTab(0); // Reset to first tab when opening
+      if (initialValues !== null) {
+        setIsNew(false);
+      } else {
+        setIsNew(true);
+        getCOACode();
+        getParents();
+        getAccountType();
+        getTaxTreat();
+        getAccountCode();
+      }
+      console.log(grpCode, "grpCode");
     }
-    console.log(grpCode, "grpCode");
   }, [initialValues, open]);
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
+  };
 
- 
-const validationSchema = yup.object().shape({
+  const validationSchema = yup.object().shape({
   code: yup.string().required('Code is required'),
   desc: yup.string().required('Description is required'),
   parent: yup.string().nullable(),
@@ -87,34 +145,39 @@ const validationSchema = yup.object().shape({
     } catch (error) {
       console.error('Error:', error);
     }
-  };
-  const HandleData = async (data, type) => {
+  };  const HandleData = async (data, type) => {
+    setLoading(true);
     try {
       const { Success, Message } = await GetSingleResult({
         "key": "COA_CRUD",
-        "TYPE": type, // Pass the type as a parameter
+        "TYPE": type,
         "ACMAIN_CODE": data.code,
         "ACMAIN_DESC": data.desc,
         "ACMAIN_PARENT": data.parent,
         "ACMAIN_ACTYPE_DOCNO": data.isGroup ? "GH" : "GL",
         "ACMAIN_DEFAULT_BALANCE_SIGN": data.defaultBalance,
-        // "ACMAIN_ACTYPE": data.acType,
         "ACMAIN_ACCNO": data.accNo,
         "ACMAIN_ACCOUNT_TAX": data.tax,
         "ACMAIN_ACCOUNT_ON_STOP": !data.enableAccount ? 0 : 1,
         "ACMAIN_ACC_CODE": data.accCode,
         "ACMAIN_ACCOUNT_REMARK": data.remark,
         "ACMAIN_ACCOUNT_DESC": data.accDesc,
-      });
-
-      if (Success) {
-        showToast(type=== "ADD" ? 'Account created !' : 'Account updated !', 'success');
+      });      if (Success) {
+        showToast(
+          type === "ADD" 
+            ? '✅ Chart of Account created successfully!' 
+            : '✅ Chart of Account updated successfully!', 
+          'success'
+        );
         onClose();
       } else {
-        showToast(Message, "error");
+        showToast(Message || 'Operation failed', "error");
       }
     } catch (error) {
-      console.error("Error:", error); // More informative error handling
+      showToast('Network error - please try again', "error");
+      console.error("Error:", error);
+    } finally {
+      setLoading(false);
     }
   };
   const getParents = async () => {
@@ -181,197 +244,324 @@ const validationSchema = yup.object().shape({
     } catch (error) {
       console.error("Error:", error); // More informative error handling
     }
-  };
-
-  return (
-    <Modal open={open} onClose={onClose}>
-      <Box
-        sx={{
-          width: { xs: '90%', sm: '550px', md: "850px" },
-          bgcolor: 'background.paper',
-          borderRadius: '8px',
-          boxShadow: 24,
-          p: 3,
-          mx: 'auto',
-          mt: { xs: '10%', md: '5%' },
-        }}
-      >
-        <Typography variant="h4" component="h2" sx={{ mb: 3.5, display: 'flex', justifyContent: 'space-between' }}>
-          {isNew ? "Create Chart of Account" : "Update Chart of Account"}
-        </Typography>
-
-        <Formik
-          initialValues={{
-            code: initialValues?.ACMAIN_CODE || code,
-            desc: initialValues?.ACMAIN_DESC || '',
-            parent: initialValues?.ACMAIN_PARENT || parentId,
-            // acType: initialValues?.ACMAIN_ACTYPE || '',
-            accNo: initialValues?.ACMAIN_ACCNO || '',
-            isGroup:initialValues?.ACMAIN_ACTYPE_DOCNO==="GH" || IsAllowToCreateGH  ,
-            defaultBalance: initialValues?.ACMAIN_DEFAULT_BALANCE_SIGN || '',
-            tax: initialValues?.ACMAIN_ACCOUNT_TAX || '',
-            accCode: initialValues?.ACMAIN_ACC_CODE || accountCode,
-            enableAccount: initialValues?.ACMAIN_ACCOUNT_ON_STOP===0 || true,
-            remark: initialValues?.ACMAIN_ACCOUNT_REMARK || '',
-            accDesc: initialValues?.ACMAIN_ACCOUNT_DESC
-          }}
-          validationSchema={validationSchema}
-          onSubmit={(values) => {
-            if (isNew)
-              HandleData(values, 'ADD');
-            else
-              HandleData(values, 'UPDATE');
+  };  return (
+    <Modal
+      open={open}
+      onClose={!loading ? onClose : undefined}
+      closeAfterTransition
+      sx={{
+        display: 'flex',
+        alignItems: isMobile ? 'flex-end' : 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Slide direction="up" in={open} mountOnEnter unmountOnExit>
+        <Box
+          sx={{
+            width: { xs: '100%', sm: '95%', md: '800px', lg: '900px' },
+            height: { xs: '100%', sm: 'auto' },
+            maxHeight: { xs: '100vh', sm: '95vh' },
+            display: 'flex',
+            flexDirection: 'column',
+            ...(isMobile && {
+              borderRadius: '16px 16px 0 0',
+            })
           }}
         >
-          {({ values, errors, touched, handleChange, setFieldValue }) => (
-            <Form>
-              <Grid container spacing={2}>
-
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Code"
-                    size='small'
-                    disabled={isNew ? !codeEditable : true}
-                    name="code" //  Ensure this matches the validation schema
-                    value={values.code} // Use values.name instead of values.R_NAME
-                    onChange={handleChange} // This will now work correctly
-                    error={Boolean(touched.code && errors.code)}
-                    helperText={touched.code && errors.code}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Description"
-                    size='small'
-                    name="desc" // Ensure this matches the validation schema
-                    value={values.desc} // Use values.name instead of values.R_NAME
-                    onChange={handleChange} // This will now work correctly
-                    error={Boolean(touched.desc && errors.desc)}
-                    helperText={touched.desc && errors.desc}
-                  />
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth error={Boolean(touched.parent && errors.parent)}>
-                    <InputLabel>Parent</InputLabel>
-                    <Field
-                      as={Select}
-                      label="Parent"
-                      size='small'
-                      name="parent"
-                      value={values.parent}
-                      onChange={handleChange}
-                    >
-                      {parents.length > 0 && parents.map((item) => (
-                        <MenuItem key={item.ACMAIN_CODE} value={item.ACMAIN_CODE}>
-                          {item.ACMAIN_DESC}
-                        </MenuItem>
-                      ))}
-                    </Field>
-                    {touched.parent && errors.parent && (
-                      <Typography color="error" variant="caption">
-                        {errors.parent}
+          <Paper
+            elevation={24}
+            sx={{
+              borderRadius: isMobile ? '16px 16px 0 0' : 3,
+              overflow: 'hidden',
+              bgcolor: 'background.paper',
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            {/* Professional Header */}
+            <Box
+              sx={{
+                background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                color: 'white',
+                p: { xs: 1.5, sm: 2 },
+                position: 'relative',
+                flexShrink: 0
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
+                <Box
+                  sx={{
+                    width: { xs: 36, sm: 40 },
+                    height: { xs: 36, sm: 40 },
+                    borderRadius: 2,
+                    backgroundColor: alpha('#fff', 0.2),
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <AccountTreeIcon fontSize={isSmallMobile ? 'small' : 'medium'} />
+                </Box>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography
+                    variant={isSmallMobile ? "subtitle1" : "h6"}
+                    sx={{
+                      fontWeight: 600,
+                      mb: 0.25,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    {isNew ? "Create Chart of Account" : "Update Chart of Account"}
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                    <Chip
+                      label={isNew ? "NEW ACCOUNT" : "EDIT MODE"}
+                      size="small"
+                      sx={{
+                        backgroundColor: alpha('#fff', 0.2),
+                        color: 'white',
+                        fontWeight: 600,
+                        fontSize: '0.7rem',
+                        height: 20
+                      }}
+                    />
+                    {!isNew && initialValues && !isSmallMobile && (
+                      <Typography variant="caption" sx={{ opacity: 0.9 }}>
+                        Code: {initialValues.ACMAIN_CODE}
                       </Typography>
                     )}
-                  </FormControl>
-                </Grid>
+                  </Box>
+                </Box>
+              </Box>
 
-                {grpCode === "GH" && <Grid item xs={12} sm={6}>
-                  <FormControlLabel
-                    control={<Checkbox
-                      disabled={(!IsAllowToCreateGH && !IsAllowToCreateGL) || !IsAllowToCreateGL}
-                      checked={values.isGroup}
-                    
-                    onChange={(e) => setFieldValue('isGroup', e.target.checked)} />}
-                    label="Is Group"
-                  />
-                </Grid>
-                }
-                {(grpCode !== "GH" || !values.isGroup) && IsAllowToCreateGL &&
-                  <Grid item xs={12} sm={12}>
-                    <Paper sx={{ p: 2, border: '1px solid #ccc', borderRadius: 2 }}>
-                      <Typography variant="h6" gutterBottom mb={2}>
-                        Account Details
-                      </Typography>
+              <IconButton
+                onClick={onClose}
+                disabled={loading}
+                sx={{
+                  position: 'absolute',
+                  right: { xs: 6, sm: 12 },
+                  top: { xs: 6, sm: 12 },
+                  color: 'white',
+                  backgroundColor: alpha('#fff', 0.1),
+                  width: { xs: 32, sm: 36 },
+                  height: { xs: 32, sm: 36 },
+                  '&:hover': {
+                    backgroundColor: alpha('#fff', 0.2),
+                  }
+                }}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </Box>
 
-                      <Grid container spacing={2}>
-                        
+            {/* Form Content */}
+            <Box sx={{ p: { xs: 2, sm: 3 }, overflowY: 'auto', flex: 1 }}>
+              <Formik
+                initialValues={{
+                  code: initialValues?.ACMAIN_CODE || code || '',
+                  desc: initialValues?.ACMAIN_DESC || '',
+                  parent: initialValues?.ACMAIN_PARENT || parentId || '',
+                  accNo: initialValues?.ACMAIN_ACCNO || '',
+                  isGroup: initialValues?.ACMAIN_ACTYPE_DOCNO === "GH" || IsAllowToCreateGH,
+                  defaultBalance: initialValues?.ACMAIN_DEFAULT_BALANCE_SIGN || '',
+                  tax: initialValues?.ACMAIN_ACCOUNT_TAX || '',
+                  accCode: initialValues?.ACMAIN_ACC_CODE || accountCode || '',
+                  enableAccount: initialValues?.ACMAIN_ACCOUNT_ON_STOP === 0 || true,
+                  remark: initialValues?.ACMAIN_ACCOUNT_REMARK || '',
+                  accDesc: initialValues?.ACMAIN_ACCOUNT_DESC || ''
+                }}
+                validationSchema={validationSchema}
+                enableReinitialize
+                onSubmit={(values) => {
+                  if (isNew) {
+                    HandleData(values, 'ADD');
+                  } else {
+                    HandleData(values, 'UPDATE');
+                  }
+                }}
+              >
+                {({ values, errors, touched, handleChange, setFieldValue }) => (
+                  <Form>
+                    {/* Tabs Navigation */}
+                    <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
+                      <Tabs 
+                        value={activeTab} 
+                        onChange={handleTabChange} 
+                        aria-label="account form tabs"
+                        variant={isMobile ? "fullWidth" : "standard"}
+                        sx={{
+                          '& .MuiTabs-indicator': {
+                            height: 3,
+                            borderRadius: '3px 3px 0 0'
+                          },
+                          '& .MuiTab-root': {
+                            textTransform: 'none',
+                            fontSize: { xs: '0.875rem', sm: '1rem' },
+                            fontWeight: 600,
+                            minHeight: { xs: 44, sm: 48 }
+                          }
+                        }}
+                      >
+                        <Tab 
+                          icon={<BusinessIcon fontSize="small" />}
+                          iconPosition="start"
+                          label="Basic Information" 
+                          id="account-tab-0"
+                          aria-controls="account-tabpanel-0"
+                        />
+                        <Tab 
+                          icon={<ReceiptIcon fontSize="small" />}
+                          iconPosition="start"
+                          label="Account Details" 
+                          id="account-tab-1"
+                          aria-controls="account-tabpanel-1"
+                          disabled={grpCode === "GH" && values.isGroup}
+                        />
+                      </Tabs>
+                    </Box>
+
+                    {/* Tab Content */}
+                    <TabPanel value={activeTab} index={0}>
+                      <Grid container spacing={{ xs: 2 }}>
                         <Grid item xs={12} sm={6}>
                           <TextField
                             fullWidth
-                            label="Account No"
                             size="small"
+                            label="Account Code"
+                            disabled={isNew ? !codeEditable : true}
+                            name="code"
+                            value={values.code || ''}
+                            onChange={handleChange}
+                            error={Boolean(touched.code && errors.code)}
+                            helperText={touched.code && errors.code}
+                            InputProps={{
+                              startAdornment: (
+                                <Box sx={{ mr: 1, color: 'text.secondary', fontSize: '0.875rem' }}>
+                                  #
+                                </Box>
+                              ),
+                            }}
+                          />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6}>
+                          <TextField
+                            fullWidth
+                            size="small"
+                            label="Description"
+                            name="desc"
+                            value={values.desc || ''}
+                            onChange={handleChange}
+                            error={Boolean(touched.desc && errors.desc)}
+                            helperText={touched.desc && errors.desc}
+                            placeholder="Enter account description"
+                          />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6}>
+                          <FormControl fullWidth size="small" error={Boolean(touched.parent && errors.parent)}>
+                            <InputLabel>Parent Account</InputLabel>
+                            <Field
+                              as={Select}
+                              label="Parent Account"
+                              name="parent"
+                              value={values.parent || ''}
+                              onChange={handleChange}
+                            >
+                              <MenuItem value="">
+                                <em>None (Root Level)</em>
+                              </MenuItem>
+                              {parents.map((item) => (
+                                <MenuItem key={item.ACMAIN_CODE} value={item.ACMAIN_CODE}>
+                                  {item.ACMAIN_DESC}
+                                </MenuItem>
+                              ))}
+                            </Field>
+                            {touched.parent && errors.parent && (
+                              <Typography color="error" variant="caption">
+                                {errors.parent}
+                              </Typography>
+                            )}
+                          </FormControl>
+                        </Grid>
+
+                        {grpCode === "GH" && (
+                          <Grid item xs={12} sm={6}>
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  disabled={(!IsAllowToCreateGH && !IsAllowToCreateGL) || !IsAllowToCreateGL}
+                                  checked={values.isGroup}
+                                  onChange={(e) => setFieldValue('isGroup', e.target.checked)}
+                                  size="small"
+                                />
+                              }
+                              label="Create as Group Account"
+                            />
+                          </Grid>
+                        )}
+                      </Grid>
+                    </TabPanel>
+
+                    <TabPanel value={activeTab} index={1}>
+                      <Grid container spacing={{ xs: 2 }}>
+                        <Grid item xs={12} sm={6}>
+                          <TextField
+                            fullWidth
+                            size="small"
+                            label="Account Number"
                             name="accNo"
-                            value={values.accNo}
+                            value={values.accNo || ''}
                             onChange={handleChange}
                             error={Boolean(touched.accNo && errors.accNo)}
                             helperText={touched.accNo && errors.accNo}
+                            placeholder="Enter account number"
                           />
                         </Grid>
+
                         <Grid item xs={12} sm={6}>
                           <TextField
                             fullWidth
-                            label="Account Name"
                             size="small"
+                            label="Account Name"
                             name="accDesc"
-                            value={values.accDesc}
+                            value={values.accDesc || ''}
                             onChange={handleChange}
                             error={Boolean(touched.accDesc && errors.accDesc)}
                             helperText={touched.accDesc && errors.accDesc}
+                            placeholder="Enter account name"
                           />
                         </Grid>
+
                         <Grid item xs={12} sm={4}>
                           <TextField
                             fullWidth
-                            label="Account Code"
                             size="small"
+                            label="Account Code"
                             disabled={isNew ? !accountCodeEditable : true}
                             name="accCode"
-                            value={values.accCode}
+                            value={values.accCode || ''}
                             onChange={handleChange}
                             error={Boolean(touched.accCode && errors.accCode)}
                             helperText={touched.accCode && errors.accCode}
                           />
                         </Grid>
-                        {/* <Grid item xs={12} sm={6}>
-                          <FormControl fullWidth size="small" error={Boolean(touched.acType && errors.acType)}>
-                            <InputLabel>Account Type</InputLabel>
-                            <Field
-                              as={Select}
-                              label="Account Type"
-                              size="small"
-                              name="acType"
-                              value={values.acType}
-                              onChange={handleChange}
-                            >
-                              {accountType.map((item) => (
-                                <MenuItem size='small' key={item.LK_KEY} value={item.LK_KEY}>
-                                  {item.LK_VALUE}
-                                </MenuItem>
-                              ))}
-                            </Field>
-                            {touched.acType && errors.acType && (
-                              <Typography color="error" variant="caption">
-                                {errors.acType}
-                              </Typography>
-                            )}
-                          </FormControl>
-                        </Grid> */}
+
                         <Grid item xs={12} sm={4}>
-                          <FormControl fullWidth size='small' error={Boolean(touched.tax && errors.tax)}>
-                            <InputLabel>Tax treatment</InputLabel>
+                          <FormControl fullWidth size="small" error={Boolean(touched.tax && errors.tax)}>
+                            <InputLabel>Tax Treatment</InputLabel>
                             <Field
                               as={Select}
-                              label="Tax treatment"
-                              size='small'
+                              label="Tax Treatment"
                               name="tax"
-                              value={values.tax}
+                              value={values.tax || ''}
                               onChange={handleChange}
                             >
                               {taxTreat.map((item) => (
-                                <MenuItem size='small' key={item.LK_KEY} value={item.LK_KEY}>
+                                <MenuItem key={item.LK_KEY} value={item.LK_KEY}>
                                   {item.LK_VALUE}
                                 </MenuItem>
                               ))}
@@ -383,19 +573,19 @@ const validationSchema = yup.object().shape({
                             )}
                           </FormControl>
                         </Grid>
+
                         <Grid item xs={12} sm={4}>
                           <FormControl fullWidth size="small" error={Boolean(touched.defaultBalance && errors.defaultBalance)}>
                             <InputLabel>Default Balance</InputLabel>
                             <Field
                               as={Select}
                               label="Default Balance"
-                              size="small"
                               name="defaultBalance"
-                              value={values.defaultBalance}
+                              value={values.defaultBalance || ''}
                               onChange={handleChange}
                             >
                               {defaultBalance.map((item) => (
-                                <MenuItem size='small' key={item.LK_KEY} value={item.LK_KEY}>
+                                <MenuItem key={item.LK_KEY} value={item.LK_KEY}>
                                   {item.LK_VALUE}
                                 </MenuItem>
                               ))}
@@ -406,52 +596,95 @@ const validationSchema = yup.object().shape({
                               </Typography>
                             )}
                           </FormControl>
-                        </Grid> 
-                       
-                        <Grid item xs={12} sm={12}>
+                        </Grid>
+
+                        <Grid item xs={12}>
                           <TextField
                             fullWidth
-                            label="ٌRemarks"
                             size="small"
+                            label="Remarks"
                             name="remark"
                             multiline
-                            rows={2}
-                            value={values.remark}
+                            rows={3}
+                            value={values.remark || ''}
                             onChange={handleChange}
                             error={Boolean(touched.remark && errors.remark)}
                             helperText={touched.remark && errors.remark}
+                            placeholder="Enter any additional remarks"
                           />
                         </Grid>
-                        <Grid item xs={12} sm={6}>
+
+                        <Grid item xs={12}>
                           <FormControlLabel
-                            control={<Checkbox size= "small" checked={values.enableAccount} onChange={(e) => setFieldValue('enableAccount', e.target.checked)} />}
-                            label="Enable Account"
+                            control={
+                              <Checkbox
+                                size="small"
+                                checked={values.enableAccount}
+                                onChange={(e) => setFieldValue('enableAccount', e.target.checked)}
+                              />
+                            }
+                            label="Enable Account for Transactions"
                           />
                         </Grid>
                       </Grid>
-                    </Paper>
+                    </TabPanel>
 
-                  </Grid>
-                }
-
-
-                <Grid item xs={12}>
-                  <Stack direction="row" alignItems="center" justifyContent="flex-end">
-                    <Button variant="outlined" color="error" startIcon={<Iconify icon="mdi:cancel" />}
-                      sx={{ mr: 2 }}
-                      onClick={onClose}>
-                      Cancel
-                    </Button>
-                    <Button type="submit" variant="contained" color={isNew ? "success" : "warning"} startIcon={<Iconify icon="basil:save-outline" />}>
-                      {isNew ? "Save" : "Update"} Chart of Account
-                    </Button>
-                  </Stack>
-                </Grid>
-              </Grid>
-            </Form>
-          )}
-        </Formik>
-      </Box>
+                    {/* Form Actions */}
+                    <Box sx={{ mt: 3 }}>
+                      <Divider sx={{ my: { xs: 1, sm: 2 } }} />
+                      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="flex-end">
+                        <Button
+                          variant="outlined"
+                          color="inherit"
+                          startIcon={<CloseIcon />}
+                          onClick={onClose}
+                          disabled={loading}
+                          size="small"
+                          sx={{ minWidth: { xs: '100%', sm: 120 } }}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          type="submit"
+                          variant="contained"
+                          color={isNew ? "success" : "warning"}
+                          startIcon={
+                            loading ? (
+                              <Box
+                                component="div"
+                                sx={{
+                                  width: 14,
+                                  height: 14,
+                                  borderRadius: '50%',
+                                  border: '2px solid',
+                                  borderColor: 'currentColor',
+                                  borderTopColor: 'transparent',
+                                  animation: 'spin 1s linear infinite',
+                                  '@keyframes spin': {
+                                    '0%': { transform: 'rotate(0deg)' },
+                                    '100%': { transform: 'rotate(360deg)' },
+                                  },
+                                }}
+                              />
+                            ) : (
+                              <Iconify icon="basil:save-outline" />
+                            )
+                          }
+                          disabled={loading}
+                          size="small"
+                          sx={{ minWidth: { xs: '100%', sm: 160 } }}
+                        >
+                          {loading ? 'Saving...' : `${isNew ? "Create" : "Update"} Account`}
+                        </Button>
+                      </Stack>
+                    </Box>
+                  </Form>
+                )}
+              </Formik>
+            </Box>
+          </Paper>
+        </Box>
+      </Slide>
     </Modal>
   );
 };

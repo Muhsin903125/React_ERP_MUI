@@ -1,7 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-import React, { useContext, useEffect, useState } from 'react'
-
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState, useMemo } from 'react';
 
 // @mui
 import {
@@ -11,9 +9,8 @@ import {
     IconButton,
     Tooltip,
     Box,
-    Container, Card,
+    Container,
     CircularProgress,
-    InputLabel,
     Grid,
     Table,
     TableBody,
@@ -21,165 +18,264 @@ import {
     TableContainer,
     TableHead,
     TableRow,
-    Paper
+    Paper,
+    useTheme,
+    alpha,
+    Chip,
+    Collapse,
+    List,
+    ListItem,
+    ListItemText,
+    ListItemIcon,
+    Divider,
+    useMediaQuery,
+    Fade,
+    Slide,
+    Avatar,
+    LinearProgress,
+    TextField,
+    InputAdornment,
+    Card,
+    CardContent,
+    Badge
 } from '@mui/material';
 
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import Iconify from '../../../../components/iconify/Iconify';
-import { deleteRole, GetRoleList, GetSingleListResult, GetSingleResult,  saveRole } from '../../../../hooks/Api';
+import AddIcon from '@mui/icons-material/Add';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
+import FolderIcon from '@mui/icons-material/Folder';
+import FolderOpenIcon from '@mui/icons-material/FolderOpen';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import BusinessIcon from '@mui/icons-material/Business';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import SearchIcon from '@mui/icons-material/Search';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import ClearIcon from '@mui/icons-material/Clear';
+import FilterListIcon from '@mui/icons-material/FilterList';
+
+import { GetSingleListResult, GetSingleResult } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
-import DataTable from '../../../../components/DataTable';
 import Confirm from '../../../../components/Confirm';
 import ModalForm from './ModalForm';
-import TreeView from './TreeView';
 
 export default function ChartOfAccount() {
-    const columns = [
-
-        {
-            accessorKey: 'CUS_DOCNO', //  access nested data with dot notation
-            header: 'Code',
-            size: "100"
-        },
-        {
-            accessorKey: 'CUS_DESC',
-            header: 'Desc',
-        },
-        {
-            accessorKey: 'CUS_EMAIL',
-            header: 'Email',
-        },
-        {
-            accessorKey: 'CUS_TRN',
-            header: 'TRN',
-        },
-        {
-            accessorKey: 'CUS_MOB',
-            header: 'Mobile',
-        },
-        {
-            header: 'Acitons',
-            Cell: ({ row }) => (
-                <div>
-                    <Tooltip title="Edit">
-                        <IconButton onClick={() => handleEdit(row.original)}>
-                            <EditIcon />
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Delete">
-                        <IconButton onClick={() => handleDelete(row.original.CUS_DOCNO)}>
-                            <DeleteIcon />
-                        </IconButton>
-                    </Tooltip>
-
-                </div>
-            ),
-            //  size:200
-        },
-    ];
-
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const { showToast } = useToast();
-    const [data, setData] = useState(null)
+    
+    const [data, setData] = useState([]);
+    const [treeData, setTreeData] = useState([]);
+    const [filteredTreeData, setFilteredTreeData] = useState([]);
+    const [expandedNodes, setExpandedNodes] = useState([]);
+    const [selectedNode, setSelectedNode] = useState(null);
     const [editData, setEditData] = useState(null);
     const [accDetails, setAccDetails] = useState(null);
     const [isDelete, setIsDelete] = useState(false);
-
     const [accName, setAccName] = useState(null);
     const [loader, setLoader] = useState(true);
-    const [showModal, SetShowModal] = useState(false)
+    const [showModal, SetShowModal] = useState(false);
     const [accId, setAccId] = useState(null);
     const [accCredit, setAccCredit] = useState(0.00);
     const [showLedger, setShowLedger] = useState(false);
     const [ledgerData, setLedgerData] = useState([]);
-    const [ledgerLoading, setLedgerLoading] = useState(false);
+    const [ledgerLoading, setLedgerLoading] = useState(false);    const [searchTerm, setSearchTerm] = useState('');
+    const [filterType, setFilterType] = useState('all'); // 'all', 'groups', 'accounts'
 
     useEffect(() => {
-
         fetchList();
+    }, []);
 
-    }, [])
+    // Filter and search functionality
+    useEffect(() => {
+        if (!searchTerm && filterType === 'all') {
+            setFilteredTreeData(treeData);
+            return;
+        }
 
-    async function fetchList() {
+        const filterNodes = (nodes) => {
+            return nodes.filter(node => {
+                // Filter by type
+                const typeMatch = filterType === 'all' || 
+                    (filterType === 'groups' && node.isGroup) ||
+                    (filterType === 'accounts' && !node.isGroup);
+
+                // Filter by search term
+                const searchMatch = !searchTerm || 
+                    node.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    node.code.toLowerCase().includes(searchTerm.toLowerCase());
+
+                // Check if any children match (recursive)
+                const hasMatchingChildren = node.children && node.children.length > 0 && 
+                    filterNodes(node.children).length > 0;
+
+                return (typeMatch && searchMatch) || hasMatchingChildren;
+            }).map(node => ({
+                ...node,
+                children: node.children ? filterNodes(node.children) : []
+            }));
+        };
+
+        setFilteredTreeData(filterNodes(treeData));
+    }, [searchTerm, filterType, treeData]);
+
+    // Auto-expand nodes when searching
+    useEffect(() => {
+        if (searchTerm) {
+            const expandAllNodes = (nodes) => {
+                const nodeIds = [];
+                nodes.forEach(node => {
+                    if (node.children && node.children.length > 0) {
+                        nodeIds.push(node.id);
+                        nodeIds.push(...expandAllNodes(node.children));
+                    }
+                });
+                return nodeIds;
+            };
+            setExpandedNodes(expandAllNodes(filteredTreeData));
+        }
+    }, [searchTerm, filteredTreeData]);async function fetchList() {
         setLoader(true);
         try {
             const { Success, Data, Message } = await GetSingleListResult({
                 "key": "COA_CRUD",
                 "TYPE": "GET_TREE",
-            })
+            });
             if (Success) {
-
-                setData(Data)
-            }
-            else {
+                setData(Data);
+                setTreeData(buildTreeStructure(Data));
+            } else {
                 showToast(Message, "error");
             }
-        }
-        finally {
+        } finally {
             setLoader(false);
         }
-    }
+    }    // Build hierarchical tree structure
+    const buildTreeStructure = (data) => {
+        const nodeMap = {};
+        const rootNodes = [];
+
+        // Create node map with the new API response structure
+        data.forEach(item => {
+            nodeMap[item.id] = {
+                id: item.id,
+                name: item.label,
+                code: item.id,
+                parent: item.ACMAIN_PARENT === "0" ? null : item.ACMAIN_PARENT,
+                isGroup: item.ACMAIN_ACTYPE_DOCNO === "GH",
+                accountNo: item.id, // Using id as account number for now
+                balance: item.ACMAIN_DEFAULT_BALANCE_SIGN,
+                credit: 0, // Default value as not provided in API
+                tax: null, // Default value as not provided in API
+                remarks: null, // Default value as not provided in API
+                isDeletable: 1, // Default value as not provided in API
+                IsAllowToCreateGH: item.isAllowToCreateGH || false,
+                IsAllowToCreateGL: true, // Default value
+                balanceSheetAccount: item.ACMAIN_BALANCE_SHEET_ACCOUNT,
+                srno: item.ACMAIN_SRNO,
+                children: []
+            };
+        });
+
+        // Build tree structure
+        Object.values(nodeMap).forEach(node => {
+            if (node.parent && nodeMap[node.parent]) {
+                nodeMap[node.parent].children.push(node);
+            } else {
+                rootNodes.push(node);
+            }
+        });
+
+        // Sort root nodes by serial number if available
+        rootNodes.sort((a, b) => {
+            if (a.srno && b.srno) {
+                return a.srno - b.srno;
+            }
+            return a.name.localeCompare(b.name);
+        });
+
+        // Sort children recursively
+        const sortChildren = (nodes) => {
+            nodes.forEach(node => {
+                if (node.children.length > 0) {
+                    node.children.sort((a, b) => {
+                        if (a.srno && b.srno) {
+                            return a.srno - b.srno;
+                        }
+                        return a.name.localeCompare(b.name);
+                    });
+                    sortChildren(node.children);
+                }
+            });
+        };
+
+        sortChildren(rootNodes);
+        return rootNodes;
+    };
+
+    const handleNodeToggle = (nodeId) => {
+        setExpandedNodes(prev => 
+            prev.includes(nodeId) 
+                ? prev.filter(id => id !== nodeId)
+                : [...prev, nodeId]
+        );
+    };
+
+    const handleNodeSelect = (node) => {
+        setSelectedNode(node.id);
+        setAccDetails(node);
+        setAccName(node.name);
+        setAccId(node.id);
+        setAccCredit(node.credit);
+        setIsDelete(node.isDeletable === 1);
+    };
 
     const handleDelete = async (id) => {
         Confirm('Are you sure to Delete?').then(async () => {
             try {
                 setLoader(true);
-                const { Success, Data, Message } = await GetSingleResult({
+                const { Success, Message } = await GetSingleResult({
                     "key": "COA_CRUD",
                     "TYPE": "DELETE",
                     "ACMAIN_CODE": id
-                })
-                // const { Success, Data, Message } = await deleteRole(id)
+                });
                 if (Success) {
                     fetchList();
-                    showToast("Account deleted !", 'success');
-                }
-                else {
+                    setSelectedNode(null);
+                    setAccDetails(null);
+                    setAccName(null);
+                    showToast("✅ Account deleted successfully!", 'success');
+                } else {
                     showToast(Message, "error");
                 }
-            }
-            finally {
+            } finally {
                 setLoader(false);
             }
         });
-    }
+    };
+
     function closeModal() {
         SetShowModal(false);
         setEditData(null);
         fetchList();
     }
-    function handleEdit(users) {
+
+    function handleEdit() {
         SetShowModal(true);
-        setEditData(accDetails)
+        setEditData(accDetails);
     }
 
-    function handleNew(id) {
+    function handleNew() {
         SetShowModal(true);
-        setEditData(null)
+        setEditData(null);
     }
-    const getAccountDetails = async (id) => {
-        const { Success, Data, Message } = await GetSingleResult({
-            "key": "COA_CRUD",
-            "TYPE": "GET_DETAILS",
-            "ACMAIN_CODE": id
-        })
-        if (Success) {
-            setIsDelete(Data?.isDeletable)
-            setAccDetails(Data)
-            setAccCredit(Data?.Credit)
-        }
-        else {
-            showToast(Message, "error");
-        }
-    }
-    const handleItemClick = (item) => {
-        console.log('Item clicked:', item);
-        setAccName(item.label)
-        setAccId(item.id)
-        getAccountDetails(item.id)
-
-        // Do something with the clicked item
-    };
 
     const handleViewLedger = async (accountId) => {
         setShowLedger(true);
@@ -200,172 +296,884 @@ export default function ChartOfAccount() {
         } finally {
             setLedgerLoading(false);
         }
-    };
-
-    return <>
-        <Helmet>
-            <title> Chart of Account </title>
-        </Helmet>
-        <Card >
-            <Stack m={5} >
-                <Grid container spacing={4} sx={{ 
-                    height: 'calc(100vh - 200px)',
-                    position: 'relative'
-                }}>
-                    <Grid item md={12}>
-                        <Typography variant="h4" gutterBottom>
-                            Chart Of Account {showLedger && accName && `- ${accName} Ledger`}
-                        </Typography>
-                    </Grid>
-                    {!showLedger ? (
-                        <>
-                            <Grid item sm={12} md={5}
-                                sx={{
-                                    backgroundColor: 'white',
-                                    borderRadius: '10px', 
-                                    padding: '10px',
-                                    height: 'calc(100vh - 300px)',
-                                    overflowY: 'auto',
-                                    '&::-webkit-scrollbar': {
-                                        display: 'none'
+    };    const renderTreeNode = (node, level = 0) => {
+        const isExpanded = expandedNodes.includes(node.id);
+        const isSelected = selectedNode === node.id;
+        const hasChildren = node.children && node.children.length > 0;
+        
+        return (
+            <Box key={node.id}>                <ListItem
+                    button
+                    onClick={() => handleNodeSelect(node)}
+                    sx={{
+                        pl: 1 + (level * 2),
+                        py: 0.5,
+                        borderRadius: 1.5,
+                        mb: 0.125,
+                        backgroundColor: isSelected ? alpha(theme.palette.primary.main, 0.12) : 'transparent',
+                        '&:hover': {
+                            backgroundColor: isSelected 
+                                ? alpha(theme.palette.primary.main, 0.16)
+                                : alpha(theme.palette.primary.main, 0.04),
+                            transform: 'translateX(3px)',
+                            transition: 'all 0.2s ease-in-out',
+                            boxShadow: theme.shadows[1]
+                        },
+                        border: isSelected ? `1px solid ${theme.palette.primary.main}` : '1px solid transparent',
+                        transition: 'all 0.2s ease-in-out',
+                        position: 'relative',
+                        minHeight: 36,
+                        '&::before': isSelected ? {
+                            content: '""',
+                            position: 'absolute',
+                            left: 0,
+                            top: 0,
+                            bottom: 0,
+                            width: 2,
+                            backgroundColor: theme.palette.primary.main,
+                            borderRadius: '0 2px 2px 0'
+                        } : {}
+                    }}
+                >
+                    <ListItemIcon sx={{ minWidth: 26 }}>                        {hasChildren && (
+                            <IconButton
+                                size="small"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleNodeToggle(node.id);
+                                }}
+                                sx={{ 
+                                    mr: 0.25, 
+                                    p: 0.125,
+                                    width: 16,
+                                    height: 16,
+                                    backgroundColor: alpha(theme.palette.primary.main, 0.04),
+                                    '&:hover': {
+                                        backgroundColor: alpha(theme.palette.primary.main, 0.12),
+                                        transform: 'scale(1.1)'
                                     },
-                                    '-ms-overflow-style': 'none',
-                                    'scrollbarWidth': 'none',
-                                    '& .MuiTreeView-root': {
-                                        width: '100%'
-                                    }
+                                    transition: 'all 0.2s ease'
                                 }}
                             >
-                                {data && <TreeView callbackFunction={handleItemClick} data={data} />}
-                            </Grid>
-                            <Grid item sm={12} md={7} sx={{
-                                background: 'linear-gradient(to right,rgba(255, 255, 255, 0.51),rgba(247, 247, 247, 0.38))',
-                                borderRadius: '10px', 
-                                padding: '20px',
-                                height: 'fit-content'
-                            }}>
-                                {accName && <Box display="flex" flexDirection="column" alignItems="flex-end" gap={2}>
-                                    <Typography variant="h4" gutterBottom>
-                                        {accName}
-                                    </Typography>
-                                    <Box display="flex" gap={2} justifyContent="flex-end" flexDirection="row">
-                                        {accDetails?.ACMAIN_ACTYPE_DOCNO === 'GH' && accDetails?.IsAllowToCreateGH ? <Button variant="outlined"
+                                {isExpanded ? (
+                                    <ExpandMoreIcon sx={{ color: theme.palette.primary.main, fontSize: '0.875rem' }} />
+                                ) : (
+                                    <ChevronRightIcon sx={{ color: theme.palette.primary.main, fontSize: '0.875rem' }} />
+                                )}
+                            </IconButton>
+                        )}                        {node.isGroup ? (
+                            <Avatar
+                                sx={{
+                                    width: 20,
+                                    height: 20,
+                                    background: `linear-gradient(135deg, ${
+                                        isExpanded ? theme.palette.primary.main : alpha(theme.palette.primary.main, 0.8)
+                                    } 0%, ${
+                                        isExpanded ? theme.palette.primary.dark : theme.palette.primary.main
+                                    } 100%)`,
+                                    boxShadow: theme.shadows[1],
+                                    transition: 'all 0.3s ease'
+                                }}
+                            >
+                                {isExpanded ? <FolderOpenIcon sx={{ fontSize: '0.75rem' }} /> : <FolderIcon sx={{ fontSize: '0.75rem' }} />}
+                            </Avatar>
+                        ) : (
+                            <Avatar
+                                sx={{
+                                    width: 20,
+                                    height: 20,
+                                    background: `linear-gradient(135deg, ${theme.palette.success.main} 0%, ${theme.palette.success.dark} 100%)`,
+                                    boxShadow: theme.shadows[1],
+                                    transition: 'all 0.3s ease'
+                                }}
+                            >
+                                <AccountCircleIcon sx={{ fontSize: '0.75rem' }} />
+                            </Avatar>
+                        )}
+                    </ListItemIcon>                      <ListItemText
+                        primary={
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
+                                <Typography 
+                                    variant="body2" 
+                                    sx={{ 
+                                        fontWeight: node.isGroup ? 600 : 500,
+                                        fontSize: node.isGroup ? '0.8rem' : '0.75rem',
+                                        flex: 1,
+                                        color: isSelected ? theme.palette.primary.main : 'inherit'
+                                    }}
+                                >
+                                    {node.name}
+                                </Typography>
+                                <Chip
+                                    label={node.isGroup ? "Group" : "Account"}
+                                    size="small"
+                                    color={node.isGroup ? "primary" : "success"}
+                                    variant={isSelected ? "filled" : "outlined"}
+                                    sx={{ 
+                                        fontSize: '0.6rem', 
+                                        height: 18,
+                                        fontWeight: 600,
+                                        transition: 'all 0.2s ease',
+                                        '& .MuiChip-label': { px: 0.75 }
+                                    }}
+                                />
+                            </Box>
+                        }                        secondary={
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mt: 0.125 }}>
+                                <Box component="span" sx={{ fontSize: '0.65rem', color: 'text.secondary' }}>
+                                    Code: {node.code}
+                                </Box>
+                                {node.isGroup && (
+                                    <>
+                                        <Box component="span" sx={{ fontSize: '0.65rem', color: 'text.secondary' }}>•</Box>
+                                        <Box component="span" sx={{ fontSize: '0.65rem', color: 'text.secondary' }}>
+                                            {node.children?.length || 0} item(s)
+                                        </Box>
+                                    </>
+                                )}
+                                {node.balanceSheetAccount === 1 && (
+                                    <>
+                                        <Box component="span" sx={{ fontSize: '0.65rem', color: 'text.secondary' }}>•</Box>
+                                        <Chip
+                                            label="Balance Sheet"
                                             size="small"
-                                            onClick={() => handleNew(accId)}
-                                            startIcon={<Iconify icon="eva:plus-fill" />}>
-                                            Add Child
-                                        </Button> : <Button variant="outlined"
-                                            size="small"
-                                            onClick={() => handleNew(accId)}
-                                            startIcon={<Iconify icon="eva:plus-fill" />}>
-                                            Add Account
-                                        </Button>
-                                        }
-                                        <Button variant="outlined"
-                                            size="small"
-                                            onClick={() => handleEdit(accDetails)}
-                                            startIcon={<Iconify icon="eva:edit-fill" />}>
-                                            Edit
-                                        </Button>
-                                        {accDetails?.ACMAIN_ACTYPE_DOCNO !== 'GH' && <Button variant="outlined"
-                                            size="small"
-                                            onClick={() => handleViewLedger(accId)}
-                                            startIcon={<Iconify icon="eva:eye-fill" />}>
-                                            View Ledger
-                                        </Button>
-                                        }
-                                        {isDelete === 1 && <Button variant="outlined" color="error"
-                                            size="small"
-                                            startIcon={<Iconify icon="eva:trash-2-outline" />}
-                                            onClick={() => handleDelete(accId)}>
-                                            Delete
-                                        </Button>
-                                        }
-                                    </Box>
-                                    <Box display="flex" gap={2}>
-                                        <Typography variant="body1" gutterBottom>
+                                            variant="outlined"
+                                            sx={{ 
+                                                fontSize: '0.55rem', 
+                                                height: 14,
+                                                color: theme.palette.info.main,
+                                                borderColor: theme.palette.info.main,
+                                                '& .MuiChip-label': { px: 0.5 }
+                                            }}
+                                        />
+                                    </>
+                                )}
+                            </Box>
+                        }
+                    />
+                </ListItem>
+
+                {/* Account Details Expansion */}
+                {isSelected && !node.isGroup && (
+                    <Collapse in={isSelected}>
+                        <Paper
+                            elevation={2}
+                            sx={{
+                                ml: 3 + (level * 3),
+                                mr: 2,
+                                mb: 2,
+                                p: 2,
+                                backgroundColor: alpha(theme.palette.primary.main, 0.02),
+                                border: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
+                                borderRadius: 2
+                            }}
+                        >
+                            <Grid container spacing={2}>
+                                <Grid item xs={12} sm={6}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                        <MonetizationOnIcon sx={{ fontSize: '1.1rem', color: 'text.secondary' }} />
+                                        <Typography variant="body2" color="text.secondary">
                                             Credit Limit
                                         </Typography>
-                                        <Typography variant="body1" gutterBottom>
-                                            {accCredit}
+                                    </Box>
+                                    <Typography variant="h6" color="primary">
+                                        {node.credit || '0.00'}
+                                    </Typography>
+                                </Grid>
+                                
+                                {node.tax && (
+                                    <Grid item xs={12} sm={6}>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                            <BusinessIcon sx={{ fontSize: '1.1rem', color: 'text.secondary' }} />
+                                            <Typography variant="body2" color="text.secondary">
+                                                Tax Treatment
+                                            </Typography>
+                                        </Box>
+                                        <Typography variant="body1">
+                                            {node.tax}
+                                        </Typography>
+                                    </Grid>
+                                )}
+                                
+                                {node.remarks && (
+                                    <Grid item xs={12}>
+                                        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                                            Remarks
+                                        </Typography>
+                                        <Typography variant="body2">
+                                            {node.remarks}
+                                        </Typography>
+                                    </Grid>
+                                )}
+                            </Grid>
+                        </Paper>
+                    </Collapse>
+                )}
+
+                {/* Child nodes */}
+                {hasChildren && (
+                    <Collapse in={isExpanded}>
+                        <Box>
+                            {node.children.map(child => renderTreeNode(child, level + 1))}
+                        </Box>
+                    </Collapse>
+                )}
+            </Box>
+        );
+    };
+
+    if (showLedger) {
+        return (
+            <>
+                <Helmet>
+                    <title>Chart of Account - Ledger</title>
+                </Helmet>
+                
+                <Container maxWidth="xl">
+                    <Box sx={{ py: 3 }}>
+                        {/* Ledger Header */}
+                        <Paper
+                            elevation={2}
+                            sx={{
+                                background: `linear-gradient(135deg, ${theme.palette.secondary.main} 0%, ${theme.palette.secondary.dark} 100%)`,
+                                color: 'white',
+                                p: 3,
+                                mb: 3,
+                                borderRadius: 3
+                            }}
+                        >
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                    <Avatar
+                                        sx={{
+                                            width: 56,
+                                            height: 56,
+                                            backgroundColor: alpha('#fff', 0.2),
+                                        }}
+                                    >
+                                        <TrendingUpIcon fontSize="large" />
+                                    </Avatar>
+                                    <Box>
+                                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+                                            Account Ledger
+                                        </Typography>
+                                        <Typography variant="body1" sx={{ opacity: 0.9 }}>
+                                            {accName} - Transaction History
                                         </Typography>
                                     </Box>
-                                </Box>}
-                            </Grid>
-                        </>
-                    ) : (
-                        <Grid item xs={12}>
-                            <Box sx={{ mb: 2 }}>
-                                <Button 
-                                    variant="outlined"
-                                    size="small"
+                                </Box>
+                                
+                                <Button
+                                    variant="contained"
+                                    size="large"
+                                    startIcon={<ArrowBackIcon />}
                                     onClick={() => setShowLedger(false)}
-                                    startIcon={<Iconify icon="eva:arrow-back-fill" />}
+                                    sx={{
+                                        backgroundColor: alpha('#fff', 0.2),
+                                        color: 'white',
+                                        '&:hover': {
+                                            backgroundColor: alpha('#fff', 0.3),
+                                        },
+                                        borderRadius: 2,
+                                        px: 3
+                                    }}
                                 >
-                                    Back to Account
+                                    Back to Accounts
                                 </Button>
                             </Box>
-                            <TableContainer component={Paper}>
-                                <Table sx={{ minWidth: 650 }} aria-label="ledger table">
+                        </Paper>
+
+                        {/* Ledger Table */}
+                        <Paper elevation={3} sx={{ borderRadius: 3, overflow: 'hidden' }}>
+                            <TableContainer>
+                                <Table sx={{ minWidth: 650 }}>
                                     <TableHead>
-                                        <TableRow>
-                                            <TableCell>Date</TableCell>
-                                            <TableCell>Description</TableCell>
-                                            <TableCell align="right">Debit</TableCell>
-                                            <TableCell align="right">Credit</TableCell>
-                                            <TableCell align="right">Balance</TableCell>
+                                        <TableRow sx={{ backgroundColor: alpha(theme.palette.primary.main, 0.04) }}>
+                                            <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
+                                            <TableCell sx={{ fontWeight: 600 }}>Description</TableCell>
+                                            <TableCell align="right" sx={{ fontWeight: 600 }}>Debit</TableCell>
+                                            <TableCell align="right" sx={{ fontWeight: 600 }}>Credit</TableCell>
+                                            <TableCell align="right" sx={{ fontWeight: 600 }}>Balance</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
                                         {ledgerLoading ? (
                                             <TableRow>
-                                                <TableCell colSpan={5} align="center">
-                                                    <CircularProgress />
+                                                <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
+                                                    <CircularProgress size={40} />
+                                                    <Typography variant="body2" sx={{ mt: 2 }}>
+                                                        Loading ledger data...
+                                                    </Typography>
                                                 </TableCell>
                                             </TableRow>
                                         ) : ledgerData.length === 0 ? (
                                             <TableRow>
-                                                <TableCell colSpan={5} align="center">
-                                                    No ledger entries found
+                                                <TableCell colSpan={5} align="center" sx={{ py: 6 }}>
+                                                    <Box>
+                                                        <AccountBalanceIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+                                                        <Typography variant="h6" color="text.secondary">
+                                                            No ledger entries found
+                                                        </Typography>
+                                                        <Typography variant="body2" color="text.secondary">
+                                                            This account has no transaction history yet
+                                                        </Typography>
+                                                    </Box>
                                                 </TableCell>
                                             </TableRow>
                                         ) : (
                                             ledgerData.map((row, index) => (
-                                                <TableRow key={index}>
+                                                <TableRow 
+                                                    key={index}
+                                                    sx={{
+                                                        '&:hover': {
+                                                            backgroundColor: alpha(theme.palette.primary.main, 0.02)
+                                                        }
+                                                    }}
+                                                >
                                                     <TableCell>{row.date}</TableCell>
                                                     <TableCell>{row.description}</TableCell>
                                                     <TableCell align="right">{row.debit}</TableCell>
                                                     <TableCell align="right">{row.credit}</TableCell>
-                                                    <TableCell align="right">{row.balance}</TableCell>
+                                                    <TableCell align="right" sx={{ fontWeight: 600 }}>
+                                                        {row.balance}
+                                                    </TableCell>
                                                 </TableRow>
                                             ))
                                         )}
                                     </TableBody>
                                 </Table>
                             </TableContainer>
+                        </Paper>
+                    </Box>
+                </Container>
+            </>
+        );
+    }
+
+    return (
+        <>
+            <Helmet>
+                <title>Chart of Accounts</title>
+            </Helmet>
+            
+            <Container maxWidth="xl">
+                <Box sx={{ py: 3 }}>                    {/* Compact Header */}
+                    <Paper
+                        elevation={1}
+                        sx={{
+                            background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                            color: 'white',
+                            p: 1.5,
+                            mb: 1.5,
+                            borderRadius: 2
+                        }}
+                    >
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Avatar
+                                    sx={{
+                                        width: 32,
+                                        height: 32,
+                                        backgroundColor: alpha('#fff', 0.2),
+                                    }}
+                                >
+                                    <AccountTreeIcon fontSize="small" />
+                                </Avatar>
+                                <Box>
+                                    <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0, fontSize: '1rem' }}>
+                                        Chart of Accounts
+                                    </Typography>
+                                    <Typography variant="caption" sx={{ opacity: 0.9, fontSize: '0.7rem' }}>
+                                        Manage your organization's account structure
+                                    </Typography>
+                                </Box>
+                            </Box>                            
+                            <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>
+                                <Button
+                                    variant="contained"
+                                    size="small"
+                                    startIcon={<RefreshIcon sx={{ fontSize: '0.875rem' }} />}
+                                    onClick={() => fetchList()}
+                                    disabled={loader}
+                                    sx={{
+                                        backgroundColor: alpha('#fff', 0.1),
+                                        color: 'white',
+                                        '&:hover': {
+                                            backgroundColor: alpha('#fff', 0.2),
+                                        },
+                                        borderRadius: 1.5,
+                                        fontSize: '0.75rem',
+                                        px: 1.5,
+                                        py: 0.5,
+                                        minHeight: 28
+                                    }}
+                                >
+                                    Refresh
+                                </Button>
+                                <Button
+                                    variant="contained"
+                                    size="small"
+                                    startIcon={<AddIcon sx={{ fontSize: '0.875rem' }} />}
+                                    onClick={() => handleNew()}
+                                    sx={{
+                                        backgroundColor: alpha('#fff', 0.2),
+                                        color: 'white',
+                                        '&:hover': {
+                                            backgroundColor: alpha('#fff', 0.3),
+                                        },
+                                        borderRadius: 1.5,
+                                        px: 1.5,
+                                        py: 0.5,
+                                        fontSize: '0.75rem',
+                                        minHeight: 28
+                                    }}
+                                >
+                                    Add Account
+                                </Button>
+                            </Box>
+                        </Box>
+                        {loader && <LinearProgress sx={{ mt: 1.5, borderRadius: 1 }} />}
+                    </Paper>
+
+                    {/* Main Content */}
+                    <Grid container spacing={3}>
+                        {/* Enhanced Tree View */}
+                        <Grid item xs={12} lg={8}>                            <Paper
+                                elevation={3}
+                                sx={{
+                                    height: 'calc(100vh - 280px)',
+                                    borderRadius: 2.5,
+                                    overflow: 'hidden',
+                                    border: `1px solid ${theme.palette.divider}`
+                                }}
+                            >
+                                {/* Tree Header with Search and Filters */}
+                                <Box
+                                    sx={{
+                                        p: 1.5,
+                                        backgroundColor: alpha(theme.palette.primary.main, 0.04),
+                                        borderBottom: `1px solid ${theme.palette.divider}`,
+                                    }}
+                                >
+                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                                        <Typography variant="subtitle2" sx={{ display: 'flex', alignItems: 'center', gap: 0.75, fontWeight: 600, fontSize: '0.875rem' }}>
+                                            <FolderIcon color="primary" sx={{ fontSize: '1rem' }} />
+                                            Account Hierarchy
+                                        </Typography>
+                                        <Chip 
+                                            label={`${filteredTreeData.length} Root Account(s)`}
+                                            size="small"
+                                            color="primary"
+                                            variant="outlined"
+                                            sx={{ fontSize: '0.7rem', height: 20, '& .MuiChip-label': { px: 1 } }}
+                                        />
+                                    </Box>                                    {/* Search and Filter Controls */}
+                                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                                        <TextField
+                                            size="small"
+                                            placeholder="Search accounts..."
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                            InputProps={{
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <SearchIcon sx={{ fontSize: '0.875rem' }} />
+                                                    </InputAdornment>
+                                                ),
+                                                endAdornment: searchTerm && (
+                                                    <InputAdornment position="end">
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={() => setSearchTerm('')}
+                                                            sx={{ p: 0.25 }}
+                                                        >
+                                                            <ClearIcon sx={{ fontSize: '0.875rem' }} />
+                                                        </IconButton>
+                                                    </InputAdornment>
+                                                )
+                                            }}
+                                            sx={{ 
+                                                flex: 1, 
+                                                minWidth: 160,
+                                                backgroundColor: 'background.paper',
+                                                borderRadius: 1.5,
+                                                '& .MuiOutlinedInput-root': {
+                                                    fontSize: '0.8rem',
+                                                    height: 32
+                                                },
+                                                '& .MuiOutlinedInput-input': {
+                                                    py: 0.75
+                                                }
+                                            }}
+                                        />                                        <Button
+                                            variant={filterType === 'all' ? 'contained' : 'outlined'}
+                                            size="small"
+                                            onClick={() => setFilterType('all')}
+                                            sx={{ 
+                                                minWidth: 48, 
+                                                fontSize: '0.7rem', 
+                                                px: 1, 
+                                                py: 0.5,
+                                                height: 28,
+                                                borderRadius: 1.5
+                                            }}
+                                        >
+                                            All
+                                        </Button>
+                                        <Button
+                                            variant={filterType === 'groups' ? 'contained' : 'outlined'}
+                                            size="small"
+                                            onClick={() => setFilterType('groups')}
+                                            sx={{ 
+                                                minWidth: 56, 
+                                                fontSize: '0.7rem', 
+                                                px: 1, 
+                                                py: 0.5,
+                                                height: 28,
+                                                borderRadius: 1.5
+                                            }}
+                                        >
+                                            Groups
+                                        </Button>
+                                        <Button
+                                            variant={filterType === 'accounts' ? 'contained' : 'outlined'}
+                                            size="small"
+                                            onClick={() => setFilterType('accounts')}
+                                            sx={{ 
+                                                minWidth: 64, 
+                                                fontSize: '0.7rem', 
+                                                px: 1, 
+                                                py: 0.5,
+                                                height: 28,
+                                                borderRadius: 1.5
+                                            }}
+                                        >
+                                            Accounts
+                                        </Button>
+                                    </Box>
+                                </Box>                                {/* Tree Content */}
+                                <Box sx={{ height: 'calc(100% - 100px)', overflowY: 'auto', p: 0.75 }}>
+                                    {loader ? (
+                                        <Box sx={{ 
+                                            display: 'flex', 
+                                            flexDirection: 'column',
+                                            justifyContent: 'center', 
+                                            alignItems: 'center', 
+                                            height: '50%',
+                                            gap: 2
+                                        }}>
+                                            <CircularProgress size={40} />
+                                            <Typography variant="body2" color="text.secondary">
+                                                Loading account structure...
+                                            </Typography>
+                                        </Box>
+                                    ) : filteredTreeData.length > 0 ? (
+                                        <List sx={{ p: 1 }}>
+                                            {filteredTreeData.map(node => renderTreeNode(node, 0))}
+                                        </List>
+                                    ) : searchTerm || filterType !== 'all' ? (                                        <Box sx={{ 
+                                            textAlign: 'center', 
+                                            color: 'text.secondary',
+                                            mt: 6
+                                        }}>
+                                            <SearchIcon sx={{ fontSize: 48, mb: 1.5, opacity: 0.3 }} />
+                                            <Typography variant="subtitle1" sx={{ mb: 0.75, fontSize: '1rem' }}>
+                                                No Results Found
+                                            </Typography>
+                                            <Typography variant="body2" sx={{ fontSize: '0.875rem' }}>
+                                                Try adjusting your search terms or filters
+                                            </Typography>
+                                        </Box>
+                                    ) : (                                        <Box sx={{ 
+                                            textAlign: 'center', 
+                                            color: 'text.secondary',
+                                            mt: 6
+                                        }}>
+                                            <AccountTreeIcon sx={{ fontSize: 48, mb: 1.5, opacity: 0.3 }} />
+                                            <Typography variant="subtitle1" sx={{ mb: 0.75, fontSize: '1rem' }}>
+                                                No Accounts Found
+                                            </Typography>
+                                            <Typography variant="body2" sx={{ fontSize: '0.875rem' }}>
+                                                Click "Add Account" to create your first chart of account
+                                            </Typography>
+                                        </Box>
+                                    )}
+                                </Box>
+                            </Paper>
                         </Grid>
-                    )}
-                </Grid>
-                {/* {
-                    (!loader && data) ? <DataTable
-                        columns={columns}
-                        data={data}
-                        // enableRowSelection 
-                        // enableGrouping
-                        enableExport={false}
 
-                    /> : <CircularProgress color="inherit" />
-                } */}
-                <ModalForm 
-                open={showModal} 
-                initialValues={editData} 
-                parentId={accDetails?.ACMAIN_ACTYPE_DOCNO === "GL" ? accDetails?.ACMAIN_PARENT : accId} onClose={() => closeModal()} 
-                IsAllowToCreateGH= {accDetails?.IsAllowToCreateGH}
-                IsAllowToCreateGL= {accDetails?.IsAllowToCreateGL}
-                grpCode={!accDetails?.IsAllowToCreateGH? "GL" : accDetails?.ACMAIN_ACTYPE_DOCNO} 
-                />
-            </Stack>
-        </Card>
-    </>
+                        {/* Enhanced Account Details Panel */}
+                        <Grid item xs={12} lg={4}>                            <Paper
+                                elevation={3}
+                                sx={{
+                                    height: 'calc(100vh - 280px)',
+                                    borderRadius: 2.5,
+                                    overflow: 'hidden',
+                                    border: `1px solid ${theme.palette.divider}`
+                                }}
+                            >
+                                {/* Details Header */}
+                                <Box
+                                    sx={{
+                                        p: 1.5,
+                                        backgroundColor: alpha(theme.palette.secondary.main, 0.04),
+                                        borderBottom: `1px solid ${theme.palette.divider}`
+                                    }}
+                                >
+                                    <Typography variant="subtitle2" sx={{ display: 'flex', alignItems: 'center', gap: 0.75, fontWeight: 600, fontSize: '0.875rem' }}>
+                                        <BusinessIcon color="secondary" sx={{ fontSize: '1rem' }} />
+                                        Account Details
+                                    </Typography>
+                                </Box>
 
+                                {/* Details Content */}
+                                <Box sx={{ p: 1.5, height: 'calc(100% - 52px)', overflowY: 'auto' }}>                                    {selectedNode && accDetails ? (
+                                        <Fade in timeout={300}>
+                                            <div>
+                                                <Stack spacing={1.5}>
+                                                {/* Account Info Card */}
+                                                <Card elevation={1} sx={{ borderRadius: 2 }}>
+                                                    <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                                            <Avatar
+                                                                sx={{
+                                                                    width: 28,
+                                                                    height: 28,
+                                                                    background: accDetails.isGroup 
+                                                                        ? `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`
+                                                                        : `linear-gradient(135deg, ${theme.palette.success.main} 0%, ${theme.palette.success.dark} 100%)`,
+                                                                }}
+                                                            >
+                                                                {accDetails.isGroup ? <FolderIcon sx={{ fontSize: '0.875rem' }} /> : <AccountCircleIcon sx={{ fontSize: '0.875rem' }} />}
+                                                            </Avatar>
+                                                            <Box sx={{ flex: 1 }}>
+                                                                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.125, fontSize: '0.875rem' }}>
+                                                                    {accDetails.name}
+                                                                </Typography>
+                                                                <Chip
+                                                                    label={accDetails.isGroup ? "Account Group" : "Account"}
+                                                                    color={accDetails.isGroup ? "primary" : "success"}
+                                                                    size="small"
+                                                                    variant="filled"
+                                                                    sx={{ fontSize: '0.65rem', height: 18, '& .MuiChip-label': { px: 0.75 } }}
+                                                                />
+                                                            </Box>
+                                                        </Box>                                        
+                                                        <Grid container spacing={1}>
+                                                            <Grid item xs={12}>
+                                                                <Paper
+                                                                    sx={{ 
+                                                                        p: 1, 
+                                                                        backgroundColor: alpha(theme.palette.primary.main, 0.04),
+                                                                        borderRadius: 1,
+                                                                        border: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`
+                                                                    }}
+                                                                >
+                                                                    <Typography variant="caption" color="text.secondary" sx={{ mb: 0.125, fontSize: '0.65rem' }}>
+                                                                        Account Code
+                                                                    </Typography>
+                                                                    <Typography variant="body2" color="primary" sx={{ fontWeight: 600, fontSize: '0.8rem' }}>
+                                                                        {accDetails.code}
+                                                                    </Typography>
+                                                                </Paper>
+                                                            </Grid>
+
+                                                            {/* Balance Type */}
+                                                            <Grid item xs={12}>
+                                                                <Paper
+                                                                    sx={{ 
+                                                                        p: 1, 
+                                                                        backgroundColor: alpha(theme.palette.info.main, 0.04),
+                                                                        borderRadius: 1,
+                                                                        border: `1px solid ${alpha(theme.palette.info.main, 0.12)}`
+                                                                    }}
+                                                                >
+                                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.125 }}>
+                                                                        <AccountBalanceIcon sx={{ fontSize: '0.875rem', color: 'info.main' }} />
+                                                                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+                                                                            Default Balance
+                                                                        </Typography>
+                                                                    </Box>
+                                                                    <Typography variant="body2" color="info.main" sx={{ fontWeight: 600, fontSize: '0.8rem' }}>
+                                                                        {accDetails.balance === 1 ? 'Debit' : 'Credit'}
+                                                                    </Typography>
+                                                                </Paper>
+                                                            </Grid>                                                            {/* Account Type */}
+                                                            {accDetails.balanceSheetAccount !== undefined && (
+                                                                <Grid item xs={12}>
+                                                                    <Paper
+                                                                        sx={{ 
+                                                                            p: 1, 
+                                                                            backgroundColor: alpha(theme.palette.secondary.main, 0.04),
+                                                                            borderRadius: 1,
+                                                                            border: `1px solid ${alpha(theme.palette.secondary.main, 0.12)}`
+                                                                        }}
+                                                                    >
+                                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.125 }}>
+                                                                            <BusinessIcon sx={{ fontSize: '0.875rem', color: 'secondary.main' }} />
+                                                                            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+                                                                                Account Type
+                                                                            </Typography>
+                                                                        </Box>
+                                                                        <Typography variant="body2" color="secondary.main" sx={{ fontWeight: 600, fontSize: '0.8rem' }}>
+                                                                            {accDetails.balanceSheetAccount === 1 ? 'Balance Sheet' : 'Income Statement'}
+                                                                        </Typography>
+                                                                    </Paper>
+                                                                </Grid>
+                                                            )}
+                                                        </Grid>
+                                                    </CardContent>
+                                                </Card>                                                {/* Action Buttons */}
+                                                <Card elevation={1} sx={{ borderRadius: 2 }}>
+                                                    <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
+                                                        <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600, fontSize: '0.875rem' }}>
+                                                            Actions
+                                                        </Typography>
+                                                        <Stack spacing={1}>{accDetails.isGroup && accDetails.IsAllowToCreateGH && (
+                                                                <Button
+                                                                    variant="outlined"
+                                                                    size="small"
+                                                                    fullWidth
+                                                                    startIcon={<AddIcon fontSize="small" />}
+                                                                    onClick={() => handleNew()}
+                                                                    sx={{ 
+                                                                        borderRadius: 2,
+                                                                        py: 1,
+                                                                        fontSize: '0.875rem',
+                                                                        '&:hover': {
+                                                                            transform: 'translateY(-1px)',
+                                                                            boxShadow: theme.shadows[2]
+                                                                        },
+                                                                        transition: 'all 0.2s ease'
+                                                                    }}
+                                                                >
+                                                                    Add Child Group
+                                                                </Button>
+                                                            )}
+                                                            
+                                                            {accDetails.IsAllowToCreateGL && (
+                                                                <Button
+                                                                    variant="outlined"
+                                                                    size="small"
+                                                                    fullWidth
+                                                                    startIcon={<AddIcon fontSize="small" />}
+                                                                    onClick={() => handleNew()}
+                                                                    sx={{ 
+                                                                        borderRadius: 2,
+                                                                        py: 1,
+                                                                        fontSize: '0.875rem',
+                                                                        '&:hover': {
+                                                                            transform: 'translateY(-1px)',
+                                                                            boxShadow: theme.shadows[2]
+                                                                        },
+                                                                        transition: 'all 0.2s ease'
+                                                                    }}
+                                                                >
+                                                                    Add Account
+                                                                </Button>
+                                                            )}
+                                                            
+                                                            <Button
+                                                                variant="contained"
+                                                                size="small"
+                                                                fullWidth
+                                                                startIcon={<EditIcon fontSize="small" />}
+                                                                onClick={() => handleEdit()}
+                                                                sx={{ 
+                                                                    borderRadius: 2,
+                                                                    py: 1,
+                                                                    fontSize: '0.875rem',
+                                                                    '&:hover': {
+                                                                        transform: 'translateY(-1px)',
+                                                                        boxShadow: theme.shadows[4]
+                                                                    },
+                                                                    transition: 'all 0.2s ease'
+                                                                }}
+                                                            >
+                                                                Edit Account
+                                                            </Button>
+
+                                                            {!accDetails.isGroup && (
+                                                                <Button
+                                                                    variant="outlined"
+                                                                    color="info"
+                                                                    size="small"
+                                                                    fullWidth
+                                                                    startIcon={<VisibilityIcon fontSize="small" />}
+                                                                    onClick={() => handleViewLedger(accId)}
+                                                                    sx={{ 
+                                                                        borderRadius: 2,
+                                                                        py: 1,
+                                                                        fontSize: '0.875rem',
+                                                                        '&:hover': {
+                                                                            transform: 'translateY(-1px)',
+                                                                            boxShadow: theme.shadows[2]
+                                                                        },
+                                                                        transition: 'all 0.2s ease'
+                                                                    }}
+                                                                >
+                                                                    View Ledger
+                                                                </Button>
+                                                            )}
+                                                            
+                                                            {isDelete && (
+                                                                <Button
+                                                                    variant="outlined"
+                                                                    color="error"
+                                                                    size="small"
+                                                                    fullWidth
+                                                                    startIcon={<DeleteIcon fontSize="small" />}
+                                                                    onClick={() => handleDelete(accId)}
+                                                                    sx={{ 
+                                                                        borderRadius: 2,
+                                                                        py: 1,
+                                                                        fontSize: '0.875rem',
+                                                                        '&:hover': {
+                                                                            transform: 'translateY(-1px)',
+                                                                            boxShadow: theme.shadows[2]
+                                                                        },
+                                                                        transition: 'all 0.2s ease'
+                                                                    }}
+                                                                >
+                                                                    Delete Account
+                                                                </Button>                                                            )}
+                                                        </Stack>
+                                                    </CardContent>
+                                                </Card>
+                                            </Stack>
+                                            </div>
+                                        </Fade>
+                                    ) : (                                        <Box sx={{ 
+                                            textAlign: 'center', 
+                                            color: 'text.secondary',
+                                            mt: 6
+                                        }}>
+                                            <AccountTreeIcon sx={{ fontSize: 48, mb: 1.5, opacity: 0.3 }} />
+                                            <Typography variant="subtitle1" sx={{ mb: 0.75, fontSize: '1rem' }}>
+                                                Select an Account
+                                            </Typography>
+                                            <Typography variant="body2" sx={{ fontSize: '0.875rem' }}>
+                                                Click on any account in the tree to view details and available actions
+                                            </Typography>
+                                        </Box>
+                                    )}
+                                </Box>
+                            </Paper>
+                        </Grid>
+                    </Grid>
+
+                    {/* Modal Form */}
+                    <ModalForm 
+                        open={showModal} 
+                        initialValues={editData} 
+                        parentId={accDetails?.isGroup === false ? accDetails?.parent : accId}
+                        onClose={() => closeModal()}
+                        IsAllowToCreateGH={accDetails?.IsAllowToCreateGH}
+                        IsAllowToCreateGL={accDetails?.IsAllowToCreateGL}
+                        grpCode={!accDetails?.IsAllowToCreateGH ? "GL" : (accDetails?.isGroup ? "GH" : "GL")}
+                    />
+                </Box>
+            </Container>
+        </>
+    );
 }
