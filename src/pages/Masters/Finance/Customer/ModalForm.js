@@ -68,8 +68,9 @@ const ModalForm = ({ open, onClose, initialValues }) => {
     desc: yup.string().required('Customer name is required').min(2, 'Name must be at least 2 characters'),
     email: yup.string().email('Please enter a valid email address'),
     mobile: yup.string().matches(/^[0-9+\-\s()]*$/, 'Please enter a valid mobile number'),
-    trn: yup.string().max(15, 'TRN must not exceed 15 characters'),
+    trn: yup.string().max(20, 'TRN must not exceed 20 characters'),
     address: yup.string().max(500, 'Address must not exceed 500 characters'),
+    remarks: yup.string().max(500, 'Remarks must not exceed 500 characters'),
   });
   const HandleData = async (data, type) => {
     setLoading(true);
@@ -82,6 +83,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
         "CUS_EMAIL": data.email,
         "CUS_TRN": data.trn,
         "CUS_ADDRESS": data.address,
+        "CUS_REMARKS": data.remarks,
         "CUS_MOB": (data.mobile).toString(),
       });
 
@@ -237,6 +239,7 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                   email: initialValues?.CUS_EMAIL || '',
                   mobile: initialValues?.CUS_MOB || '',
                   address: initialValues?.CUS_ADDRESS || '',
+                  remarks: initialValues?.CUS_REMARKS || '',
                   trn: initialValues?.CUS_TRN || '',
                 }}
                 validationSchema={validationSchema}
@@ -337,27 +340,11 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                       </Grid>                      {/* Address & Tax Information */}
                       <Grid item xs={12}>
                         <Divider sx={{ my: { xs: 1 } }} />
-                        <Typography variant="h6" sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+                        <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                           <LocationOnIcon color="primary" fontSize="small" />
                           Address & Tax Information
-                        </Typography>
-                      </Grid><Grid item xs={12} sm={8}>
-                        <TextField
-                          fullWidth
-                          size="small"
-                          label="Address"
-                          name="address"
-                          value={values.address}
-                          onChange={handleChange}
-                          error={Boolean(touched.address && errors.address)}
-                          helperText={touched.address && errors.address}
-                          placeholder="Enter complete address"
-                          multiline
-                          rows={1}
-                        />
-                      </Grid>
-
-                      <Grid item xs={12} sm={4}>
+                        </Typography>  
+                        <Grid item xs={12} sm={12}>
                         <TextField
                           fullWidth
                           size="small"
@@ -369,7 +356,40 @@ const ModalForm = ({ open, onClose, initialValues }) => {
                           helperText={touched.trn && errors.trn}
                           placeholder="Tax Registration Number"
                         />
-                      </Grid>                      {/* Form Actions */}
+                      </Grid> 
+                      </Grid>
+                      <Grid item xs={12} sm={12}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="Address"
+                          name="address"
+                          value={values.address}
+                          onChange={handleChange}
+                          error={Boolean(touched.address && errors.address)}
+                          helperText={touched.address && errors.address}
+                          placeholder="Enter complete address"
+                          multiline
+                          rows={2}
+                        />
+                      </Grid>
+ <Grid item xs={12} sm={12}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="Remarks"
+                          name="remarks"
+                          value={values.remarks || ''}
+                          onChange={handleChange}
+                          error={Boolean(touched.remarks && errors.remarks)}
+                          helperText={touched.remarks && errors.remarks}
+                          placeholder="Enter remarks"
+                          multiline
+                          rows={2}
+                        />
+                      </Grid>
+
+                                         {/* Form Actions */}
                       <Grid item xs={12}>
                         <Divider sx={{ my: { xs: 1, sm: 2 } }} /><Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="flex-end">
                           <Button
