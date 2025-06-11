@@ -1,176 +1,42 @@
 
-import { Helmet } from 'react-helmet-async';
-import React, { useContext, useEffect, useState } from 'react'
-
-import { Link, useNavigate } from 'react-router-dom';
-
-// @mui
-import {
-  Stack,
-  Button,
-  Typography,
-  IconButton,
-  Tooltip,
-  Box,
-  Container,Card,
-  CircularProgress
-} from '@mui/material';
-
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import Iconify from '../../../../components/iconify/Iconify'; 
-import { deleteRole, GetRoleList, GetSingleListResult, GetSingleResult,  saveRole } from '../../../../hooks/Api';
-import { useToast } from '../../../../hooks/Common';
-import DataTable from '../../../../components/DataTable';
-import Confirm from '../../../../components/Confirm';
-import PageHeader from '../../../../components/PageHeader';
+import React from 'react';
+import MasterListing from '../../../../components/MasterListing';
 import ModalForm from './ModalForm';
 
 export default function Product() {
   const columns = [
-
     {
-      accessorKey: 'IM_CODE', //  access nested data with dot notation
+      accessorKey: 'IM_CODE',
       header: 'Code',
-        size:"100"
+      size: "100"
     },
     {
       accessorKey: 'IM_DESC',
       header: 'Desc',
-    }, 
-      {
+    },
+    {
       accessorKey: 'IM_UNIT',
       header: 'Unit',
-    }, 
+    },
     {
-        accessorKey: 'IM_PRICE',
+      accessorKey: 'IM_PRICE',
       header: 'Price',
-    },  
+    },
     {
       accessorKey: 'IM_CLSQTY',
-    header: 'In Stock Qty',
-    }, 
-    {
-      header: 'Acitons',
-      Cell: ({ row }) => (
-        <div>
-          <Tooltip title="Edit">
-            <IconButton onClick={() => handleEdit(row.original)}>
-              <EditIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Delete">
-            <IconButton onClick={() => handleDelete(row.original.IM_CODE)}>
-              <DeleteIcon />
-            </IconButton>
-          </Tooltip>
-
-        </div>
-      ),
-      //  size:200
+      header: 'In Stock Qty',
     },
   ];
- 
-  const { showToast } = useToast();
-  const [data, setData] = useState(null)
-  const [editData, setEditData] = useState(null)
-  const [loader, setLoader] = useState(true);
-  const [showModal, SetShowModal] = useState(false)
-  useEffect(() => {
 
-    fetchList();
-
-  }, [])
-
-  async function fetchList() {
-    setLoader(true);
-    try { 
-      const { Success, Data, Message } = await GetSingleListResult({
-        "key": "ITEM_CRUD",
-        "TYPE": "GET_ALL",
-      })
-      if (Success) {
-        setData(Data)
-      }
-      else {
-        showToast(Message, "error");
-      }
-    }
-    finally {
-      setLoader(false);
-    }
-  }
-
-  const handleDelete = async (id) => {
-    Confirm('Are you sure to Delete?').then(async () => {
-      try {
-        setLoader(true);
-        const { Success, Data, Message } = await GetSingleResult({
-          "key": "ITEM_CRUD",
-          "TYPE": "DELETE",
-          "IM_CODE": id
-        })
-        // const { Success, Data, Message } = await deleteRole(id)
-        if (Success) {
-          fetchList();
-          showToast('Product deleted !', 'success');
-        }
-        else {
-          showToast(Message, "error");
-        }
-      }
-      finally {
-        setLoader(false);
-      }
-    });
-  }
-  function closeModal() {
-    SetShowModal(false);
-    setEditData(null);
-    fetchList();
-  }
-  function handleEdit(users) {
-    SetShowModal(true);
-    setEditData(users)
-  }
-
-  function handleNew() {
-    SetShowModal(true);
-    setEditData(null)
-  }
-
-  return <>
-    <Helmet>
-      <title> Product </title>
-    </Helmet>      <Card>
-        <Stack m={5} >
-          <PageHeader 
-            title="Product"
-            actions={[
-              {
-                label: 'New Product',
-                icon: 'eva:plus-fill',
-                variant: 'contained',
-                color: 'primary',
-                onClick: handleNew,
-                show: true
-              }
-            ]}
-          />
-
-          {
-                    (!loader && data) ? <DataTable
-                        columns={columns}
-                        data={data}
-                        // enableRowSelection 
-                        // enableGrouping
-                        enableExport={false}
-
-                    /> : <CircularProgress color="inherit" />
-                }
-          <ModalForm open={showModal} initialValues={editData} onClose={() => closeModal()} />
-        </Stack>
-        </Card> 
-  </>
-
+  return (
+    <MasterListing
+      title="Product"
+      apiKey="ITEM_CRUD"
+      columns={columns}
+      deleteIdField="IM_CODE"
+      ModalForm={ModalForm}
+      newButtonLabel="New Product"
+      deleteSuccessMessage="Product deleted!"
+    />
+  );
 }
