@@ -40,6 +40,7 @@ import Scrollbar from '../components/scrollbar';
 // hooks
 import { useToast } from '../hooks/Common';
 import { fDateTime } from '../utils/formatTime';
+import { GetSingleListResult } from '../hooks/Api'; 
 
 // ----------------------------------------------------------------------
 
@@ -90,12 +91,12 @@ function ActivityListHead({
 }
 
 const TABLE_HEAD = [
-  { id: 'type', label: 'Type', alignRight: false },
-  { id: 'activity', label: 'Activity', alignRight: false },
-  { id: 'user', label: 'User', alignRight: false },
-  { id: 'timestamp', label: 'Timestamp', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
-  { id: 'details', label: 'Details', alignRight: false },
+  { id: 'doc_type', label: 'Type', alignRight: false },
+  { id: 'activity1', label: 'Activity', alignRight: false },
+  { id: 'activity2', label: 'Details', alignRight: false },
+  { id: 'activity3', label: 'Reference', alignRight: false },
+  { id: 'username', label: 'User', alignRight: false },
+  { id: 'actiondate', label: 'Date', alignRight: false },
   { id: '', label: '', alignRight: true },
 ];
 
@@ -126,9 +127,10 @@ function applySortFilter(array, comparator, query) {
   });
   if (query) {
     return array.filter((_activity) => 
-      _activity.title.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-      _activity.description.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-      _activity.user.toLowerCase().indexOf(query.toLowerCase()) !== -1
+      _activity.activity1.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
+      _activity.activity2.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
+      _activity.username.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
+      _activity.activity3.toLowerCase().indexOf(query.toLowerCase()) !== -1
     );
   }
   return stabilizedThis.map((el) => el[0]);
@@ -137,125 +139,42 @@ function applySortFilter(array, comparator, query) {
 export default function ActivityPage() {
   const theme = useTheme();
   const { showToast } = useToast();
-
   const [open, setOpen] = useState(null);
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('desc');
   const [selected, setSelected] = useState([]);
-  const [orderBy, setOrderBy] = useState('timestamp');
-  const [filterName, setFilterName] = useState('');
-  const [rowsPerPage, setRowsPerPage] = useState(25);
+  const [orderBy, setOrderBy] = useState('actiondate');
+  const [filterName, setFilterName] = useState('');  const [rowsPerPage, setRowsPerPage] = useState(25);
   const [tabValue, setTabValue] = useState(0);
   const [filterType, setFilterType] = useState('all');
-  const [filterStatus, setFilterStatus] = useState('all');
 
-  // Mock activity data - replace with API call
-  const [activities, setActivities] = useState([
-    {
-      id: '1',
-      type: 'sale',
-      title: 'Sales Invoice Created',
-      description: 'Sales Invoice #SI-2024-001 created for ABC Corporation',
-      user: 'John Doe',
-      userAvatar: null,
-      timestamp: new Date('2024-06-12T10:30:00'),
-      status: 'completed',
-      amount: 'AED 15,500',
-      reference: 'SI-2024-001',
-      module: 'Sales',
-    },
-    {
-      id: '2',
-      type: 'purchase',
-      title: 'Purchase Order Approved',
-      description: 'Purchase Order #PO-2024-045 approved for XYZ Suppliers',
-      user: 'Jane Smith',
-      userAvatar: null,
-      timestamp: new Date('2024-06-12T09:45:00'),
-      status: 'completed',
-      amount: 'AED 8,750',
-      reference: 'PO-2024-045',
-      module: 'Purchasing',
-    },
-    {
-      id: '3',
-      type: 'payment',
-      title: 'Payment Received',
-      description: 'Payment received from DEF Industries via Bank Transfer',
-      user: 'Mike Johnson',
-      userAvatar: null,
-      timestamp: new Date('2024-06-12T08:15:00'),
-      status: 'completed',
-      amount: 'AED 12,300',
-      reference: 'PMT-2024-078',
-      module: 'Finance',
-    },
-    {
-      id: '4',
-      type: 'invoice',
-      title: 'Invoice Generated',
-      description: 'Invoice #INV-2024-189 generated and sent to customer',
-      user: 'Sarah Wilson',
-      userAvatar: null,
-      timestamp: new Date('2024-06-12T07:30:00'),
-      status: 'pending',
-      amount: 'AED 5,900',
-      reference: 'INV-2024-189',
-      module: 'Sales',
-    },
-    {
-      id: '5',
-      type: 'user',
-      title: 'User Login',
-      description: 'User logged into the system',
-      user: 'Admin User',
-      userAvatar: null,
-      timestamp: new Date('2024-06-12T07:00:00'),
-      status: 'completed',
-      amount: null,
-      reference: null,
-      module: 'System',
-    },
-    {
-      id: '6',
-      type: 'inventory',
-      title: 'Inventory Updated',
-      description: 'Stock levels updated for 15 products',
-      user: 'Inventory Manager',
-      userAvatar: null,
-      timestamp: new Date('2024-06-11T18:45:00'),
-      status: 'completed',
-      amount: null,
-      reference: 'INV-UPDATE-001',
-      module: 'Inventory',
-    },
-    {
-      id: '7',
-      type: 'quote',
-      title: 'Quotation Sent',
-      description: 'Quotation #QT-2024-067 sent to potential client',
-      user: 'Sales Rep',
-      userAvatar: null,
-      timestamp: new Date('2024-06-11T16:20:00'),
-      status: 'pending',
-      amount: 'AED 25,000',
-      reference: 'QT-2024-067',
-      module: 'Sales',
-    },
-    {
-      id: '8',
-      type: 'system',
-      title: 'System Backup',
-      description: 'Automated daily backup completed successfully',
-      user: 'System',
-      userAvatar: null,
-      timestamp: new Date('2024-06-11T02:00:00'),
-      status: 'completed',
-      amount: null,
-      reference: 'BACKUP-2024-06-11',
-      module: 'System',
-    },
-  ]);
+  // Activity data - will be populated from API
+  const [activities, setActivities] = useState([]);
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'completed': return 'success';
+      case 'pending': return 'warning';
+      case 'failed': return 'error';
+      case 'cancelled': return 'default';
+      default: return 'default';
+    }
+  };
+const getActivity = async () => {
+    try {
+    const { Success, Data, Message } = await GetSingleListResult({
+       "key": "ACTION_LOG" ,
+       "TYPE": "GET_ALL",
+     });
+      if (!Success) {
+        showToast(Message, 'error');
+      } else {
+        setActivities(Data);
+      }
+    } catch (error) {
+      console.error('Error fetching activities:', error);
+    }
+  };
 
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
@@ -279,7 +198,9 @@ export default function ActivityPage() {
     }
     setSelected([]);
   };
-
+useEffect(() => {
+    getActivity();
+  }, []);
   const handleClick = (event, id) => {
     const selectedIndex = selected.indexOf(id);
     let newSelected = [];
@@ -308,64 +229,68 @@ export default function ActivityPage() {
     setPage(0);
     setFilterName(event.target.value);
   };
-
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
     setPage(0);
     // Filter by activity type based on tab
-    const tabFilters = ['all', 'sale', 'purchase', 'payment', 'system'];
+    const tabFilters = ['all', 'Sales', 'Purchase'];
     setFilterType(tabFilters[newValue]);
   };
-
-  const getActivityIcon = (type) => {
-    switch (type) {
-      case 'sale': return 'mdi:cash-multiple';
+  const getActivityIcon = (docType) => {
+    switch (docType?.toLowerCase()) {
+      case 'sales': return 'mdi:cash-multiple';
       case 'purchase': return 'mdi:cart-arrow-down';
       case 'payment': return 'mdi:credit-card';
+      case 'receipt': return 'mdi:receipt';
       case 'invoice': return 'mdi:file-document';
+      case 'credit': return 'mdi:credit-card-refund';
+      case 'debit': return 'mdi:credit-card-minus';
+      case 'debit note': return 'mdi:note-text-outline';
+      case 'journal': return 'mdi:book-open-variant';
       case 'user': return 'mdi:account';
-      case 'inventory': return 'mdi:package-variant';
-      case 'quote': return 'mdi:file-chart';
       case 'system': return 'mdi:cog';
-      default: return 'mdi:information';
+      default: return 'mdi:file-document-outline';
+    }
+  };
+  const getActivityColor = (docType) => {
+    switch (docType?.toLowerCase()) {
+      case 'sales': return '#00C851'; // Vibrant green
+      case 'purchase': return '#2196F3'; // Bright blue
+      case 'debit': return '#E91E63'; // Pink
+      case 'journal': return '#607D8B'; // Blue grey
+      default: return '#607D8B'; // Blue grey
     }
   };
 
-  const getActivityColor = (type) => {
-    switch (type) {
-      case 'sale': return theme.palette.success.main;
-      case 'purchase': return theme.palette.info.main;
-      case 'payment': return theme.palette.warning.main;
-      case 'invoice': return theme.palette.error.main;
-      case 'user': return theme.palette.primary.main;
-      case 'inventory': return theme.palette.secondary.main;
-      case 'quote': return theme.palette.purple?.main || theme.palette.primary.main;
-      case 'system': return theme.palette.grey[600];
-      default: return theme.palette.grey[500];
+  const getActivityGradient = (docType) => {
+    switch (docType?.toLowerCase()) {
+      case 'sales': return 'linear-gradient(135deg, #00C851 0%, #00E676 100%)';
+      case 'purchase': return 'linear-gradient(135deg, #2196F3 0%, #64B5F6 100%)';
+      case 'payment': return 'linear-gradient(135deg, #FF9800 0%, #FFB74D 100%)';
+      case 'receipt': return 'linear-gradient(135deg, #9C27B0 0%, #BA68C8 100%)';
+      case 'invoice': return 'linear-gradient(135deg, #F44336 0%, #EF5350 100%)';
+      case 'credit': return 'linear-gradient(135deg, #4CAF50 0%, #81C784 100%)';
+      case 'debit': return 'linear-gradient(135deg, #E91E63 0%, #F06292 100%)';
+      case 'journal': return 'linear-gradient(135deg, #607D8B 0%, #90A4AE 100%)';
+      default: return 'linear-gradient(135deg, #607D8B 0%, #90A4AE 100%)';
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'completed': return 'success';
-      case 'pending': return 'warning';
-      case 'failed': return 'error';
-      case 'cancelled': return 'default';
-      default: return 'default';
-    }
+  const extractAmount = (activity2) => {
+    const match = activity2?.match(/Amt:([\d,]+\.?\d*)/);
+    return match ? `AED ${match[1]}` : null;
   };
 
+  const extractCustomerName = (activity2) => {
+    const parts = activity2?.split('-');
+    return parts && parts.length > 1 ? parts[1] : activity2;
+  };
   // Filter activities
   let filteredActivities = activities;
   
   // Filter by type
   if (filterType !== 'all') {
-    filteredActivities = filteredActivities.filter(activity => activity.type === filterType);
-  }
-  
-  // Filter by status
-  if (filterStatus !== 'all') {
-    filteredActivities = filteredActivities.filter(activity => activity.status === filterStatus);
+    filteredActivities = filteredActivities.filter(activity => activity.doc_type === filterType);
   }
   
   // Apply search and sort
@@ -377,93 +302,65 @@ export default function ActivityPage() {
     <>
       <Helmet>
         <title> Activity History | Exapp ERP </title>
-      </Helmet>
-
-      <Container maxWidth="xl">
+      </Helmet>      <Container maxWidth="xl" sx={{ py: 1.5 }}>
         {/* Header */}
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="h4" gutterBottom>
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, fontSize: '1.3rem' }}>
             Activity History
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
             Track all system activities and user actions
           </Typography>
-        </Box>
-
-        {/* Filters and Tabs */}
-        <Card sx={{ mb: 3 }}>
-          <Box sx={{ p: 2 }}>
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs={12} md={6}>
+        </Box>        {/* Filters and Tabs */}
+        <Card sx={{ mb: 2.5 }}>
+          <Box sx={{ p: 1.5 }}>
+            <Grid container spacing={2} alignItems="center"><Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
+                  size="small"
                   placeholder="Search activities..."
                   value={filterName}
                   onChange={handleFilterByName}
+                  sx={{ fontSize: '0.85rem' }}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled', width: 20, height: 20 }} />
+                        <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled', width: 18, height: 18 }} />
                       </InputAdornment>
                     ),
                   }}
                 />
               </Grid>
               <Grid item xs={12} md={3}>
-                <FormControl fullWidth>
-                  <InputLabel>Status</InputLabel>
-                  <Select
-                    value={filterStatus}
-                    label="Status"
-                    onChange={(e) => setFilterStatus(e.target.value)}
-                  >
-                    <MenuItem value="all">All Status</MenuItem>
-                    <MenuItem value="completed">Completed</MenuItem>
-                    <MenuItem value="pending">Pending</MenuItem>
-                    <MenuItem value="failed">Failed</MenuItem>
-                    <MenuItem value="cancelled">Cancelled</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} md={3}>
                 <Button
                   variant="contained"
                   startIcon={<Iconify icon="eva:download-fill" />}
                   onClick={() => showToast('Export functionality will be implemented', 'info')}
+                  size="small"
+                  sx={{ fontSize: '0.8rem' }}
                 >
                   Export
                 </Button>
               </Grid>
             </Grid>
           </Box>
+            <Divider />
           
-          <Divider />
-          
-          <Box sx={{ px: 2 }}>
-            <Tabs value={tabValue} onChange={handleTabChange}>
+          <Box sx={{ px: 1.5 }}>
+            <Tabs value={tabValue} onChange={handleTabChange} sx={{ '& .MuiTab-root': { fontSize: '0.85rem', py: 1.5 } }}>
               <Tab 
                 label="All Activities" 
-                icon={<Iconify icon="mdi:format-list-bulleted" />} 
+                icon={<Iconify icon="mdi:format-list-bulleted" sx={{ fontSize: '1rem' }} />} 
                 iconPosition="start"
               />
               <Tab 
                 label="Sales" 
-                icon={<Iconify icon="mdi:cash-multiple" />} 
+                icon={<Iconify icon="mdi:cash-multiple" sx={{ fontSize: '1rem' }} />} 
                 iconPosition="start"
               />
               <Tab 
                 label="Purchases" 
-                icon={<Iconify icon="mdi:cart-arrow-down" />} 
-                iconPosition="start"
-              />
-              <Tab 
-                label="Payments" 
-                icon={<Iconify icon="mdi:credit-card" />} 
-                iconPosition="start"
-              />
-              <Tab 
-                label="System" 
-                icon={<Iconify icon="mdi:cog" />} 
+                icon={<Iconify icon="mdi:cart-arrow-down" sx={{ fontSize: '1rem' }} />} 
                 iconPosition="start"
               />
             </Tabs>
@@ -482,16 +379,15 @@ export default function ActivityPage() {
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
-                />
-                <TableBody>
-                  {filteredActivities.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, type, title, description, user, userAvatar, timestamp, status, amount, reference, module } = row;
-                    const selectedActivity = selected.indexOf(id) !== -1;
+                />                <TableBody>
+                  {filteredActivities.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
+                    const { doc_type: docType, activity1, activity2, activity3, username, actiondate } = row;
+                    const selectedActivity = selected.indexOf(index) !== -1;
 
                     return (
-                      <TableRow hover key={id} tabIndex={-1} role="checkbox" selected={selectedActivity}>
+                      <TableRow hover key={index} tabIndex={-1} role="checkbox" selected={selectedActivity}>
                         <TableCell padding="checkbox">
-                          <Checkbox checked={selectedActivity} onChange={(event) => handleClick(event, id)} />
+                          <Checkbox checked={selectedActivity} onChange={(event) => handleClick(event, index)} />
                         </TableCell>
 
                         {/* Type */}
@@ -499,99 +395,92 @@ export default function ActivityPage() {
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <Avatar
                               sx={{
-                                width: 32,
-                                height: 32,
-                                bgcolor: alpha(getActivityColor(type), 0.1),
-                                color: getActivityColor(type),
+                                width: 28,
+                                height: 28,
+                                bgcolor: alpha(getActivityColor(docType), 0.1),
+                                color: getActivityColor(docType),
                               }}
                             >
-                              <Iconify icon={getActivityIcon(type)} width={18} />
+                              <Iconify icon={getActivityIcon(docType)} width={16} />
                             </Avatar>
-                            <Typography variant="subtitle2" noWrap>
-                              {module}
+                            <Typography variant="body2" sx={{ fontSize: '0.85rem', fontWeight: 500 }}>
+                              {docType}
                             </Typography>
                           </Box>
                         </TableCell>
 
                         {/* Activity */}
                         <TableCell>
+                          <Typography variant="body2" sx={{ fontSize: '0.85rem', fontWeight: 500 }}>
+                            {activity1}
+                          </Typography>
+                        </TableCell>
+
+                        {/* Details */}
+                        <TableCell>
                           <Box>
-                            <Typography variant="subtitle2" noWrap>
-                              {title}
+                            <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
+                              {extractCustomerName(activity2)}
                             </Typography>
-                            <Typography variant="body2" color="text.secondary" noWrap>
-                              {description}
-                            </Typography>
-                            {reference && (
-                              <Chip 
-                                label={reference} 
-                                size="small" 
-                                variant="outlined" 
-                                sx={{ mt: 0.5, height: 20, fontSize: '0.7rem' }}
-                              />
+                            {extractAmount(activity2) && (
+                              <Typography variant="body2" sx={{ fontSize: '0.8rem', color: 'success.main', fontWeight: 600 }}>
+                                {extractAmount(activity2)}
+                              </Typography>
                             )}
                           </Box>
+                        </TableCell>
+
+                        {/* Reference */}
+                        <TableCell>
+                          <Chip 
+                            label={activity3} 
+                            size="small" 
+                            variant="outlined" 
+                            sx={{ height: 22, fontSize: '0.75rem' }}
+                          />
                         </TableCell>
 
                         {/* User */}
                         <TableCell>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Avatar src={userAvatar} sx={{ width: 24, height: 24 }}>
-                              {user.charAt(0)}
+                            <Avatar sx={{ width: 22, height: 22, fontSize: '0.75rem' }}>
+                              {username.charAt(0)}
                             </Avatar>
-                            <Typography variant="body2">
-                              {user}
+                            <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
+                              {username}
                             </Typography>
                           </Box>
                         </TableCell>
 
-                        {/* Timestamp */}
+                        {/* Date */}
                         <TableCell>
-                          <Typography variant="body2">
-                            {fDateTime(timestamp)}
+                          <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
+                            {fDateTime(new Date(actiondate))}
                           </Typography>
-                        </TableCell>
-
-                        {/* Status */}
-                        <TableCell>
-                          <Chip 
-                            label={status} 
-                            color={getStatusColor(status)} 
-                            size="small" 
-                          />
-                        </TableCell>
-
-                        {/* Details */}
-                        <TableCell>
-                          {amount && (
-                            <Typography variant="body2" fontWeight="600" color="success.main">
-                              {amount}
-                            </Typography>
-                          )}
                         </TableCell>
 
                         {/* Actions */}
                         <TableCell align="right">
-                          <IconButton size="large" color="inherit" onClick={handleOpenMenu}>
-                            <Iconify icon={'eva:more-vertical-fill'} />
+                          <IconButton size="small" color="inherit" onClick={handleOpenMenu}>
+                            <Iconify icon={'eva:more-vertical-fill'} width={16} />
                           </IconButton>
                         </TableCell>
                       </TableRow>
                     );
-                  })}
-                  {isNotFound && (
+                  })}                  {isNotFound && (
                     <TableRow>
-                      <TableCell align="center" colSpan={8} sx={{ py: 3 }}>
+                      <TableCell align="center" colSpan={7} sx={{ py: 2 }}>
                         <Paper
                           sx={{
                             textAlign: 'center',
+                            p: 2,
                           }}
                         >
-                          <Typography variant="h6" paragraph>
+                          <Typography variant="h6" paragraph sx={{ fontSize: '1rem' }}>
                             Not found
                           </Typography>
 
-                          <Typography variant="body2">
+                          <Typography variant="body2" sx={{ fontSize: '0.85rem' }}>
                             No results found for &nbsp;
                             <strong>&quot;{filterName}&quot;</strong>.
                             <br /> Try checking for typos or using complete words.
@@ -622,15 +511,15 @@ export default function ActivityPage() {
         anchorEl={open}
         onClose={handleCloseMenu}
         anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        PaperProps={{
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}        PaperProps={{
           sx: {
             p: 1,
-            width: 140,
+            width: 120,
             '& .MuiMenuItem-root': {
               px: 1,
               typography: 'body2',
               borderRadius: 0.75,
+              fontSize: '0.8rem',
             },
           },
         }}
