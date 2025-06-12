@@ -460,11 +460,11 @@ useEffect(() => {
                         </TableCell>
 
                         {/* Actions */}
-                        <TableCell align="right">
+                        {/* <TableCell align="right">
                           <IconButton size="small" color="inherit" onClick={handleOpenMenu}>
                             <Iconify icon={'eva:more-vertical-fill'} width={16} />
                           </IconButton>
-                        </TableCell>
+                        </TableCell> */}
                       </TableRow>
                     );
                   })}                  {isNotFound && (
