@@ -392,7 +392,7 @@ export default function ChartOfAccount() {
                                     handleNodeToggle(node.id);
                                 }}
                                 sx={{ 
-                                    mr: 0.25, 
+                                    mr: 1, 
                                     p: 0.0625,
                                     width: 12,
                                     height: 12,
@@ -405,16 +405,16 @@ export default function ChartOfAccount() {
                                 }}
                             >
                                 {isExpanded ? (
-                                    <ExpandMoreIcon sx={{ color: theme.palette.primary.main, fontSize: '0.75rem' }} />
+                                    <ExpandMoreIcon sx={{ color: theme.palette.primary.main, fontSize: '1.4rem', m:1}} />
                                 ) : (
-                                    <ChevronRightIcon sx={{ color: theme.palette.primary.main, fontSize: '0.75rem' }} />
+                                    <ChevronRightIcon sx={{ color: theme.palette.primary.main, fontSize: '1.4rem', m:1}} />
                                 )}
                             </IconButton>
                         )}                        {node.isGroup ? (
                             <Avatar
                                 sx={{
-                                    width: 16,
-                                    height: 16,
+                                    width: 23,
+                                    height: 23,
                                     background: `linear-gradient(135deg, ${
                                         isExpanded ? theme.palette.primary.main : alpha(theme.palette.primary.main, 0.8)
                                     } 0%, ${
@@ -424,19 +424,19 @@ export default function ChartOfAccount() {
                                     transition: 'all 0.3s ease'
                                 }}
                             >
-                                {isExpanded ? <FolderOpenIcon sx={{ fontSize: '0.625rem' }} /> : <FolderIcon sx={{ fontSize: '0.625rem' }} />}
+                                {isExpanded ? <FolderOpenIcon sx={{ fontSize: '1rem' }} /> : <FolderIcon sx={{ fontSize: '1rem' }} />}
                             </Avatar>
                         ) : (
                             <Avatar
                                 sx={{
-                                    width: 16,
-                                    height: 16,
+                                    width: 23,
+                                    height: 23,
                                     background: `linear-gradient(135deg, ${theme.palette.success.main} 0%, ${theme.palette.success.dark} 100%)`,
                                     boxShadow: theme.shadows[1],
                                     transition: 'all 0.3s ease'
                                 }}
                             >
-                                <AccountCircleIcon sx={{ fontSize: '0.625rem' }} />
+                                <AccountCircleIcon sx={{ fontSize: '1rem' }} />
                             </Avatar>
                         )}
                     </ListItemIcon><ListItemText
