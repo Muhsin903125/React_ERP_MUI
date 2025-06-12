@@ -31,17 +31,18 @@ const navConfig1 = [
     path: '/activity',
     icon: icon(<ArticleTwoTone />, true),
     visible: true
-  },
-  // master
+  },  // master
   {
     title: 'Masters',
     path: '',
-      icon: icon(<Assignment />, true),
+    icon: icon(<Assignment />, true),
+    visible: true,
     childern: [
       {
         title: 'Finance',
         path: '',
         icon: icon(<AccountBalanceTwoTone />, true),
+        visible: true,
         childern: [
            
           {
@@ -70,6 +71,7 @@ const navConfig1 = [
         title: 'Inventory',
         path: '',
         icon: icon(<Inventory2TwoTone />, true),
+        visible: true,
         childern: [
           {
             title: 'Products',
@@ -101,11 +103,13 @@ const navConfig1 = [
     title: 'Transactions',
     path: '',
     icon: icon(<AccountBalanceWalletTwoTone />, true),
+    visible: true,
     childern: [
       {
         title: 'Purchase',
         path: '',
         icon: icon(<LocalShippingTwoTone />, true),
+        visible: true,
         childern: [
           {
             title: 'Order',
@@ -130,6 +134,7 @@ const navConfig1 = [
         title: 'Sales',
         path: '',
         icon: icon(<LocalGroceryStoreTwoTone />, true),
+        visible: true,
         childern: [
           {
             title: 'Quotation',
@@ -194,16 +199,17 @@ const navConfig1 = [
       
   //   ]
   // },
-
   {
     title: 'Settings',
     path: '',
     icon: icon(<SettingsTwoTone />, true),
+    visible: true,
     childern: [
       {
         title: 'Account',
         path: '',
         icon: icon(<PermIdentityTwoTone />, true),
+        visible: true,
         childern: [
           {
             title: 'Change Password',
@@ -237,6 +243,7 @@ const navConfig1 = [
         title: 'ERP',
         path: '',
         icon: icon(<ToggleOffTwoTone />, true),
+        visible: true,
         childern: [
           {
             title: 'Configs',
