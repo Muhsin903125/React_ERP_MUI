@@ -12,14 +12,27 @@ import {
   Tooltip,
   IconButton,
   alpha,
-  useTheme 
+  useTheme,
+  TextField,
+  InputAdornment,
+  Paper,
+  Popper,
+  ClickAwayListener,
+  Typography,
+  ListItem,
+  ListItemIcon
 } from '@mui/material';
 import { 
   ExpandMore, 
   NavigateNext,
   FiberManualRecord,
   StarBorder,
-  Star
+  Star,
+  Search,
+  Clear,
+  History,
+  TrendingUp,
+  KeyboardArrowRight
 } from '@mui/icons-material';
 //
 import { StyledNavItem, StyledNavItemIcon } from './styles';
@@ -33,7 +46,23 @@ export default function NavSection({ data = [], ...other }) {
   const theme = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
-  const [openMenus, setOpenMenus] = useState({});  const [favorites, setFavorites] = useState(() => {
+  const [openMenus, setOpenMenus] = useState({});
+  
+  // Mobile search states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchAnchorEl, setSearchAnchorEl] = useState(null);
+  const [recentMobileSearches, setRecentMobileSearches] = useState(() => {
+    try {
+      const saved = localStorage.getItem('navMobileSearchRecent');
+      return saved ? JSON.parse(saved) : [];
+    } catch (error) {
+      console.warn('Error loading mobile search recent:', error);
+      return [];
+    }
+  });
+
+  const [favorites, setFavorites] = useState(() => {
     try {
       const saved = localStorage.getItem('navFavorites');
       return saved ? JSON.parse(saved) : [];
@@ -83,8 +112,86 @@ export default function NavSection({ data = [], ...other }) {
       localStorage.setItem('navFavorites', JSON.stringify(favorites));
     } catch (error) {
       console.warn('Error saving favorites to localStorage:', error);
+    }  }, [favorites]);
+
+  // Mobile search functionality
+  const flattenNavData = (items, parentPath = '') => {
+    let flattened = [];
+    
+    items.forEach(item => {
+      if (item.path && item.visible !== false) {
+        flattened.push({
+          ...item,
+          fullPath: parentPath ? `${parentPath} > ${item.title}` : item.title,
+          level: parentPath.split(' > ').length - 1,
+        });
+      }
+      
+      if (item.childern) {
+        const childPath = parentPath ? `${parentPath} > ${item.title}` : item.title;
+        flattened = [...flattened, ...flattenNavData(item.childern, childPath)];
+      }
+    });
+    
+    return flattened;
+  };
+
+  const flatMobileData = flattenNavData(data);
+
+  // Mobile search effect
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setSearchResults([]);
+      return;
     }
-  }, [favorites]);
+
+    const filtered = flatMobileData.filter(item =>
+      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.fullPath.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    setSearchResults(filtered.slice(0, 6)); // Limit results for mobile
+  }, [searchTerm, flatMobileData]);
+
+  // Mobile search handlers
+  const handleMobileSearchChange = (event) => {
+    const value = event.target.value;
+    setSearchTerm(value);
+    
+    if (value && !searchAnchorEl) {
+      setSearchAnchorEl(event.currentTarget);
+    }
+  };
+
+  const handleMobileSearchFocus = (event) => {
+    setSearchAnchorEl(event.currentTarget);
+  };
+
+  const handleMobileSearchSelect = (item) => {
+    navigate(item.path);
+    setSearchTerm('');
+    setSearchAnchorEl(null);
+    
+    // Add to recent searches
+    const newRecentSearches = [
+      item,
+      ...recentMobileSearches.filter(recent => recent.path !== item.path)
+    ].slice(0, 4);
+    
+    setRecentMobileSearches(newRecentSearches);
+    localStorage.setItem('navMobileSearchRecent', JSON.stringify(newRecentSearches));
+  };
+
+  const handleMobileSearchClear = () => {
+    setSearchTerm('');
+    setSearchResults([]);
+  };
+
+  const handleMobileSearchClickAway = () => {
+    setSearchAnchorEl(null);
+  };
+
+  const isMobileSearchOpen = Boolean(searchAnchorEl) && (searchTerm || recentMobileSearches.length > 0);
 
   // Enhanced menu click handler
   const handleMenuClick = (menuPath, level) => {
@@ -293,6 +400,220 @@ export default function NavSection({ data = [], ...other }) {
     );
   };  return (
     <Box {...other}>
+      {/* Mobile Search Section - Only visible on mobile */}
+      <Box sx={{ 
+        display: { xs: 'block', md: 'none' }, 
+        px: 1, 
+        pb: 1,
+        position: 'relative',
+      }}>
+        <ClickAwayListener onClickAway={handleMobileSearchClickAway}>
+          <Box>
+            <TextField
+              fullWidth
+              size="small"
+              placeholder="Search navigation..."
+              value={searchTerm}
+              onChange={handleMobileSearchChange}
+              onFocus={handleMobileSearchFocus}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search sx={{ fontSize: 18, color: 'text.secondary' }} />
+                  </InputAdornment>
+                ),
+                endAdornment: searchTerm && (
+                  <InputAdornment position="end">
+                    <IconButton
+                      size="small"
+                      onClick={handleMobileSearchClear}
+                      sx={{
+                        p: 0.5,
+                        color: 'text.secondary',
+                        '&:hover': {
+                          backgroundColor: alpha(theme.palette.error.main, 0.1),
+                          color: 'error.main',
+                        },
+                      }}
+                    >
+                      <Clear sx={{ fontSize: 16 }} />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  backgroundColor: alpha(theme.palette.background.neutral, 0.4),
+                  border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
+                  transition: 'all 0.2s ease',
+                  
+                  '&:hover': {
+                    backgroundColor: alpha(theme.palette.background.neutral, 0.6),
+                    borderColor: alpha(theme.palette.primary.main, 0.3),
+                  },
+                  
+                  '&.Mui-focused': {
+                    backgroundColor: theme.palette.background.paper,
+                    borderColor: theme.palette.primary.main,
+                    boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.1)}`,
+                  },
+                  
+                  '& fieldset': {
+                    border: 'none',
+                  },
+                },
+              }}
+            />
+
+            {/* Mobile Search Results Dropdown */}
+            <Popper
+              open={isMobileSearchOpen}
+              anchorEl={searchAnchorEl}
+              placement="bottom-start"
+              sx={{ 
+                zIndex: 1300, 
+                width: '100%',
+              }}
+            >
+              <Paper
+                elevation={8}
+                sx={{
+                  mt: 0.5,
+                  borderRadius: 2,
+                  overflow: 'hidden',
+                  border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
+                  maxHeight: 300,
+                  overflowY: 'auto',
+                  background: theme.palette.background.paper,
+                  backdropFilter: 'blur(8px)',
+                }}
+              >
+                {searchTerm ? (
+                  // Search results
+                  searchResults.length > 0 ? (
+                    <List disablePadding>
+                      <Box sx={{ p: 1, pb: 0.5 }}>
+                        <Typography 
+                          variant="caption" 
+                          sx={{ 
+                            color: 'text.secondary',
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            letterSpacing: 0.5,
+                          }}
+                        >
+                          Results ({searchResults.length})
+                        </Typography>
+                      </Box>
+                      {searchResults.map((item, index) => (
+                        <ListItem
+                          key={`mobile-${item.path}-${index}`}
+                          button
+                          onClick={() => handleMobileSearchSelect(item)}
+                          sx={{
+                            py: 1,
+                            mx: 0.5,
+                            mb: 0.5,
+                            borderRadius: 1.5,
+                            transition: 'all 0.2s ease',
+                            
+                            '&:hover': {
+                              backgroundColor: alpha(theme.palette.primary.main, 0.08),
+                              transform: 'translateX(2px)',
+                            },
+                          }}
+                        >
+                          <ListItemIcon sx={{ minWidth: 28 }}>
+                            <Box sx={{ 
+                              color: theme.palette.primary.main,
+                              display: 'flex',
+                              alignItems: 'center',
+                            }}>
+                              {item.icon}
+                            </Box>
+                          </ListItemIcon>
+                          <ListItemText
+                            primary={item.title}
+                            secondary={item.fullPath}
+                            primaryTypographyProps={{
+                              variant: 'body2',
+                              fontWeight: 500,
+                            }}
+                            secondaryTypographyProps={{
+                              variant: 'caption',
+                              color: 'text.secondary',
+                              sx: { opacity: 0.8 },
+                            }}
+                          />
+                          <KeyboardArrowRight 
+                            sx={{ 
+                              fontSize: 14, 
+                              color: 'text.secondary',
+                              opacity: 0.5,
+                            }} 
+                          />
+                        </ListItem>
+                      ))}
+                    </List>
+                  ) : (
+                    <Box sx={{ p: 2, textAlign: 'center' }}>
+                      <TrendingUp sx={{ fontSize: 24, color: 'text.disabled', mb: 0.5 }} />
+                      <Typography variant="body2" color="text.secondary" sx={{ fontSize: 12 }}>
+                        No results found
+                      </Typography>
+                    </Box>
+                  )
+                ) : (
+                  // Recent searches
+                  recentMobileSearches.length > 0 && (
+                    <Box sx={{ p: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, px: 0.5 }}>
+                        <History sx={{ fontSize: 14, mr: 0.5, color: 'text.secondary' }} />
+                        <Typography 
+                          variant="caption" 
+                          sx={{ 
+                            color: 'text.secondary',
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            letterSpacing: 0.5,
+                          }}
+                        >
+                          Recent
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {recentMobileSearches.map((item, index) => (
+                          <Chip
+                            key={`mobile-recent-${item.path}-${index}`}
+                            label={item.title}
+                            size="small"
+                            onClick={() => handleMobileSearchSelect(item)}
+                            sx={{
+                              fontSize: 9,
+                              height: 20,
+                              bgcolor: alpha(theme.palette.primary.main, 0.08),
+                              color: theme.palette.primary.main,
+                              border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+                              transition: 'all 0.2s ease',
+                              
+                              '&:hover': {
+                                bgcolor: alpha(theme.palette.primary.main, 0.15),
+                                transform: 'scale(1.05)',
+                              },
+                            }}
+                          />
+                        ))}
+                      </Box>
+                    </Box>
+                  )
+                )}
+              </Paper>
+            </Popper>
+          </Box>
+        </ClickAwayListener>
+      </Box>
+
       <List 
         disablePadding 
         sx={{ p: 0.5 }} 
