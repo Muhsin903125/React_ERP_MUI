@@ -66,12 +66,9 @@ const ModalForm = ({ open, onClose, initialValues, parentId, grpCode, IsAllowToC
   const [code, setCode] = useState(null);
   const [codeEditable, setCodeEditable] = useState(false);
   const [parents, setParents] = useState([]);
-  const [accountType, setAccountType] = useState([]);
-  const [taxTreat, setTaxTreat] = useState([]);  const [defaultBalance, setDefaultBalance] = useState([]);
-  const [accountCode, setAccountCode] = useState(null);
-  const [accountCodeEditable, setAccountCodeEditable] = useState(false);
+  const [accountType, setAccountType] = useState([]);  const [taxTreat, setTaxTreat] = useState([]);  const [defaultBalance, setDefaultBalance] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState(0);  useEffect(() => {
+  const [activeTab, setActiveTab] = useState(0);useEffect(() => {
     if (open) {
       setActiveTab(0); // Reset to first tab when opening
       
@@ -82,11 +79,9 @@ const ModalForm = ({ open, onClose, initialValues, parentId, grpCode, IsAllowToC
       
       if (initialValues !== null) {
         setIsNew(false);
-        console.log("Edit mode - Initial values:", initialValues);
-      } else {
+        console.log("Edit mode - Initial values:", initialValues);      } else {
         setIsNew(true);
         getCOACode();
-        getAccountCode();
         console.log("Create mode");
       }
       console.log(grpCode, "grpCode");
@@ -113,16 +108,9 @@ const ModalForm = ({ open, onClose, initialValues, parentId, grpCode, IsAllowToC
     then: schema => schema.required('Default Balance is required'),
     otherwise: schema => schema.nullable(),
   }),
-
   tax: yup.string().when('isGroup', {
     is: false,
     then: schema => schema.required('Tax is required'),
-    otherwise: schema => schema.nullable(),
-  }),
-
-  accCode: yup.string().when('isGroup', {
-    is: false,
-    then: schema => schema.required('Account Code is required'),
     otherwise: schema => schema.nullable(),
   }),
 
@@ -160,11 +148,9 @@ const ModalForm = ({ open, onClose, initialValues, parentId, grpCode, IsAllowToC
         "ACMAIN_DESC": data.desc,
         "ACMAIN_PARENT": data.parent,
         "ACMAIN_ACTYPE_DOCNO": data.isGroup ? "GH" : "GL",
-        "ACMAIN_DEFAULT_BALANCE_SIGN": data.defaultBalance,
-        "ACMAIN_ACCNO": data.accNo,
+        "ACMAIN_DEFAULT_BALANCE_SIGN": data.defaultBalance,        "ACMAIN_ACCNO": data.accNo,
         "ACMAIN_ACCOUNT_TAX": data.tax,
         "ACMAIN_ACCOUNT_ON_STOP": !data.enableAccount ? 0 : 1,
-        "ACMAIN_ACC_CODE": data.accCode,
         "ACMAIN_ACCOUNT_REMARK": data.remark,
         "ACMAIN_ACCOUNT_DESC": data.accDesc,
       });      if (Success) {
@@ -231,25 +217,7 @@ const ModalForm = ({ open, onClose, initialValues, parentId, grpCode, IsAllowToC
       }
     } catch (error) {
       console.error("Error:", error); // More informative error handling
-    }
-  };
-  const getAccountCode = async () => {
-    try {
-      const { Success, Data, Message } = await GetSingleResult({
-        "key": "LAST_NO",
-        "TYPE": "ACC",
-      });
-
-      if (Success) {
-        setAccountCode(Data?.LAST_NO);
-        setAccountCodeEditable(Data?.IS_EDITABLE);
-      } else {
-        showToast(Message, "error");
-      }
-    } catch (error) {
-      console.error("Error:", error); // More informative error handling
-    }
-  };  return (
+    }  };  return (
     <Modal
       open={open}
       onClose={!loading ? onClose : undefined}
@@ -369,10 +337,8 @@ const ModalForm = ({ open, onClose, initialValues, parentId, grpCode, IsAllowToC
                   desc: initialValues?.ACMAIN_DESC || '',
                   parent: (initialValues?.ACMAIN_PARENT && initialValues?.ACMAIN_PARENT !== "0") ? initialValues?.ACMAIN_PARENT : (parentId || ''),
                   accNo: initialValues?.ACMAIN_ACCNO || initialValues?.ACMST_ACCNO || '',
-                  isGroup: initialValues ? (initialValues?.ACMAIN_ACTYPE_DOCNO === "GH") : IsAllowToCreateGH,
-                  defaultBalance: initialValues?.ACMAIN_DEFAULT_BALANCE_SIGN || '',
+                  isGroup: initialValues ? (initialValues?.ACMAIN_ACTYPE_DOCNO === "GH") : IsAllowToCreateGH,                  defaultBalance: initialValues?.ACMAIN_DEFAULT_BALANCE_SIGN || '',
                   tax: initialValues?.ACMAIN_ACCOUNT_TAX || initialValues?.ACMST_TAX_TREATMENT_CODE || '',
-                  accCode: initialValues?.ACMAIN_ACC_CODE || accountCode || '',
                   enableAccount: initialValues?.ACMAIN_ACCOUNT_ON_STOP !== 1,
                   remark: initialValues?.ACMAIN_ACCOUNT_REMARK || initialValues?.ACMST_REMARKS || '',
                   accDesc: initialValues?.ACMAIN_ACCOUNT_DESC || ''
@@ -536,25 +502,10 @@ const ModalForm = ({ open, onClose, initialValues, parentId, grpCode, IsAllowToC
                             onChange={handleChange}
                             error={Boolean(touched.accDesc && errors.accDesc)}
                             helperText={touched.accDesc && errors.accDesc}
-                            placeholder="Enter account name"
-                          />
+                            placeholder="Enter account name"                          />
                         </Grid>
 
-                        <Grid item xs={12} sm={4}>
-                          <TextField
-                            fullWidth
-                            size="small"
-                            label="Account Code"
-                            disabled={isNew ? !accountCodeEditable : true}
-                            name="accCode"
-                            value={values.accCode || ''}
-                            onChange={handleChange}
-                            error={Boolean(touched.accCode && errors.accCode)}
-                            helperText={touched.accCode && errors.accCode}
-                          />
-                        </Grid>
-
-                        <Grid item xs={12} sm={4}>
+                        <Grid item xs={12} sm={6}>
                           <FormControl fullWidth size="small" error={Boolean(touched.tax && errors.tax)}>
                             <InputLabel>Tax Treatment</InputLabel>
                             <Field
@@ -578,7 +529,7 @@ const ModalForm = ({ open, onClose, initialValues, parentId, grpCode, IsAllowToC
                           </FormControl>
                         </Grid>
 
-                        <Grid item xs={12} sm={4}>
+                        <Grid item xs={12} sm={6}>
                           <FormControl fullWidth size="small" error={Boolean(touched.defaultBalance && errors.defaultBalance)}>
                             <InputLabel>Default Balance</InputLabel>
                             <Field
