@@ -74,15 +74,20 @@ const ModalForm = ({ open, onClose, initialValues, parentId, grpCode, IsAllowToC
   const [activeTab, setActiveTab] = useState(0);  useEffect(() => {
     if (open) {
       setActiveTab(0); // Reset to first tab when opening
+      
+      // Always fetch dropdown data when modal opens
+      getParents();
+      getAccountType();
+      getTaxTreat();
+      
       if (initialValues !== null) {
         setIsNew(false);
+        console.log("Edit mode - Initial values:", initialValues);
       } else {
         setIsNew(true);
         getCOACode();
-        getParents();
-        getAccountType();
-        getTaxTreat();
         getAccountCode();
+        console.log("Create mode");
       }
       console.log(grpCode, "grpCode");
     }
@@ -129,8 +134,7 @@ const ModalForm = ({ open, onClose, initialValues, parentId, grpCode, IsAllowToC
 
   enableAccount: yup.boolean(),
   remark: yup.string().nullable(),
-});
-  const getTaxTreat = async () => {
+});  const getTaxTreat = async () => {
     try {
       const { Success, Data, Message } = await GetSingleListResult({
         key: 'LOOKUP',
@@ -138,14 +142,15 @@ const ModalForm = ({ open, onClose, initialValues, parentId, grpCode, IsAllowToC
       });
 
       if (Success) {
+        console.log("Tax treatment data:", Data);
         setTaxTreat(Data);
       } else {
         showToast(Message, 'error');
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error fetching tax treatments:', error);
     }
-  };  const HandleData = async (data, type) => {
+  };const HandleData = async (data, type) => {
     setLoading(true);
     try {
       const { Success, Message } = await GetSingleResult({
@@ -165,8 +170,8 @@ const ModalForm = ({ open, onClose, initialValues, parentId, grpCode, IsAllowToC
       });      if (Success) {
         showToast(
           type === "ADD" 
-            ? '✅ Chart of Account created successfully!' 
-            : '✅ Chart of Account updated successfully!', 
+            ? 'Chart of Account created !' 
+            : 'Chart of Account updated !', 
           'success'
         );
         onClose();
@@ -179,38 +184,38 @@ const ModalForm = ({ open, onClose, initialValues, parentId, grpCode, IsAllowToC
     } finally {
       setLoading(false);
     }
-  };
-  const getParents = async () => {
+  };  const getParents = async () => {
     try {
       const { Success, Data, Message } = await GetSingleListResult({
         "key": "COA_CRUD",
         "TYPE": "GET_ALL_GH",
       });
       if (Success) {
+        console.log("Parents data:", Data);
         setParents(Data);
       } else {
         showToast(Message, "error");
       }
     } catch (error) {
-      console.error("Error:", error); // More informative error handling
+      console.error("Error fetching parents:", error);
     }
-  }
-  const getAccountType = async () => {
+  } 
+   const getAccountType = async () => {
     try {
       const { Success, Data, Message } = await GetSingleListResult({
         "key": "LOOKUP",
         "TYPE": "CAO_ACTYPE",
       });
       if (Success) {
-        // setAccountType(Data);
+        console.log("Default balance data:", Data);
         setDefaultBalance(Data);
       } else {
         showToast(Message, "error");
       }
     } catch (error) {
-      console.error("Error:", error); // More informative error handling
+      console.error("Error fetching account types:", error);
     }
-  }
+  };
   const getCOACode = async () => {
     try {
       const { Success, Data, Message } = await GetSingleResult({
@@ -359,18 +364,17 @@ const ModalForm = ({ open, onClose, initialValues, parentId, grpCode, IsAllowToC
 
             {/* Form Content */}
             <Box sx={{ p: { xs: 2, sm: 3 }, overflowY: 'auto', flex: 1 }}>
-              <Formik
-                initialValues={{
+              <Formik                initialValues={{
                   code: initialValues?.ACMAIN_CODE || code || '',
                   desc: initialValues?.ACMAIN_DESC || '',
-                  parent: initialValues?.ACMAIN_PARENT || parentId || '',
-                  accNo: initialValues?.ACMAIN_ACCNO || '',
-                  isGroup: initialValues?.ACMAIN_ACTYPE_DOCNO === "GH" || IsAllowToCreateGH,
+                  parent: (initialValues?.ACMAIN_PARENT && initialValues?.ACMAIN_PARENT !== "0") ? initialValues?.ACMAIN_PARENT : (parentId || ''),
+                  accNo: initialValues?.ACMAIN_ACCNO || initialValues?.ACMST_ACCNO || '',
+                  isGroup: initialValues ? (initialValues?.ACMAIN_ACTYPE_DOCNO === "GH") : IsAllowToCreateGH,
                   defaultBalance: initialValues?.ACMAIN_DEFAULT_BALANCE_SIGN || '',
-                  tax: initialValues?.ACMAIN_ACCOUNT_TAX || '',
+                  tax: initialValues?.ACMAIN_ACCOUNT_TAX || initialValues?.ACMST_TAX_TREATMENT_CODE || '',
                   accCode: initialValues?.ACMAIN_ACC_CODE || accountCode || '',
-                  enableAccount: initialValues?.ACMAIN_ACCOUNT_ON_STOP === 0 || true,
-                  remark: initialValues?.ACMAIN_ACCOUNT_REMARK || '',
+                  enableAccount: initialValues?.ACMAIN_ACCOUNT_ON_STOP !== 1,
+                  remark: initialValues?.ACMAIN_ACCOUNT_REMARK || initialValues?.ACMST_REMARKS || '',
                   accDesc: initialValues?.ACMAIN_ACCOUNT_DESC || ''
                 }}
                 validationSchema={validationSchema}
@@ -514,7 +518,7 @@ const ModalForm = ({ open, onClose, initialValues, parentId, grpCode, IsAllowToC
                             size="small"
                             label="Account Number"
                             name="accNo"
-                            value={values.accNo || ''}
+                            value={values.accNo }
                             onChange={handleChange}
                             error={Boolean(touched.accNo && errors.accNo)}
                             helperText={touched.accNo && errors.accNo}

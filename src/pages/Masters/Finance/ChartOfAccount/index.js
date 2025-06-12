@@ -73,10 +73,10 @@ export default function ChartOfAccount() {
     
     const [data, setData] = useState([]);
     const [treeData, setTreeData] = useState([]);
-    const [filteredTreeData, setFilteredTreeData] = useState([]);
-    const [expandedNodes, setExpandedNodes] = useState([]);
+    const [filteredTreeData, setFilteredTreeData] = useState([]);    const [expandedNodes, setExpandedNodes] = useState([]);
     const [selectedNode, setSelectedNode] = useState(null);
     const [editData, setEditData] = useState(null);
+    const [rawAccountData, setRawAccountData] = useState(null);
     const [accDetails, setAccDetails] = useState(null);
     const [isDelete, setIsDelete] = useState(false);
     const [accName, setAccName] = useState(null);
@@ -226,15 +226,59 @@ export default function ChartOfAccount() {
                 ? prev.filter(id => id !== nodeId)
                 : [...prev, nodeId]
         );
-    };
-
-    const handleNodeSelect = (node) => {
+    };    const getAccountDetails = async (id) => {
+        try {
+            const { Success, Data, Message } = await GetSingleResult({
+                "key": "COA_CRUD",
+                "TYPE": "GET_DETAILS",
+                "ACMAIN_CODE": id
+            });
+            
+            if (Success && Data) {
+                // Store raw API data for editing
+                setRawAccountData(Data);
+                
+                // Map API response to expected structure for display
+                const mappedDetails = {
+                    id: Data.ACMAIN_CODE,
+                    name: Data.ACMAIN_DESC,
+                    code: Data.ACMAIN_CODE,
+                    parent: Data.ACMAIN_PARENT === "0" ? null : Data.ACMAIN_PARENT,
+                    isGroup: Data.ACMAIN_ACTYPE_DOCNO === "GH",
+                    balance: Data.ACMAIN_DEFAULT_BALANCE_SIGN,
+                    balanceSheetAccount: Data.ACMAIN_BALANCE_SHEET_ACCOUNT,
+                    isDeletable: Data.isDeletable,
+                    credit: Data.Credit || 0,
+                    tax: Data.ACMST_TAX_TREATMENT_CODE,
+                    remarks: Data.ACMST_REMARKS,
+                    accountNo: Data.ACMST_ACCNO || Data.ACMAIN_ACCNO,
+                    IsAllowToCreateGH: Data.IsAllowToCreateGH || false,
+                    IsAllowToCreateGL: Data.IsAllowToCreateGL || false,
+                    srno: Data.ACMAIN_SRNO,
+                    createdBy: Data.ACMAIN_CREATED_BY,
+                    createdDate: Data.ACMAIN_CREATED_TS
+                };
+                  
+                setAccDetails(mappedDetails);
+                setIsDelete(Data.isDeletable === 1 || Data.isDeletable === true);
+                setAccCredit(Data.Credit || 0);
+            } else {
+                showToast(Message || "Failed to fetch account details", "error");
+            }
+        } catch (error) {
+            console.error("Error fetching account details:", error);
+            showToast("Error fetching account details", "error");
+        }
+    };    const handleNodeSelect = async (node) => {
         setSelectedNode(node.id);
-        setAccDetails(node);
         setAccName(node.name);
         setAccId(node.id);
-        setAccCredit(node.credit);
-        setIsDelete(node.isDeletable === 1);
+        
+        // Reset raw account data when selecting a new node
+        setRawAccountData(null);
+        
+        // Get detailed account information from API
+        await getAccountDetails(node.id);
     };
 
     const handleDelete = async (id) => {
@@ -245,13 +289,13 @@ export default function ChartOfAccount() {
                     "key": "COA_CRUD",
                     "TYPE": "DELETE",
                     "ACMAIN_CODE": id
-                });
-                if (Success) {
+                });                if (Success) {
                     fetchList();
                     setSelectedNode(null);
                     setAccDetails(null);
+                    setRawAccountData(null);
                     setAccName(null);
-                    showToast("✅ Account deleted successfully!", 'success');
+                    showToast("Account deleted !", 'success');
                 } else {
                     showToast(Message, "error");
                 }
@@ -259,17 +303,16 @@ export default function ChartOfAccount() {
                 setLoader(false);
             }
         });
-    };
-
-    function closeModal() {
+    };    function closeModal() {
         SetShowModal(false);
         setEditData(null);
+        setRawAccountData(null);
         fetchList();
     }
 
     function handleEdit() {
         SetShowModal(true);
-        setEditData(accDetails);
+        setEditData(rawAccountData); // Use raw API data for editing
     }
 
     function handleNew() {
@@ -306,23 +349,22 @@ export default function ChartOfAccount() {
                     button
                     onClick={() => handleNodeSelect(node)}
                     sx={{
-                        pl: 1 + (level * 2),
-                        py: 0.5,
-                        borderRadius: 1.5,
-                        mb: 0.125,
+                        pl: 0.5 + (level * 1.5),
+                        py: 0.25,
+                        borderRadius: 1,
+                        mb: 0.0625,
                         backgroundColor: isSelected ? alpha(theme.palette.primary.main, 0.12) : 'transparent',
                         '&:hover': {
                             backgroundColor: isSelected 
                                 ? alpha(theme.palette.primary.main, 0.16)
                                 : alpha(theme.palette.primary.main, 0.04),
-                            transform: 'translateX(3px)',
+                            transform: 'translateX(2px)',
                             transition: 'all 0.2s ease-in-out',
-                            boxShadow: theme.shadows[1]
                         },
                         border: isSelected ? `1px solid ${theme.palette.primary.main}` : '1px solid transparent',
                         transition: 'all 0.2s ease-in-out',
                         position: 'relative',
-                        minHeight: 36,
+                        minHeight: 28,
                         '&::before': isSelected ? {
                             content: '""',
                             position: 'absolute',
@@ -331,11 +373,10 @@ export default function ChartOfAccount() {
                             bottom: 0,
                             width: 2,
                             backgroundColor: theme.palette.primary.main,
-                            borderRadius: '0 2px 2px 0'
+                            borderRadius: '0 1px 1px 0'
                         } : {}
                     }}
-                >
-                    <ListItemIcon sx={{ minWidth: 26 }}>                        {hasChildren && (
+                >                    <ListItemIcon sx={{ minWidth: 20, mr: 0.75 }}>                        {hasChildren && (
                             <IconButton
                                 size="small"
                                 onClick={(e) => {
@@ -344,9 +385,9 @@ export default function ChartOfAccount() {
                                 }}
                                 sx={{ 
                                     mr: 0.25, 
-                                    p: 0.125,
-                                    width: 16,
-                                    height: 16,
+                                    p: 0.0625,
+                                    width: 12,
+                                    height: 12,
                                     backgroundColor: alpha(theme.palette.primary.main, 0.04),
                                     '&:hover': {
                                         backgroundColor: alpha(theme.palette.primary.main, 0.12),
@@ -356,16 +397,16 @@ export default function ChartOfAccount() {
                                 }}
                             >
                                 {isExpanded ? (
-                                    <ExpandMoreIcon sx={{ color: theme.palette.primary.main, fontSize: '0.875rem' }} />
+                                    <ExpandMoreIcon sx={{ color: theme.palette.primary.main, fontSize: '0.75rem' }} />
                                 ) : (
-                                    <ChevronRightIcon sx={{ color: theme.palette.primary.main, fontSize: '0.875rem' }} />
+                                    <ChevronRightIcon sx={{ color: theme.palette.primary.main, fontSize: '0.75rem' }} />
                                 )}
                             </IconButton>
                         )}                        {node.isGroup ? (
                             <Avatar
                                 sx={{
-                                    width: 20,
-                                    height: 20,
+                                    width: 16,
+                                    height: 16,
                                     background: `linear-gradient(135deg, ${
                                         isExpanded ? theme.palette.primary.main : alpha(theme.palette.primary.main, 0.8)
                                     } 0%, ${
@@ -375,31 +416,32 @@ export default function ChartOfAccount() {
                                     transition: 'all 0.3s ease'
                                 }}
                             >
-                                {isExpanded ? <FolderOpenIcon sx={{ fontSize: '0.75rem' }} /> : <FolderIcon sx={{ fontSize: '0.75rem' }} />}
+                                {isExpanded ? <FolderOpenIcon sx={{ fontSize: '0.625rem' }} /> : <FolderIcon sx={{ fontSize: '0.625rem' }} />}
                             </Avatar>
                         ) : (
                             <Avatar
                                 sx={{
-                                    width: 20,
-                                    height: 20,
+                                    width: 16,
+                                    height: 16,
                                     background: `linear-gradient(135deg, ${theme.palette.success.main} 0%, ${theme.palette.success.dark} 100%)`,
                                     boxShadow: theme.shadows[1],
                                     transition: 'all 0.3s ease'
                                 }}
                             >
-                                <AccountCircleIcon sx={{ fontSize: '0.75rem' }} />
+                                <AccountCircleIcon sx={{ fontSize: '0.625rem' }} />
                             </Avatar>
                         )}
-                    </ListItemIcon>                      <ListItemText
+                    </ListItemIcon><ListItemText
                         primary={
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flex: 1 }}>
                                 <Typography 
                                     variant="body2" 
                                     sx={{ 
                                         fontWeight: node.isGroup ? 600 : 500,
-                                        fontSize: node.isGroup ? '0.8rem' : '0.75rem',
+                                        fontSize: node.isGroup ? '0.7rem' : '0.65rem',
                                         flex: 1,
-                                        color: isSelected ? theme.palette.primary.main : 'inherit'
+                                        color: isSelected ? theme.palette.primary.main : 'inherit',
+                                        lineHeight: 1.2
                                     }}
                                 >
                                     {node.name}
@@ -410,105 +452,47 @@ export default function ChartOfAccount() {
                                     color={node.isGroup ? "primary" : "success"}
                                     variant={isSelected ? "filled" : "outlined"}
                                     sx={{ 
-                                        fontSize: '0.6rem', 
-                                        height: 18,
+                                        fontSize: '0.55rem', 
+                                        height: 14,
                                         fontWeight: 600,
                                         transition: 'all 0.2s ease',
-                                        '& .MuiChip-label': { px: 0.75 }
+                                        '& .MuiChip-label': { px: 0.5 }
                                     }}
                                 />
                             </Box>
                         }                        secondary={
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mt: 0.125 }}>
-                                <Box component="span" sx={{ fontSize: '0.65rem', color: 'text.secondary' }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.0625 }}>
+                                <Box component="span" sx={{ fontSize: '0.6rem', color: 'text.secondary' }}>
                                     Code: {node.code}
                                 </Box>
                                 {node.isGroup && (
                                     <>
-                                        <Box component="span" sx={{ fontSize: '0.65rem', color: 'text.secondary' }}>•</Box>
-                                        <Box component="span" sx={{ fontSize: '0.65rem', color: 'text.secondary' }}>
+                                        <Box component="span" sx={{ fontSize: '0.6rem', color: 'text.secondary' }}>•</Box>
+                                        <Box component="span" sx={{ fontSize: '0.6rem', color: 'text.secondary' }}>
                                             {node.children?.length || 0} item(s)
                                         </Box>
                                     </>
                                 )}
                                 {node.balanceSheetAccount === 1 && (
                                     <>
-                                        <Box component="span" sx={{ fontSize: '0.65rem', color: 'text.secondary' }}>•</Box>
+                                        <Box component="span" sx={{ fontSize: '0.6rem', color: 'text.secondary' }}>•</Box>
                                         <Chip
                                             label="Balance Sheet"
                                             size="small"
                                             variant="outlined"
                                             sx={{ 
-                                                fontSize: '0.55rem', 
-                                                height: 14,
+                                                fontSize: '0.5rem', 
+                                                height: 12,
                                                 color: theme.palette.info.main,
                                                 borderColor: theme.palette.info.main,
-                                                '& .MuiChip-label': { px: 0.5 }
+                                                '& .MuiChip-label': { px: 0.375 }
                                             }}
                                         />
                                     </>
                                 )}
                             </Box>
                         }
-                    />
-                </ListItem>
-
-                {/* Account Details Expansion */}
-                {isSelected && !node.isGroup && (
-                    <Collapse in={isSelected}>
-                        <Paper
-                            elevation={2}
-                            sx={{
-                                ml: 3 + (level * 3),
-                                mr: 2,
-                                mb: 2,
-                                p: 2,
-                                backgroundColor: alpha(theme.palette.primary.main, 0.02),
-                                border: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
-                                borderRadius: 2
-                            }}
-                        >
-                            <Grid container spacing={2}>
-                                <Grid item xs={12} sm={6}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                                        <MonetizationOnIcon sx={{ fontSize: '1.1rem', color: 'text.secondary' }} />
-                                        <Typography variant="body2" color="text.secondary">
-                                            Credit Limit
-                                        </Typography>
-                                    </Box>
-                                    <Typography variant="h6" color="primary">
-                                        {node.credit || '0.00'}
-                                    </Typography>
-                                </Grid>
-                                
-                                {node.tax && (
-                                    <Grid item xs={12} sm={6}>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                                            <BusinessIcon sx={{ fontSize: '1.1rem', color: 'text.secondary' }} />
-                                            <Typography variant="body2" color="text.secondary">
-                                                Tax Treatment
-                                            </Typography>
-                                        </Box>
-                                        <Typography variant="body1">
-                                            {node.tax}
-                                        </Typography>
-                                    </Grid>
-                                )}
-                                
-                                {node.remarks && (
-                                    <Grid item xs={12}>
-                                        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                                            Remarks
-                                        </Typography>
-                                        <Typography variant="body2">
-                                            {node.remarks}
-                                        </Typography>
-                                    </Grid>
-                                )}
-                            </Grid>
-                        </Paper>
-                    </Collapse>
-                )}
+                    /></ListItem>
 
                 {/* Child nodes */}
                 {hasChildren && (
@@ -657,7 +641,7 @@ export default function ChartOfAccount() {
             </Helmet>
             
             <Container maxWidth="xl">
-                <Box sx={{ py: 3 }}>                    {/* Compact Header */}
+                <Box sx={{ py: 1 }}>                    {/* Compact Header */}
                     <Paper
                         elevation={1}
                         sx={{
@@ -867,8 +851,7 @@ export default function ChartOfAccount() {
                                                 Loading account structure...
                                             </Typography>
                                         </Box>
-                                    ) : filteredTreeData.length > 0 ? (
-                                        <List sx={{ p: 1 }}>
+                                    ) : filteredTreeData.length > 0 ? (                                        <List sx={{ p: 0.5, py: 0.25 }}>
                                             {filteredTreeData.map(node => renderTreeNode(node, 0))}
                                         </List>
                                     ) : searchTerm || filterType !== 'all' ? (                                        <Box sx={{ 
@@ -959,8 +942,7 @@ export default function ChartOfAccount() {
                                                                 />
                                                             </Box>
                                                         </Box>                                        
-                                                        <Grid container spacing={1}>
-                                                            <Grid item xs={12}>
+                                                        <Grid container spacing={1}>                                                            <Grid item xs={12}>
                                                                 <Paper
                                                                     sx={{ 
                                                                         p: 1, 
@@ -969,16 +951,16 @@ export default function ChartOfAccount() {
                                                                         border: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`
                                                                     }}
                                                                 >
-                                                                    <Typography variant="caption" color="text.secondary" sx={{ mb: 0.125, fontSize: '0.65rem' }}>
-                                                                        Account Code
-                                                                    </Typography>
-                                                                    <Typography variant="body2" color="primary" sx={{ fontWeight: 600, fontSize: '0.8rem' }}>
-                                                                        {accDetails.code}
-                                                                    </Typography>
+                                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+                                                                            Account Code
+                                                                        </Typography>
+                                                                        <Typography variant="body2" color="primary" sx={{ fontWeight: 600, fontSize: '0.8rem' }}>
+                                                                            {accDetails.code}
+                                                                        </Typography>
+                                                                    </Box>
                                                                 </Paper>
-                                                            </Grid>
-
-                                                            {/* Balance Type */}
+                                                            </Grid>                                                            {/* Balance Type */}
                                                             <Grid item xs={12}>
                                                                 <Paper
                                                                     sx={{ 
@@ -988,15 +970,17 @@ export default function ChartOfAccount() {
                                                                         border: `1px solid ${alpha(theme.palette.info.main, 0.12)}`
                                                                     }}
                                                                 >
-                                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.125 }}>
-                                                                        <AccountBalanceIcon sx={{ fontSize: '0.875rem', color: 'info.main' }} />
-                                                                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
-                                                                            Default Balance
+                                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                                                                            <AccountBalanceIcon sx={{ fontSize: '0.875rem', color: 'info.main' }} />
+                                                                            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+                                                                                Default Balance
+                                                                            </Typography>
+                                                                        </Box>
+                                                                        <Typography variant="body2" color="info.main" sx={{ fontWeight: 600, fontSize: '0.8rem' }}>
+                                                                            {accDetails.balance === 1 ? 'Debit' : 'Credit'}
                                                                         </Typography>
                                                                     </Box>
-                                                                    <Typography variant="body2" color="info.main" sx={{ fontWeight: 600, fontSize: '0.8rem' }}>
-                                                                        {accDetails.balance === 1 ? 'Debit' : 'Credit'}
-                                                                    </Typography>
                                                                 </Paper>
                                                             </Grid>                                                            {/* Account Type */}
                                                             {accDetails.balanceSheetAccount !== undefined && (
@@ -1009,15 +993,58 @@ export default function ChartOfAccount() {
                                                                             border: `1px solid ${alpha(theme.palette.secondary.main, 0.12)}`
                                                                         }}
                                                                     >
-                                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.125 }}>
-                                                                            <BusinessIcon sx={{ fontSize: '0.875rem', color: 'secondary.main' }} />
-                                                                            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
-                                                                                Account Type
+                                                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                                                                                <BusinessIcon sx={{ fontSize: '0.875rem', color: 'secondary.main' }} />
+                                                                                <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+                                                                                    Account Type
+                                                                                </Typography>
+                                                                            </Box>
+                                                                            <Typography variant="body2" color="secondary.main" sx={{ fontWeight: 600, fontSize: '0.8rem' }}>
+                                                                                {accDetails.balanceSheetAccount === 1 ? 'Balance Sheet' : 'Income Statement'}
                                                                             </Typography>
                                                                         </Box>
-                                                                        <Typography variant="body2" color="secondary.main" sx={{ fontWeight: 600, fontSize: '0.8rem' }}>
-                                                                            {accDetails.balanceSheetAccount === 1 ? 'Balance Sheet' : 'Income Statement'}
-                                                                        </Typography>
+                                                                    </Paper>                                                                </Grid>
+                                                            )}                                                            {/* Account Number */}
+                                                            {accDetails.accountNo && (
+                                                                <Grid item xs={12}>
+                                                                    <Paper
+                                                                        sx={{ 
+                                                                            p: 1, 
+                                                                            backgroundColor: alpha(theme.palette.warning.main, 0.04),
+                                                                            borderRadius: 1,
+                                                                            border: `1px solid ${alpha(theme.palette.warning.main, 0.12)}`
+                                                                        }}
+                                                                    >
+                                                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+                                                                                Account Number
+                                                                            </Typography>
+                                                                            <Typography variant="body2" color="warning.main" sx={{ fontWeight: 600, fontSize: '0.8rem' }}>
+                                                                                {accDetails.accountNo}
+                                                                            </Typography>
+                                                                        </Box>
+                                                                    </Paper>
+                                                                </Grid>
+                                                            )}                                                            {/* Remarks */}
+                                                            {accDetails.remarks && (
+                                                                <Grid item xs={12}>
+                                                                    <Paper
+                                                                        sx={{ 
+                                                                            p: 1, 
+                                                                            backgroundColor: alpha(theme.palette.grey[500], 0.04),
+                                                                            borderRadius: 1,
+                                                                            border: `1px solid ${alpha(theme.palette.grey[500], 0.12)}`
+                                                                        }}
+                                                                    >
+                                                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}>
+                                                                            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem', flexShrink: 0 }}>
+                                                                                Remarks
+                                                                            </Typography>
+                                                                            <Typography variant="body2" sx={{ fontWeight: 500, fontSize: '0.75rem', textAlign: 'right' }}>
+                                                                                {accDetails.remarks}
+                                                                            </Typography>
+                                                                        </Box>
                                                                     </Paper>
                                                                 </Grid>
                                                             )}
@@ -1025,46 +1052,75 @@ export default function ChartOfAccount() {
                                                     </CardContent>
                                                 </Card>                                                {/* Action Buttons */}
                                                 <Card elevation={1} sx={{ borderRadius: 2 }}>
-                                                    <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
-                                                        <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600, fontSize: '0.875rem' }}>
+                                                    <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
+                                                        <Typography variant="subtitle2" sx={{ mb: 0.75, fontWeight: 600, fontSize: '0.75rem' }}>
                                                             Actions
-                                                        </Typography>
-                                                        <Stack spacing={1}>{accDetails.isGroup && accDetails.IsAllowToCreateGH && (
+                                                        </Typography>                                                        <Stack spacing={0.5}>
+                                                            {/* Edit Button - Most Common Action */}
+                                                            <Button
+                                                                variant="contained"
+                                                                size="small"
+                                                                startIcon={<EditIcon sx={{ fontSize: '0.875rem' }} />}
+                                                                onClick={() => handleEdit()}
+                                                                sx={{ 
+                                                                    borderRadius: 1.5,
+                                                                    py: 0.5,
+                                                                    px: 2,
+                                                                    fontSize: '0.75rem',
+                                                                    minHeight: 24,
+                                                                    width: 'auto',
+                                                                    '&:hover': {
+                                                                        transform: 'translateY(-1px)',
+                                                                        boxShadow: theme.shadows[3]
+                                                                    },
+                                                                    transition: 'all 0.2s ease'
+                                                                }}
+                                                            >
+                                                                Edit
+                                                            </Button>
+
+                                                            {/* Add Child Group */}
+                                                            {accDetails.isGroup && accDetails.IsAllowToCreateGH && (
                                                                 <Button
                                                                     variant="outlined"
                                                                     size="small"
-                                                                    fullWidth
-                                                                    startIcon={<AddIcon fontSize="small" />}
+                                                                    startIcon={<AddIcon sx={{ fontSize: '0.875rem' }} />}
                                                                     onClick={() => handleNew()}
                                                                     sx={{ 
-                                                                        borderRadius: 2,
-                                                                        py: 1,
-                                                                        fontSize: '0.875rem',
+                                                                        borderRadius: 1.5,
+                                                                        py: 0.5,
+                                                                        px: 2,
+                                                                        fontSize: '0.75rem',
+                                                                        minHeight: 24,
+                                                                        width: 'auto',
                                                                         '&:hover': {
                                                                             transform: 'translateY(-1px)',
-                                                                            boxShadow: theme.shadows[2]
+                                                                            boxShadow: theme.shadows[1]
                                                                         },
                                                                         transition: 'all 0.2s ease'
                                                                     }}
                                                                 >
-                                                                    Add Child Group
+                                                                    Add Child
                                                                 </Button>
                                                             )}
                                                             
+                                                            {/* Add Account */}
                                                             {accDetails.IsAllowToCreateGL && (
                                                                 <Button
                                                                     variant="outlined"
                                                                     size="small"
-                                                                    fullWidth
-                                                                    startIcon={<AddIcon fontSize="small" />}
+                                                                    startIcon={<AddIcon sx={{ fontSize: '0.875rem' }} />}
                                                                     onClick={() => handleNew()}
                                                                     sx={{ 
-                                                                        borderRadius: 2,
-                                                                        py: 1,
-                                                                        fontSize: '0.875rem',
+                                                                        borderRadius: 1.5,
+                                                                        py: 0.5,
+                                                                        px: 2,
+                                                                        fontSize: '0.75rem',
+                                                                        minHeight: 24,
+                                                                        width: 'auto',
                                                                         '&:hover': {
                                                                             transform: 'translateY(-1px)',
-                                                                            boxShadow: theme.shadows[2]
+                                                                            boxShadow: theme.shadows[1]
                                                                         },
                                                                         transition: 'all 0.2s ease'
                                                                     }}
@@ -1072,42 +1128,25 @@ export default function ChartOfAccount() {
                                                                     Add Account
                                                                 </Button>
                                                             )}
-                                                            
-                                                            <Button
-                                                                variant="contained"
-                                                                size="small"
-                                                                fullWidth
-                                                                startIcon={<EditIcon fontSize="small" />}
-                                                                onClick={() => handleEdit()}
-                                                                sx={{ 
-                                                                    borderRadius: 2,
-                                                                    py: 1,
-                                                                    fontSize: '0.875rem',
-                                                                    '&:hover': {
-                                                                        transform: 'translateY(-1px)',
-                                                                        boxShadow: theme.shadows[4]
-                                                                    },
-                                                                    transition: 'all 0.2s ease'
-                                                                }}
-                                                            >
-                                                                Edit Account
-                                                            </Button>
 
+                                                            {/* View Ledger - Only for accounts */}
                                                             {!accDetails.isGroup && (
                                                                 <Button
                                                                     variant="outlined"
                                                                     color="info"
                                                                     size="small"
-                                                                    fullWidth
-                                                                    startIcon={<VisibilityIcon fontSize="small" />}
+                                                                    startIcon={<VisibilityIcon sx={{ fontSize: '0.875rem' }} />}
                                                                     onClick={() => handleViewLedger(accId)}
                                                                     sx={{ 
-                                                                        borderRadius: 2,
-                                                                        py: 1,
-                                                                        fontSize: '0.875rem',
+                                                                        borderRadius: 1.5,
+                                                                        py: 0.5,
+                                                                        px: 2,
+                                                                        fontSize: '0.75rem',
+                                                                        minHeight: 24,
+                                                                        width: 'auto',
                                                                         '&:hover': {
                                                                             transform: 'translateY(-1px)',
-                                                                            boxShadow: theme.shadows[2]
+                                                                            boxShadow: theme.shadows[1]
                                                                         },
                                                                         transition: 'all 0.2s ease'
                                                                     }}
@@ -1116,27 +1155,31 @@ export default function ChartOfAccount() {
                                                                 </Button>
                                                             )}
                                                             
+                                                            {/* Delete Button - Last */}
                                                             {isDelete && (
                                                                 <Button
                                                                     variant="outlined"
                                                                     color="error"
                                                                     size="small"
-                                                                    fullWidth
-                                                                    startIcon={<DeleteIcon fontSize="small" />}
+                                                                    startIcon={<DeleteIcon sx={{ fontSize: '0.875rem' }} />}
                                                                     onClick={() => handleDelete(accId)}
                                                                     sx={{ 
-                                                                        borderRadius: 2,
-                                                                        py: 1,
-                                                                        fontSize: '0.875rem',
+                                                                        borderRadius: 1.5,
+                                                                        py: 0.5,
+                                                                        px: 2,
+                                                                        fontSize: '0.75rem',
+                                                                        minHeight: 24,
+                                                                        width: 'auto',
                                                                         '&:hover': {
                                                                             transform: 'translateY(-1px)',
-                                                                            boxShadow: theme.shadows[2]
+                                                                            boxShadow: theme.shadows[1]
                                                                         },
                                                                         transition: 'all 0.2s ease'
                                                                     }}
                                                                 >
-                                                                    Delete Account
-                                                                </Button>                                                            )}
+                                                                    Delete
+                                                                </Button>
+                                                            )}
                                                         </Stack>
                                                     </CardContent>
                                                 </Card>
