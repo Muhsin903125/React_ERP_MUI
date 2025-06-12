@@ -270,15 +270,14 @@ useEffect(() => {
     navigate(path);
     handleMenuClose();
   };
- 
-  const buttonStyles = {
+   const buttonStyles = {
     borderRadius: '8px',
     boxShadow: '0 4px 14px rgba(0,0,0,0.08)',
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     textTransform: 'none',
-    fontWeight: 600,
-    fontSize: '0.875rem',
-    padding: '6px 16px',
+    fontWeight: 500,
+    fontSize: '0.8rem',
+    padding: '4px 12px',
     background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
     color: '#fff',
     '&:hover': {
@@ -287,25 +286,25 @@ useEffect(() => {
       background: 'linear-gradient(45deg, #1976D2 30%, #1E88E5 90%)',
     },
     '& .MuiButton-startIcon': {
-      marginRight: '8px',
+      marginRight: '6px',
       '& svg': {
-        fontSize: '1.25rem',
+        fontSize: '1rem',
       }
     }
   };
-
   const menuItemStyles = {
-    py: 1.5,
-    px: 2,
+    py: 1,
+    px: 1.5,
     transition: 'all 0.2s ease',
+    fontSize: '0.85rem',
     '&:hover': {
       backgroundColor: 'rgba(33, 150, 243, 0.08)',
       transform: 'translateX(4px)',
     },
     '& .MuiSvgIcon-root': {
-      marginRight: '12px',
+      marginRight: '10px',
       color: theme.palette.primary.main,
-      fontSize: '1.25rem',
+      fontSize: '1.1rem',
     }
   };
 
@@ -313,13 +312,12 @@ useEffect(() => {
     <>
       <Helmet>
         <title> Dashboard | Exapp ERP </title>
-      </Helmet>      <Container maxWidth="xl" sx={{ py: 2 }}>
-        {/* Modern Header Section */}
-        <Paper
+      </Helmet>      <Container maxWidth="xl" sx={{ py: 1.5 }}>
+        {/* Modern Header Section */}        <Paper
           elevation={0}
           sx={{
-            p: 3,
-            mb: 3,
+            p: 2.5,
+            mb: 2.5,
             borderRadius: 3,
             background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
             color: 'white',
@@ -336,18 +334,16 @@ useEffect(() => {
             },
           }}
         >
-          <Box sx={{ position: 'relative', zIndex: 1 }}>
-            <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }} spacing={2}>
+          <Box sx={{ position: 'relative', zIndex: 1 }}>            <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }} spacing={2}>
               <Box>
-                <Typography variant={isMobile ? "h5" : "h4"} fontWeight="700" sx={{ mb: 1 }}>
+                <Typography variant={isMobile ? "h6" : "h5"} fontWeight="600" sx={{ mb: 1, fontSize: { xs: '1.1rem', md: '1.3rem' } }}>
                   Welcome back, {displayName}! 👋
                 </Typography>
-                <Typography variant="body1" sx={{ opacity: 0.9 }}>
+                <Typography variant="body2" sx={{ opacity: 0.9, fontSize: '0.875rem' }}>
                   Here's what's happening with your business today
                 </Typography>
               </Box>
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
-                <Button
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>                <Button
                   variant="contained"
                   startIcon={<Iconify icon="mdi:plus" />}
                   onClick={handleMenuClick}
@@ -356,7 +352,9 @@ useEffect(() => {
                     backdropFilter: 'blur(8px)',
                     border: '1px solid rgba(255,255,255,0.3)',
                     color: 'white',
-                    fontWeight: 600,
+                    fontWeight: 500,
+                    fontSize: '0.8rem',
+                    py: 0.8,
                     '&:hover': {
                       bgcolor: 'rgba(255,255,255,0.3)',
                       transform: 'translateY(-2px)',
@@ -373,7 +371,9 @@ useEffect(() => {
                   sx={{
                     borderColor: 'rgba(255,255,255,0.3)',
                     color: 'white',
-                    fontWeight: 600,
+                    fontWeight: 500,
+                    fontSize: '0.8rem',
+                    py: 0.8,
                     '&:hover': {
                       borderColor: 'white',
                       bgcolor: 'rgba(255,255,255,0.1)',
@@ -389,7 +389,9 @@ useEffect(() => {
                   sx={{
                     borderColor: 'rgba(255,255,255,0.3)',
                     color: 'white',
-                    fontWeight: 600,
+                    fontWeight: 500,
+                    fontSize: '0.8rem',
+                    py: 0.8,
                     '&:hover': {
                       borderColor: 'white',
                       bgcolor: 'rgba(255,255,255,0.1)',
@@ -417,28 +419,25 @@ useEffect(() => {
                 backdropFilter: 'blur(8px)',
               }
             }}
-          >
-            <MenuItem onClick={() => handleNavigation('/sales-entry')} sx={menuItemStyles}>
-              <Iconify icon="mdi:plus" sx={{ marginRight: '8px' }} />
-              Add Sales Invoice Entry
+          >            <MenuItem onClick={() => handleNavigation('/sales-entry')} sx={menuItemStyles}>
+              <Iconify icon="mdi:plus" sx={{ marginRight: '6px' }} />
+              <Typography variant="body2" sx={{ fontSize: '0.85rem' }}>Add Sales Invoice Entry</Typography>
             </MenuItem>
             <MenuItem onClick={() => handleNavigation('/purchase-entry')} sx={menuItemStyles}>
-              <Iconify icon="mdi:plus" sx={{ marginRight: '8px' }} />
-              Add Purchase Invoice Entry
+              <Iconify icon="mdi:plus" sx={{ marginRight: '6px' }} />
+              <Typography variant="body2" sx={{ fontSize: '0.85rem' }}>Add Purchase Invoice Entry</Typography>
             </MenuItem>
             <MenuItem onClick={() => handleNavigation('/receipt-entry')} sx={menuItemStyles}>
-              <Iconify icon="mdi:plus" sx={{ marginRight: '8px' }} />
-              Add Receipt Entry
+              <Iconify icon="mdi:plus" sx={{ marginRight: '6px' }} />
+              <Typography variant="body2" sx={{ fontSize: '0.85rem' }}>Add Receipt Entry</Typography>
             </MenuItem>
             <MenuItem onClick={() => handleNavigation('/payment-entry')} sx={menuItemStyles}>
-              <Iconify icon="mdi:plus" sx={{ marginRight: '8px' }} />
-              Add Payment Entry
+              <Iconify icon="mdi:plus" sx={{ marginRight: '6px' }} />
+              <Typography variant="body2" sx={{ fontSize: '0.85rem' }}>Add Payment Entry</Typography>
             </MenuItem>
           </Menu>
-        </Paper>
-
-        {/* Main Grid Layout */}
-        <Grid container spacing={3}>          {/* Key Performance Metrics - Top Row */}
+        </Paper>        {/* Main Grid Layout */}
+        <Grid container spacing={2.5}>{/* Key Performance Metrics - Top Row */}
           <Grid item xs={12} sm={6} md={3}>
             <AppWidgetSummary2 
               title="Today Sales" 
