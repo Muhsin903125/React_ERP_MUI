@@ -12,3 +12,4 @@ export { default as AppTopProducts } from './AppTopProducts';
 export { default as AppPendingTasks } from './AppPendingTasks';
 export { default as AppTopCustomers } from './AppTopCustomers';
 export { default as AppQuickStats } from './AppQuickStats';
+export { default as AppActivitySummary } from './AppActivitySummary';

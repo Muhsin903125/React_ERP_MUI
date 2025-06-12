@@ -11,7 +11,7 @@ import UserPage from './pages/UserPage';
 import LoginPage from './pages/LoginPage';
 import Page404 from './pages/Page404';
 import ProductsPage from './pages/ProductsPage';
-import DashboardAppPage from './pages/DashboardAppPage';
+import DashboardAppPage from './pages/DashboardAppPage'; 
 import Settings from './pages/Settings';
 
 // auth
@@ -66,6 +66,7 @@ import PaymentEntry from './pages/Transactions/Finance/Payment/PaymentEntry';
 import Allocation from './pages/Transactions/Finance/Allocation';
 import AllocationEntry from './pages/Transactions/Finance/Allocation/AllocationEntry';
 import StatementOfAccount from './pages/Reports/Finance/StatementOfAccount';
+import ActivityPage from './pages/ActivityPage';
 
 // ----------------------------------------------------------------------
 
@@ -173,8 +174,8 @@ export default function Router() {
       path: '/',
       element: <RequireAuth><DashboardLayout /></RequireAuth>,
       children: [
-        { element: <Navigate to="/app" />, index: true },
-        { path: 'app', element: <DashboardAppPage /> },
+        { element: <Navigate to="/app" />, index: true },        { path: 'app', element: <DashboardAppPage /> },
+        { path: 'activity', element: <ActivityPage /> },
         { path: 'changepassword', element: <ChangePassword /> },
         { path: 'salesinvoice', element: <SalesInvoice /> },
         { path: 'sales-entry', element: <SalesEntry /> },

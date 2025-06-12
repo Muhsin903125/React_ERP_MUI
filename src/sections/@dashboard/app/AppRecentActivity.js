@@ -9,9 +9,11 @@ import {
   Avatar,
   Stack,
   Chip,
-  IconButton
+  IconButton,
+  Button
 } from '@mui/material';
 import { alpha, useTheme } from '@mui/material/styles';
+import { useNavigate } from 'react-router-dom';
 // components
 import Iconify from '../../../components/iconify';
 import { fDateTime } from '../../../utils/formatTime';
@@ -21,10 +23,12 @@ import { fDateTime } from '../../../utils/formatTime';
 AppRecentActivity.propTypes = {
   title: PropTypes.string,
   list: PropTypes.array.isRequired,
+  showViewAll: PropTypes.bool,
 };
 
-export default function AppRecentActivity({ title, list, ...other }) {
+export default function AppRecentActivity({ title, list, showViewAll = true, ...other }) {
   const theme = useTheme();
+  const navigate = useNavigate();
 
   return (
     <Card
@@ -47,10 +51,31 @@ export default function AppRecentActivity({ title, list, ...other }) {
 
       <CardContent sx={{ pt: 0 }}>
         <Stack spacing={2}>
-          {list.map((activity, index) => (
+          {list.slice(0, 4).map((activity, index) => (
             <ActivityItem key={activity.id} activity={activity} />
           ))}
         </Stack>
+
+        {showViewAll && (
+          <Box sx={{ mt: 2, textAlign: 'center' }}>
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<Iconify icon="mdi:history" />}
+              onClick={() => navigate('/activity')}
+              sx={{
+                borderColor: alpha(theme.palette.primary.main, 0.3),
+                color: theme.palette.primary.main,
+                '&:hover': {
+                  borderColor: theme.palette.primary.main,
+                  bgcolor: alpha(theme.palette.primary.main, 0.05),
+                },
+              }}
+            >
+              View All Activities
+            </Button>
+          </Box>
+        )}
       </CardContent>
     </Card>
   );

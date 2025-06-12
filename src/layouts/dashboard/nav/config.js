@@ -26,6 +26,12 @@ const navConfig1 = [
     icon: icon(<DashboardTwoTone />, true),
     visible: true
   },
+  {
+    title: 'Activity History',
+    path: '/activity',
+    icon: icon(<ArticleTwoTone />, true),
+    visible: true
+  },
   // master
   {
     title: 'Masters',

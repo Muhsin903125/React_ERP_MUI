@@ -16,12 +16,12 @@ import {
   AppTrafficBySite,
   AppWidgetSummary, 
   AppCurrentSubject,
-  AppConversionRates,
-  AppRecentActivity,
+  AppConversionRates,  AppRecentActivity,
   AppTopProducts,
   AppPendingTasks,
   AppTopCustomers,
   AppQuickStats,
+  AppActivitySummary,
 } from '../sections/@dashboard/app';
 import useAuth from '../hooks/useAuth';
 import { GetMultipleResult } from '../hooks/Api';
@@ -223,10 +223,19 @@ export default function DashboardAppPage() {
       value: '4.2x',
       change: '+0.8',
       trend: 'up',
-      icon: 'mdi:refresh',
-      color: 'primary'
+      icon: 'mdi:refresh',      color: 'primary'
     },
   ]);
+
+  const [activitySummary] = useState({
+    todayActivities: 23,
+    weekActivities: 156,
+    monthActivities: 647,
+    pendingTasks: 8,
+    completedTasks: 42,
+    activeUsers: 12,
+    recentTypes: ['sale', 'purchase', 'payment', 'invoice', 'user'],
+  });
 
 const navigate = useNavigate();
 const getDashboardData = async () => {
@@ -337,8 +346,7 @@ useEffect(() => {
                   Here's what's happening with your business today
                 </Typography>
               </Box>
-              
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
                 <Button
                   variant="contained"
                   startIcon={<Iconify icon="mdi:plus" />}
@@ -356,6 +364,23 @@ useEffect(() => {
                   }}
                 >
                   Quick Actions
+                </Button>
+                
+                <Button
+                  variant="outlined"
+                  startIcon={<Iconify icon="mdi:history" />}
+                  onClick={() => navigate('/activity')}
+                  sx={{
+                    borderColor: 'rgba(255,255,255,0.3)',
+                    color: 'white',
+                    fontWeight: 600,
+                    '&:hover': {
+                      borderColor: 'white',
+                      bgcolor: 'rgba(255,255,255,0.1)',
+                    },
+                  }}
+                >
+                  Activity History
                 </Button>
                 
                 <Button
@@ -540,12 +565,10 @@ useEffect(() => {
                 ]}
               />
             </Grid>
-          )}
-
-          <Grid item xs={12} lg={4}>
-            <AppQuickStats
-              title="Business Insights"
-              stats={quickStats}
+          )}          <Grid item xs={12} lg={4}>
+            <AppActivitySummary
+              title="Activity Overview"
+              data={activitySummary}
             />
           </Grid>
 
@@ -578,9 +601,7 @@ useEffect(() => {
               title="Top Customers"
               list={topCustomers}
             />
-          </Grid>
-
-          {/* Activity and Task Management Section */}
+          </Grid>          {/* Activity and Task Management Section */}
           <Grid item xs={12} md={6} lg={4}>
             <AppRecentActivity
               title="Recent Activities"
@@ -588,7 +609,14 @@ useEffect(() => {
             />
           </Grid>
 
-          <Grid item xs={12} md={6} lg={8}>
+          <Grid item xs={12} md={6} lg={4}>
+            <AppQuickStats
+              title="Business Insights"
+              stats={quickStats}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={6} lg={4}>
             <AppPendingTasks
               title="Pending Tasks"
               list={pendingTasks}
