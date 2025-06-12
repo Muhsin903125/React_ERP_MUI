@@ -64,6 +64,14 @@ import { GetSingleListResult, GetSingleResult } from '../../../../hooks/Api';
 import { useToast } from '../../../../hooks/Common';
 import Confirm from '../../../../components/Confirm';
 import ModalForm from './ModalForm';
+import { formatDateCustom } from '../../../../utils/formatDate';
+
+const formatBalanceValue = (value) => { 
+    if (value === 0 || value === null || value === undefined) return '';
+
+    const absValue = Math.abs(value)?.toFixed(2);
+    return value < 0 ? `${absValue} CR` : `${absValue} DR`;
+  };
 
 export default function ChartOfAccount() {
     const theme = useTheme();
@@ -324,7 +332,7 @@ export default function ChartOfAccount() {
         setShowLedger(true);
         setLedgerLoading(true);
         try {
-            const { Success, Data, Message } = await GetSingleResult({
+            const { Success, Data, Message } = await GetSingleListResult({
                 "key": "COA_CRUD",
                 "TYPE": "GET_LEDGER",
                 "ACMAIN_CODE": accountId
@@ -512,36 +520,35 @@ export default function ChartOfAccount() {
                 <Helmet>
                     <title>Chart of Account - Ledger</title>
                 </Helmet>
-                
-                <Container maxWidth="xl">
-                    <Box sx={{ py: 3 }}>
-                        {/* Ledger Header */}
+                  <Container maxWidth="xl">
+                    <Box sx={{ py: 1.5 }}>
+                        {/* Compact Ledger Header */}
                         <Paper
                             elevation={2}
                             sx={{
                                 background: `linear-gradient(135deg, ${theme.palette.secondary.main} 0%, ${theme.palette.secondary.dark} 100%)`,
                                 color: 'white',
-                                p: 3,
-                                mb: 3,
-                                borderRadius: 3
+                                p: 1.5,
+                                mb: 1.5,
+                                borderRadius: 2
                             }}
                         >
                             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                                     <Avatar
                                         sx={{
-                                            width: 56,
-                                            height: 56,
+                                            width: 40,
+                                            height: 40,
                                             backgroundColor: alpha('#fff', 0.2),
                                         }}
                                     >
-                                        <TrendingUpIcon fontSize="large" />
+                                        <TrendingUpIcon fontSize="medium" />
                                     </Avatar>
                                     <Box>
-                                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+                                        <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.25, fontSize: '1.1rem' }}>
                                             Account Ledger
                                         </Typography>
-                                        <Typography variant="body1" sx={{ opacity: 0.9 }}>
+                                        <Typography variant="body2" sx={{ opacity: 0.9, fontSize: '0.875rem' }}>
                                             {accName} - Transaction History
                                         </Typography>
                                     </Box>
@@ -549,7 +556,7 @@ export default function ChartOfAccount() {
                                 
                                 <Button
                                     variant="contained"
-                                    size="large"
+                                    size="small"
                                     startIcon={<ArrowBackIcon />}
                                     onClick={() => setShowLedger(false)}
                                     sx={{
@@ -558,8 +565,10 @@ export default function ChartOfAccount() {
                                         '&:hover': {
                                             backgroundColor: alpha('#fff', 0.3),
                                         },
-                                        borderRadius: 2,
-                                        px: 3
+                                        borderRadius: 1.5,
+                                        px: 2,
+                                        py: 0.5,
+                                        fontSize: '0.875rem'
                                     }}
                                 >
                                     Back to Accounts
@@ -567,38 +576,41 @@ export default function ChartOfAccount() {
                             </Box>
                         </Paper>
 
-                        {/* Ledger Table */}
-                        <Paper elevation={3} sx={{ borderRadius: 3, overflow: 'hidden' }}>
-                            <TableContainer>
-                                <Table sx={{ minWidth: 650 }}>
+                        {/* Compact Ledger Table */}
+                        <Paper elevation={2} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+                            <TableContainer sx={{ maxHeight: 'calc(100vh - 220px)' }}>
+                                <Table sx={{ minWidth: 650 }} size="small">
                                     <TableHead>
-                                        <TableRow sx={{ backgroundColor: alpha(theme.palette.primary.main, 0.04) }}>
-                                            <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
-                                            <TableCell sx={{ fontWeight: 600 }}>Description</TableCell>
-                                            <TableCell align="right" sx={{ fontWeight: 600 }}>Debit</TableCell>
-                                            <TableCell align="right" sx={{ fontWeight: 600 }}>Credit</TableCell>
-                                            <TableCell align="right" sx={{ fontWeight: 600 }}>Balance</TableCell>
+                                        <TableRow sx={{ 
+                                            backgroundColor: alpha(theme.palette.primary.main, 0.04),
+                                            height: 40
+                                        }}>
+                                            <TableCell sx={{ fontWeight: 600, fontSize: '0.875rem', py: 1 }}>Date</TableCell>
+                                            <TableCell sx={{ fontWeight: 600, fontSize: '0.875rem', py: 1 }}>Description</TableCell>
+                                            <TableCell align="right" sx={{ fontWeight: 600, fontSize: '0.875rem', py: 1 }}>Debit</TableCell>
+                                            <TableCell align="right" sx={{ fontWeight: 600, fontSize: '0.875rem', py: 1 }}>Credit</TableCell>
+                                            <TableCell align="right" sx={{ fontWeight: 600, fontSize: '0.875rem', py: 1 }}>Balance</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
                                         {ledgerLoading ? (
                                             <TableRow>
-                                                <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
-                                                    <CircularProgress size={40} />
-                                                    <Typography variant="body2" sx={{ mt: 2 }}>
+                                                <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
+                                                    <CircularProgress size={32} />
+                                                    <Typography variant="body2" sx={{ mt: 1.5, fontSize: '0.875rem' }}>
                                                         Loading ledger data...
                                                     </Typography>
                                                 </TableCell>
                                             </TableRow>
                                         ) : ledgerData.length === 0 ? (
                                             <TableRow>
-                                                <TableCell colSpan={5} align="center" sx={{ py: 6 }}>
+                                                <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
                                                     <Box>
-                                                        <AccountBalanceIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-                                                        <Typography variant="h6" color="text.secondary">
+                                                        <AccountBalanceIcon sx={{ fontSize: 36, color: 'text.secondary', mb: 1.5 }} />
+                                                        <Typography variant="subtitle1" color="text.secondary" sx={{ fontSize: '1rem' }}>
                                                             No ledger entries found
                                                         </Typography>
-                                                        <Typography variant="body2" color="text.secondary">
+                                                        <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
                                                             This account has no transaction history yet
                                                         </Typography>
                                                     </Box>
@@ -609,17 +621,26 @@ export default function ChartOfAccount() {
                                                 <TableRow 
                                                     key={index}
                                                     sx={{
+                                                        height: 36,
                                                         '&:hover': {
                                                             backgroundColor: alpha(theme.palette.primary.main, 0.02)
                                                         }
                                                     }}
                                                 >
-                                                    <TableCell>{row.date}</TableCell>
-                                                    <TableCell>{row.description}</TableCell>
-                                                    <TableCell align="right">{row.debit}</TableCell>
-                                                    <TableCell align="right">{row.credit}</TableCell>
-                                                    <TableCell align="right" sx={{ fontWeight: 600 }}>
-                                                        {row.balance}
+                                                    <TableCell sx={{ py: 0.5, fontSize: '0.8rem' }}>
+                                                        {formatDateCustom(row.date,"DD-MMM-YYYY")}
+                                                    </TableCell>
+                                                    <TableCell sx={{ py: 0.5, fontSize: '0.8rem' }}>
+                                                        {row.description}
+                                                    </TableCell>
+                                                    <TableCell align="right" sx={{ py: 0.5, fontSize: '0.8rem' }}>
+                                                        {row.debit===0 ? "" :  (row.debit)}
+                                                    </TableCell>
+                                                    <TableCell align="right" sx={{ py: 0.5, fontSize: '0.8rem' }}>
+                                                        {row.credit===0 ? "" :  (Math.abs(row.credit))}
+                                                    </TableCell>
+                                                    <TableCell align="right" sx={{ fontWeight: 600, py: 0.5, fontSize: '0.8rem' }}>
+                                                        {formatBalanceValue(row.balance)}
                                                     </TableCell>
                                                 </TableRow>
                                             ))
