@@ -168,7 +168,7 @@ export default function Nav({ openNav, onCloseNav }) {
         }}
       >{/* Brand Section */}
       <StyledBrand sx={{ py: 1.5, px: 2 }}>
-        <Logo sx={{ width: 32, height: 32 }} />
+        <Logo sx={{  height: 35 }} />
       </StyledBrand>
 
       {/* User Account Section */}
