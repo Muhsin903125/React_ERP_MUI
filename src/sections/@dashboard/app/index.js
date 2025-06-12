@@ -7,3 +7,8 @@ export { default as AppWebsiteVisits } from './AppWebsiteVisits';
 export { default as AppWidgetSummary } from './AppWidgetSummary';
 export { default as AppCurrentSubject } from './AppCurrentSubject';
 export { default as AppConversionRates } from './AppConversionRates';
+export { default as AppRecentActivity } from './AppRecentActivity';
+export { default as AppTopProducts } from './AppTopProducts';
+export { default as AppPendingTasks } from './AppPendingTasks';
+export { default as AppTopCustomers } from './AppTopCustomers';
+export { default as AppQuickStats } from './AppQuickStats';

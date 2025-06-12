@@ -1,3 +1,31 @@
 {
-    "reactSnippets.settings.typescriptPropsStatePrefix": "type"
+    "reactSnippets.settings.typescriptPropsStatePrefix": "type",
+    "typescript.preferences.includePackageJsonAutoImports": "off",
+    "typescript.suggest.autoImports": false,
+    "files.watcherExclude": {
+        "**/node_modules/**": true,
+        "**/.git/**": true,
+        "**/build/**": true,
+        "**/dist/**": true
+    },
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/bower_components": true,
+        "**/*.code-search": true,
+        "**/build": true,
+        "**/dist": true
+    },
+    "github.copilot.enable": {
+        "*": true,
+        "yaml": false,
+        "plaintext": false,
+        "markdown": false
+    },
+    "github.copilot.advanced": {
+        "secret_key": "sk-...",
+        "length": 500,
+        "temperature": 0.1,
+        "top_p": 1,
+        "stop": ["\n\n"]
+    }
 }

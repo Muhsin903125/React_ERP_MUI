@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { useEffect, useState } from 'react'; 
 // @mui
 import { useTheme } from '@mui/material/styles';
-import { Grid, Container, Typography, Button, Box, Menu, MenuItem, IconButton, useMediaQuery } from '@mui/material';
+import { Grid, Container, Typography, Button, Box, Menu, MenuItem, IconButton, useMediaQuery, Paper, Stack, Divider } from '@mui/material';
 // components
 import Iconify from '../components/iconify';
 // sections
@@ -17,6 +17,11 @@ import {
   AppWidgetSummary, 
   AppCurrentSubject,
   AppConversionRates,
+  AppRecentActivity,
+  AppTopProducts,
+  AppPendingTasks,
+  AppTopCustomers,
+  AppQuickStats,
 } from '../sections/@dashboard/app';
 import useAuth from '../hooks/useAuth';
 import { GetMultipleResult } from '../hooks/Api';
@@ -37,6 +42,191 @@ export default function DashboardAppPage() {
   const [purchaseList, setPurchaseList] = useState();
   const [profitList, setProfitList] = useState(); 
   const [salesmanchart, setSalesmanchart] = useState();
+
+  // Dummy data for new sections (you can replace with API calls later)
+  const [recentActivities] = useState([
+    {
+      id: '1',
+      type: 'sale',
+      title: 'New Sale Invoice #SI-001',
+      description: 'Customer ABC Corp - AED 15,500',
+      time: '2 minutes ago',
+      status: 'completed'
+    },
+    {
+      id: '2',
+      type: 'purchase',
+      title: 'Purchase Order #PO-045',
+      description: 'Supplier XYZ Ltd - AED 8,750',
+      time: '15 minutes ago',
+      status: 'pending'
+    },
+    {
+      id: '3',
+      type: 'payment',
+      title: 'Payment Received',
+      description: 'Customer DEF Inc - AED 12,300',
+      time: '1 hour ago',
+      status: 'completed'
+    },
+    {
+      id: '4',
+      type: 'invoice',
+      title: 'Invoice Generated #INV-789',
+      description: 'Customer GHI Corp - AED 5,900',
+      time: '2 hours ago',
+      status: 'pending'
+    },
+  ]);
+
+  const [topProducts] = useState([
+    {
+      id: '1',
+      name: 'Premium Office Chair',
+      sales: 145,
+      revenue: 'AED 87,500',
+      progress: 85,
+      image: null
+    },
+    {
+      id: '2',
+      name: 'Standing Desk Pro',
+      sales: 132,
+      revenue: 'AED 79,200',
+      progress: 78,
+      image: null
+    },
+    {
+      id: '3',
+      name: 'Wireless Headset',
+      sales: 98,
+      revenue: 'AED 49,000',
+      progress: 65,
+      image: null
+    },
+    {
+      id: '4',
+      name: 'Laptop Stand',
+      sales: 87,
+      revenue: 'AED 26,100',
+      progress: 45,
+      image: null
+    },
+  ]);
+
+  const [pendingTasks] = useState([
+    {
+      id: '1',
+      title: 'Review Monthly Financial Reports',
+      description: 'Analyze sales performance and generate insights',
+      priority: 'high',
+      dueDate: 'Today',
+      status: 'in-progress',
+      progress: 60,
+      assignees: [
+        { name: 'John Doe', avatar: null },
+        { name: 'Jane Smith', avatar: null }
+      ]
+    },
+    {
+      id: '2',
+      title: 'Update Inventory Levels',
+      description: 'Sync with warehouse management system',
+      priority: 'medium',
+      dueDate: 'Tomorrow',
+      status: 'pending',
+      progress: 0,
+      assignees: [
+        { name: 'Mike Johnson', avatar: null }
+      ]
+    },
+    {
+      id: '3',
+      title: 'Process Pending Orders',
+      description: 'Review and approve 12 pending purchase orders',
+      priority: 'high',
+      dueDate: 'Today',
+      status: 'pending',
+      progress: 25,
+      assignees: [
+        { name: 'Sarah Wilson', avatar: null }
+      ]
+    },
+  ]);
+
+  const [topCustomers] = useState([
+    {
+      id: '1',
+      name: 'ABC Corporation',
+      email: 'contact@abc-corp.com',
+      totalPurchases: 'AED 245,000',
+      lastOrder: '2 days ago',
+      status: 'active',
+      avatar: null
+    },
+    {
+      id: '2',
+      name: 'XYZ Industries',
+      email: 'orders@xyz-industries.com',
+      totalPurchases: 'AED 189,500',
+      lastOrder: '1 week ago',
+      status: 'active',
+      avatar: null
+    },
+    {
+      id: '3',
+      name: 'DEF Solutions',
+      email: 'procurement@def-solutions.com',
+      totalPurchases: 'AED 156,200',
+      lastOrder: '3 days ago',
+      status: 'active',
+      avatar: null
+    },
+    {
+      id: '4',
+      name: 'GHI Enterprises',
+      email: 'buying@ghi-ent.com',
+      totalPurchases: 'AED 98,750',
+      lastOrder: '2 weeks ago',
+      status: 'inactive',
+      avatar: null
+    },
+  ]);
+
+  const [quickStats] = useState([
+    {
+      label: 'Conversion Rate',
+      value: '12.5%',
+      change: '+2.1%',
+      trend: 'up',
+      icon: 'mdi:chart-line',
+      color: 'success'
+    },
+    {
+      label: 'Avg. Order Value',
+      value: 'AED 1,250',
+      change: '+5.3%',
+      trend: 'up',
+      icon: 'mdi:currency-usd',
+      color: 'info'
+    },
+    {
+      label: 'Customer Retention',
+      value: '89.2%',
+      change: '-1.2%',
+      trend: 'down',
+      icon: 'mdi:account-heart',
+      color: 'warning'
+    },
+    {
+      label: 'Inventory Turnover',
+      value: '4.2x',
+      change: '+0.8',
+      trend: 'up',
+      icon: 'mdi:refresh',
+      color: 'primary'
+    },
+  ]);
 
 const navigate = useNavigate();
 const getDashboardData = async () => {
@@ -114,69 +304,94 @@ useEffect(() => {
     <>
       <Helmet>
         <title> Dashboard | Exapp ERP </title>
-      </Helmet>
-
-      <Container maxWidth="xl" sx={{ py: 2 }}>
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          mb: 2,
-          flexDirection: { xs: 'column', sm: 'row' },
-          gap: 1.5,
-          background: isMobile ? 'linear-gradient(to right, rgba(255,255,255,0.9), rgba(255,255,255,0.7))' : 'none',
-          borderRadius: '12px',
-          p: isMobile ? 2 : 1,
-          boxShadow: isMobile ? '0 8px 32px rgba(0,0,0,0.05)' : 'none',
-          backdropFilter: 'blur(8px)',
-        }}>
-          <Typography 
-            variant="h4" 
-            sx={{ 
-              mb: { xs: 1, sm: 0 },
-              fontWeight: 700,
-              background: 'linear-gradient(45deg, #1976D2 30%, #2196F3 90%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              fontSize: { xs: '1.25rem', sm: '1.5rem' },
-              letterSpacing: '-0.5px',
-            }}
-          >
-            Hi {displayName}, Welcome back
-          </Typography>
+      </Helmet>      <Container maxWidth="xl" sx={{ py: 2 }}>
+        {/* Modern Header Section */}
+        <Paper
+          elevation={0}
+          sx={{
+            p: 3,
+            mb: 3,
+            borderRadius: 3,
+            background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+            color: 'white',
+            position: 'relative',
+            overflow: 'hidden',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.1"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
+            },
+          }}
+        >
+          <Box sx={{ position: 'relative', zIndex: 1 }}>
+            <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }} spacing={2}>
+              <Box>
+                <Typography variant={isMobile ? "h5" : "h4"} fontWeight="700" sx={{ mb: 1 }}>
+                  Welcome back, {displayName}! 👋
+                </Typography>
+                <Typography variant="body1" sx={{ opacity: 0.9 }}>
+                  Here's what's happening with your business today
+                </Typography>
+              </Box>
+              
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+                <Button
+                  variant="contained"
+                  startIcon={<Iconify icon="mdi:plus" />}
+                  onClick={handleMenuClick}
+                  sx={{
+                    bgcolor: 'rgba(255,255,255,0.2)',
+                    backdropFilter: 'blur(8px)',
+                    border: '1px solid rgba(255,255,255,0.3)',
+                    color: 'white',
+                    fontWeight: 600,
+                    '&:hover': {
+                      bgcolor: 'rgba(255,255,255,0.3)',
+                      transform: 'translateY(-2px)',
+                    },
+                  }}
+                >
+                  Quick Actions
+                </Button>
+                
+                <Button
+                  variant="outlined"
+                  startIcon={<Iconify icon="mdi:chart-line" />}
+                  sx={{
+                    borderColor: 'rgba(255,255,255,0.3)',
+                    color: 'white',
+                    fontWeight: 600,
+                    '&:hover': {
+                      borderColor: 'white',
+                      bgcolor: 'rgba(255,255,255,0.1)',
+                    },
+                  }}
+                >
+                  View Reports
+                </Button>
+              </Stack>
+            </Stack>
+          </Box>
           
-          <Button
-            variant="contained"
-            size="small"
-            onClick={handleMenuClick}
-            startIcon={<Iconify icon="mdi:menu" />}
-            sx={{ 
-              ...buttonStyles,
-              width: '100%',
-              maxWidth: !isMobile ? '180px' : '100%',
-            }}
-          >
-            Quick Actions
-          </Button>
           <Menu
             anchorEl={anchorEl}
             open={Boolean(anchorEl)}
             onClose={handleMenuClose}
             PaperProps={{
               sx: {
-                width: '100%',
-                maxWidth: !isMobile ? '320px' : '100%',
+                width: 320,
                 mt: 1,
-                borderRadius: '8px',
+                borderRadius: 2,
                 boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-                overflow: 'hidden',
                 border: '1px solid rgba(255,255,255,0.18)',
                 background: 'rgba(255,255,255,0.95)',
                 backdropFilter: 'blur(8px)',
               }
             }}
-            transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
           >
             <MenuItem onClick={() => handleNavigation('/sales-entry')} sx={menuItemStyles}>
               <Iconify icon="mdi:plus" sx={{ marginRight: '8px' }} />
@@ -195,15 +410,19 @@ useEffect(() => {
               Add Payment Entry
             </MenuItem>
           </Menu>
-        </Box>
+        </Paper>
 
-        <Grid container spacing={2.5}>
+        {/* Main Grid Layout */}
+        <Grid container spacing={3}>          {/* Key Performance Metrics - Top Row */}
           <Grid item xs={12} sm={6} md={3}>
             <AppWidgetSummary2 
               title="Today Sales" 
               total={dashboardcount?.TodaySales || 0} 
               icon={'mdi:cash-multiple'} 
               color="success"
+              trend="up"
+              change="+12.5%"
+              subtitle="vs yesterday"
             />
           </Grid>
 
@@ -213,6 +432,9 @@ useEffect(() => {
               total={dashboardcount?.TodayPurchases || 0} 
               color="info" 
               icon={'mdi:cart-arrow-down'} 
+              trend="up"
+              change="+8.2%"
+              subtitle="vs yesterday"
             />
           </Grid>
 
@@ -222,6 +444,9 @@ useEffect(() => {
               total={dashboardcount?.TodayPOs || 0} 
               color="warning" 
               icon={'mdi:clock-outline'} 
+              trend="down"
+              change="-3.1%"
+              subtitle="vs yesterday"
             />
           </Grid>
 
@@ -229,193 +454,163 @@ useEffect(() => {
             <AppWidgetSummary2     
               title="Today Quotations" 
               total={dashboardcount?.TodayQuotes || 0} 
-              color="success" 
+              color="error" 
               icon={'mdi:chart-line'} 
+              trend="up"
+              change="+15.7%"
+              subtitle="vs yesterday"
             />
           </Grid>
 
+          {/* Additional Metrics - Second Row */}
           <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary2 
+            <AppWidgetSummary 
               title="Total Sales" 
               total={dashboardcount?.TotalSales || 0} 
               icon={'mdi:cash-multiple'} 
               color="success"
+              trend="up"
+              change="+24.8%"
+              subtitle="this month"
             />
           </Grid>
 
           <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary2 
+            <AppWidgetSummary 
               title="Total Purchases" 
               total={dashboardcount?.TotalPurchases || 0} 
               color="info" 
               icon={'mdi:cart-arrow-down'} 
+              trend="up"
+              change="+18.3%"
+              subtitle="this month"
             />
-
           </Grid>
 
           <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary2 
+            <AppWidgetSummary 
               title="Total Orders" 
               total={dashboardcount?.TotalPOs || 0} 
               color="warning" 
               icon={'mdi:clock-outline'} 
+              trend="neutral"
+              change="+2.1%"
+              subtitle="this month"
             />
           </Grid>
 
           <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary2 
+            <AppWidgetSummary 
               title="Total Quotations" 
               total={dashboardcount?.TotalQuotes || 0} 
-              color="success" 
+              color="error" 
               icon={'mdi:chart-line'} 
+              trend="up"
+              change="+31.2%"
+              subtitle="this month"
             />
           </Grid>
 
-         {dateList && (
-          <Grid item xs={12} md={6} lg={8}>
-            <AppWebsiteVisits
-              title="Sales vs Purchases Trend"
-              subheader="Last 6 months comparison"
-              chartLabels={dateList}
-              chartData={[
-                {
-                  name: 'Sales',
-                  type: 'column',
-                  fill: 'solid',
-                  data: salesList,
-                },
-                {
-                  name: 'Purchases',
-                  type: 'area',
-                  fill: 'gradient',
-                  data: purchaseList,
-                },
-                {
-                  name: 'Profit',
-                  type: 'line',
-                  fill: 'solid',
-                  data: profitList,
-                },
-              ]}
-            />
-          </Grid>
+          {/* Charts and Analytics Section */}
+          {dateList && (
+            <Grid item xs={12} lg={8}>
+              <AppWebsiteVisits
+                title="Sales vs Purchases Trend"
+                subheader="Last 6 months comparison"
+                chartLabels={dateList}
+                chartData={[
+                  {
+                    name: 'Sales',
+                    type: 'column',
+                    fill: 'solid',
+                    data: salesList,
+                  },
+                  {
+                    name: 'Purchases',
+                    type: 'area',
+                    fill: 'gradient',
+                    data: purchaseList,
+                  },
+                  {
+                    name: 'Profit',
+                    type: 'line',
+                    fill: 'solid',
+                    data: profitList,
+                  },
+                ]}
+              />
+            </Grid>
           )}
 
+          <Grid item xs={12} lg={4}>
+            <AppQuickStats
+              title="Business Insights"
+              stats={quickStats}
+            />
+          </Grid>
+
+          {/* Sales Performance Section */}
           {salesmanchart && (
             <Grid item xs={12} md={6} lg={4}>
               <AppCurrentVisits
                 title="Sales by Salesman"
                 chartData={salesmanchart}
                 chartColors={[
-                theme.palette.primary.main,
-                theme.palette.info.main,
-                theme.palette.warning.main,
-                theme.palette.error.main,
-              ]}
-            />
-          </Grid>
+                  theme.palette.primary.main,
+                  theme.palette.info.main,
+                  theme.palette.warning.main,
+                  theme.palette.error.main,
+                  theme.palette.success.main,
+                ]}
+              />
+            </Grid>
           )}
 
+          <Grid item xs={12} md={6} lg={4}>
+            <AppTopProducts
+              title="Top Selling Products"
+              list={topProducts}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={6} lg={4}>
+            <AppTopCustomers
+              title="Top Customers"
+              list={topCustomers}
+            />
+          </Grid>
+
+          {/* Activity and Task Management Section */}
+          <Grid item xs={12} md={6} lg={4}>
+            <AppRecentActivity
+              title="Recent Activities"
+              list={recentActivities}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={6} lg={8}>
+            <AppPendingTasks
+              title="Pending Tasks"
+              list={pendingTasks}
+            />
+          </Grid>
+
+          {/* Optional: Conversion Rates for future use */}
           {/* <Grid item xs={12} md={6} lg={8}>
             <AppConversionRates
-              title="Conversion Rates"
-              subheader="(+43%) than last year"
+              title="Product Performance"
+              subheader="(+12%) than last month"
               chartData={[
-                { label: 'Italy', value: 400 },
-                { label: 'Japan', value: 430 },
-                { label: 'China', value: 448 },
-                { label: 'Canada', value: 470 },
-                { label: 'France', value: 540 },
-                { label: 'Germany', value: 580 },
-                { label: 'South Korea', value: 690 },
-                { label: 'Netherlands', value: 1100 },
-                { label: 'United States', value: 1200 },
-                { label: 'United Kingdom', value: 1380 },
-              ]}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={6} lg={4}>
-            <AppCurrentSubject
-              title="Current Subject"
-              chartLabels={['English', 'History', 'Physics', 'Geography', 'Chinese', 'Math']}
-              chartData={[
-                { name: 'Series 1', data: [80, 50, 30, 40, 100, 20] },
-                { name: 'Series 2', data: [20, 30, 40, 80, 20, 80] },
-                { name: 'Series 3', data: [44, 76, 78, 13, 43, 10] },
-              ]}
-              chartColors={[...Array(6)].map(() => theme.palette.text.secondary)}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={6} lg={8}>
-            <AppNewsUpdate
-              title="News Update"
-              list={[...Array(5)].map((_, index) => ({
-                id: faker.datatype.uuid(),
-                title: faker.name.jobTitle(),
-                description: faker.name.jobTitle(),
-                image: `/assets/images/covers/cover_${index + 1}.jpg`,
-                postedAt: faker.date.recent(),
-              }))}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={6} lg={4}>
-            <AppOrderTimeline
-              title="Order Timeline"
-              list={[...Array(5)].map((_, index) => ({
-                id: faker.datatype.uuid(),
-                title: [
-                  '1983, orders, $4220',
-                  '12 Invoices have been paid',
-                  'Order #37745 from September',
-                  'New order placed #XF-2356',
-                  'New order placed #XF-2346',
-                ][index],
-                type: `order${index + 1}`,
-                time: faker.date.past(),
-              }))}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={6} lg={4}>
-            <AppTrafficBySite
-              title="Traffic by Site"
-              list={[
-                {
-                  name: 'FaceBook',
-                  value: 323234,
-                  icon: <Iconify icon={'eva:facebook-fill'} color="#1877F2" width={32} />,
-                },
-                {
-                  name: 'Google',
-                  value: 341212,
-                  icon: <Iconify icon={'eva:google-fill'} color="#DF3E30" width={32} />,
-                },
-                {
-                  name: 'Linkedin',
-                  value: 411213,
-                  icon: <Iconify icon={'eva:linkedin-fill'} color="#006097" width={32} />,
-                },
-                {
-                  name: 'Twitter',
-                  value: 443232,
-                  icon: <Iconify icon={'eva:twitter-fill'} color="#1C9CEA" width={32} />,
-                },
-              ]}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={6} lg={8}>
-            <AppTasks
-              title="Tasks"
-              list={[
-                { id: '1', label: 'Create FireStone Logo' },
-                { id: '2', label: 'Add SCSS and JS files if required' },
-                { id: '3', label: 'Stakeholder Meeting' },
-                { id: '4', label: 'Scoping & Estimations' },
-                { id: '5', label: 'Sprint Showcase' },
+                { label: 'Office Chairs', value: 400 },
+                { label: 'Standing Desks', value: 430 },
+                { label: 'Laptops', value: 448 },
+                { label: 'Monitors', value: 470 },
+                { label: 'Keyboards', value: 540 },
+                { label: 'Headsets', value: 580 },
+                { label: 'Webcams', value: 690 },
+                { label: 'Speakers', value: 1100 },
+                { label: 'Tablets', value: 1200 },
+                { label: 'Smartphones', value: 1380 },
               ]}
             />
           </Grid> */}
