@@ -1,173 +1,81 @@
 
-import { Helmet } from 'react-helmet-async';
-import React, { useContext, useEffect, useState } from 'react'
-
-import { Link, useNavigate } from 'react-router-dom';
-
-// @mui
-import {
-    Stack,
-    Button,
-    Typography,
-    IconButton,
-    Tooltip,
-    Box,
-    Card,
-    CircularProgress,
-    Chip,
-} from '@mui/material';
-
+import React from 'react';
+import { Chip, Tooltip } from '@mui/material';
+import { Grid3x3 } from '@mui/icons-material';
 import CheckIcon from '@mui/icons-material/Check';
 import BlockIcon from '@mui/icons-material/Block';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import Iconify from '../../../../components/iconify/Iconify';
-import { AuthContext } from '../../../../App';
-import { deleteRole, GetRoleList, GetSingleListResult, PostCommonSp, saveRole } from '../../../../hooks/Api';
-import { useToast } from '../../../../hooks/Common';
-import DataTable from '../../../../components/DataTable';
-import Confirm from '../../../../components/Confirm';
+import MasterListing from '../../../../components/MasterListing';
 import ModalForm from './ModalForm';
 
+/**
+ * Last Number Management Page
+ * Manages document numbering sequences using the MasterListing component
+ */
 export default function LastNumber() {
+    // Define columns for the last numbers table
     const columns = [
-
         {
-            accessorKey: 'LASTNO_DOCTYPE', //  access nested data with dot notation
-            header: 'Doc type',
-            // size:"300"
+            accessorKey: 'LASTNO_DOCTYPE',
+            header: 'Doc Type',
+            size: 150,
         },
         {
             accessorKey: 'LASTNO_LASTNO',
             header: 'Last No',
+            size: 120,
         },
         {
             accessorKey: 'LASTNO_PREFIX',
             header: 'Prefix',
+            size: 120,
         },
         {
             accessorKey: 'LASTNO_LENGTH',
             header: 'Length',
+            size: 100,
         },
-       
         {
-            // accessorKey: '', //  normal accessorKey
             header: 'Field Editable',
+            size: 150,
             Cell: ({ row }) => (
-      
-                 row.original.LASTNO_IS_EDITABLE ?  
-                <div>
-                  <Tooltip title="Active">
-                  <Chip icon={<CheckIcon />}  color="success" size='small' label="Active" />
-                  </Tooltip> 
-                </div>
-                :
-                <div>
-                  <Tooltip title="Blocked">
-                  <Chip icon={<BlockIcon />}  color="error" size='small' label="Blocked" />
-                  </Tooltip> 
-                </div>
-              ),
-        },
-        {
-            header: 'Acitons',
-            Cell: ({ row }) => (
-                <div>
-                    <Tooltip title="Edit">
-                        <IconButton onClick={() => handleEdit(row.original)}>
-                            <EditIcon />
-                        </IconButton>
+                row.original.LASTNO_IS_EDITABLE ? (
+                    <Tooltip title="Active">
+                        <Chip 
+                            icon={<CheckIcon />} 
+                            color="success" 
+                            size="small" 
+                            label="Active"
+                            variant="outlined"
+                        />
                     </Tooltip>
-                    {/* <Tooltip title="Delete">
-                        <IconButton onClick={() => handleDelete(row.original.R_CODE)}>
-                            <DeleteIcon />
-                        </IconButton>
-                    </Tooltip> */}
-
-                </div>
+                ) : (
+                    <Tooltip title="Blocked">
+                        <Chip 
+                            icon={<BlockIcon />} 
+                            color="error" 
+                            size="small" 
+                            label="Blocked"
+                            variant="outlined"
+                        />
+                    </Tooltip>
+                )
             ),
-            size: 100
         }
     ];
 
-    const { showToast } = useToast();
-    const [data, setData] = useState(null);
-    const [editData, setEditData] = useState(null);
-    const [showModal, SetShowModal] = useState(false);
-    const [loader, setLoader] = useState(true);
-    useEffect(() => {
-        fetchList();
-    }, [])
-
-    async function fetchList() {
-        try {
-            setLoader(true);
-            const { Success, Data, Message } = await GetSingleListResult({
-                "key": "LAST_NO_CRUD",
-                "TYPE": "GET_ALL",
-            })
-
-            if (Success) {
-                setData(Data)
-            }
-            else {
-                showToast(Message, "error");
-            }
-        }
-        finally {
-            setLoader(false);
-        }
-        console.log("looder", loader);
-        console.log("dataaa--", data);
-    }
-
-
-    function handleEdit(data) {
-        SetShowModal(true);
-        setEditData(data)
-    }
-    function closeModal() {
-        SetShowModal(false);
-        setEditData(null);
-        fetchList();
-    }
-
-    function handleNew() {
-        setEditData(null);
-        SetShowModal(true);
-    }
-
-    return <>
-        <Helmet>
-            <title> Last Numbers </title>
-        </Helmet>
-        <Card>
-            <Stack m={5} >
-                <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-                    <Typography variant="h4" gutterBottom>
-                        Last Numbers
-                    </Typography>
-
-                    <Button variant="contained"
-                        onClick={() => handleNew()}
-                        startIcon={<Iconify icon="eva:plus-fill" />}>
-                        New
-                    </Button>
-                </Stack>
-
-                {
-                    (!loader && data) ? <DataTable
-                        columns={columns}
-                        data={data}
-                        // enableRowSelection 
-                        // enableGrouping
-                        enableExport={false}
-
-                    /> : <CircularProgress color="inherit" />
-                }
-                <ModalForm open={showModal} initialValues={editData} onClose={() => { closeModal() }} />
-            </Stack>
-        </Card>
-    </>
-
+    return (
+        <MasterListing
+            title="Last Numbers"
+            apiKey="LAST_NO_CRUD"
+            columns={columns}
+            deleteIdField="LASTNO_DOCTYPE"
+            ModalForm={ModalForm}
+            newButtonLabel="New Last Number"
+            deleteSuccessMessage="Last number deleted successfully"
+            enableRefresh
+            enableExport={false}
+            icon={<Grid3x3 />}
+            emptyMessage="No last numbers found. Create your first document numbering sequence to get started."
+        />
+    );
 }

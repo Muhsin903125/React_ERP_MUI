@@ -12,6 +12,7 @@ import {
     InputAdornment,
     CircularProgress,
     Paper,
+    alpha,
 } from '@mui/material';
 import { Formik, Form } from 'formik';
 import * as yup from 'yup'; 
@@ -146,20 +147,35 @@ export default function CompanyProfile() {
             setIsSubmitting(false);
             setSubmitting(false);
         }
-    };
-
-    return (
+    };    return (
         <StyledRoot>
             <Helmet>
-                <title>Company Profile | Your ERP</title>
+                <title>Company Profile | Exapp ERP</title>
             </Helmet>
 
             <Container maxWidth="lg">
-                <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-                    <Typography variant="h4" gutterBottom>
-                        Company Profile
-                    </Typography>
-                </Stack>
+                <Box sx={{ position: 'relative', mb: 5 }}>
+                    <Stack direction="row" alignItems="center" justifyContent="space-between">
+                        <Box>
+                            <Typography 
+                                variant="h4" 
+                                sx={{ 
+                                    fontWeight: 700,
+                                    background: (theme) => `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                                    backgroundClip: 'text',
+                                    WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                    mb: 1
+                                }}
+                            >
+                                Company Profile
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.9rem' }}>
+                                Manage your company's information and branding
+                            </Typography>
+                        </Box>
+                    </Stack>
+                </Box>
 
                 <StyledCard>
                     <Formik
@@ -178,11 +194,40 @@ export default function CompanyProfile() {
                         onSubmit={handleSubmit}
                         enableReinitialize
                     >
-                        {({ values, errors, touched, handleChange, isSubmitting }) => (
-                            <Form>
-                                <Grid container spacing={4}>
-                                    <Grid item xs={12} md={4}>
-                                        <Paper elevation={0} sx={{ p: 3, textAlign: 'center' }}>
+                        {({ values, errors, touched, handleChange, isSubmitting }) => (                            <Form>
+                                <Grid container spacing={{ xs: 2, md: 4 }}>                                    <Grid item xs={12} md={4}>
+                                        <Paper 
+                                            elevation={0} 
+                                            sx={{ 
+                                                p: 4,
+                                                textAlign: 'center',
+                                                borderRadius: 3,
+                                                height: '100%',
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                justifyContent: 'center',
+                                                backgroundColor: (theme) => alpha(theme.palette.background.paper, 0.7),
+                                                backdropFilter: 'blur(8px)',
+                                                boxShadow: (theme) => `0 8px 24px ${alpha(theme.palette.common.black, 0.05)}`,
+                                                border: (theme) => `1px solid ${alpha(theme.palette.grey[500], 0.08)}`,
+                                            }}
+                                        >
+                                            <Typography 
+                                                variant="h6" 
+                                                sx={{ 
+                                                    mb: 3, 
+                                                    fontWeight: 600,
+                                                    color: 'text.primary',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    gap: 1
+                                                }}
+                                            >
+                                                <Iconify icon="mdi:image-filter-hdr" width={24} height={24} />
+                                                Company Branding
+                                            </Typography>
+                                            
                                             <LogoUploadBox>
                                                 <StyledAvatar>
                                                     {previewUrl ? (
@@ -193,17 +238,32 @@ export default function CompanyProfile() {
                                                             alignItems="center"
                                                             justifyContent="center"
                                                             height="100%"
-                                                            bgcolor="grey.200"
+                                                            sx={{
+                                                                background: (theme) => `linear-gradient(135deg, ${alpha(theme.palette.primary.light, 0.1)}, ${alpha(theme.palette.secondary.light, 0.1)})`,
+                                                            }}
                                                         >
-                                                            <Iconify icon="mdi:image" width={64} height={64} />
+                                                            <Iconify 
+                                                                icon="mdi:image" 
+                                                                sx={{ 
+                                                                    width: 64,
+                                                                    height: 64,
+                                                                    opacity: 0.4,
+                                                                    color: 'primary.main'
+                                                                }} 
+                                                            />
                                                         </Box>
                                                     )}
                                                     <AvatarOverlay className="overlay">
-                                                        <Iconify icon="mdi:camera" width={32} height={32} />
+                                                        <Stack spacing={1} alignItems="center">
+                                                            <Iconify icon="mdi:camera" width={36} height={36} />
+                                                            <Typography variant="caption" sx={{ fontWeight: 500 }}>
+                                                                Change Logo
+                                                            </Typography>
+                                                        </Stack>
                                                     </AvatarOverlay>
                                                 </StyledAvatar>
 
-                                                <Grid container spacing={2} sx={{ mt: 2 }}>
+                                                <Grid container spacing={2} sx={{ mt: 3 }}>
                                                     <Grid item xs={12}>
                                                         <TextField
                                                             fullWidth
@@ -211,16 +271,22 @@ export default function CompanyProfile() {
                                                             value={logoUrlInput}
                                                             onChange={handleLogoUrlChange}
                                                             placeholder="Enter logo URL"
+                                                            sx={{
+                                                                '& .MuiOutlinedInput-root': {
+                                                                    borderRadius: 2,
+                                                                }
+                                                            }}
                                                             InputProps={{
                                                                 startAdornment: (
                                                                     <InputAdornment position="start">
-                                                                        <Iconify icon="mdi:link" />
+                                                                        <Iconify icon="mdi:link" sx={{ color: 'primary.main' }} />
                                                                     </InputAdornment>
                                                                 ),
                                                             }}
                                                         />
                                                     </Grid>
-                                                    {/* <Grid item xs={12}>
+                                                    
+                                                    <Grid item xs={12}>
                                                         <Typography variant="body2" sx={{ mb: 1 }}>
                                                             Or upload a file:
                                                         </Typography>
@@ -240,156 +306,291 @@ export default function CompanyProfile() {
                                                                 htmlFor="logo-upload"
                                                                 startIcon={<Iconify icon="mdi:upload" />}
                                                                 aria-label="Upload company logo"
+                                                                sx={{
+                                                                    py: 1.2,
+                                                                    borderRadius: 2,
+                                                                    borderWidth: 1.5,
+                                                                    borderStyle: 'dashed',
+                                                                    boxShadow: 'none',
+                                                                    transition: 'all 0.2s ease',
+                                                                    '&:hover': {
+                                                                        borderColor: 'primary.main',
+                                                                        bgcolor: (theme) => alpha(theme.palette.primary.main, 0.04),
+                                                                    }
+                                                                }}
                                                             >
                                                                 Upload Logo
                                                             </Button>
                                                         </Box>
-                                                    </Grid> */}
+                                                    </Grid>
                                                 </Grid>
 
-                                                <Typography variant="caption" sx={{ mt: 2, color: 'text.secondary' }}>
-                                                    Allowed formats: JPG, PNG, GIF (Max size: 5MB)
-                                                </Typography>
+                                                <Box sx={{ 
+                                                    mt: 3, 
+                                                    borderRadius: 2, 
+                                                    bgcolor: (theme) => alpha(theme.palette.info.light, 0.1),
+                                                    p: 2,
+                                                    border: (theme) => `1px solid ${alpha(theme.palette.info.main, 0.1)}`
+                                                }}>
+                                                    <Typography 
+                                                        variant="caption" 
+                                                        sx={{ 
+                                                            color: 'info.dark',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: 0.5
+                                                        }}
+                                                    >
+                                                        <Iconify icon="mdi:information-outline" width={14} height={14} />
+                                                        Allowed formats: JPG, PNG, GIF (Max size: 5MB)
+                                                    </Typography>
+                                                </Box>
                                             </LogoUploadBox>
                                         </Paper>
-                                    </Grid>
-
-                                    <Grid item xs={12} md={8}>
-                                        <Grid container spacing={3}>
-                                            <Grid item xs={12}>
-                                                <TextField
-                                                    fullWidth
-                                                    label="Company Name"
-                                                    name="CP_NAME"
-                                                    value={values.CP_NAME}
-                                                    onChange={handleChange}
-                                                    error={Boolean(touched.CP_NAME && errors.CP_NAME)}
-                                                    helperText={touched.CP_NAME && errors.CP_NAME}
-                                                    InputProps={{
-                                                        startAdornment: (
-                                                            <InputAdornment position="start">
-                                                                <Iconify icon="mdi:building" />
-                                                            </InputAdornment>
-                                                        ),
-                                                    }}
-                                                />
-                                            </Grid>
-
-                                            <Grid item xs={12}>
-                                                <TextField
-                                                    fullWidth
-                                                    multiline
-                                                    rows={3}
-                                                    label="Address"
-                                                    name="CP_ADDRESS"
-                                                    value={values.CP_ADDRESS}
-                                                    onChange={handleChange}
-                                                    error={Boolean(touched.CP_ADDRESS && errors.CP_ADDRESS)}
-                                                    helperText={touched.CP_ADDRESS && errors.CP_ADDRESS}
-                                                    InputProps={{
-                                                        startAdornment: (
-                                                            <InputAdornment position="start">
-                                                                <Iconify icon="mdi:map-marker" />
-                                                            </InputAdornment>
-                                                        ),
-                                                    }}
-                                                />
-                                            </Grid>
-
-                                            <Grid item xs={12} sm={6}>
-                                                <TextField
-                                                    fullWidth
-                                                    label="Phone"
-                                                    name="CP_PHONE"
-                                                    value={values.CP_PHONE}
-                                                    onChange={handleChange}
-                                                    error={Boolean(touched.CP_PHONE && errors.CP_PHONE)}
-                                                    helperText={touched.CP_PHONE && errors.CP_PHONE}
-                                                    InputProps={{
-                                                        startAdornment: (
-                                                            <InputAdornment position="start">
-                                                                <Iconify icon="mdi:phone" />
-                                                            </InputAdornment>
-                                                        ),
-                                                    }}
-                                                />
-                                            </Grid>
-
-                                            <Grid item xs={12} sm={6}>
-                                                <TextField
-                                                    fullWidth
-                                                    label="Email"
-                                                    name="CP_EMAIL"
-                                                    value={values.CP_EMAIL}
-                                                    onChange={handleChange}
-                                                    error={Boolean(touched.CP_EMAIL && errors.CP_EMAIL)}
-                                                    helperText={touched.CP_EMAIL && errors.CP_EMAIL}
-                                                    InputProps={{
-                                                        startAdornment: (
-                                                            <InputAdornment position="start">
-                                                                <Iconify icon="mdi:email" />
-                                                            </InputAdornment>
-                                                        ),
-                                                    }}
-                                                />
-                                            </Grid>
-
-                                            <Grid item xs={12} sm={6}>
-                                                <TextField
-                                                    fullWidth
-                                                    label="TRN"
-                                                    name="CP_TRN"
-                                                    value={values.CP_TRN}
-                                                    onChange={handleChange}
-                                                    error={Boolean(touched.CP_TRN && errors.CP_TRN)}
-                                                    helperText={touched.CP_TRN && errors.CP_TRN}
-                                                    InputProps={{
-                                                        startAdornment: (
-                                                            <InputAdornment position="start">
-                                                                <Iconify icon="mdi:file-document" />
-                                                            </InputAdornment>
-                                                        ),
-                                                    }}
-                                                />
-                                            </Grid>
-
-                                            <Grid item xs={12} sm={6}>
-                                                <TextField
-                                                    fullWidth
-                                                    label="Website"
-                                                    name="CP_WEBSITE"
-                                                    value={values.CP_WEBSITE}
-                                                    onChange={handleChange}
-                                                    error={Boolean(touched.CP_WEBSITE && errors.CP_WEBSITE)}
-                                                    helperText={touched.CP_WEBSITE && errors.CP_WEBSITE}
-                                                    InputProps={{
-                                                        startAdornment: (
-                                                            <InputAdornment position="start">
-                                                                <Iconify icon="mdi:web" />
-                                                            </InputAdornment>
-                                                        ),
-                                                    }}
-                                                />
-                                            </Grid>
-                                        </Grid>
-
-                                        <Box sx={{ mt: 4, display: 'flex', justifyContent: 'flex-end' }}>
-                                            <Button
-                                                type="submit"
-                                                variant="contained"
-                                                size="large"
-                                                disabled={isSubmitting}
-                                                startIcon={
-                                                    isSubmitting ? (
-                                                        <CircularProgress size={20} color="inherit" />
-                                                    ) : (
-                                                        <Iconify icon="mdi:content-save" />
-                                                    )
-                                                }
+                                    </Grid>                                    <Grid item xs={12} md={8}>
+                                        <Paper 
+                                            elevation={0} 
+                                            sx={{ 
+                                                p: 4,
+                                                borderRadius: 3,
+                                                height: '100%',
+                                                backgroundColor: (theme) => alpha(theme.palette.background.paper, 0.7),
+                                                backdropFilter: 'blur(8px)',
+                                                boxShadow: (theme) => `0 8px 24px ${alpha(theme.palette.common.black, 0.05)}`,
+                                                border: (theme) => `1px solid ${alpha(theme.palette.grey[500], 0.08)}`,
+                                            }}
+                                        >
+                                            <Typography 
+                                                variant="h6" 
+                                                sx={{ 
+                                                    mb: 4, 
+                                                    fontWeight: 600,
+                                                    color: 'text.primary',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: 1
+                                                }}
                                             >
-                                                {isSubmitting ? 'Saving...' : 'Save Changes'}
-                                            </Button>
-                                        </Box>
+                                                <Iconify icon="mdi:office-building-cog" width={24} height={24} />
+                                                Company Information
+                                            </Typography>
+                                            
+                                            <Grid container spacing={3}>
+                                                <Grid item xs={12}>
+                                                    <TextField
+                                                        fullWidth
+                                                        label="Company Name"
+                                                        name="CP_NAME"
+                                                        value={values.CP_NAME}
+                                                        onChange={handleChange}
+                                                        error={Boolean(touched.CP_NAME && errors.CP_NAME)}
+                                                        helperText={touched.CP_NAME && errors.CP_NAME}
+                                                        sx={{
+                                                            '& .MuiOutlinedInput-root': {
+                                                                borderRadius: 2,
+                                                                bgcolor: (theme) => alpha(theme.palette.background.paper, 0.8),
+                                                            }
+                                                        }}
+                                                        InputProps={{
+                                                            startAdornment: (
+                                                                <InputAdornment position="start">
+                                                                    <Iconify icon="mdi:building" sx={{ color: 'primary.main' }} />
+                                                                </InputAdornment>
+                                                            ),
+                                                        }}
+                                                    />
+                                                </Grid>
+
+                                                <Grid item xs={12}>
+                                                    <TextField
+                                                        fullWidth
+                                                        multiline
+                                                        rows={3}
+                                                        label="Address"
+                                                        name="CP_ADDRESS"
+                                                        value={values.CP_ADDRESS}
+                                                        onChange={handleChange}
+                                                        error={Boolean(touched.CP_ADDRESS && errors.CP_ADDRESS)}
+                                                        helperText={touched.CP_ADDRESS && errors.CP_ADDRESS}
+                                                        sx={{
+                                                            '& .MuiOutlinedInput-root': {
+                                                                borderRadius: 2,
+                                                                bgcolor: (theme) => alpha(theme.palette.background.paper, 0.8),
+                                                            }
+                                                        }}
+                                                        InputProps={{
+                                                            startAdornment: (
+                                                                <InputAdornment position="start" sx={{ alignSelf: 'flex-start', mt: 1.2 }}>
+                                                                    <Iconify icon="mdi:map-marker" sx={{ color: 'secondary.main' }} />
+                                                                </InputAdornment>
+                                                            ),
+                                                        }}
+                                                    />
+                                                </Grid>
+
+                                                <Grid item xs={12}>
+                                                    <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                        <Iconify icon="mdi:contact-phone" />
+                                                        Contact Information
+                                                    </Typography>
+                                                </Grid>
+
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        fullWidth
+                                                        label="Phone"
+                                                        name="CP_PHONE"
+                                                        value={values.CP_PHONE}
+                                                        onChange={handleChange}
+                                                        error={Boolean(touched.CP_PHONE && errors.CP_PHONE)}
+                                                        helperText={touched.CP_PHONE && errors.CP_PHONE}
+                                                        sx={{
+                                                            '& .MuiOutlinedInput-root': {
+                                                                borderRadius: 2,
+                                                                bgcolor: (theme) => alpha(theme.palette.background.paper, 0.8),
+                                                            }
+                                                        }}
+                                                        InputProps={{
+                                                            startAdornment: (
+                                                                <InputAdornment position="start">
+                                                                    <Iconify icon="mdi:phone" sx={{ color: 'success.main' }} />
+                                                                </InputAdornment>
+                                                            ),
+                                                        }}
+                                                    />
+                                                </Grid>
+
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        fullWidth
+                                                        label="Email"
+                                                        name="CP_EMAIL"
+                                                        value={values.CP_EMAIL}
+                                                        onChange={handleChange}
+                                                        error={Boolean(touched.CP_EMAIL && errors.CP_EMAIL)}
+                                                        helperText={touched.CP_EMAIL && errors.CP_EMAIL}
+                                                        sx={{
+                                                            '& .MuiOutlinedInput-root': {
+                                                                borderRadius: 2,
+                                                                bgcolor: (theme) => alpha(theme.palette.background.paper, 0.8),
+                                                            }
+                                                        }}
+                                                        InputProps={{
+                                                            startAdornment: (
+                                                                <InputAdornment position="start">
+                                                                    <Iconify icon="mdi:email" sx={{ color: 'info.main' }} />
+                                                                </InputAdornment>
+                                                            ),
+                                                        }}
+                                                    />
+                                                </Grid>
+
+                                                <Grid item xs={12}>
+                                                    <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                        <Iconify icon="mdi:clipboard-text" />
+                                                        Business Information
+                                                    </Typography>
+                                                </Grid>
+
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        fullWidth
+                                                        label="TRN / Tax Registration Number"
+                                                        name="CP_TRN"
+                                                        value={values.CP_TRN}
+                                                        onChange={handleChange}
+                                                        error={Boolean(touched.CP_TRN && errors.CP_TRN)}
+                                                        helperText={touched.CP_TRN && errors.CP_TRN}
+                                                        sx={{
+                                                            '& .MuiOutlinedInput-root': {
+                                                                borderRadius: 2,
+                                                                bgcolor: (theme) => alpha(theme.palette.background.paper, 0.8),
+                                                            }
+                                                        }}
+                                                        InputProps={{
+                                                            startAdornment: (
+                                                                <InputAdornment position="start">
+                                                                    <Iconify icon="mdi:file-document" sx={{ color: 'warning.main' }} />
+                                                                </InputAdornment>
+                                                            ),
+                                                        }}
+                                                    />
+                                                </Grid>
+
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        fullWidth
+                                                        label="Website"
+                                                        name="CP_WEBSITE"
+                                                        value={values.CP_WEBSITE}
+                                                        onChange={handleChange}
+                                                        error={Boolean(touched.CP_WEBSITE && errors.CP_WEBSITE)}
+                                                        helperText={touched.CP_WEBSITE && errors.CP_WEBSITE}
+                                                        placeholder="https://www.example.com"
+                                                        sx={{
+                                                            '& .MuiOutlinedInput-root': {
+                                                                borderRadius: 2,
+                                                                bgcolor: (theme) => alpha(theme.palette.background.paper, 0.8),
+                                                            }
+                                                        }}
+                                                        InputProps={{
+                                                            startAdornment: (
+                                                                <InputAdornment position="start">
+                                                                    <Iconify icon="mdi:web" sx={{ color: 'primary.main' }} />
+                                                                </InputAdornment>
+                                                            ),
+                                                        }}
+                                                    />
+                                                </Grid>
+                                            </Grid>
+
+                                            <Box 
+                                                sx={{ 
+                                                    mt: 4, 
+                                                    display: 'flex', 
+                                                    justifyContent: 'flex-end',
+                                                    position: 'relative',
+                                                    '&::before': {
+                                                        content: '""',
+                                                        position: 'absolute',
+                                                        top: '-16px',
+                                                        left: 0,
+                                                        right: 0,
+                                                        height: '1px',
+                                                        background: (theme) => `linear-gradient(90deg, transparent, ${alpha(theme.palette.divider, 0.7)} 50%, transparent)`,
+                                                    }
+                                                }}
+                                            >
+                                                <Button
+                                                    type="submit"
+                                                    variant="contained"
+                                                    size="large"
+                                                    disabled={isSubmitting}
+                                                    sx={{
+                                                        px: 4,
+                                                        py: 1.2,
+                                                        borderRadius: 2,
+                                                        background: (theme) => `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`,
+                                                        boxShadow: (theme) => `0 8px 16px ${alpha(theme.palette.primary.main, 0.25)}`,
+                                                        transition: 'all 0.3s ease',
+                                                        '&:hover': {
+                                                            background: (theme) => `linear-gradient(45deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
+                                                            boxShadow: (theme) => `0 10px 20px ${alpha(theme.palette.primary.main, 0.35)}`,
+                                                            transform: 'translateY(-2px)'
+                                                        }
+                                                    }}
+                                                    startIcon={
+                                                        isSubmitting ? (
+                                                            <CircularProgress size={20} color="inherit" />
+                                                        ) : (
+                                                            <Iconify icon="mdi:content-save" />
+                                                        )
+                                                    }
+                                                >
+                                                    {isSubmitting ? 'Saving...' : 'Save Changes'}
+                                                </Button>
+                                            </Box>
+                                        </Paper>
                                     </Grid>
                                 </Grid>
                             </Form>
