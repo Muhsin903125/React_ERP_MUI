@@ -68,6 +68,10 @@ import AllocationEntry from './pages/Transactions/Finance/Allocation/AllocationE
 import StatementOfAccount from './pages/Reports/Finance/StatementOfAccount';
 import ActivityPage from './pages/ActivityPage';
 
+// Stock Adjustment
+import StockAdjustment from './pages/Transactions/Store/StockAdjustment';
+import StockAdjustmentEntry from './pages/Transactions/Store/StockAdjustment/StockAdjustmentEntry';
+
 // ----------------------------------------------------------------------
 
 const userMenus = [
@@ -126,9 +130,9 @@ const adminMenus = [
   { path: 'payment-entry', element: <PaymentEntry /> },
   { path: 'payment-entry/:id', element: <PaymentEntry /> },
 
-  { path: 'stock-adjustment', element: <ComingSoon title="Stock Adjustment" /> },
-  { path: 'stock-adjustment-entry', element: <ComingSoon title="Stock Adjustment Entry" /> },
-  { path: 'stock-adjustment-entry/:id', element: <ComingSoon title="Stock Adjustment Entry" /> },
+  { path: 'stock-adjustment', element: <StockAdjustment /> },
+  { path: 'stock-adjustment-entry', element: <StockAdjustmentEntry /> },
+  { path: 'stock-adjustment-entry/:id', element: <StockAdjustmentEntry /> },
 
   { path: 'transfer', element: <ComingSoon title="Transfer" /> },
   { path: 'transfer-entry', element: <ComingSoon title="Transfer Entry" /> },
