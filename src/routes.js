@@ -72,6 +72,10 @@ import ActivityPage from './pages/ActivityPage';
 import StockAdjustment from './pages/Transactions/Store/StockAdjustment';
 import StockAdjustmentEntry from './pages/Transactions/Store/StockAdjustment/StockAdjustmentEntry';
 
+// Transfer
+import Transfer from './pages/Transactions/Store/Transfer';
+import TransferEntry from './pages/Transactions/Store/Transfer/TransferEntry';
+
 // ----------------------------------------------------------------------
 
 const userMenus = [
@@ -129,14 +133,13 @@ const adminMenus = [
   { path: 'payment', element: <Payment /> },
   { path: 'payment-entry', element: <PaymentEntry /> },
   { path: 'payment-entry/:id', element: <PaymentEntry /> },
-
   { path: 'stock-adjustment', element: <StockAdjustment /> },
-  { path: 'stock-adjustment-entry', element: <StockAdjustmentEntry /> },
-  { path: 'stock-adjustment-entry/:id', element: <StockAdjustmentEntry /> },
+  { path: 'stock-adjustment/entry/new', element: <StockAdjustmentEntry /> },
+  { path: 'stock-adjustment/entry/:id', element: <StockAdjustmentEntry /> },
 
-  { path: 'transfer', element: <ComingSoon title="Transfer" /> },
-  { path: 'transfer-entry', element: <ComingSoon title="Transfer Entry" /> },
-  { path: 'transfer-entry/:id', element: <ComingSoon title="Transfer Entry" /> },
+  { path: 'transfer', element: <Transfer /> },
+  { path: 'transfer-entry/new', element: <TransferEntry /> },
+  { path: 'transfer-entry/:id', element: <TransferEntry /> },
 
   { path: 'statement-of-account', element: <StatementOfAccount /> },
   { path: 'statement-of-account-entry', element: <ComingSoon title="Statement of Account Entry" /> },
