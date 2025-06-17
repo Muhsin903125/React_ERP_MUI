@@ -203,15 +203,15 @@ export default function Router() {
     },
     {
       path: '/login',
-      element: <LoginPage Page={LoginForm} />,
+      element: <LoginForm />,
     },
     {
       path: '/forgotpassword',
-      element: <LoginPage Page={ForgotPassword} />,
+      element: <ForgotPassword />,
     },
     {
       path: '/resetpassword',
-      element: <LoginPage Page={ResetPassword} />,
+      element: <ResetPassword />,
     },
     {
       element: <SimpleLayout />,
