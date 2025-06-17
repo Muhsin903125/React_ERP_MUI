@@ -66,27 +66,28 @@ export async function PostMultiSp(payload) {
 }
 
 export async function PostUpdateUserResgisterAdmin(payload) {
-  return PostForm('/User/UpdateProfileDataAdmin',payload );
+  return PostForm('/Account/UpdateProfileDataAdmin',payload );
 }
 
 export async function PostUserRegister(payload) {
-  return Post('/account/UserRegister',payload );
+  return Post('/Account/UserRegister',payload );
 }
 export async function PostDeactiveUser(payload) {
-  return Post(`/User/deactivateUser/${payload}`, );
-}export async function PostActiveUser(payload) {
-  return Post(`/User/activateUser/${payload}`, );
+  return Post(`/Account/deactivateUser/${payload}`, );
+}
+export async function PostActiveUser(payload) {
+  return Post(`/Account/activateUser/${payload}`, );
 }
 
 export async function GetUserList() {
-  return Get('/User/Userslist', );
+  return Get('/Account/Userslist', );
 }
 
 export async function GetRoleList() {
-  return Get('/User/GetRoles', );
+  return Get('/Account/GetRoles', );
 }
 export async function saveRole(payload) {
-  return Post('/User/CreateRole',payload );
+  return Post('/Account/CreateRole',payload );
 }
 
 export async function UpdateRole(payload) {
@@ -97,7 +98,7 @@ export async function deleteRole(payload) {
 }
 
 export async function PostChangePassword(payload) {
-  return Post(`/User/changepassword`,payload );
+  return Post(`/Account/changepassword`,payload );
 }
 
 export async function GetInvoice() {

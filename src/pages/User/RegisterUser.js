@@ -257,8 +257,8 @@ const RegisterUser = () => {
                   onChange={(e) => setRole(e.target.value)}
                 >
                   {roleList.map((role) => (
-                    <MenuItem key={role.ROLE_CODE} value={role.ROLE_CODE}>
-                      {role.ROLE_NAME}
+                    <MenuItem key={role.R_CODE} value={role.R_CODE}>
+                      {role.R_NAME}
                     </MenuItem>
                   ))}
                 </Select>
