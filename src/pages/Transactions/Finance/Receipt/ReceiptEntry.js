@@ -39,8 +39,7 @@ import JournalTable from './JournalTable';
 import ReceiptPrint from './ReceiptPrint';
 import PrintDialog from '../../../../components/PrintDialog';
 import PageHeader from '../../../../components/PageHeader';
-import EnableEditConfirmation from '../../../../components/EnableEditConfirmation';
-import { it } from 'date-fns/locale';
+import EnableEditConfirmation from '../../../../components/EnableEditConfirmation'; 
 // import { head } from 'lodash';
 
 // ----------------------------------------------------------------------
