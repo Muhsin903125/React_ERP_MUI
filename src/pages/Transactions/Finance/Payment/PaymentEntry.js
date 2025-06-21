@@ -278,6 +278,10 @@ export default function PaymentEntry() {
 
 
     const removeItem = (index) => {
+        if (items.length <= 1) {
+            showToast('At least one item is required', "error");
+            return;
+        }
         const newItems = [...items];
         newItems.splice(index, 1);
         setItems(newItems);

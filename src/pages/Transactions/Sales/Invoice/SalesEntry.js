@@ -291,7 +291,7 @@ export default function SalesEntry() {
 
 
     const addItem = (event) => {
-        if (validate()) {
+        if ( validate()) {
             event.preventDefault();
             // console.log(ItemNewLength);
             setItems([...items, {
@@ -313,11 +313,13 @@ export default function SalesEntry() {
     // };
 
     const removeItem = (index) => {
-        const newItems = [...items];
-        console.log(index);
+        if (items.length <= 1) {
+            showToast('At least one item is required', "error");
+            return;
+        }
+        const newItems = [...items]; 
         newItems.splice(index, 1);
         setItems(newItems);
-        console.log(newItems);
     };
 
 
