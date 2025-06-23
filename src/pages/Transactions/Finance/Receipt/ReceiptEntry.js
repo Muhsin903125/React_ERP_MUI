@@ -39,10 +39,7 @@ import JournalTable from './JournalTable';
 import ReceiptPrint from './ReceiptPrint';
 import PrintDialog from '../../../../components/PrintDialog';
 import PageHeader from '../../../../components/PageHeader';
-import EnableEditConfirmation from '../../../../components/EnableEditConfirmation'; 
-// import { head } from 'lodash';
-
-// ----------------------------------------------------------------------
+import EnableEditConfirmation from '../../../../components/EnableEditConfirmation';   
 
 const PaymentModeOptions = [
     { value: 'CASH', label: 'Cash' },

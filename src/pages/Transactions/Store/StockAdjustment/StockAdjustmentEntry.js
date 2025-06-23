@@ -40,6 +40,7 @@ import PageHeader from '../../../../components/PageHeader';
 import Loader from '../../../../components/Loader';
 import { useToast } from '../../../../hooks/Common';
 import { getLastNumber, getLocationList } from '../../../../utils/CommonServices';
+import Confirm from '../../../../components/Confirm';
 
 const StockAdjustmentEntry = () => {
   const theme = useTheme();
@@ -66,25 +67,23 @@ const StockAdjustmentEntry = () => {
   // unit	
   // )
   const [loading, setLoading] = useState(false);
-  const [viewMode, setViewMode] = useState(false);
   const [products, setProducts] = useState([]);
-  const [locations, setLocations] = useState([]);  const [adjustmentItems, setAdjustmentItems] = useState([{
-    id: Date.now(),
-    productId: '',
-    productCode: '',
-    productName: '',
-    uom: '',
-    currentStock: 0,
-    adjustedStock: 0,
-    adjustmentQty: 0,
-    unitCost: 0,
-    adjustmentValue: 0,
+  const [locations, setLocations] = useState([]);
+
+  const [adjustmentItems, setAdjustmentItems] = useState([{
+    srno: 1,
+    name: '',
+    desc: '',
+    stockQty: 0,
+    qty: 0,
+    price: 0,
+    unit: '',
     reason: '',
   }]);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  const isNewRecord = (id === 'new');
-  const isEditMode = !isNewRecord && !viewMode;
+  const [isEditMode, setIsEditMode] = useState(true);
+  const isNewRecord = (id === null || id === 'new' || id === undefined || id === '0');
 
   // Form validation schema
   const validationSchema = Yup.object({
@@ -127,7 +126,6 @@ const StockAdjustmentEntry = () => {
       Location: '',
       AdjType: 'Manual',
       remarks: '',
-      status: 'PAID',
       totalValue: 0,
     },
     validationSchema,
@@ -139,8 +137,8 @@ const StockAdjustmentEntry = () => {
   // Load data on component mount
   useEffect(() => {
     loadInitialData();
-    if (id !== 'new') {
-      loadStockAdjustment();
+    if (isNewRecord) {
+      generateDocumentNumber();
     } else {
       generateDocumentNumber();
     }
@@ -149,7 +147,7 @@ const StockAdjustmentEntry = () => {
     try {
       setLoading(true);
       getLocations();
-      getProducts(); 
+      getProducts();
 
     } catch (error) {
       console.error('Error loading initial data:', error);
@@ -162,123 +160,40 @@ const StockAdjustmentEntry = () => {
     try {
       setLoading(true);
 
-      // Dummy data based on ID for testing
-      const dummyStockAdjustments = {
-        1: {
-          id: 1,
-          documentNo: 'SA-2024-001',
-          documentDate: '2024-06-10T00:00:00Z',
-          referenceNo: 'REF-001',
-          locationId: 1,
-          adjustmentType: 'Physical Count',
-          reason: 'Annual inventory count',
-          remarks: 'Stock adjustment after physical count',
-          status: 'Posted',
-          totalValue: 1250.75,
-          items: [
-            {
-              id: 1,
-              productId: 1,
-              productCode: 'PROD001',
-              productName: 'Laptop Computer',
-              uom: 'PCS',
-              currentStock: 25,
-              adjustedStock: 27,
-              adjustmentQty: 2,
-              unitCost: 850.00,
-              adjustmentValue: 1700.00,
-              reason: 'Found additional units'
-            },
-            {
-              id: 2,
-              productId: 2,
-              productCode: 'PROD002',
-              productName: 'Office Chair',
-              uom: 'PCS',
-              currentStock: 40,
-              adjustedStock: 36,
-              adjustmentQty: -4,
-              unitCost: 120.50,
-              adjustmentValue: -482.00,
-              reason: 'Missing from storage'
-            }
-          ]
-        },
-        2: {
-          id: 2,
-          documentNo: 'SA-2024-002',
-          documentDate: '2024-06-11T00:00:00Z',
-          referenceNo: 'REF-002',
-          locationId: 2,
-          adjustmentType: 'Damage',
-          reason: 'Water damage',
-          remarks: 'Damaged goods adjustment',
-          status: 'Draft',
-          totalValue: -850.50,
-          items: [
-            {
-              id: 1,
-              productId: 3,
-              productCode: 'PROD003',
-              productName: 'Printer Paper A4',
-              uom: 'BOX',
-              currentStock: 150,
-              adjustedStock: 100,
-              adjustmentQty: -50,
-              unitCost: 15.75,
-              adjustmentValue: -787.50,
-              reason: 'Water damaged'
-            }
-          ]
-        }
-      };
 
-      const stockAdjustment = dummyStockAdjustments[id];      if (stockAdjustment) {
+
+      const { Data, Success } = await GetSingleResult({
+        "key": "SA_CRUD",
+        "TYPE": "GET",
+        "DOC_NO": id || '',
+      });
+      if (Success) {
         formik.setValues({
-          ...stockAdjustment,
-          documentDate: new Date(stockAdjustment.documentDate),
+          ...Data.headerData,
+          SADate: new Date(Data.headerData.SADate),
+          SANo: Data.headerData.SANo,
+          Location: Data.headerData.Location,
+          RefNo: Data.headerData.RefNo || '',
+          AdjType: Data.headerData.AdjType || 'Manual',
+          remarks: Data.headerData.remarks || '',
+          totalValue: Data.headerData.totalValue || 0,
         });
-        
         // Transform items to match our inline structure
-        const transformedItems = stockAdjustment.items?.map(item => ({
-          id: item.id || Date.now() + Math.random(),
-          productId: item.productId,
-          productCode: item.productCode,
-          productName: item.productName,
-          uom: item.uom,
-          currentStock: item.currentStock,
-          adjustedStock: item.adjustedStock,
-          adjustmentQty: item.adjustmentQty,
-          unitCost: item.unitCost,
-          adjustmentValue: item.adjustmentValue,
-          reason: item.reason || '',
-        })) || [{
-          id: Date.now(),
-          productId: '',
-          productCode: '',
-          productName: '',
-          uom: '',
-          currentStock: 0,
-          adjustedStock: 0,
-          adjustmentQty: 0,
-          unitCost: 0,
-          adjustmentValue: 0,
-          reason: '',
-        }];
-        
+        const transformedItems = Data.detailData.map((item, index) => ({
+          srno: index + 1,
+          id: item.id || Date.now(), // Use existing ID or generate a new one
+          name: item.name || item.IM_CODE || '',
+          desc: item.desc || item.IM_DESC || '',
+          unit: item.unit || item.IM_UNIT_CODE || '',
+          currentStock: item.stockQty || item.IM_CLSQTY || 0,
+          qty: item.qty || 0,
+          price: item.price || item.IM_COST || 0,
+          reason: item.reason || ''
+        }));
+
         setAdjustmentItems(transformedItems);
       }
 
-      // Uncomment below to use real API when backend is ready
-      // const result = await GetSingleResult('StockAdjustment', id);
-      // if (result?.data) {
-      //   const data = result.data;
-      //   formik.setValues({
-      //     ...data,
-      //     documentDate: new Date(data.documentDate),
-      //   });
-      //   setAdjustmentItems(data.items || []);
-      // }
     } catch (error) {
       console.error('Error loading stock adjustment:', error);
       showToast.error('Failed to load stock adjustment');
@@ -299,24 +214,24 @@ const StockAdjustmentEntry = () => {
   };
   const validateItems = () => {
     const errors = [];
-    const validItems = adjustmentItems.filter(item => item.productCode);
-    
+    const validItems = adjustmentItems.filter(item => item.name);
+
     if (validItems.length === 0) {
       errors.push('At least one product must be added');
     }
-    
+
     validItems.forEach((item, index) => {
-      if (!item.productCode) {
+      if (!item.name) {
         errors.push(`Row ${index + 1}: Product is required`);
       }
-      if (item.adjustmentQty === 0) {
+      if (item.qty === 0) {
         errors.push(`Row ${index + 1}: Adjustment quantity cannot be zero`);
       }
-      if (item.unitCost < 0) {
-        errors.push(`Row ${index + 1}: Unit cost cannot be negative`);
+      if (item.price < 0) {
+        errors.push(`Row ${index + 1}: Price cannot be negative`);
       }
     });
-    
+
     return errors;
   };
 
@@ -328,27 +243,58 @@ const StockAdjustmentEntry = () => {
         itemErrors.forEach(error => showToast.error(error));
         return;
       }
-      
-      setLoading(true);
-      const validItems = adjustmentItems.filter(item => item.productCode);
-      const payload = {
-        ...values,
-        items: validItems,
-        totalValue: calculateTotalValue(),
-      };
 
-      let result;
-      if (isNewRecord) {
-        result = await GetSingleResult('StockAdjustment', payload);
-        showToast.success('Stock adjustment created successfully');
-      } else {
-        result = await GetSingleResult('StockAdjustment', id, payload);
-        showToast.success('Stock adjustment updated successfully');
-      }
-      
-      if (result?.data) {
-        navigate('/stock-adjustment');
-      }
+      setLoading(true);
+
+      Confirm(`Do you want to ${isEditMode || id ? 'update' : 'save'}?`).then(async () => {
+        try {
+          setLoading(false);
+
+          const encodeJsonToBase64 = (json) => {
+            // Step 1: Convert the string to Base64
+            const base64Encoded = btoa(json);
+            return base64Encoded;
+          };
+
+          const base64Data = encodeJsonToBase64(JSON.stringify({
+            "key": "SA_CRUD",
+            "TYPE": isEditMode || id ? "UPDATE" : "INSERT",
+            "DOC_NO": id || '',
+
+            "headerData": {
+              "SANo": formik.values.SANo,
+              "SADate": format(formik.values.SADate, 'yyyy-MM-dd'),
+              "RefNo": formik.values.RefNo || '',
+              "Location": formik.values.Location || '',
+              "AdjType": formik.values.AdjType || 'Manual',
+              "remarks": formik.values.remarks || '',
+            },
+            "detailData": adjustmentItems.map((item, index) => {
+              return {
+                ...item,
+                srno: index + 1
+              };
+            })
+          }));
+
+          const { Success, Message, Data } = await GetSingleResult({
+            "json": base64Data
+          });
+
+          if (Success) {
+            // setIsEditMode(false);
+            // setIsEditable(false);
+            navigate(`/stock-adjustment-entry/${Data.id}`, { replace: true });
+            showToast(Data.Message, 'success');
+          }
+          else {
+            showToast(Message, "error");
+          }
+        }
+        finally {
+          setLoading(false);
+        }
+      });
     } catch (error) {
       console.error('Error saving stock adjustment:', error);
       showToast.error('Failed to save stock adjustment');
@@ -364,21 +310,22 @@ const StockAdjustmentEntry = () => {
 
   const addItem = () => {
     setAdjustmentItems([...adjustmentItems, {
-      id: Date.now(),
-      productId: '',
-      productCode: '',
-      productName: '',
-      uom: '',
-      currentStock: 0,
-      adjustedStock: 0,
-      adjustmentQty: 0,
-      unitCost: 0,
-      adjustmentValue: 0,
+      srno: adjustmentItems.length + 1,
+      name: '',
+      desc: '',
+      stockQty: 0,
+      qty: 0,
+      price: 0,
+      unit: '',
       reason: '',
     }]);
   };
 
   const removeItem = (index) => {
+    if(adjustmentItems.length === 1) {
+      showToast('At least one item must be present', 'error');
+      return;
+    }
     if (adjustmentItems.length > 1) {
       const newItems = [...adjustmentItems];
       newItems.splice(index, 1);
@@ -392,15 +339,14 @@ const StockAdjustmentEntry = () => {
     const newItems = [...adjustmentItems];
     newItems[index] = {
       ...newItems[index],
-      productId: selectedProduct.IM_ID || selectedProduct.id,
-      productCode: selectedProduct.IM_CODE || selectedProduct.code,
-      productName: selectedProduct.IM_DESC || selectedProduct.desc,
-      uom: selectedProduct.IM_UNIT_CODE || selectedProduct.uom,
-      currentStock: selectedProduct.IM_CLSQTY || selectedProduct.currentStock || 0,
-      unitCost: selectedProduct.IM_COST || selectedProduct.unitCost || 0,
-      adjustedStock: selectedProduct.IM_CLSQTY || selectedProduct.currentStock || 0,
-      adjustmentQty: 0,
-      adjustmentValue: 0,
+      srno: index + 1,
+      name: selectedProduct.IM_CODE || selectedProduct.code,
+      desc: selectedProduct.IM_DESC || selectedProduct.desc,
+      stockQty: selectedProduct.IM_CLSQTY || selectedProduct.currentStock || 0,
+      unit: selectedProduct.IM_UNIT_CODE || selectedProduct.uom,
+      price: selectedProduct.IM_COST || selectedProduct.unitCost || 0,
+      qty: selectedProduct.IM_CLSQTY || selectedProduct.currentStock || 0,
+      reason: selectedProduct.reason || '',
     };
     setAdjustmentItems(newItems);
   };
@@ -408,7 +354,7 @@ const StockAdjustmentEntry = () => {
   const handleItemChange = (index, field, value) => {
     const newItems = [...adjustmentItems];
     const item = { ...newItems[index] };
-    
+
     item[field] = value;
 
     // Recalculate based on field changes
@@ -426,43 +372,60 @@ const StockAdjustmentEntry = () => {
     setAdjustmentItems(newItems);
   };
 
-  const handleAddItem = () => {
-    if (!selectedProduct) {
-      showToast.error('Please select a product');
-      return;
-    }
 
-    const newItem = {
-      id: Date.now(),
-      productId: selectedProduct.id,
-      productCode: selectedProduct.code,
-      productName: selectedProduct.name,
-      uom: selectedProduct.uom,
-      currentStock: selectedProduct.currentStock || 0,
-      adjustedStock: 0,
-      adjustmentQty: 0,
-      unitCost: selectedProduct.unitCost || 0,
-      adjustmentValue: 0,
+  const handleNewStockAdjustment = () => {
+    formik.resetForm();
+    setAdjustmentItems([{
+      srno: 1,
+      name: '',
+      desc: '',
+      stockQty: 0,
+      qty: 0,
+      price: 0,
+      unit: '',
       reason: '',
-    };
-
-    setAdjustmentItems([...adjustmentItems, newItem]);
-    setSelectedProduct(null);
+    }]);
+    setIsEditMode(true);
+    navigate('/stock-adjustment-entry', { replace: true });
   };
+  const toggleEditMode = () => {
+    if (id) {
+      loadStockAdjustment(id);
+    }
+    if (adjustmentItems.length === 0)
+      handleNewStockAdjustment();
 
+
+    setIsEditMode(!isEditMode);
+
+  };
   const handleRemoveItem = (itemId) => {
-    setAdjustmentItems(adjustmentItems.filter(item => item.id !== itemId));
+    setAdjustmentItems(adjustmentItems.filter(item => item.srno !== itemId));
   };
   // Inline Product Row Component
-  const InlineProductRow = ({ item, index, onProductChange, onItemChange, onRemove, products, viewMode }) => (
-    <Grid container spacing={2} sx={{ mb: 2, p: 2, bgcolor: 'background.paper', borderRadius: 1, border: '1px solid', borderColor: 'divider' }}>
-      <Grid item xs={12} md={2}>
+  const InlineProductRow = ({ item, index, onProductChange, onItemChange, onRemove, products, isEditMode }) => (
+    <Paper
+      elevation={2}
+      sx={{
+        mb: 2,
+        p: { xs: 2, md: 2 },
+        borderRadius: 3,
+        boxShadow: '0 2px 12px 0 rgba(0,0,0,0.04)',
+        background: 'linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%)',
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        gap: 2,
+        width: '100%'
+      }}
+    >
+      <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 16%' }, minWidth: 180 }}>
         <Autocomplete
           options={products || []}
           getOptionLabel={(option) => `${option.IM_CODE} - ${option.IM_DESC}`}
           value={products.find(p => p.IM_CODE === item.productCode) || null}
           onChange={(event, newValue) => onProductChange(index, newValue)}
-          disabled={viewMode}
+          disabled={!isEditMode}
           renderInput={(params) => (
             <TextField
               {...params}
@@ -470,126 +433,93 @@ const StockAdjustmentEntry = () => {
               size="small"
               placeholder="Search product..."
               fullWidth
+              variant="outlined"
             />
           )}
         />
-      </Grid>
-      
-      <Grid item xs={12} md={2}>
+      </Box>
+      <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 22%' }, minWidth: 200 }}>
         <TextField
           fullWidth
           label="Description"
-          value={item.productName}
+          value={item.desc}
           size="small"
           disabled
           multiline
           rows={1}
+          variant="filled"
+          InputProps={{ disableUnderline: true, sx: { bgcolor: 'transparent' } }}
         />
-      </Grid>
-      
-      <Grid item xs={6} md={1}>
-        <TextField
-          fullWidth
-          label="UOM"
-          value={item.uom}
-          size="small"
-          disabled
-        />
-      </Grid>
-      
-      <Grid item xs={6} md={1}>
+      </Box>
+      <Box sx={{ flex: { xs: '1 1 48%', md: '1 1 10%' }, minWidth: 100 }}>
         <TextField
           fullWidth
           label="Current Stock"
-          value={item.currentStock}
+          value={item.currentQty}
           size="small"
           disabled
           inputProps={{ style: { textAlign: 'right' } }}
+          variant="filled"
+          InputProps={{ disableUnderline: true, sx: { bgcolor: 'transparent' } }}
         />
-      </Grid>
-      
-      <Grid item xs={6} md={1}>
+      </Box>
+      <Box sx={{ flex: { xs: '1 1 48%', md: '1 1 10%' }, minWidth: 100 }}>
         <TextField
           fullWidth
           label="Adjusted Stock"
           type="number"
           value={item.adjustedStock}
-          onChange={(e) => onItemChange(index, 'adjustedStock', parseFloat(e.target.value) || 0)}
-          disabled={viewMode}
+          onChange={(e) => onItemChange(index, 'qty', parseFloat(e.target.value) || 0)}
+          disabled={!isEditMode}
           size="small"
           inputProps={{ style: { textAlign: 'right' } }}
+          variant="outlined"
         />
-      </Grid>
-      
-      <Grid item xs={6} md={1}>
-        <TextField
-          fullWidth
-          label="Adj. Qty"
-          value={item.adjustmentQty}
-          size="small"
-          disabled
-          inputProps={{ 
-            style: { 
-              textAlign: 'right', 
-              color: item.adjustmentQty >= 0 ? theme.palette.success.main : theme.palette.error.main 
-            } 
-          }}
-        />
-      </Grid>
-      
-      <Grid item xs={6} md={1}>
+      </Box>
+ 
+      <Box sx={{ flex: { xs: '1 1 48%', md: '1 1 10%' }, minWidth: 100 }}>
         <TextField
           fullWidth
           label="Unit Cost"
           type="number"
           value={item.unitCost}
           onChange={(e) => onItemChange(index, 'unitCost', parseFloat(e.target.value) || 0)}
-          disabled={viewMode}
+          disabled={!isEditMode}
           size="small"
           inputProps={{ style: { textAlign: 'right' }, step: 0.01 }}
+          variant="outlined"
         />
-      </Grid>
-      
-      <Grid item xs={6} md={1}>
-        <TextField
-          fullWidth
-          label="Adj. Value"
-          value={`AED ${item.adjustmentValue?.toFixed(2) || '0.00'}`}
-          size="small"
-          disabled
-          inputProps={{ 
-            style: { 
-              textAlign: 'right', 
-              color: item.adjustmentValue >= 0 ? theme.palette.success.main : theme.palette.error.main 
-            } 
-          }}
-        />
-      </Grid>
-        <Grid item xs={10} md={1.2}>
+      </Box>
+      <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 16%' }, minWidth: 160 }}>
         <TextField
           fullWidth
           label="Reason"
           value={item.reason}
           onChange={(e) => onItemChange(index, 'reason', e.target.value)}
-          disabled={viewMode}
+          disabled={!isEditMode}
           size="small"
           placeholder="Enter reason"
+          variant="outlined"
         />
-      </Grid>
-      
-      <Grid item xs={2} md={0.8} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        {!viewMode && (
-          <IconButton
-            size="small"
-            onClick={() => onRemove(index)}
-            color="error"
-            disabled={adjustmentItems.length === 1}
-          >
-            <DeleteIcon fontSize="small" />
-          </IconButton>
+      </Box>
+      <Box sx={{ flex: { xs: '1 1 100%', md: '0 0 40px' }, display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: 40 }}>
+        {isEditMode && (
+          <Tooltip title="Remove Item">
+            <span>
+              <IconButton
+                size="small"
+                onClick={() => onRemove(index)}
+                color="error"
+                disabled={adjustmentItems.length === 1}
+                sx={{ bgcolor: 'error.lighter', '&:hover': { bgcolor: 'error.light' } }}
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </span>
+          </Tooltip>
         )}
-      </Grid>
-    </Grid>
+      </Box>
+    </Paper>
   );  // Table columns for adjustment items (kept for reference, but using inline components now)
   const itemColumns = [
     {
@@ -627,7 +557,7 @@ const StockAdjustmentEntry = () => {
           type="number"
           value={cell.getValue() || 0}
           onChange={(e) => handleItemChange(row.original.id, 'adjustedStock', parseFloat(e.target.value) || 0)}
-          disabled={viewMode}
+          disabled={!isEditMode}
           sx={{ width: '100%' }}
           inputProps={{ style: { textAlign: 'right' } }}
         />
@@ -658,7 +588,7 @@ const StockAdjustmentEntry = () => {
           type="number"
           value={cell.getValue() || 0}
           onChange={(e) => handleItemChange(row.original.id, 'unitCost', parseFloat(e.target.value) || 0)}
-          disabled={viewMode}
+          disabled={!isEditMode}
           sx={{ width: '100%' }}
           inputProps={{ style: { textAlign: 'right' }, step: 0.01 }}
         />
@@ -688,7 +618,7 @@ const StockAdjustmentEntry = () => {
           size="small"
           value={cell.getValue() || ''}
           onChange={(e) => handleItemChange(row.original.id, 'reason', e.target.value)}
-          disabled={viewMode}
+          disabled={!isEditMode}
           sx={{ width: '100%' }}
           placeholder="Enter reason"
         />
@@ -699,57 +629,73 @@ const StockAdjustmentEntry = () => {
   if (loading) {
     return <Loader />;
   }
+  const handleEditConfirm = async (messages = []) => {
+    if (id) {
+      loadStockAdjustment(id);
+    }
+    if (messages && messages.length > 0) {
+      const { Success, Message } = await GetSingleResult({
+        "key": "SA_CRUD",
+        "TYPE": "EDIT_CONFIRM",
+        "DOC_NO": id,
+        "message_types": messages
+      });
+      if (!Success) {
+        setIsEditMode(false);
+        showToast(Message, "error");
+      }
+    } else {
+      setIsEditMode(!isEditMode);
+    }
+  };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Box sx={{ p: 3 }}>
         <PageHeader
           title={`Stock Adjustment ${isNewRecord ? 'Entry' : 'Details'}`}
-          subtitle={isNewRecord ? 'Create new stock adjustment' : `Document No: ${formik.values.documentNo}`} breadcrumbs={[
+          subtitle={isNewRecord ? 'Create new stock adjustment' : `Document No: ${formik.values.SANo || formik.values.documentNo}`}
+          breadcrumbs={[
             { title: 'Transactions', path: '/transactions' },
             { title: 'Store', path: '/transactions/store' },
             { title: 'Stock Adjustments', path: '/stock-adjustment' },
-            { title: isNewRecord ? 'New Entry' : 'Edit Entry' }
+            { title: isNewRecord ? 'New Entry' : (isEditMode ? 'Edit' : 'View') }
           ]}
-          action={
-            <Stack direction="row" spacing={2}>
-              <Button
-                variant="outlined"
-                startIcon={<ArrowBackIcon />}
-                onClick={() => navigate('/transactions/store/stockadjustment')}
-              >
-                Back to List
-              </Button>
-              {!isNewRecord && viewMode && (
-                <Button
-                  variant="contained"
-                  startIcon={<EditIcon />}
-                  onClick={() => setViewMode(false)}
-                >
-                  Edit
-                </Button>
-              )}
-              {!viewMode && (
-                <>
-                  <Button
-                    variant="outlined"
-                    startIcon={<CancelIcon />}
-                    onClick={() => navigate('/transactions/store/stockadjustment')}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="contained"
-                    startIcon={<SaveIcon />}
-                    onClick={formik.handleSubmit}
-                    disabled={loading}
-                  >
-                    Save
-                  </Button>
-                </>
-              )}
-            </Stack>
-          }
+          actions={[
+
+
+            {
+              label: 'Enable Edit',
+              icon: 'eva:edit-fill',
+              variant: 'contained',
+              color: 'primary',
+              type: 'enableEdit',
+
+              show: !isEditMode,
+              showInActions: false,
+            },
+            {
+              label: 'Cancel Edit',
+              icon: 'eva:close-fill',
+              variant: 'contained',
+              color: 'secondary',
+              onClick: toggleEditMode,
+              show: isEditMode,
+              showInActions: false,
+            },
+            {
+              label: 'New stock adjustment',
+              icon: 'eva:plus-fill',
+              variant: 'contained',
+              onClick: handleNewStockAdjustment,
+              show: true,
+              showInActions: true,
+            },
+          ]}
+          onEditConfirm={handleEditConfirm}
+          editCheckApiKey="SA_CRUD"
+          editCheckApiType="EDIT_VALIDATE"
+          editCheckDocNo={id || ''}
         />
 
         <form onSubmit={formik.handleSubmit}>
@@ -765,13 +711,14 @@ const StockAdjustmentEntry = () => {
                 <Grid item xs={12} md={6} lg={2}>
                   <TextField
                     fullWidth
+
                     label="Document No"
                     name="SANo"
                     value={formik.values.SANo}
                     onChange={formik.handleChange}
                     error={formik.touched.SANo && Boolean(formik.errors.SANo)}
                     helperText={formik.touched.SANo && formik.errors.SANo}
-                    disabled={!isNewRecord || viewMode}
+                    disabled={!isNewRecord}
                     size="small"
                   />
                 </Grid>
@@ -780,7 +727,7 @@ const StockAdjustmentEntry = () => {
                     label="Document Date"
                     value={formik.values.SADate}
                     onChange={(date) => formik.setFieldValue('SADate', date)}
-                    disabled={viewMode}
+                    disabled={!isEditMode}
                     renderInput={(params) => (
                       <TextField
                         {...params}
@@ -800,27 +747,10 @@ const StockAdjustmentEntry = () => {
                     name="RefNo"
                     value={formik.values.RefNo}
                     onChange={formik.handleChange}
-                    disabled={viewMode}
+                    disabled={!isEditMode}
                     size="small"
                   />
                 </Grid>
-
-                {/* <Grid item xs={12} md={6} lg={3}>
-                  <TextField
-                    fullWidth
-                    select
-                    label="Status"
-                    name="status"
-                    value={formik.values.status}
-                    onChange={formik.handleChange}
-                    disabled={viewMode}
-                    size="small"
-                  >
-                    <MenuItem value="Draft">Draft</MenuItem>
-                    <MenuItem value="Posted">Posted</MenuItem>
-                    <MenuItem value="Cancelled">Cancelled</MenuItem>
-                  </TextField>
-                </Grid> */}
 
                 <Grid item xs={12} md={2.5}>
                   <Autocomplete
@@ -829,7 +759,7 @@ const StockAdjustmentEntry = () => {
                     getOptionLabel={(option) => `${option.LM_LOCATION_CODE} - ${option.LM_LOCATION_NAME}`}
                     value={locations.find(l => l.LM_LOCATION_CODE === formik.values.Location) || null}
                     onChange={(event, newValue) => formik.setFieldValue('Location', newValue?.LM_LOCATION_CODE || '')}
-                    disabled={viewMode}
+                    disabled={!isEditMode}
                     renderInput={(params) => (
                       <TextField
                         {...params}
@@ -852,7 +782,7 @@ const StockAdjustmentEntry = () => {
                     onChange={formik.handleChange}
                     error={formik.touched.AdjType && Boolean(formik.errors.AdjType)}
                     helperText={formik.touched.AdjType && formik.errors.AdjType}
-                    disabled={viewMode}
+                    disabled={!isEditMode}
                     size="small"
                   >
                     <MenuItem value="Manual">Manual</MenuItem>
@@ -872,7 +802,7 @@ const StockAdjustmentEntry = () => {
                     onChange={formik.handleChange}
                     multiline
                     rows={3}
-                    disabled={viewMode}
+                    disabled={!isEditMode}
                     size="small"
                   />
                 </Grid>
@@ -899,7 +829,7 @@ const StockAdjustmentEntry = () => {
                 </Paper>
               </Box>
               <Divider sx={{ mb: 3 }} />
-              
+
               {/* Inline Product Items */}
               <Box>
                 {adjustmentItems.map((item, index) => (
@@ -911,12 +841,12 @@ const StockAdjustmentEntry = () => {
                     onItemChange={handleItemChange}
                     onRemove={removeItem}
                     products={products}
-                    viewMode={viewMode}
+                    isEditMode={isEditMode}
                   />
                 ))}
-                
+
                 {/* Add Item Button */}
-                {!viewMode && (
+                {isEditMode && (
                   <Box sx={{ mt: 2, textAlign: 'center' }}>
                     <Button
                       variant="outlined"
@@ -937,7 +867,7 @@ const StockAdjustmentEntry = () => {
                     </Button>
                   </Box>
                 )}
-                
+
                 {/* Summary Section */}
                 {adjustmentItems.length > 0 && (
                   <Box sx={{ mt: 3, p: 3, bgcolor: alpha(theme.palette.primary.main, 0.05), borderRadius: 2 }}>
@@ -977,8 +907,8 @@ const StockAdjustmentEntry = () => {
                           <Typography variant="caption" color="text.secondary">
                             Net Value
                           </Typography>
-                          <Typography 
-                            variant="h6" 
+                          <Typography
+                            variant="h6"
                             fontWeight={600}
                             color={calculateTotalValue() >= 0 ? 'success.main' : 'error.main'}
                           >
@@ -989,7 +919,7 @@ const StockAdjustmentEntry = () => {
                     </Grid>
                   </Box>
                 )}
-                
+
                 {adjustmentItems.length === 0 && (
                   <Box
                     sx={{

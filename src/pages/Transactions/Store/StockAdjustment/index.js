@@ -175,7 +175,7 @@ const StockAdjustmentListing = () => {
                 textDecoration: 'underline'
               }
             }}
-            onClick={() => navigate(`/stock-adjustment/entry/${cell.row.original.id}`)}
+            onClick={() => navigate(`/stock-adjustment-entry/${cell.row.original.id}`)}
           >
             {cell.getValue()}
           </Typography>
@@ -353,7 +353,7 @@ const StockAdjustmentListing = () => {
                 <Tooltip title="View">
                   <IconButton
                     size="small"
-                    onClick={() => navigate(`/stock-adjustment/entry/${row.original.id}?mode=view`)}
+                    onClick={() => navigate(`/stock-adjustment-entry/${row.original.id}?mode=view`)}
                     sx={{
                       color: theme.palette.info.main,
                       '&:hover': { backgroundColor: alpha(theme.palette.info.main, 0.1) }
@@ -365,7 +365,7 @@ const StockAdjustmentListing = () => {
                 <Tooltip title="Edit">
                   <IconButton
                     size="small"
-                    onClick={() => navigate(`/stock-adjustment/entry/${row.original.id}`)}
+                    onClick={() => navigate(`/stock-adjustment-entry/${row.original.id}`)}
                     sx={{
                       color: theme.palette.warning.main,
                       '&:hover': { backgroundColor: alpha(theme.palette.warning.main, 0.1) }
@@ -393,7 +393,7 @@ const StockAdjustmentListing = () => {
                 <Button
                   variant="contained"
                   startIcon={<AddIcon />}
-                  onClick={() => navigate('/stock-adjustment/entry/new')}
+                  onClick={() => navigate('/stock-adjustment-entry')}
                   sx={{
                     background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
                     boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
