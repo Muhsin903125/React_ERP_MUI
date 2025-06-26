@@ -23,14 +23,15 @@ import {
   FileDownload as ExportIcon
 } from '@mui/icons-material';
 import { format } from 'date-fns';
-import { GetSingleListResult    } from '../../../../hooks/Api';
-import PageHeader from '../../../../components/PageHeader'; 
+import { GetSingleListResult } from '../../../../hooks/Api';
+import PageHeader from '../../../../components/PageHeader';
 import Loader from '../../../../components/Loader';
+import { useToast } from '../../../../hooks/Common';
 
 const StockAdjustmentListing = () => {
   const theme = useTheme();
-  const navigate = useNavigate();  
-
+  const navigate = useNavigate();
+  const { showToast } = useToast();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [globalFilter, setGlobalFilter] = useState('');
@@ -40,85 +41,20 @@ const StockAdjustmentListing = () => {
     fetchStockAdjustments();
   }, []);
   const fetchStockAdjustments = async () => {
-    try {
-      setLoading(true);
-      
-      // Dummy data for testing
-      const dummyData = [
-        {
-          id: 1,
-          documentNo: 'SA-2024-001',
-          documentDate: '2024-06-10T00:00:00Z',
-          referenceNo: 'REF-001',
-          location: { id: 1, name: 'Main Warehouse', code: 'MW001' },
-          adjustmentType: 'Physical Count',
-          totalValue: 1250.75,
-          status: 'Posted',
-          createdBy: { id: 1, name: 'John Doe' },
-          remarks: 'Stock adjustment after physical count'
-        },
-        {
-          id: 2,
-          documentNo: 'SA-2024-002',
-          documentDate: '2024-06-11T00:00:00Z',
-          referenceNo: 'REF-002',
-          location: { id: 2, name: 'Secondary Store', code: 'SS002' },
-          adjustmentType: 'Damage',
-          totalValue: -850.50,
-          status: 'Draft',
-          createdBy: { id: 2, name: 'Jane Smith' },
-          remarks: 'Damaged goods adjustment'
-        },
-        {
-          id: 3,
-          documentNo: 'SA-2024-003',
-          documentDate: '2024-06-12T00:00:00Z',
-          referenceNo: 'REF-003',
-          location: { id: 1, name: 'Main Warehouse', code: 'MW001' },
-          adjustmentType: 'Expiry',
-          totalValue: -320.25,
-          status: 'Posted',
-          createdBy: { id: 1, name: 'John Doe' },
-          remarks: 'Expired products write-off'
-        },
-        {
-          id: 4,
-          documentNo: 'SA-2024-004',
-          documentDate: '2024-06-13T00:00:00Z',
-          referenceNo: '',
-          location: { id: 3, name: 'Branch Store', code: 'BS003' },
-          adjustmentType: 'Manual',
-          totalValue: 450.00,
-          status: 'Draft',
-          createdBy: { id: 3, name: 'Mike Johnson' },
-          remarks: 'Manual stock correction'
-        },
-        {
-          id: 5,
-          documentNo: 'SA-2024-005',
-          documentDate: '2024-06-13T00:00:00Z',
-          referenceNo: 'REF-005',
-          location: { id: 2, name: 'Secondary Store', code: 'SS002' },
-          adjustmentType: 'System',
-          totalValue: 0.00,
-          status: 'Cancelled',
-          createdBy: { id: 2, name: 'Jane Smith' },
-          remarks: 'System adjustment - cancelled due to error'
-        }
-      ];
 
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setData(dummyData);
-      
-      // Uncomment below to use real API when backend is ready
-      // const result = await GetSingleListResult('StockAdjustment', 'GetStockAdjustmentList');
-      // if (result?.data) {
-      //   setData(result.data);
-      // }
-    } catch (error) {
-      console.error('Error fetching stock adjustments:', error);
+    setLoading(true);
+    try {
+      // setLoadingFull(false);
+      const { Success, Data, Message } = await GetSingleListResult({
+        "key": "SA_CRUD",
+        "TYPE": "GET_ALL",
+      })
+      if (Success) {
+        setData(Data)
+      }
+      else {
+        showToast(Message, "error");
+      }
     } finally {
       setLoading(false);
     }
@@ -161,7 +97,7 @@ const StockAdjustmentListing = () => {
   const columns = useMemo(
     () => [
       {
-        accessorKey: 'documentNo',
+        accessorKey: 'InvNo',
         header: 'Document No',
         size: 120,
         Cell: ({ cell }) => (
@@ -175,14 +111,14 @@ const StockAdjustmentListing = () => {
                 textDecoration: 'underline'
               }
             }}
-            onClick={() => navigate(`/stock-adjustment-entry/${cell.row.original.id}`)}
+            onClick={() => navigate(`/stock-adjustment-entry/${cell.row.original.InvNo}`)}
           >
             {cell.getValue()}
           </Typography>
         ),
       },
       {
-        accessorKey: 'documentDate',
+        accessorKey: 'InvDate',
         header: 'Date',
         size: 100,
         Cell: ({ cell }) => (
@@ -192,7 +128,7 @@ const StockAdjustmentListing = () => {
         ),
       },
       {
-        accessorKey: 'referenceNo',
+        accessorKey: 'RefNo',
         header: 'Reference',
         size: 120,
         Cell: ({ cell }) => (
@@ -207,13 +143,13 @@ const StockAdjustmentListing = () => {
         size: 150,
         Cell: ({ cell }) => (
           <Typography variant="body2">
-            {cell.getValue()?.name || '-'}
+            {cell.getValue() || '-'}
           </Typography>
         ),
       },
       {
         accessorKey: 'adjustmentType',
-        header: 'Type',
+        header: ' Type',
         size: 100,
         Cell: ({ cell }) => (
           <Chip
@@ -226,7 +162,7 @@ const StockAdjustmentListing = () => {
         ),
       },
       {
-        accessorKey: 'totalValue',
+        accessorKey: 'NetAmount',
         header: 'Total Value',
         size: 120,
         Cell: ({ cell }) => (
@@ -241,25 +177,25 @@ const StockAdjustmentListing = () => {
           </Typography>
         ),
       },
-      {
-        accessorKey: 'status',
-        header: 'Status',
-        size: 100,
-        Cell: ({ cell }) => <StatusChip status={cell.getValue()} />,
-      },
-      {
-        accessorKey: 'createdBy',
-        header: 'Created By',
-        size: 120,
-        Cell: ({ cell }) => (
-          <Typography variant="body2" color="text.secondary">
-            {cell.getValue()?.name || '-'}
-          </Typography>
-        ),
-      },
+      // {
+      //   accessorKey: 'status',
+      //   header: 'Status',
+      //   size: 100,
+      //   Cell: ({ cell }) => <StatusChip status={cell.getValue()} />,
+      // },
+      // {
+      //   accessorKey: 'createdBy',
+      //   header: 'Created By',
+      //   size: 120,
+      //   Cell: ({ cell }) => (
+      //     <Typography variant="body2" color="text.secondary">
+      //       {cell.getValue()?.name || '-'}
+      //     </Typography>
+      //   ),
+      // },
     ],
     [theme, navigate]
-  );  const handlePrint = (id) => {
+  ); const handlePrint = (id) => {
     console.log('Print stock adjustment:', id);
     // Implement print functionality
   };
@@ -299,16 +235,16 @@ const StockAdjustmentListing = () => {
           <MaterialReactTable
             columns={columns}
             data={data}
-            enableColumnFilters 
-            enableGlobalFilter 
-            enableColumnActions 
+            enableColumnFilters
+            enableGlobalFilter
+            enableColumnActions
             enableColumnDragging={false}
-            enableSorting 
-            enableTopToolbar 
-            enableBottomToolbar 
-            enablePagination 
+            enableSorting
+            enableTopToolbar
+            enableBottomToolbar
+            enablePagination
             enableRowSelection={false}
-            positionActionsColumn="last"
+            // positionActionsColumn="last"
             muiTablePaperProps={{
               elevation: 0,
               sx: {
@@ -347,13 +283,13 @@ const StockAdjustmentListing = () => {
               globalFilter,
             }}
             onGlobalFilterChange={setGlobalFilter}
-            enableRowActions 
+            enableRowActions
             renderRowActions={({ row }) => (
               <Box sx={{ display: 'flex', gap: 1 }}>
-                <Tooltip title="View">
+                {/* <Tooltip title="View">
                   <IconButton
                     size="small"
-                    onClick={() => navigate(`/stock-adjustment-entry/${row.original.id}?mode=view`)}
+                    onClick={() => navigate(`/stock-adjustment-entry/${row.original.InvNo}`)}
                     sx={{
                       color: theme.palette.info.main,
                       '&:hover': { backgroundColor: alpha(theme.palette.info.main, 0.1) }
@@ -361,11 +297,11 @@ const StockAdjustmentListing = () => {
                   >
                     <ViewIcon fontSize="small" />
                   </IconButton>
-                </Tooltip>
+                </Tooltip> */}
                 <Tooltip title="Edit">
                   <IconButton
                     size="small"
-                    onClick={() => navigate(`/stock-adjustment-entry/${row.original.id}`)}
+                    onClick={() => navigate(`/stock-adjustment-entry/${row.original.InvNo}`)}
                     sx={{
                       color: theme.palette.warning.main,
                       '&:hover': { backgroundColor: alpha(theme.palette.warning.main, 0.1) }
@@ -374,7 +310,7 @@ const StockAdjustmentListing = () => {
                     <EditIcon fontSize="small" />
                   </IconButton>
                 </Tooltip>
-                <Tooltip title="Print">
+                {/* <Tooltip title="Print">
                   <IconButton
                     size="small"
                     onClick={() => handlePrint(row.original.id)}
@@ -385,7 +321,7 @@ const StockAdjustmentListing = () => {
                   >
                     <PrintIcon fontSize="small" />
                   </IconButton>
-                </Tooltip>
+                </Tooltip> */}
               </Box>
             )}
             renderTopToolbarCustomActions={() => (

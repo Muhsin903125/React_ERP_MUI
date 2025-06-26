@@ -9,25 +9,16 @@ import {
   Button,
   Typography,
   Divider,
-  Stack,
-  Alert,
   Autocomplete,
   MenuItem,
+  Select,
   alpha,
   useTheme,
   IconButton,
   Tooltip,
   Paper
 } from '@mui/material';
-import {
-  Save as SaveIcon,
-  Cancel as CancelIcon,
-  Add as AddIcon,
-  Delete as DeleteIcon,
-  ArrowBack as ArrowBackIcon,
-  Print as PrintIcon,
-  Edit as EditIcon
-} from '@mui/icons-material';
+import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -35,16 +26,168 @@ import { format } from 'date-fns';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
-import { GetSingleListResult, GetSingleResult } from '../../../../hooks/Api';
+import { GetMultipleResult, GetSingleListResult, GetSingleResult } from '../../../../hooks/Api';
 import PageHeader from '../../../../components/PageHeader';
 import Loader from '../../../../components/Loader';
 import { useToast } from '../../../../hooks/Common';
-import { getLastNumber, getLocationList } from '../../../../utils/CommonServices';
+import { getLastNumber, getLocationList, getUnitList } from '../../../../utils/CommonServices';
 import Confirm from '../../../../components/Confirm';
+
+// Inline Product Row Component - moved outside to prevent recreation
+const InlineProductRow = ({ item, index, onProductChange, onItemChange, onRemove, products, unitList, isEditMode, adjustmentItemsLength }) => {
+  // Get available units for the current product
+  const getAvailableUnits = () => {
+    if (!item.avail_unit_code || !unitList) return [];
+
+    const unitPricePairs = item.avail_unit_code.split(',');
+    return unitList.filter(u =>
+      unitPricePairs.some(unitPrice => {
+        const [unit] = unitPrice.split('#');
+        return unit === u.LK_KEY;
+      })
+    );
+  };
+
+  const availableUnits = getAvailableUnits();
+
+  return (
+    <Paper
+      elevation={2}
+      sx={{
+        mb: 0.5,
+        p: { xs: 1, md: 1 },
+        borderRadius: 3,
+        boxShadow: '0 2px 12px 0 rgba(0,0,0,0.04)',
+        background: 'linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%)',
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        gap: 1,
+        width: '100%'
+      }}
+    >
+      <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 16%' }, minWidth: 180 }}>
+        <Autocomplete
+          options={products || []}
+          getOptionLabel={(option) => `${option.IM_CODE} - ${option.IM_DESC}`}
+          value={products?.find(p => p.IM_CODE === item.name) || null}
+          onChange={(event, newValue) => onProductChange(index, newValue)}
+          disabled={!isEditMode}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Product"
+              size="small"
+              placeholder="Search product..."
+              fullWidth
+              variant="outlined"
+            />
+          )}
+        />
+      </Box>
+      <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 25%' }, minWidth: 200 }}>
+        <TextField
+          fullWidth
+          label="Description"
+          name={`ItemDesc_${index}`}
+          value={item.desc || ''}
+          size="small"
+          disabled={!isEditMode}
+          onChange={onItemChange}
+          inputProps={{ style: { textAlign: 'left' } }}
+          variant="outlined"
+        />
+      </Box>
+      <Box sx={{ flex: { xs: '1 1 48%', md: '1 1 10%' }, minWidth: 100 }}>
+        <TextField
+          fullWidth
+          label="Adjusted Stock"
+          name={`ItemQty_${index}`}
+          type="number"
+          value={item.qty || ''}
+          onChange={onItemChange}
+          disabled={!isEditMode}
+          size="small"
+          inputProps={{ style: { textAlign: 'right' } }}
+          variant="outlined"
+        />
+      </Box>
+
+      <Box sx={{ flex: { xs: '1 1 48%', md: '1 1 12%' }, minWidth: 160 }}>
+        <Select
+          fullWidth
+          size="small"
+          value={item.unit || ''}
+          onChange={(event) => onItemChange({ target: { name: `ItemUnit_${index}`, value: event.target.value } })}
+          disabled={!isEditMode}
+          displayEmpty
+        >
+          {availableUnits && availableUnits.length > 0 ? (
+            availableUnits.map((option) => (
+              <MenuItem key={option.LK_KEY} value={option.LK_KEY}>
+                {option.LK_VALUE}
+              </MenuItem>
+            ))
+          ) : (
+            unitList?.map((option) => (
+              <MenuItem key={option.LK_KEY} value={option.LK_KEY}>
+                {option.LK_VALUE}
+              </MenuItem>
+            )) || <MenuItem value="">Select Unit</MenuItem>
+          )}
+        </Select>
+      </Box>
+      <Box sx={{ flex: { xs: '1 1 48%', md: '1 1 10%' }, minWidth: 100 }}>
+        <TextField
+          fullWidth
+          label="Price"
+          name={`ItemPrice_${index}`}
+          type="number"
+          value={item.price || ''}
+          onChange={onItemChange}
+          disabled={!isEditMode}
+          size="small"
+          inputProps={{ style: { textAlign: 'right' }, step: 0.01 }}
+          variant="outlined"
+        />
+      </Box>
+      <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 16%' }, minWidth: 160 }}>
+        <TextField
+          fullWidth
+          label="Reason"
+          name={`ItemReason_${index}`}
+          value={item.reason || ''}
+          onChange={onItemChange}
+          disabled={!isEditMode}
+          size="small"
+          placeholder="Enter reason"
+          variant="outlined"
+        />
+      </Box>
+      <Box sx={{ flex: { xs: '1 1 100%', md: '0 0 40px' }, display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: 40 }}>
+        {isEditMode && (
+          <Tooltip title="Remove Item">
+            <span>
+              <IconButton
+                size="small"
+                onClick={() => onRemove(index)}
+                color="error"
+                disabled={adjustmentItemsLength === 1}
+                sx={{ bgcolor: 'error.lighter', '&:hover': { bgcolor: 'error.light' } }}
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </span>
+          </Tooltip>
+        )}
+      </Box>
+    </Paper>
+  );
+};
 
 const StockAdjustmentEntry = () => {
   const theme = useTheme();
-  const showToast = useToast();
+   const { showToast } = useToast();
   const navigate = useNavigate();
   const { id } = useParams();
   //   const { user } = useAuth(); 
@@ -71,10 +214,11 @@ const StockAdjustmentEntry = () => {
   const [locations, setLocations] = useState([]);
 
   const [adjustmentItems, setAdjustmentItems] = useState([{
+    id: `item_${Date.now()}`,
     srno: 1,
     name: '',
     desc: '',
-    stockQty: 0,
+    // stockQty: 0,
     qty: 0,
     price: 0,
     unit: '',
@@ -97,10 +241,9 @@ const StockAdjustmentEntry = () => {
 
   const getLocations = async () => {
     const Data = await getLocationList();
-    console.log('Locations Data:', Data);
     setLocations(Data);
   };
-  const getProducts = async () => {
+  const getProducts = async (location) => {
     try {
       const { Success, Data, Message } = await GetSingleListResult({
         "key": "ITEM_CRUD",
@@ -115,7 +258,12 @@ const StockAdjustmentEntry = () => {
       console.error("Error:", error); // More informative error handling
     }
   };
+  const [unitList, setUnitList] = useState([]);
+  const getunits = async () => {
+    const Data = await getUnitList();
+    setUnitList(Data);
 
+  }
   // Formik form handling
   const formik = useFormik({
     initialValues: {
@@ -134,20 +282,26 @@ const StockAdjustmentEntry = () => {
     },
   });
 
+  useEffect(() => {
+    getProducts(formik.values.Location);
+  }, [formik.values.Location]); // Load products on component mount
+
   // Load data on component mount
   useEffect(() => {
+
     loadInitialData();
+
     if (isNewRecord) {
       generateDocumentNumber();
-    } else {
-      generateDocumentNumber();
+    } else if (id) {
+      loadStockAdjustment(id);
     }
   }, [id]);
   const loadInitialData = async () => {
     try {
       setLoading(true);
       getLocations();
-      getProducts();
+      getunits();
 
     } catch (error) {
       console.error('Error loading initial data:', error);
@@ -160,32 +314,32 @@ const StockAdjustmentEntry = () => {
     try {
       setLoading(true);
 
-
-
-      const { Data, Success } = await GetSingleResult({
+      const { Data, Success } = await GetMultipleResult({
         "key": "SA_CRUD",
         "TYPE": "GET",
         "DOC_NO": id || '',
       });
       if (Success) {
+        const headerData = Data[0][0] || {};
+        const detailData = Data[1] || [];
         formik.setValues({
-          ...Data.headerData,
-          SADate: new Date(Data.headerData.SADate),
-          SANo: Data.headerData.SANo,
-          Location: Data.headerData.Location,
-          RefNo: Data.headerData.RefNo || '',
-          AdjType: Data.headerData.AdjType || 'Manual',
-          remarks: Data.headerData.remarks || '',
-          totalValue: Data.headerData.totalValue || 0,
+          // ...Data.headerData,
+          SADate: new Date(headerData.SADate),
+          SANo: headerData.SANo,
+          Location: headerData.Location,
+          RefNo: headerData.RefNo || '',
+          AdjType: headerData.AdjType || 'Manual',
+          remarks: headerData.remarks || '',
+          totalValue: headerData.totalValue || 0,
         });
         // Transform items to match our inline structure
-        const transformedItems = Data.detailData.map((item, index) => ({
+        const transformedItems = detailData.map((item, index) => ({
+          id: `item_${Date.now()}_${index}`,
           srno: index + 1,
-          id: item.id || Date.now(), // Use existing ID or generate a new one
           name: item.name || item.IM_CODE || '',
           desc: item.desc || item.IM_DESC || '',
           unit: item.unit || item.IM_UNIT_CODE || '',
-          currentStock: item.stockQty || item.IM_CLSQTY || 0,
+          // currentStock: item.stockQty || item.IM_CLSQTY || 0,
           qty: item.qty || 0,
           price: item.price || item.IM_COST || 0,
           reason: item.reason || ''
@@ -255,10 +409,9 @@ const StockAdjustmentEntry = () => {
             const base64Encoded = btoa(json);
             return base64Encoded;
           };
-
-          const base64Data = encodeJsonToBase64(JSON.stringify({
+          const payload = {
             "key": "SA_CRUD",
-            "TYPE": isEditMode || id ? "UPDATE" : "INSERT",
+            "TYPE":   id ? "UPDATE" : "INSERT",
             "DOC_NO": id || '',
 
             "headerData": {
@@ -270,12 +423,19 @@ const StockAdjustmentEntry = () => {
               "remarks": formik.values.remarks || '',
             },
             "detailData": adjustmentItems.map((item, index) => {
-              return {
-                ...item,
-                srno: index + 1
+              return { 
+                srno: index + 1,
+                name: item.name || '',
+                desc: item.desc || '',
+                qty: item.qty || 0,
+                price: item.price || 0,
+                unit: item.unit || '',
+                reason: item.reason || '',
               };
             })
-          }));
+          }
+          console.log('Payload:', payload);
+          const base64Data = encodeJsonToBase64(JSON.stringify(payload));
 
           const { Success, Message, Data } = await GetSingleResult({
             "json": base64Data
@@ -285,7 +445,7 @@ const StockAdjustmentEntry = () => {
             // setIsEditMode(false);
             // setIsEditable(false);
             navigate(`/stock-adjustment-entry/${Data.id}`, { replace: true });
-            showToast(Data.Message, 'success');
+            showToast(Message, 'success');
           }
           else {
             showToast(Message, "error");
@@ -309,73 +469,135 @@ const StockAdjustmentEntry = () => {
   };
 
   const addItem = () => {
-    setAdjustmentItems([...adjustmentItems, {
-      srno: adjustmentItems.length + 1,
-      name: '',
-      desc: '',
-      stockQty: 0,
-      qty: 0,
-      price: 0,
-      unit: '',
-      reason: '',
-    }]);
+    setAdjustmentItems(prevItems => [
+      ...prevItems,
+      {
+        id: `item_${Date.now()}_${prevItems.length}`,
+        srno: prevItems.length + 1,
+        name: '',
+        desc: '',
+        qty: 0,
+        price: 0,
+        unit: '',
+        reason: '',
+      }
+    ]);
   };
 
   const removeItem = (index) => {
-    if(adjustmentItems.length === 1) {
+    if (adjustmentItems.length === 1) {
       showToast('At least one item must be present', 'error');
       return;
     }
-    if (adjustmentItems.length > 1) {
-      const newItems = [...adjustmentItems];
+
+    setAdjustmentItems(prevItems => {
+      const newItems = [...prevItems];
       newItems.splice(index, 1);
-      setAdjustmentItems(newItems);
-    }
+      return newItems;
+    });
   };
 
   const handleProductChange = (index, selectedProduct) => {
     if (!selectedProduct) return;
 
-    const newItems = [...adjustmentItems];
-    newItems[index] = {
-      ...newItems[index],
-      srno: index + 1,
-      name: selectedProduct.IM_CODE || selectedProduct.code,
-      desc: selectedProduct.IM_DESC || selectedProduct.desc,
-      stockQty: selectedProduct.IM_CLSQTY || selectedProduct.currentStock || 0,
-      unit: selectedProduct.IM_UNIT_CODE || selectedProduct.uom,
-      price: selectedProduct.IM_COST || selectedProduct.unitCost || 0,
-      qty: selectedProduct.IM_CLSQTY || selectedProduct.currentStock || 0,
-      reason: selectedProduct.reason || '',
-    };
-    setAdjustmentItems(newItems);
+    setAdjustmentItems(prevItems => {
+      const newItems = [...prevItems];
+
+      // Get available units and default price for the selected product
+      const unitPricePairs = selectedProduct.avail_unit_code?.split(',') || [];
+      const firstUnitPrice = unitPricePairs[0]?.split('#') || ['', '0'];
+      const defaultUnit = firstUnitPrice[0] || selectedProduct.IM_UNIT_CODE || selectedProduct.uom;
+      const defaultPrice = parseFloat(firstUnitPrice[1]) || selectedProduct.unitCost || 0;
+
+      newItems[index] = {
+        ...newItems[index],
+        srno: index + 1,
+        name: selectedProduct.IM_CODE || selectedProduct.code,
+        desc: selectedProduct.IM_DESC || selectedProduct.desc,
+        unit: defaultUnit,
+        price: defaultPrice,
+        qty: 0,
+        reason: selectedProduct.reason || '',
+        avail_unit_code: selectedProduct.avail_unit_code,
+      };
+
+      return newItems;
+    });
   };
 
-  const handleItemChange = (index, field, value) => {
-    const newItems = [...adjustmentItems];
-    const item = { ...newItems[index] };
+  const handleItemChange = useCallback((event) => {
+    const { name, value } = event.target;
 
-    item[field] = value;
+    // Extract index and field from name (e.g., "ItemDesc_0", "ItemQty_1")
+    const [fieldName, index] = name.split('_');
+    const itemIndex = parseInt(index, 10);
 
-    // Recalculate based on field changes
-    if (field === 'adjustedStock') {
-      item.adjustmentQty = value - item.currentStock;
-      item.adjustmentValue = item.adjustmentQty * item.unitCost;
-    } else if (field === 'adjustmentQty') {
-      item.adjustedStock = item.currentStock + value;
-      item.adjustmentValue = value * item.unitCost;
-    } else if (field === 'unitCost') {
-      item.adjustmentValue = item.adjustmentQty * value;
-    }
+    setAdjustmentItems(prevItems => {
+      const newItems = [...prevItems];
 
-    newItems[index] = item;
-    setAdjustmentItems(newItems);
-  };
+      if (fieldName === 'ItemUnit' && newItems[itemIndex].avail_unit_code) {
+        const currentItem = newItems[itemIndex];
+        // Use the stored avail_unit_code from the item instead of looking up in products
+        if (currentItem.avail_unit_code) {
+          const unitPricePairs = currentItem.avail_unit_code.split(',');
+          const selectedUnitPrice = unitPricePairs.find(up => {
+            const [unit] = up.split('#');
+            return unit === value;
+          });
+
+          const newPrice = selectedUnitPrice ? parseFloat(selectedUnitPrice.split('#')[1]) : 0;
+          newItems[itemIndex] = {
+            ...newItems[itemIndex],
+            unit: value,
+            price: newPrice,
+            adjustmentValue: (newItems[itemIndex].qty || 0) * newPrice
+          };
+        } else {
+          newItems[itemIndex] = {
+            ...newItems[itemIndex],
+            unit: value
+          };
+        }
+      } else if (fieldName === 'ItemQty') {
+        const numValue = typeof value === 'string' ? parseFloat(value) || 0 : value || 0;
+        newItems[itemIndex] = {
+          ...newItems[itemIndex],
+          qty: numValue,
+          adjustmentValue: numValue * (newItems[itemIndex].price || 0)
+        };
+      } else if (fieldName === 'ItemPrice') {
+        const numValue = typeof value === 'string' ? parseFloat(value) || 0 : value || 0;
+        newItems[itemIndex] = {
+          ...newItems[itemIndex],
+          price: numValue,
+          adjustmentValue: (newItems[itemIndex].qty || 0) * numValue
+        };
+      } else if (fieldName === 'ItemDesc') {
+        newItems[itemIndex] = {
+          ...newItems[itemIndex],
+          desc: value
+        };
+      } else if (fieldName === 'ItemReason') {
+        newItems[itemIndex] = {
+          ...newItems[itemIndex],
+          reason: value
+        };
+      } else if (fieldName === 'ItemName') {
+        newItems[itemIndex] = {
+          ...newItems[itemIndex],
+          name: value
+        };
+      }
+
+      return newItems;
+    });
+  }, []); // Remove products dependency
 
 
   const handleNewStockAdjustment = () => {
     formik.resetForm();
     setAdjustmentItems([{
+      id: `item_${Date.now()}`,
       srno: 1,
       name: '',
       desc: '',
@@ -400,231 +622,10 @@ const StockAdjustmentEntry = () => {
 
   };
   const handleRemoveItem = (itemId) => {
-    setAdjustmentItems(adjustmentItems.filter(item => item.srno !== itemId));
+    setAdjustmentItems(prevItems => prevItems.filter(item => item.srno !== itemId));
   };
-  // Inline Product Row Component
-  const InlineProductRow = ({ item, index, onProductChange, onItemChange, onRemove, products, isEditMode }) => (
-    <Paper
-      elevation={2}
-      sx={{
-        mb: 2,
-        p: { xs: 2, md: 2 },
-        borderRadius: 3,
-        boxShadow: '0 2px 12px 0 rgba(0,0,0,0.04)',
-        background: 'linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%)',
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        gap: 2,
-        width: '100%'
-      }}
-    >
-      <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 16%' }, minWidth: 180 }}>
-        <Autocomplete
-          options={products || []}
-          getOptionLabel={(option) => `${option.IM_CODE} - ${option.IM_DESC}`}
-          value={products.find(p => p.IM_CODE === item.productCode) || null}
-          onChange={(event, newValue) => onProductChange(index, newValue)}
-          disabled={!isEditMode}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Product"
-              size="small"
-              placeholder="Search product..."
-              fullWidth
-              variant="outlined"
-            />
-          )}
-        />
-      </Box>
-      <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 22%' }, minWidth: 200 }}>
-        <TextField
-          fullWidth
-          label="Description"
-          value={item.desc}
-          size="small"
-          disabled
-          multiline
-          rows={1}
-          variant="filled"
-          InputProps={{ disableUnderline: true, sx: { bgcolor: 'transparent' } }}
-        />
-      </Box>
-      <Box sx={{ flex: { xs: '1 1 48%', md: '1 1 10%' }, minWidth: 100 }}>
-        <TextField
-          fullWidth
-          label="Current Stock"
-          value={item.currentQty}
-          size="small"
-          disabled
-          inputProps={{ style: { textAlign: 'right' } }}
-          variant="filled"
-          InputProps={{ disableUnderline: true, sx: { bgcolor: 'transparent' } }}
-        />
-      </Box>
-      <Box sx={{ flex: { xs: '1 1 48%', md: '1 1 10%' }, minWidth: 100 }}>
-        <TextField
-          fullWidth
-          label="Adjusted Stock"
-          type="number"
-          value={item.adjustedStock}
-          onChange={(e) => onItemChange(index, 'qty', parseFloat(e.target.value) || 0)}
-          disabled={!isEditMode}
-          size="small"
-          inputProps={{ style: { textAlign: 'right' } }}
-          variant="outlined"
-        />
-      </Box>
- 
-      <Box sx={{ flex: { xs: '1 1 48%', md: '1 1 10%' }, minWidth: 100 }}>
-        <TextField
-          fullWidth
-          label="Unit Cost"
-          type="number"
-          value={item.unitCost}
-          onChange={(e) => onItemChange(index, 'unitCost', parseFloat(e.target.value) || 0)}
-          disabled={!isEditMode}
-          size="small"
-          inputProps={{ style: { textAlign: 'right' }, step: 0.01 }}
-          variant="outlined"
-        />
-      </Box>
-      <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 16%' }, minWidth: 160 }}>
-        <TextField
-          fullWidth
-          label="Reason"
-          value={item.reason}
-          onChange={(e) => onItemChange(index, 'reason', e.target.value)}
-          disabled={!isEditMode}
-          size="small"
-          placeholder="Enter reason"
-          variant="outlined"
-        />
-      </Box>
-      <Box sx={{ flex: { xs: '1 1 100%', md: '0 0 40px' }, display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: 40 }}>
-        {isEditMode && (
-          <Tooltip title="Remove Item">
-            <span>
-              <IconButton
-                size="small"
-                onClick={() => onRemove(index)}
-                color="error"
-                disabled={adjustmentItems.length === 1}
-                sx={{ bgcolor: 'error.lighter', '&:hover': { bgcolor: 'error.light' } }}
-              >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-            </span>
-          </Tooltip>
-        )}
-      </Box>
-    </Paper>
-  );  // Table columns for adjustment items (kept for reference, but using inline components now)
-  const itemColumns = [
-    {
-      accessorKey: 'IM_CODE',
-      header: 'Code',
-      size: 120,
-    },
-    {
-      accessorKey: 'IM_DESC',
-      header: 'Description',
-      size: 200,
-    },
-    {
-      accessorKey: 'IM_UNIT_CODE',
-      header: 'UNIT',
-      size: 80,
-    },
-    {
-      accessorKey: 'IM_CLSQTY',
-      header: 'Current Stock',
-      size: 120,
-      Cell: ({ cell }) => (
-        <Typography variant="body2" align="right">
-          {cell.getValue()?.toLocaleString() || '0'}
-        </Typography>
-      ),
-    },
-    {
-      accessorKey: 'adjustedStock',
-      header: 'Adjusted Stock',
-      size: 120,
-      Cell: ({ cell, row }) => (
-        <TextField
-          size="small"
-          type="number"
-          value={cell.getValue() || 0}
-          onChange={(e) => handleItemChange(row.original.id, 'adjustedStock', parseFloat(e.target.value) || 0)}
-          disabled={!isEditMode}
-          sx={{ width: '100%' }}
-          inputProps={{ style: { textAlign: 'right' } }}
-        />
-      ),
-    },
-    {
-      accessorKey: 'adjustmentQty',
-      header: 'Adjustment Qty',
-      size: 120,
-      Cell: ({ cell, row }) => (
-        <Typography
-          variant="body2"
-          align="right"
-          color={cell.getValue() >= 0 ? 'success.main' : 'error.main'}
-          fontWeight={600}
-        >
-          {cell.getValue()?.toLocaleString() || '0'}
-        </Typography>
-      ),
-    },
-    {
-      accessorKey: 'price',
-      header: 'Unit Cost',
-      size: 100,
-      Cell: ({ cell, row }) => (
-        <TextField
-          size="small"
-          type="number"
-          value={cell.getValue() || 0}
-          onChange={(e) => handleItemChange(row.original.id, 'unitCost', parseFloat(e.target.value) || 0)}
-          disabled={!isEditMode}
-          sx={{ width: '100%' }}
-          inputProps={{ style: { textAlign: 'right' }, step: 0.01 }}
-        />
-      ),
-    },
-    {
-      accessorKey: 'adjustmentValue',
-      header: 'Adjustment Value',
-      size: 120,
-      Cell: ({ cell }) => (
-        <Typography
-          variant="body2"
-          align="right"
-          color={cell.getValue() >= 0 ? 'success.main' : 'error.main'}
-          fontWeight={600}
-        >
-          AED {cell.getValue()?.toFixed(2) || '0.00'}
-        </Typography>
-      ),
-    },
-    {
-      accessorKey: 'reason',
-      header: 'Reason',
-      size: 150,
-      Cell: ({ cell, row }) => (
-        <TextField
-          size="small"
-          value={cell.getValue() || ''}
-          onChange={(e) => handleItemChange(row.original.id, 'reason', e.target.value)}
-          disabled={!isEditMode}
-          sx={{ width: '100%' }}
-          placeholder="Enter reason"
-        />
-      ),
-    },
-  ];
+
+  
 
   if (loading) {
     return <Loader />;
@@ -834,29 +835,31 @@ const StockAdjustmentEntry = () => {
               <Box>
                 {adjustmentItems.map((item, index) => (
                   <InlineProductRow
-                    key={item.id || index}
+                    key={item.id}
                     item={item}
                     index={index}
                     onProductChange={handleProductChange}
                     onItemChange={handleItemChange}
                     onRemove={removeItem}
                     products={products}
+                    unitList={unitList}
                     isEditMode={isEditMode}
+                    adjustmentItemsLength={adjustmentItems.length}
                   />
                 ))}
 
                 {/* Add Item Button */}
                 {isEditMode && (
-                  <Box sx={{ mt: 2, textAlign: 'center' }}>
+                  <Box sx={{ mt: 1.5,ml:1, textAlign: 'left' }}>
                     <Button
                       variant="outlined"
                       startIcon={<AddIcon />}
                       onClick={addItem}
                       sx={{
-                        borderStyle: 'dashed',
-                        borderWidth: 2,
-                        py: 1.5,
-                        px: 3,
+                        // borderStyle: 'dashed',
+                        // borderWidth: 2,
+                        // py: 1 ,
+                        // px: 2,
                         '&:hover': {
                           borderStyle: 'solid',
                           backgroundColor: alpha(theme.palette.primary.main, 0.05),
@@ -869,7 +872,7 @@ const StockAdjustmentEntry = () => {
                 )}
 
                 {/* Summary Section */}
-                {adjustmentItems.length > 0 && (
+                {/* {adjustmentItems.length > 0 && (
                   <Box sx={{ mt: 3, p: 3, bgcolor: alpha(theme.palette.primary.main, 0.05), borderRadius: 2 }}>
                     <Grid container spacing={3}>
                       <Grid item xs={12} md={3}>
@@ -918,7 +921,7 @@ const StockAdjustmentEntry = () => {
                       </Grid>
                     </Grid>
                   </Box>
-                )}
+                )} */}
 
                 {adjustmentItems.length === 0 && (
                   <Box
@@ -937,6 +940,32 @@ const StockAdjustmentEntry = () => {
                   </Box>
                 )}
               </Box>
+
+
+              {/* Action Buttons */}
+              {isEditMode && (
+                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                  {/* <Button
+                    variant="outlined"
+                    color="secondary"
+                    onClick={toggleEditMode}
+                    size="large"
+                    sx={{ minWidth: 120 }}
+                  >
+                    Cancel
+                  </Button> */}
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    sx={{ minWidth: 120 }}
+                    disabled={loading}
+                  >
+                    {loading ? 'Saving...' : (isNewRecord ? 'Create' : 'Update')}
+                  </Button>
+                </Box>
+              )}
             </CardContent>
           </Card>
         </form>
