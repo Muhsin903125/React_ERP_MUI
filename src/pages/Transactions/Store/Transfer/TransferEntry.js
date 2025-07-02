@@ -13,6 +13,7 @@ import {
   Alert,
   Autocomplete,
   MenuItem,
+  Select,
   alpha,
   useTheme,
   IconButton,
@@ -35,16 +36,201 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { format } from 'date-fns';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import MaterialReactTable from 'material-react-table';
  
 import { GetSingleListResult, GetSingleResult } from '../../../../hooks/Api';
 import PageHeader from '../../../../components/PageHeader'; 
 import Loader from '../../../../components/Loader';
 import { useToast } from '../../../../hooks/Common';
+import Confirm from '../../../../components/Confirm';
+
+// Inline Transfer Item Row Component
+const InlineTransferItemRow = ({ 
+  item, 
+  index, 
+  onProductChange, 
+  onItemChange, 
+  onRemove, 
+  products, 
+  isEditMode, 
+  transferItemsLength,
+  fromLocationId,
+  getAvailableStock 
+}) => {
+  const theme = useTheme();
+
+  return (
+    <Paper
+      sx={{
+        mb: 0.5,
+        p: { xs: 1, md: 1 },
+        borderRadius: 3,
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        gap: 1,
+        width: '100%'
+      }}
+    >
+      <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 20%' }, minWidth: 200 }}>
+        <Autocomplete
+          options={products || []}
+          getOptionLabel={(option) => `${option.code} - ${option.name}`}
+          value={products?.find(p => p.id === item.productId) || null}
+          onChange={(event, newValue) => onProductChange(index, newValue)}
+          disabled={!isEditMode}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Product"
+              size="small"
+              placeholder="Search product..."
+              fullWidth
+              variant="outlined"
+            />
+          )}
+          renderOption={(props, option) => (
+            <Box component="li" {...props}>
+              <Box>
+                <Typography variant="body2" fontWeight={600}>
+                  {option.code} - {option.name}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Available: {getAvailableStock(option.id, fromLocationId)} {option.uom}
+                </Typography>
+              </Box>
+            </Box>
+          )}
+        />
+      </Box>
+
+      <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 25%' }, minWidth: 200 }}>
+        <TextField
+          fullWidth
+          label="Product Name"
+          name={`ItemName_${index}`}
+          value={item.productName || ''}
+          size="small"
+          disabled 
+          variant="outlined"
+        />
+      </Box>
+
+      <Box sx={{ flex: { xs: '1 1 48%', md: '1 1 8%' }, minWidth: 80 }}>
+        <TextField
+          fullWidth
+          label="UOM"
+          name={`ItemUOM_${index}`}
+          value={item.uom || ''}
+          size="small"
+          disabled
+          variant="outlined"
+        />
+      </Box>
+
+      <Box sx={{ flex: { xs: '1 1 48%', md: '1 1 10%' }, minWidth: 100 }}>
+        <TextField
+          fullWidth
+          label="Available"
+          name={`ItemAvailable_${index}`}
+          value={item.availableStock || '0'}
+          size="small"
+          disabled
+          inputProps={{ style: { textAlign: 'right' } }}
+          variant="outlined"
+        />
+      </Box>
+
+      <Box sx={{ flex: { xs: '1 1 48%', md: '1 1 10%' }, minWidth: 100 }}>
+        <TextField
+          fullWidth
+          label="Transfer Qty"
+          name={`ItemQty_${index}`}
+          type="number"
+          value={item.transferQty || ''}
+          onChange={onItemChange}
+          disabled={!isEditMode}
+          size="small"
+          inputProps={{ 
+            style: { textAlign: 'right' },
+            min: 0,
+            max: item.availableStock || 0
+          }}
+          variant="outlined"
+        />
+      </Box>
+
+      <Box sx={{ flex: { xs: '1 1 48%', md: '1 1 10%' }, minWidth: 100 }}>
+        <TextField
+          fullWidth
+          label="Unit Cost"
+          name={`ItemCost_${index}`}
+          type="number"
+          value={item.unitCost || ''}
+          onChange={onItemChange}
+          disabled={!isEditMode}
+          size="small"
+          inputProps={{ style: { textAlign: 'right' }, step: 0.01, min: 0 }}
+          variant="outlined"
+        />
+      </Box>
+
+      <Box sx={{ flex: { xs: '1 1 48%', md: '1 1 12%' }, minWidth: 120 }}>
+        <TextField
+          fullWidth
+          label="Total Value"
+          name={`ItemTotal_${index}`}
+          value={`AED ${(item.totalValue || 0).toFixed(2)}`}
+          size="small"
+          disabled
+          inputProps={{ style: { textAlign: 'right', fontWeight: 600 } }}
+          variant="outlined"
+          sx={{
+            '& .MuiInputBase-input': {
+              color: theme.palette.success.main,
+              fontWeight: 600
+            }
+          }}
+        />
+      </Box>
+
+      <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 15%' }, minWidth: 150 }}>
+        <TextField
+          fullWidth
+          label="Remarks"
+          name={`ItemRemarks_${index}`}
+          value={item.remarks || ''}
+          onChange={onItemChange}
+          disabled={!isEditMode}
+          size="small"
+          placeholder="Enter remarks"
+          variant="outlined"
+        />
+      </Box>
+
+      <Box sx={{ flex: { xs: '1 1 100%', md: '0 0 40px' }, display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: 40 }}>
+        {isEditMode && (
+          <Tooltip title="Remove Item">
+            <span>
+              <IconButton
+                size="small"
+                onClick={() => onRemove(index)}
+                color="error"
+                disabled={transferItemsLength === 1}
+                sx={{ bgcolor: 'error.lighter', '&:hover': { bgcolor: 'error.light' } }}
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </span>
+          </Tooltip>
+        )}
+      </Box>
+    </Paper>
+  );
+};
 
 const TransferEntry = () => {
   const theme = useTheme();
-  const showToast = useToast();
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const { id } = useParams();
   const [searchParams] = useSearchParams();
@@ -53,11 +239,22 @@ const TransferEntry = () => {
   const [viewMode, setViewMode] = useState(searchParams.get('mode') === 'view');
   const [products, setProducts] = useState([]);
   const [locations, setLocations] = useState([]);
-  const [transferItems, setTransferItems] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [transferItems, setTransferItems] = useState([{
+    id: `item_${Date.now()}`,
+    srno: 1,
+    productId: '',
+    productCode: '',
+    productName: '',
+    uom: '',
+    availableStock: 0,
+    transferQty: 0,
+    unitCost: 0,
+    totalValue: 0,
+    remarks: '',
+  }]);
 
   const isNewRecord = id === 'new';
-  const isEditMode = !isNewRecord && !viewMode;
+  const [isEditMode, setIsEditMode] = useState(isNewRecord || !viewMode);
 
   // Form validation schema
   const validationSchema = Yup.object({
@@ -333,47 +530,45 @@ const TransferEntry = () => {
 
   const handleSave = async (values) => {
     try {
-      setLoading(true);
-      
-      if (transferItems.length === 0) {
-        showToast.error('Please add at least one item to transfer');
+      // Validate items first
+      const itemErrors = validateItems();
+      if (itemErrors.length > 0) {
+        itemErrors.forEach(error => showToast(error, 'error'));
         return;
       }
 
-      const payload = {
-        ...values,
-        items: transferItems,
-        totalValue: calculateTotalValue(),
-        totalQty: calculateTotalQty(),
-      };
+      setLoading(true);
 
-      // Simulate API call for testing
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      if (isNewRecord) {
-        showToast.success('Transfer created successfully');
-      } else {
-        showToast.success('Transfer updated successfully');
-      }
-      
-      navigate('/transfer');
+      Confirm(`Do you want to ${isNewRecord ? 'create' : 'update'} this transfer?`).then(async () => {
+        try {
+          const payload = {
+            ...values,
+            items: transferItems.filter(item => item.productId), // Only include items with products
+            totalValue: calculateTotalValue(),
+            totalQty: calculateTotalQty(),
+          };
 
-      // Uncomment below to use real API when backend is ready
-      // let result;
-      // if (isNewRecord) {
-      //   result = await GetSingleResult('Transfer', payload);
-      //   showToast.success('Transfer created successfully');
-      // } else {
-      //   result = await GetSingleResult('Transfer', id, payload);
-      //   showToast.success('Transfer updated successfully');
-      // }
-      // if (result?.data) {
-      //   navigate('/transfer');
-      // }
+          // Simulate API call for testing
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          if (isNewRecord) {
+            showToast('Transfer created successfully', 'success');
+          } else {
+            showToast('Transfer updated successfully', 'success');
+          }
+          
+          navigate('/transfer');
+
+        } catch (error) {
+          console.error('Error saving transfer:', error);
+          showToast('Failed to save transfer', 'error');
+        } finally {
+          setLoading(false);
+        }
+      });
     } catch (error) {
       console.error('Error saving transfer:', error);
-      showToast.error('Failed to save transfer');
-    } finally {
+      showToast('Failed to save transfer', 'error');
       setLoading(false);
     }
   };
@@ -398,61 +593,143 @@ const TransferEntry = () => {
     return locationStock?.stock || 0;
   };
 
-  const handleAddItem = () => {
-    if (!selectedProduct) {
-      showToast.error('Please select a product');
+  const addItem = () => {
+    setTransferItems(prevItems => [
+      ...prevItems,
+      {
+        id: `item_${Date.now()}_${prevItems.length}`,
+        srno: prevItems.length + 1,
+        productId: '',
+        productCode: '',
+        productName: '',
+        uom: '',
+        availableStock: 0,
+        transferQty: 0,
+        unitCost: 0,
+        totalValue: 0,
+        remarks: '',
+      }
+    ]);
+  };
+
+  const removeItem = (index) => {
+    if (transferItems.length === 1) {
+      showToast('At least one item must be present', 'error');
       return;
     }
 
+    setTransferItems(prevItems => {
+      const newItems = [...prevItems];
+      newItems.splice(index, 1);
+      return newItems;
+    });
+  };
+
+  const handleProductChange = (index, selectedProduct) => {
+    if (!selectedProduct) return;
+
     if (!formik.values.fromLocationId) {
-      showToast.error('Please select from location first');
+      showToast('Please select from location first', 'error');
       return;
     }
 
     // Check if product already exists in transfer items
-    const existingItem = transferItems.find(item => item.productId === selectedProduct.id);
-    if (existingItem) {
-      showToast.error('Product already added to transfer');
+    const existingItemIndex = transferItems.findIndex((item, idx) => 
+      idx !== index && item.productId === selectedProduct.id
+    );
+    
+    if (existingItemIndex !== -1) {
+      showToast('Product already added to transfer', 'error');
       return;
     }
 
     const availableStock = getAvailableStock(selectedProduct.id, formik.values.fromLocationId);
 
-    const newItem = {
-      id: Date.now(),
-      productId: selectedProduct.id,
-      productCode: selectedProduct.code,
-      productName: selectedProduct.name,
-      uom: selectedProduct.uom,
-      availableStock: availableStock || 0,
-      transferQty: 0,
-      unitCost: selectedProduct.unitCost || 0,
-      totalValue: 0,
-      remarks: '',
-    };
-
-    setTransferItems([...transferItems, newItem]);
-    setSelectedProduct(null);
+    setTransferItems(prevItems => {
+      const newItems = [...prevItems];
+      newItems[index] = {
+        ...newItems[index],
+        srno: index + 1,
+        productId: selectedProduct.id,
+        productCode: selectedProduct.code,
+        productName: selectedProduct.name,
+        uom: selectedProduct.uom,
+        availableStock: availableStock || 0,
+        transferQty: 0,
+        unitCost: selectedProduct.unitCost || 0,
+        totalValue: 0,
+        remarks: '',
+      };
+      return newItems;
+    });
   };
 
-  const handleRemoveItem = (itemId) => {
-    setTransferItems(transferItems.filter(item => item.id !== itemId));
-  };
+  const handleItemChange = useCallback((event) => {
+    const { name, value } = event.target;
 
-  const handleItemChange = (itemId, field, value) => {
-    setTransferItems(prev => prev.map(item => {
-      if (item.id === itemId) {
-        const updatedItem = { ...item, [field]: value };
+    // Extract index and field from name (e.g., "ItemQty_0", "ItemCost_1")
+    const [fieldName, index] = name.split('_');
+    const itemIndex = parseInt(index, 10);
+
+    setTransferItems(prevItems => {
+      const newItems = [...prevItems];
+
+      if (fieldName === 'ItemQty') {
+        const numValue = typeof value === 'string' ? parseFloat(value) || 0 : value || 0;
         
-        // Recalculate total value when quantity or unit cost changes
-        if (field === 'transferQty' || field === 'unitCost') {
-          updatedItem.totalValue = (updatedItem.transferQty || 0) * (updatedItem.unitCost || 0);
+        // Validate against available stock
+        if (numValue > newItems[itemIndex].availableStock) {
+          showToast('Transfer quantity cannot exceed available stock', 'error');
+          return prevItems;
         }
-        
-        return updatedItem;
+
+        newItems[itemIndex] = {
+          ...newItems[itemIndex],
+          transferQty: numValue,
+          totalValue: numValue * (newItems[itemIndex].unitCost || 0)
+        };
+      } else if (fieldName === 'ItemCost') {
+        const numValue = typeof value === 'string' ? parseFloat(value) || 0 : value || 0;
+        newItems[itemIndex] = {
+          ...newItems[itemIndex],
+          unitCost: numValue,
+          totalValue: (newItems[itemIndex].transferQty || 0) * numValue
+        };
+      } else if (fieldName === 'ItemRemarks') {
+        newItems[itemIndex] = {
+          ...newItems[itemIndex],
+          remarks: value
+        };
       }
-      return item;
-    }));
+
+      return newItems;
+    });
+  }, []);
+
+  const validateItems = () => {
+    const errors = [];
+    const validItems = transferItems.filter(item => item.productId);
+
+    if (validItems.length === 0) {
+      errors.push('At least one product must be added');
+    }
+
+    validItems.forEach((item, index) => {
+      if (!item.productId) {
+        errors.push(`Row ${index + 1}: Product is required`);
+      }
+      if (item.transferQty === 0) {
+        errors.push(`Row ${index + 1}: Transfer quantity cannot be zero`);
+      }
+      if (item.transferQty > item.availableStock) {
+        errors.push(`Row ${index + 1}: Transfer quantity cannot exceed available stock`);
+      }
+      if (item.unitCost < 0) {
+        errors.push(`Row ${index + 1}: Unit cost cannot be negative`);
+      }
+    });
+
+    return errors;
   };
 
   // Update available stock when from location changes
@@ -465,107 +742,34 @@ const TransferEntry = () => {
     }
   }, [formik.values.fromLocationId, products]);
 
-  // Table columns for transfer items
-  const itemColumns = [
-    {
-      accessorKey: 'productCode',
-      header: 'Product Code',
-      size: 120,
-    },
-    {
-      accessorKey: 'productName',
-      header: 'Product Name',
-      size: 200,
-    },
-    {
-      accessorKey: 'uom',
-      header: 'UOM',
-      size: 80,
-    },
-    {
-      accessorKey: 'availableStock',
-      header: 'Available Stock',
-      size: 120,
-      Cell: ({ cell }) => (
-        <Typography variant="body2" align="right" color="text.secondary">
-          {cell.getValue()?.toLocaleString() || '0'}
-        </Typography>
-      ),
-    },
-    {
-      accessorKey: 'transferQty',
-      header: 'Transfer Qty',
-      size: 120,
-      Cell: ({ cell, row }) => (
-        <TextField
-          size="small"
-          type="number"
-          value={cell.getValue() || 0}
-          onChange={(e) => {
-            const value = parseFloat(e.target.value) || 0;
-            if (value > row.original.availableStock) {
-              showToast.error('Transfer quantity cannot exceed available stock');
-              return;
-            }
-            handleItemChange(row.original.id, 'transferQty', value);
-          }}
-          disabled={viewMode}
-          sx={{ width: '100%' }}
-          inputProps={{ 
-            style: { textAlign: 'right' },
-            min: 0,
-            max: row.original.availableStock
-          }}
-        />
-      ),
-    },
-    {
-      accessorKey: 'unitCost',
-      header: 'Unit Cost',
-      size: 100,
-      Cell: ({ cell, row }) => (
-        <TextField
-          size="small"
-          type="number"
-          value={cell.getValue() || 0}
-          onChange={(e) => handleItemChange(row.original.id, 'unitCost', parseFloat(e.target.value) || 0)}
-          disabled={viewMode}
-          sx={{ width: '100%' }}
-          inputProps={{ style: { textAlign: 'right' }, step: 0.01, min: 0 }}
-        />
-      ),
-    },
-    {
-      accessorKey: 'totalValue',
-      header: 'Total Value',
-      size: 120,
-      Cell: ({ cell }) => (
-        <Typography 
-          variant="body2" 
-          align="right"
-          fontWeight={600}
-          color="success.main"
-        >
-          AED {cell.getValue()?.toFixed(2) || '0.00'}
-        </Typography>
-      ),
-    },
-    {
-      accessorKey: 'remarks',
-      header: 'Remarks',
-      size: 150,
-      Cell: ({ cell, row }) => (
-        <TextField
-          size="small"
-          value={cell.getValue() || ''}
-          onChange={(e) => handleItemChange(row.original.id, 'remarks', e.target.value)}
-          disabled={viewMode}
-          sx={{ width: '100%' }}
-          placeholder="Enter remarks"
-        />
-      ),
-    },
-  ];
+  const handleNewTransfer = () => {
+    formik.resetForm();
+    setTransferItems([{
+      id: `item_${Date.now()}`,
+      srno: 1,
+      productId: '',
+      productCode: '',
+      productName: '',
+      uom: '',
+      availableStock: 0,
+      transferQty: 0,
+      unitCost: 0,
+      totalValue: 0,
+      remarks: '',
+    }]);
+    setIsEditMode(true);
+    navigate('/transfer-entry/new', { replace: true });
+  };
+
+  const toggleEditMode = () => {
+    if (id && id !== 'new') {
+      loadTransfer();
+    }
+    if (transferItems.length === 0)
+      handleNewTransfer();
+
+    setIsEditMode(!isEditMode);
+  };
 
   if (loading) {
     return <Loader />;
@@ -573,7 +777,7 @@ const TransferEntry = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p: 0 }}>
         <PageHeader
           title={`Stock Transfer ${isNewRecord ? 'Entry' : 'Details'}`}
           subtitle={isNewRecord ? 'Create new stock transfer' : `Document No: ${formik.values.documentNo}`}
@@ -581,47 +785,36 @@ const TransferEntry = () => {
             { title: 'Transactions', path: '/transactions' },
             { title: 'Store', path: '/transactions/store' },
             { title: 'Stock Transfers', path: '/transfer' },
-            { title: isNewRecord ? 'New Entry' : 'Edit Entry' }
+            { title: isNewRecord ? 'New Entry' : (isEditMode ? 'Edit' : 'View') }
           ]}
-          action={
-            <Stack direction="row" spacing={2}>
-              <Button
-                variant="outlined"
-                startIcon={<ArrowBackIcon />}
-                onClick={() => navigate('/transfer')}
-              >
-                Back to List
-              </Button>
-              {!isNewRecord && viewMode && (
-                <Button
-                  variant="contained"
-                  startIcon={<EditIcon />}
-                  onClick={() => setViewMode(false)}
-                >
-                  Edit
-                </Button>
-              )}
-              {!viewMode && (
-                <>
-                  <Button
-                    variant="outlined"
-                    startIcon={<CancelIcon />}
-                    onClick={() => navigate('/transfer')}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="contained"
-                    startIcon={<SaveIcon />}
-                    onClick={formik.handleSubmit}
-                    disabled={loading}
-                  >
-                    Save
-                  </Button>
-                </>
-              )}
-            </Stack>
-          }
+          actions={[
+            {
+              label: 'Enable Edit',
+              icon: 'eva:edit-fill',
+              variant: 'contained',
+              color: 'primary',
+              type: 'enableEdit',
+              show: !isEditMode,
+              showInActions: false,
+            },
+            {
+              label: 'Cancel Edit',
+              icon: 'eva:close-fill',
+              variant: 'contained',
+              color: 'secondary',
+              onClick: toggleEditMode,
+              show: isEditMode,
+              showInActions: false,
+            },
+            {
+              label: 'New Transfer',
+              icon: 'eva:plus-fill',
+              variant: 'contained',
+              onClick: handleNewTransfer,
+              show: true,
+              showInActions: true,
+            },
+          ]}
         />
 
         <form onSubmit={formik.handleSubmit}>
@@ -771,61 +964,6 @@ const TransferEntry = () => {
             </CardContent>
           </Card>
 
-          {/* Product Selection */}
-          {!viewMode && (
-            <Card sx={{ mt: 3, borderRadius: 2 }}>
-              <CardContent>
-                <Typography variant="h6" gutterBottom color="primary" fontWeight={600}>
-                  Add Product
-                </Typography>
-                <Divider sx={{ mb: 3 }} />
-                
-                <Grid container spacing={2} alignItems="center">
-                  <Grid item xs={12} md={10}>
-                    <Autocomplete
-                      options={products}
-                      getOptionLabel={(option) => `${option.code} - ${option.name}`}
-                      value={selectedProduct}
-                      onChange={(event, newValue) => setSelectedProduct(newValue)}
-                      disabled={!formik.values.fromLocationId}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Select Product"
-                          size="small"
-                          placeholder={!formik.values.fromLocationId ? "Select from location first" : "Search by product code or name"}
-                        />
-                      )}
-                      renderOption={(props, option) => (
-                        <Box component="li" {...props}>
-                          <Box>
-                            <Typography variant="body2" fontWeight={600}>
-                              {option.code} - {option.name}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary">
-                              Available: {getAvailableStock(option.id, formik.values.fromLocationId)} {option.uom}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      )}
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={2}>
-                    <Button
-                      fullWidth
-                      variant="contained"
-                      startIcon={<AddIcon />}
-                      onClick={handleAddItem}
-                      disabled={!selectedProduct || !formik.values.fromLocationId}
-                    >
-                      Add Item
-                    </Button>
-                  </Grid>
-                </Grid>
-              </CardContent>
-            </Card>
-          )}
-
           {/* Transfer Items */}
           <Card sx={{ mt: 3, borderRadius: 2 }}>
             <CardContent>
@@ -861,48 +999,75 @@ const TransferEntry = () => {
                 </Stack>
               </Box>
               <Divider sx={{ mb: 2 }} />
-              
-              {transferItems.length > 0 ? (
-                <MaterialReactTable
-                  columns={itemColumns}
-                  data={transferItems}
-                  enableColumnActions={false}
-                  enableColumnFilters={false}
-                  enablePagination={false}
-                  enableSorting={false}
-                  enableTopToolbar={false}
-                  enableBottomToolbar={false}
-                  muiTableHeadCellProps={{
-                    sx: {
-                      backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                      fontWeight: 600,
-                    },
-                  }}
-                  enableRowActions={!viewMode}
-                  renderRowActions={({ row }) => (
-                    <IconButton
-                      size="small"
-                      onClick={() => handleRemoveItem(row.original.id)}
-                      color="error"
+
+              {/* Inline Transfer Items */}
+              <Box>
+                {transferItems.map((item, index) => (
+                  <InlineTransferItemRow
+                    key={item.id}
+                    item={item}
+                    index={index}
+                    onProductChange={handleProductChange}
+                    onItemChange={handleItemChange}
+                    onRemove={removeItem}
+                    products={products}
+                    isEditMode={isEditMode}
+                    transferItemsLength={transferItems.length}
+                    fromLocationId={formik.values.fromLocationId}
+                    getAvailableStock={getAvailableStock}
+                  />
+                ))}
+
+                {/* Add Item Button */}
+                {isEditMode && (
+                  <Box sx={{ mt: 1.5, ml: 1, textAlign: 'left' }}>
+                    <Button
+                      variant="outlined"
+                      startIcon={<AddIcon />}
+                      onClick={addItem}
+                      sx={{
+                        '&:hover': {
+                          borderStyle: 'solid',
+                          backgroundColor: alpha(theme.palette.primary.main, 0.05),
+                        }
+                      }}
                     >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  )}
-                />
-              ) : (
-                <Box
-                  sx={{
-                    textAlign: 'center',
-                    py: 8,
-                    color: 'text.secondary',
-                  }}
-                >
-                  <Typography variant="h6" gutterBottom>
-                    No items added yet
-                  </Typography>
-                  <Typography variant="body2">
-                    Add products to create stock transfer
-                  </Typography>
+                      Add Item
+                    </Button>
+                  </Box>
+                )}
+
+                {transferItems.length === 0 && (
+                  <Box
+                    sx={{
+                      textAlign: 'center',
+                      py: 4,
+                      color: 'text.secondary',
+                    }}
+                  >
+                    <Typography variant="h6" gutterBottom>
+                      No items added yet
+                    </Typography>
+                    <Typography variant="body2">
+                      Add products to create stock transfer
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
+
+              {/* Action Buttons */}
+              {isEditMode && (
+                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    sx={{ minWidth: 120 }}
+                    disabled={loading}
+                  >
+                    {loading ? 'Saving...' : (isNewRecord ? 'Create' : 'Update')}
+                  </Button>
                 </Box>
               )}
             </CardContent>
