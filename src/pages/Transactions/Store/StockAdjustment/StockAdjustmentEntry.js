@@ -190,25 +190,7 @@ const StockAdjustmentEntry = () => {
    const { showToast } = useToast();
   const navigate = useNavigate();
   const { id } = useParams();
-  //   const { user } = useAuth(); 
-  // headerData (
-  // SANo	
-  // SADate	
-  // Status	
-  // RefNo	
-  // Location
-  // Amount	
-  // AdjType	
-  // Remarks	
-  // )
-  // detailData(
-  //   srno	
-  // name	
-  // desc	
-  // qty		
-  // price	
-  // unit	
-  // )
+  
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
   const [locations, setLocations] = useState([]);
@@ -226,8 +208,8 @@ const StockAdjustmentEntry = () => {
   }]);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  const [isEditMode, setIsEditMode] = useState(true);
   const isNewRecord = (id === null || id === 'new' || id === undefined || id === '0');
+  const [isEditMode, setIsEditMode] = useState(isNewRecord);
 
   // Form validation schema
   const validationSchema = Yup.object({
