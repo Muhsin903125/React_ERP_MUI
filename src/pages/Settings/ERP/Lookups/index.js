@@ -139,7 +139,7 @@ export default function Lookups() {
             <Helmet>
                 <title>Lookup Management</title>
             </Helmet>
-            <Box component="main" sx={{ m: 1, p: 1 }}>
+            <Box component="main"  >
                 <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
                     <Typography variant="h4" gutterBottom>
                         Lookup Management

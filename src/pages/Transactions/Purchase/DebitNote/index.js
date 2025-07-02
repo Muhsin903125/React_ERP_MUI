@@ -107,7 +107,7 @@ export default function DebitNote() {
                 ]}
             />
 
-            <Box component="main" sx={{ m: 1, p: 1 }}>
+            <Box component="main"  >
                 <MaterialReactTable
                     columns={columns}
                     data={debitNote}

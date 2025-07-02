@@ -211,7 +211,7 @@ const StatementOfAccount = () => {
     };
 
     return (
-        <Box p={{ xs: 2, md: 2 }} sx={{ maxWidth: '100%' }}>
+        <Box  sx={{ maxWidth: '100%' }}>
             <ReportHeader
                 title="Statement of Account"
                 onSearch={handleSearch}

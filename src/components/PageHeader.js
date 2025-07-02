@@ -233,9 +233,9 @@ export default function PageHeader({ title, actions = [], onEditConfirm, editChe
         direction={{ xs: 'column', sm: 'row' }}
         alignItems={{ xs: 'stretch', sm: 'center' }}
         justifyContent="space-between"
-        spacing={2}
+        spacing={1.5}
         sx={{
-          mb: 1,
+          // mb: 1,
           p: 1,
           borderRadius: '12px',
           background: isMobile ? 'linear-gradient(to right, rgba(255,255,255,0.9), rgba(255,255,255,0.7))' : 'none',

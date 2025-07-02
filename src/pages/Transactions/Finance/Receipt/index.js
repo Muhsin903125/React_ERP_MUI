@@ -113,7 +113,7 @@ export default function Receipt() {
                 ]}
             />
 
-            <Box component="main" sx={{ m: 1, p: 1 }}>
+            <Box component="main"  >
                 <MaterialReactTable
                     columns={columns}
                     data={receipt}

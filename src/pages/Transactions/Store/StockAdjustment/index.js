@@ -210,7 +210,7 @@ const StockAdjustmentListing = () => {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box >
       <PageHeader
         title="Stock Adjustments"
         subtitle="Manage inventory adjustments and stock corrections"

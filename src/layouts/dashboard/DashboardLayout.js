@@ -25,8 +25,8 @@ const Main = styled('div')(({ theme }) => ({
   maxWidth:"lg", 
   paddingTop: APP_BAR_MOBILE + 24,
   paddingBottom: theme.spacing(10),
-  [theme.breakpoints.up('lg')]: {
-    paddingTop: APP_BAR_DESKTOP + 24,
+  [theme.breakpoints.up('md')]: {
+    paddingTop: APP_BAR_DESKTOP  ,
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
   },

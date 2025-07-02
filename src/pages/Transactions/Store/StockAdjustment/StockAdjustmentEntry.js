@@ -52,13 +52,13 @@ const InlineProductRow = ({ item, index, onProductChange, onItemChange, onRemove
 
   return (
     <Paper
-      elevation={2}
+      // elevation={1}
       sx={{
         mb: 0.5,
         p: { xs: 1, md: 1 },
         borderRadius: 3,
-        boxShadow: '0 2px 12px 0 rgba(0,0,0,0.04)',
-        background: 'linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%)',
+        // boxShadow: '0 2px 12px 0 rgba(0,0,0,0.04)',
+        // background: 'linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%)',
         display: 'flex',
         flexWrap: 'wrap',
         alignItems: 'center',
@@ -634,7 +634,7 @@ const StockAdjustmentEntry = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p: 0 }}>
         <PageHeader
           title={`Stock Adjustment ${isNewRecord ? 'Entry' : 'Details'}`}
           subtitle={isNewRecord ? 'Create new stock adjustment' : `Document No: ${formik.values.SANo || formik.values.documentNo}`}
