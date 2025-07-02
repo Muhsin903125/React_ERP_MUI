@@ -49,12 +49,12 @@ const ReportHeader = ({
     };    return (
         <Fade in timeout={600}>
             <Box>
-                <PageHeader title={title} sx={{ mb: 1 }} />
+                <PageHeader title={title}   />
 
                 <Paper
                     elevation={1}
                     sx={{
-                        p: { xs: 2, md: 3 },
+                        // p: { xs: 2, md: 3 },
                         mb: 1,
                         borderRadius: 3,
                         // background: (theme) => `linear-gradient(135deg, ${alpha(theme.palette.background.paper, 0.9)}, ${alpha(theme.palette.background.paper, 0.95)})`,
