@@ -60,39 +60,7 @@ const StockAdjustmentListing = () => {
     }
   };
 
-  // Status chip component
-  const StatusChip = ({ status }) => {
-    const getStatusColor = (status) => {
-      switch (status?.toLowerCase()) {
-        case 'draft':
-          return { color: 'warning', label: 'Draft' };
-        case 'posted':
-          return { color: 'success', label: 'Posted' };
-        case 'cancelled':
-          return { color: 'error', label: 'Cancelled' };
-        default:
-          return { color: 'default', label: status || 'Unknown' };
-      }
-    };
-
-    const { color, label } = getStatusColor(status);
-    return (
-      <Chip
-        label={label}
-        color={color}
-        size="small"
-        sx={{
-          fontWeight: 600,
-          fontSize: '0.75rem',
-          height: 24,
-          '& .MuiChip-label': {
-            px: 1.5
-          }
-        }}
-      />
-    );
-  };
-
+ 
   // Table columns configuration
   const columns = useMemo(
     () => [

@@ -137,9 +137,9 @@ const adminMenus = [
   { path: 'stock-adjustment-entry', element: <StockAdjustmentEntry /> },
   { path: 'stock-adjustment-entry/:id', element: <StockAdjustmentEntry /> },
 
-  { path: 'transfer', element: <Transfer /> },
-  { path: 'transfer-entry/new', element: <TransferEntry /> },
-  { path: 'transfer-entry/:id', element: <TransferEntry /> },
+  { path: 'stock-transfer', element: <Transfer /> },
+  { path: 'stock-transfer-entry', element: <TransferEntry /> },
+  { path: 'stock-transfer-entry/:id', element: <TransferEntry /> },
 
   { path: 'statement-of-account', element: <StatementOfAccount /> },
   { path: 'statement-of-account-entry', element: <ComingSoon title="Statement of Account Entry" /> },

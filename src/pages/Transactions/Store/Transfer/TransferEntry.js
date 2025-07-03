@@ -65,12 +65,17 @@ const InlineTransferItemRow = ({
     if (!item.avail_unit_code || !unitList) return [];
 
     const unitPricePairs = item.avail_unit_code.split(',');
-    return unitList.filter(u =>
+    const availableUnits = unitList.filter(u =>
       unitPricePairs.some(unitPrice => {
         const [unit] = unitPrice.split('#');
         return unit === u.LK_KEY;
       })
     );
+    
+    // Debug log
+    console.log('Available units for product:', item.name, availableUnits);
+    
+    return availableUnits;
   };
 
   const availableUnits = getAvailableUnits();
@@ -152,14 +157,20 @@ const InlineTransferItemRow = ({
       </Box>
 
       <Box sx={{ flex: { xs: '1 1 48%', md: '1 1 12%' }, minWidth: 120 }}>
-        <Select
+        <TextField
           fullWidth
+          select
+          label="Unit"
           size="small"
           value={item.unit || ''}
           onChange={(event) => onItemChange({ target: { name: `ItemUnit_${index}`, value: event.target.value } })}
           disabled={!isEditMode}
-          displayEmpty
+          variant="outlined"
+          placeholder="Select unit"
         >
+          <MenuItem value="">
+            <em>Select Unit</em>
+          </MenuItem>
           {availableUnits && availableUnits.length > 0 ? (
             availableUnits.map((option) => (
               <MenuItem key={option.LK_KEY} value={option.LK_KEY}>
@@ -171,9 +182,9 @@ const InlineTransferItemRow = ({
               <MenuItem key={option.LK_KEY} value={option.LK_KEY}>
                 {option.LK_VALUE}
               </MenuItem>
-            )) || <MenuItem value="">Select Unit</MenuItem>
+            ))
           )}
-        </Select>
+        </TextField>
       </Box>
 
       <Box sx={{ flex: { xs: '1 1 48%', md: '1 1 10%' }, minWidth: 100 }}>
@@ -255,7 +266,7 @@ const TransferEntry = () => {
   const [unitList, setUnitList] = useState([]);
 
   const isNewRecord = (id === null || id === 'new' || id === undefined || id === '0');
-  const [isEditMode, setIsEditMode] = useState(isNewRecord || !viewMode);
+  const [isEditMode, setIsEditMode] = useState(isNewRecord );
 
   // Form validation schema
   const validationSchema = Yup.object({
@@ -298,18 +309,26 @@ const TransferEntry = () => {
         "TYPE": "GET_ALL",
       });
       if (Success) {
+        console.log('Loaded products:', Data.slice(0, 2)); // Log first 2 products to see structure
         setProducts(Data);
       } else {
         showToast(Message, "error");
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error loading products:", error);
+      showToast('Failed to load products', 'error');
     }
   };
 
   const getunits = async () => {
-    const Data = await getUnitList();
-    setUnitList(Data);
+    try {
+      const Data = await getUnitList();
+      console.log('Loaded units:', Data);
+      setUnitList(Data);
+    } catch (error) {
+      console.error('Error loading units:', error);
+      showToast('Failed to load units', 'error');
+    }
   };
 
   // Load data on component mount
@@ -445,7 +464,7 @@ const TransferEntry = () => {
           });
 
           if (Success) {
-            navigate(`/transfer-entry/${Data.id}`, { replace: true });
+            navigate(`/stock-transfer-entry/${Data.id}`, { replace: true });
             showToast(Message, 'success');
           } else {
             showToast(Message, "error");
@@ -513,6 +532,16 @@ const TransferEntry = () => {
   const handleProductChange = (index, selectedProduct) => {
     if (!selectedProduct) return;
 
+    // Check if product already exists in transfer items
+    const existingItemIndex = transferItems.findIndex((item, idx) => 
+      idx !== index && item.name === selectedProduct.IM_CODE
+    );
+    
+    if (existingItemIndex !== -1) {
+      showToast('Product already added to transfer', 'error');
+      return;
+    }
+
     setTransferItems(prevItems => {
       const newItems = [...prevItems];
 
@@ -520,7 +549,7 @@ const TransferEntry = () => {
       const unitPricePairs = selectedProduct.avail_unit_code?.split(',') || [];
       const firstUnitPrice = unitPricePairs[0]?.split('#') || ['', '0'];
       const defaultUnit = firstUnitPrice[0] || selectedProduct.IM_UNIT_CODE;
-      const defaultPrice = parseFloat(firstUnitPrice[1]) || 0;
+      const defaultPrice = parseFloat(firstUnitPrice[1]) || selectedProduct.IM_COST || 0;
 
       newItems[index] = {
         ...newItems[index],
@@ -530,7 +559,7 @@ const TransferEntry = () => {
         unit: defaultUnit,
         price: defaultPrice,
         qty: 0,
-        avail_unit_code: selectedProduct.avail_unit_code,
+        avail_unit_code: selectedProduct.avail_unit_code || '',
       };
 
       return newItems;
@@ -556,7 +585,10 @@ const TransferEntry = () => {
             return unit === value;
           });
 
-          const newPrice = selectedUnitPrice ? parseFloat(selectedUnitPrice.split('#')[1]) : 0;
+          const newPrice = selectedUnitPrice ? parseFloat(selectedUnitPrice.split('#')[1]) : (currentItem.price || 0);
+          
+          console.log('Unit changed:', value, 'New price:', newPrice, 'Unit price pairs:', unitPricePairs);
+          
           newItems[itemIndex] = {
             ...newItems[itemIndex],
             unit: value,
@@ -635,7 +667,7 @@ const TransferEntry = () => {
       avail_unit_code: '',
     }]);
     setIsEditMode(true);
-    navigate('/transfer-entry/new', { replace: true });
+    navigate('/stock-transfer-entry', { replace: true });
   };
 
   const toggleEditMode = () => {
@@ -647,6 +679,26 @@ const TransferEntry = () => {
 
     setIsEditMode(!isEditMode);
   };
+   const handleEditConfirm = async (messages = []) => {
+    // if (id) {
+    //   loadInitialData(id);
+    // }
+    if (messages && messages.length > 0) {
+      const { Success, Message } = await GetSingleResult({
+        "key": "TSF_CRUD",
+        "TYPE": "EDIT_CONFIRM",
+        "DOC_NO": id,
+        "message_types": messages
+      });
+      if (!Success) {
+        setIsEditMode(false);
+        showToast(Message, "error");
+      }
+    } else {
+      setIsEditMode(!isEditMode);
+    }
+  };
+
 
   if (loading) {
     return <Loader />;
@@ -692,6 +744,7 @@ const TransferEntry = () => {
               showInActions: true,
             },
           ]}
+           onEditConfirm={handleEditConfirm}
           editCheckApiKey="TSF_CRUD"
           editCheckApiType="EDIT_VALIDATE"
           editCheckDocNo={id || ''}
@@ -874,9 +927,10 @@ const TransferEntry = () => {
                     onItemChange={handleItemChange}
                     onRemove={removeItem}
                     products={products}
+                    unitList={unitList}
                     isEditMode={isEditMode}
                     transferItemsLength={transferItems.length}
-                    fromLocationId={formik.values.fromLocationId}
+                    fromLocationId={formik.values.FromLocation}
                     getAvailableStock={getAvailableStock}
                   />
                 ))}

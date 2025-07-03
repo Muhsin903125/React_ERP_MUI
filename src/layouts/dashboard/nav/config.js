@@ -448,7 +448,7 @@ const navConfig = [
           },
           {
             title: 'Transfer',
-            path: '/transfer',
+            path: '/stock-transfer',
             icon: subIcon(),
             visible:true
           },
