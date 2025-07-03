@@ -101,7 +101,7 @@ const InlineProductRow = ({ item, index, onProductChange, onItemChange, onRemove
       <Box sx={{ flex: { xs: '1 1 48%', md: '1 1 10%' }, minWidth: 100 }}>
         <TextField
           fullWidth
-          label="Adjusted Stock"
+          label="Adjusted Qty"
           name={`ItemQty_${index}`}
           type="number"
           value={item.qty || ''}

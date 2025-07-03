@@ -37,10 +37,11 @@ import { format } from 'date-fns';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
  
-import { GetSingleListResult, GetSingleResult } from '../../../../hooks/Api';
+import { GetMultipleResult, GetSingleListResult, GetSingleResult } from '../../../../hooks/Api';
 import PageHeader from '../../../../components/PageHeader'; 
 import Loader from '../../../../components/Loader';
 import { useToast } from '../../../../hooks/Common';
+import { getLastNumber, getLocationList, getUnitList } from '../../../../utils/CommonServices';
 import Confirm from '../../../../components/Confirm';
 
 // Inline Transfer Item Row Component
@@ -51,12 +52,28 @@ const InlineTransferItemRow = ({
   onItemChange, 
   onRemove, 
   products, 
+  unitList,
   isEditMode, 
   transferItemsLength,
   fromLocationId,
   getAvailableStock 
 }) => {
   const theme = useTheme();
+
+  // Get available units for the current product
+  const getAvailableUnits = () => {
+    if (!item.avail_unit_code || !unitList) return [];
+
+    const unitPricePairs = item.avail_unit_code.split(',');
+    return unitList.filter(u =>
+      unitPricePairs.some(unitPrice => {
+        const [unit] = unitPrice.split('#');
+        return unit === u.LK_KEY;
+      })
+    );
+  };
+
+  const availableUnits = getAvailableUnits();
 
   return (
     <Paper
@@ -71,11 +88,11 @@ const InlineTransferItemRow = ({
         width: '100%'
       }}
     >
-      <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 20%' }, minWidth: 200 }}>
+      <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 18%' }, minWidth: 200 }}>
         <Autocomplete
           options={products || []}
-          getOptionLabel={(option) => `${option.code} - ${option.name}`}
-          value={products?.find(p => p.id === item.productId) || null}
+          getOptionLabel={(option) => `${option.IM_CODE} - ${option.IM_DESC}`}
+          value={products?.find(p => p.IM_CODE === item.name) || null}
           onChange={(event, newValue) => onProductChange(index, newValue)}
           disabled={!isEditMode}
           renderInput={(params) => (
@@ -92,10 +109,10 @@ const InlineTransferItemRow = ({
             <Box component="li" {...props}>
               <Box>
                 <Typography variant="body2" fontWeight={600}>
-                  {option.code} - {option.name}
+                  {option.IM_CODE} - {option.IM_DESC}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  Available: {getAvailableStock(option.id, fromLocationId)} {option.uom}
+                  Available: {getAvailableStock(option.IM_CODE, fromLocationId)} {option.IM_UNIT_CODE}
                 </Typography>
               </Box>
             </Box>
@@ -103,39 +120,15 @@ const InlineTransferItemRow = ({
         />
       </Box>
 
-      <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 25%' }, minWidth: 200 }}>
+      <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 22%' }, minWidth: 200 }}>
         <TextField
           fullWidth
-          label="Product Name"
-          name={`ItemName_${index}`}
-          value={item.productName || ''}
+          label="Description"
+          name={`ItemDesc_${index}`}
+          value={item.desc || ''}
+          onChange={onItemChange}
           size="small"
-          disabled 
-          variant="outlined"
-        />
-      </Box>
-
-      <Box sx={{ flex: { xs: '1 1 48%', md: '1 1 8%' }, minWidth: 80 }}>
-        <TextField
-          fullWidth
-          label="UOM"
-          name={`ItemUOM_${index}`}
-          value={item.uom || ''}
-          size="small"
-          disabled
-          variant="outlined"
-        />
-      </Box>
-
-      <Box sx={{ flex: { xs: '1 1 48%', md: '1 1 10%' }, minWidth: 100 }}>
-        <TextField
-          fullWidth
-          label="Available"
-          name={`ItemAvailable_${index}`}
-          value={item.availableStock || '0'}
-          size="small"
-          disabled
-          inputProps={{ style: { textAlign: 'right' } }}
+          disabled={!isEditMode}
           variant="outlined"
         />
       </Box>
@@ -146,26 +139,50 @@ const InlineTransferItemRow = ({
           label="Transfer Qty"
           name={`ItemQty_${index}`}
           type="number"
-          value={item.transferQty || ''}
+          value={item.qty || ''}
           onChange={onItemChange}
           disabled={!isEditMode}
           size="small"
           inputProps={{ 
             style: { textAlign: 'right' },
-            min: 0,
-            max: item.availableStock || 0
+            min: 0
           }}
           variant="outlined"
         />
       </Box>
 
+      <Box sx={{ flex: { xs: '1 1 48%', md: '1 1 12%' }, minWidth: 120 }}>
+        <Select
+          fullWidth
+          size="small"
+          value={item.unit || ''}
+          onChange={(event) => onItemChange({ target: { name: `ItemUnit_${index}`, value: event.target.value } })}
+          disabled={!isEditMode}
+          displayEmpty
+        >
+          {availableUnits && availableUnits.length > 0 ? (
+            availableUnits.map((option) => (
+              <MenuItem key={option.LK_KEY} value={option.LK_KEY}>
+                {option.LK_VALUE}
+              </MenuItem>
+            ))
+          ) : (
+            unitList?.map((option) => (
+              <MenuItem key={option.LK_KEY} value={option.LK_KEY}>
+                {option.LK_VALUE}
+              </MenuItem>
+            )) || <MenuItem value="">Select Unit</MenuItem>
+          )}
+        </Select>
+      </Box>
+
       <Box sx={{ flex: { xs: '1 1 48%', md: '1 1 10%' }, minWidth: 100 }}>
         <TextField
           fullWidth
-          label="Unit Cost"
-          name={`ItemCost_${index}`}
+          label="Price"
+          name={`ItemPrice_${index}`}
           type="number"
-          value={item.unitCost || ''}
+          value={item.price || ''}
           onChange={onItemChange}
           disabled={!isEditMode}
           size="small"
@@ -179,7 +196,7 @@ const InlineTransferItemRow = ({
           fullWidth
           label="Total Value"
           name={`ItemTotal_${index}`}
-          value={`AED ${(item.totalValue || 0).toFixed(2)}`}
+          value={`AED ${((item.qty || 0) * (item.price || 0)).toFixed(2)}`}
           size="small"
           disabled
           inputProps={{ style: { textAlign: 'right', fontWeight: 600 } }}
@@ -190,20 +207,6 @@ const InlineTransferItemRow = ({
               fontWeight: 600
             }
           }}
-        />
-      </Box>
-
-      <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 15%' }, minWidth: 150 }}>
-        <TextField
-          fullWidth
-          label="Remarks"
-          name={`ItemRemarks_${index}`}
-          value={item.remarks || ''}
-          onChange={onItemChange}
-          disabled={!isEditMode}
-          size="small"
-          placeholder="Enter remarks"
-          variant="outlined"
         />
       </Box>
 
@@ -242,49 +245,72 @@ const TransferEntry = () => {
   const [transferItems, setTransferItems] = useState([{
     id: `item_${Date.now()}`,
     srno: 1,
-    productId: '',
-    productCode: '',
-    productName: '',
-    uom: '',
-    availableStock: 0,
-    transferQty: 0,
-    unitCost: 0,
-    totalValue: 0,
-    remarks: '',
+    name: '',
+    desc: '',
+    qty: 0,
+    price: 0,
+    unit: '',
+    avail_unit_code: '',
   }]);
+  const [unitList, setUnitList] = useState([]);
 
-  const isNewRecord = id === 'new';
+  const isNewRecord = (id === null || id === 'new' || id === undefined || id === '0');
   const [isEditMode, setIsEditMode] = useState(isNewRecord || !viewMode);
 
   // Form validation schema
   const validationSchema = Yup.object({
-    documentNo: Yup.string().required('Document number is required'),
-    documentDate: Yup.date().required('Document date is required'),
-    fromLocationId: Yup.string().required('From location is required'),
-    toLocationId: Yup.string().required('To location is required'),
-    transferType: Yup.string().required('Transfer type is required'),
-    remarks: Yup.string().max(500, 'Remarks cannot exceed 500 characters'),
+    TSFNo: Yup.string().required('Document number is required'),
+    TSFDate: Yup.date().required('Document date is required'),
+    FromLocation: Yup.string().required('From location is required'),
+    ToLocation: Yup.string().required('To location is required'),
+    TsfType: Yup.string().required('Transfer type is required'),
+    Remarks: Yup.string().max(500, 'Remarks cannot exceed 500 characters'),
   });
 
   // Formik form handling
   const formik = useFormik({
     initialValues: {
       id: null,
-      documentNo: '',
-      documentDate: new Date(),
-      fromLocationId: '',
-      toLocationId: '',
-      transferType: 'Location Transfer',
-      remarks: '',
-      status: 'Draft',
-      totalValue: 0,
-      totalQty: 0,
+      TSFNo: '',
+      TSFDate: new Date(),
+      FromLocation: '',
+      ToLocation: '',
+      TsfType: 'Location Transfer',
+      Remarks: '',
+      Status: 'Draft',
+      Amount: 0,
     },
     validationSchema,
     onSubmit: async (values) => {
       await handleSave(values);
     },
   });
+
+  const getLocations = async () => {
+    const Data = await getLocationList();
+    setLocations(Data);
+  };
+
+  const getProducts = async (location) => {
+    try {
+      const { Success, Data, Message } = await GetSingleListResult({
+        "key": "ITEM_CRUD",
+        "TYPE": "GET_ALL",
+      });
+      if (Success) {
+        setProducts(Data);
+      } else {
+        showToast(Message, "error");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const getunits = async () => {
+    const Data = await getUnitList();
+    setUnitList(Data);
+  };
 
   // Load data on component mount
   useEffect(() => {
@@ -296,113 +322,18 @@ const TransferEntry = () => {
     }
   }, [id]);
 
+  useEffect(() => {
+    getProducts(formik.values.FromLocation);
+  }, [formik.values.FromLocation]);
+
   const loadInitialData = async () => {
     try {
       setLoading(true);
-      
-      // Dummy data for testing
-      const dummyProducts = [
-        {
-          id: 1,
-          code: 'PROD001',
-          name: 'Laptop Computer',
-          uom: 'PCS',
-          unitCost: 850.00,
-          locations: [
-            { locationId: 1, stock: 25 },
-            { locationId: 2, stock: 15 },
-            { locationId: 3, stock: 8 }
-          ]
-        },
-        {
-          id: 2,
-          code: 'PROD002',
-          name: 'Office Chair',
-          uom: 'PCS',
-          unitCost: 120.50,
-          locations: [
-            { locationId: 1, stock: 40 },
-            { locationId: 2, stock: 20 },
-            { locationId: 3, stock: 12 }
-          ]
-        },
-        {
-          id: 3,
-          code: 'PROD003',
-          name: 'Printer Paper A4',
-          uom: 'BOX',
-          unitCost: 15.75,
-          locations: [
-            { locationId: 1, stock: 150 },
-            { locationId: 2, stock: 80 },
-            { locationId: 3, stock: 45 }
-          ]
-        },
-        {
-          id: 4,
-          code: 'PROD004',
-          name: 'USB Cable',
-          uom: 'PCS',
-          unitCost: 8.25,
-          locations: [
-            { locationId: 1, stock: 80 },
-            { locationId: 2, stock: 35 },
-            { locationId: 3, stock: 20 }
-          ]
-        },
-        {
-          id: 5,
-          code: 'PROD005',
-          name: 'Monitor 24 inch',
-          uom: 'PCS',
-          unitCost: 285.00,
-          locations: [
-            { locationId: 1, stock: 15 },
-            { locationId: 2, stock: 8 },
-            { locationId: 3, stock: 5 }
-          ]
-        }
-      ];
-
-      const dummyLocations = [
-        {
-          id: 1,
-          code: 'MW001',
-          name: 'Main Warehouse'
-        },
-        {
-          id: 2,
-          code: 'SS002',
-          name: 'Secondary Store'
-        },
-        {
-          id: 3,
-          code: 'BS003',
-          name: 'Branch Store'
-        },
-        {
-          id: 4,
-          code: 'RT004',
-          name: 'Retail Outlet'
-        }
-      ];
-
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 800));
-
-      setProducts(dummyProducts);
-      setLocations(dummyLocations);
-
-      // Uncomment below to use real API when backend is ready
-      // const [productsResult, locationsResult] = await Promise.all([
-      //   GetSingleListResult('Product', 'GetProductList'),
-      //   GetSingleListResult('Location', 'GetLocationList'),
-      // ]);
-      // if (productsResult?.data) setProducts(productsResult.data);
-      // if (locationsResult?.data) setLocations(locationsResult.data);
+      getLocations();
+      getunits();
     } catch (error) {
       console.error('Error loading initial data:', error);
-      showToast.error('Failed to load initial data');
+      showToast('Failed to load initial data', 'error');
     } finally {
       setLoading(false);
     }
@@ -412,97 +343,42 @@ const TransferEntry = () => {
     try {
       setLoading(true);
       
-      // Dummy data based on ID for testing
-      const dummyTransfers = {
-        1: {
-          id: 1,
-          documentNo: 'ST-2024-001',
-          documentDate: '2024-06-10T00:00:00Z',
-          fromLocationId: 1,
-          toLocationId: 2,
-          transferType: 'Location Transfer',
-          remarks: 'Regular stock transfer between locations',
-          status: 'Completed',
-          totalValue: 2150.75,
-          totalQty: 45,
-          items: [
-            {
-              id: 1,
-              productId: 1,
-              productCode: 'PROD001',
-              productName: 'Laptop Computer',
-              uom: 'PCS',
-              availableStock: 25,
-              transferQty: 3,
-              unitCost: 850.00,
-              totalValue: 2550.00,
-              remarks: 'High demand item'
-            },
-            {
-              id: 2,
-              productId: 2,
-              productCode: 'PROD002',
-              productName: 'Office Chair',
-              uom: 'PCS',
-              availableStock: 40,
-              transferQty: 5,
-              unitCost: 120.50,
-              totalValue: 602.50,
-              remarks: 'Regular transfer'
-            }
-          ]
-        },
-        2: {
-          id: 2,
-          documentNo: 'ST-2024-002',
-          documentDate: '2024-06-11T00:00:00Z',
-          fromLocationId: 2,
-          toLocationId: 3,
-          transferType: 'Urgent Transfer',
-          remarks: 'Urgent transfer for stock shortage',
-          status: 'In Transit',
-          totalValue: 890.50,
-          totalQty: 15,
-          items: [
-            {
-              id: 1,
-              productId: 3,
-              productCode: 'PROD003',
-              productName: 'Printer Paper A4',
-              uom: 'BOX',
-              availableStock: 80,
-              transferQty: 20,
-              unitCost: 15.75,
-              totalValue: 315.00,
-              remarks: 'Urgent requirement'
-            }
-          ]
-        }
-      };
-
-      const transfer = dummyTransfers[id];
-      
-      if (transfer) {
+      const { Data, Success } = await GetMultipleResult({
+        "key": "TSF_CRUD",
+        "TYPE": "GET",
+        "DOC_NO": id || '',
+      });
+      if (Success) {
+        const headerData = Data[0][0] || {};
+        const detailData = Data[1] || [];
         formik.setValues({
-          ...transfer,
-          documentDate: new Date(transfer.documentDate),
+          TSFDate: new Date(headerData.TSFDate),
+          TSFNo: headerData.TSFNo,
+          FromLocation: headerData.FromLocation,
+          ToLocation: headerData.ToLocation,
+          TsfType: headerData.TsfType || 'Location Transfer',
+          Remarks: headerData.Remarks || '',
+          Status: headerData.Status || 'Draft',
+          Amount: headerData.Amount || 0,
         });
-        setTransferItems(transfer.items || []);
-      }
+        
+        // Transform items to match our inline structure
+        const transformedItems = detailData.map((item, index) => ({
+          id: `item_${Date.now()}_${index}`,
+          srno: index + 1,
+          name: item.name || item.IM_CODE || '',
+          desc: item.desc || item.IM_DESC || '',
+          unit: item.unit || item.IM_UNIT_CODE || '',
+          qty: item.qty || 0,
+          price: item.price || item.IM_COST || 0,
+          avail_unit_code: item.avail_unit_code,
+        }));
 
-      // Uncomment below to use real API when backend is ready
-      // const result = await GetSingleResult('Transfer', id);
-      // if (result?.data) {
-      //   const data = result.data;
-      //   formik.setValues({
-      //     ...data,
-      //     documentDate: new Date(data.documentDate),
-      //   });
-      //   setTransferItems(data.items || []);
-      // }
+        setTransferItems(transformedItems);
+      }
     } catch (error) {
       console.error('Error loading transfer:', error);
-      showToast.error('Failed to load transfer');
+      showToast('Failed to load transfer', 'error');
     } finally {
       setLoading(false);
     }
@@ -510,19 +386,8 @@ const TransferEntry = () => {
 
   const generateDocumentNumber = async () => {
     try {
-      // Generate dummy document number for testing
-      const currentDate = new Date();
-      const year = currentDate.getFullYear();
-      const nextNumber = String(Math.floor(Math.random() * 900) + 100).padStart(3, '0');
-      const documentNo = `ST-${year}-${nextNumber}`;
-      
-      formik.setFieldValue('documentNo', documentNo);
-
-      // Uncomment below to use real API when backend is ready
-      // const result = await GetSingleResult('Transfer', 'GetNextDocumentNumber');
-      // if (result?.data) {
-      //   formik.setFieldValue('documentNo', result.data);
-      // }
+      const { lastNo, IsEditable } = await getLastNumber('TSF');
+      formik.setFieldValue('TSFNo', lastNo);
     } catch (error) {
       console.error('Error generating document number:', error);
     }
@@ -541,24 +406,50 @@ const TransferEntry = () => {
 
       Confirm(`Do you want to ${isNewRecord ? 'create' : 'update'} this transfer?`).then(async () => {
         try {
-          const payload = {
-            ...values,
-            items: transferItems.filter(item => item.productId), // Only include items with products
-            totalValue: calculateTotalValue(),
-            totalQty: calculateTotalQty(),
+          const encodeJsonToBase64 = (json) => {
+            const base64Encoded = btoa(json);
+            return base64Encoded;
           };
 
-          // Simulate API call for testing
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          if (isNewRecord) {
-            showToast('Transfer created successfully', 'success');
-          } else {
-            showToast('Transfer updated successfully', 'success');
-          }
-          
-          navigate('/transfer');
+          const payload = {
+            "key": "TSF_CRUD",
+            "TYPE": id ? "UPDATE" : "INSERT",
+            "DOC_NO": id || '',
+            "headerData": {
+              "TSFNo": formik.values.TSFNo,
+              "TSFDate": format(formik.values.TSFDate, 'yyyy-MM-dd'),
+              "FromLocation": formik.values.FromLocation || '',
+              "ToLocation": formik.values.ToLocation || '',
+              "TsfType": formik.values.TsfType || 'Location Transfer',
+              "Remarks": formik.values.Remarks || '',
+              "Status": formik.values.Status || 'Draft',
+              "Amount": calculateTotalValue(),
+            },
+            "detailData": transferItems.map((item, index) => {
+              return {
+                srno: index + 1,
+                name: item.name || '',
+                desc: item.desc || '',
+                qty: item.qty || 0,
+                price: item.price || 0,
+                unit: item.unit || '',
+              };
+            })
+          };
 
+          console.log('Payload:', payload);
+          const base64Data = encodeJsonToBase64(JSON.stringify(payload));
+
+          const { Success, Message, Data } = await GetSingleResult({
+            "json": base64Data
+          });
+
+          if (Success) {
+            navigate(`/transfer-entry/${Data.id}`, { replace: true });
+            showToast(Message, 'success');
+          } else {
+            showToast(Message, "error");
+          }
         } catch (error) {
           console.error('Error saving transfer:', error);
           showToast('Failed to save transfer', 'error');
@@ -575,22 +466,19 @@ const TransferEntry = () => {
 
   const calculateTotalValue = () => {
     return transferItems.reduce((total, item) => {
-      return total + (item.totalValue || 0);
+      return total + ((item.qty || 0) * (item.price || 0));
     }, 0);
   };
 
   const calculateTotalQty = () => {
     return transferItems.reduce((total, item) => {
-      return total + (item.transferQty || 0);
+      return total + (item.qty || 0);
     }, 0);
   };
 
-  const getAvailableStock = (productId, locationId) => {
-    const product = products.find(p => p.id === productId);
-    if (!product) return 0;
-    
-    const locationStock = product.locations?.find(l => l.locationId === locationId);
-    return locationStock?.stock || 0;
+  const getAvailableStock = (productCode, locationCode) => {
+    // This would typically fetch from stock API based on product and location
+    return Math.floor(Math.random() * 100); // Dummy value for now
   };
 
   const addItem = () => {
@@ -599,15 +487,12 @@ const TransferEntry = () => {
       {
         id: `item_${Date.now()}_${prevItems.length}`,
         srno: prevItems.length + 1,
-        productId: '',
-        productCode: '',
-        productName: '',
-        uom: '',
-        availableStock: 0,
-        transferQty: 0,
-        unitCost: 0,
-        totalValue: 0,
-        remarks: '',
+        name: '',
+        desc: '',
+        qty: 0,
+        price: 0,
+        unit: '',
+        avail_unit_code: '',
       }
     ]);
   };
@@ -628,38 +513,26 @@ const TransferEntry = () => {
   const handleProductChange = (index, selectedProduct) => {
     if (!selectedProduct) return;
 
-    if (!formik.values.fromLocationId) {
-      showToast('Please select from location first', 'error');
-      return;
-    }
-
-    // Check if product already exists in transfer items
-    const existingItemIndex = transferItems.findIndex((item, idx) => 
-      idx !== index && item.productId === selectedProduct.id
-    );
-    
-    if (existingItemIndex !== -1) {
-      showToast('Product already added to transfer', 'error');
-      return;
-    }
-
-    const availableStock = getAvailableStock(selectedProduct.id, formik.values.fromLocationId);
-
     setTransferItems(prevItems => {
       const newItems = [...prevItems];
+
+      // Get available units and default price for the selected product
+      const unitPricePairs = selectedProduct.avail_unit_code?.split(',') || [];
+      const firstUnitPrice = unitPricePairs[0]?.split('#') || ['', '0'];
+      const defaultUnit = firstUnitPrice[0] || selectedProduct.IM_UNIT_CODE;
+      const defaultPrice = parseFloat(firstUnitPrice[1]) || 0;
+
       newItems[index] = {
         ...newItems[index],
         srno: index + 1,
-        productId: selectedProduct.id,
-        productCode: selectedProduct.code,
-        productName: selectedProduct.name,
-        uom: selectedProduct.uom,
-        availableStock: availableStock || 0,
-        transferQty: 0,
-        unitCost: selectedProduct.unitCost || 0,
-        totalValue: 0,
-        remarks: '',
+        name: selectedProduct.IM_CODE || '',
+        desc: selectedProduct.IM_DESC || '',
+        unit: defaultUnit,
+        price: defaultPrice,
+        qty: 0,
+        avail_unit_code: selectedProduct.avail_unit_code,
       };
+
       return newItems;
     });
   };
@@ -667,38 +540,50 @@ const TransferEntry = () => {
   const handleItemChange = useCallback((event) => {
     const { name, value } = event.target;
 
-    // Extract index and field from name (e.g., "ItemQty_0", "ItemCost_1")
+    // Extract index and field from name (e.g., "ItemDesc_0", "ItemQty_1")
     const [fieldName, index] = name.split('_');
     const itemIndex = parseInt(index, 10);
 
     setTransferItems(prevItems => {
       const newItems = [...prevItems];
 
-      if (fieldName === 'ItemQty') {
-        const numValue = typeof value === 'string' ? parseFloat(value) || 0 : value || 0;
-        
-        // Validate against available stock
-        if (numValue > newItems[itemIndex].availableStock) {
-          showToast('Transfer quantity cannot exceed available stock', 'error');
-          return prevItems;
-        }
+      if (fieldName === 'ItemUnit' && newItems[itemIndex].avail_unit_code) {
+        const currentItem = newItems[itemIndex];
+        if (currentItem.avail_unit_code) {
+          const unitPricePairs = currentItem.avail_unit_code.split(',');
+          const selectedUnitPrice = unitPricePairs.find(up => {
+            const [unit] = up.split('#');
+            return unit === value;
+          });
 
-        newItems[itemIndex] = {
-          ...newItems[itemIndex],
-          transferQty: numValue,
-          totalValue: numValue * (newItems[itemIndex].unitCost || 0)
-        };
-      } else if (fieldName === 'ItemCost') {
+          const newPrice = selectedUnitPrice ? parseFloat(selectedUnitPrice.split('#')[1]) : 0;
+          newItems[itemIndex] = {
+            ...newItems[itemIndex],
+            unit: value,
+            price: newPrice,
+          };
+        } else {
+          newItems[itemIndex] = {
+            ...newItems[itemIndex],
+            unit: value
+          };
+        }
+      } else if (fieldName === 'ItemQty') {
         const numValue = typeof value === 'string' ? parseFloat(value) || 0 : value || 0;
         newItems[itemIndex] = {
           ...newItems[itemIndex],
-          unitCost: numValue,
-          totalValue: (newItems[itemIndex].transferQty || 0) * numValue
+          qty: numValue,
         };
-      } else if (fieldName === 'ItemRemarks') {
+      } else if (fieldName === 'ItemPrice') {
+        const numValue = typeof value === 'string' ? parseFloat(value) || 0 : value || 0;
         newItems[itemIndex] = {
           ...newItems[itemIndex],
-          remarks: value
+          price: numValue,
+        };
+      } else if (fieldName === 'ItemDesc') {
+        newItems[itemIndex] = {
+          ...newItems[itemIndex],
+          desc: value
         };
       }
 
@@ -708,24 +593,21 @@ const TransferEntry = () => {
 
   const validateItems = () => {
     const errors = [];
-    const validItems = transferItems.filter(item => item.productId);
+    const validItems = transferItems.filter(item => item.name);
 
     if (validItems.length === 0) {
       errors.push('At least one product must be added');
     }
 
     validItems.forEach((item, index) => {
-      if (!item.productId) {
+      if (!item.name) {
         errors.push(`Row ${index + 1}: Product is required`);
       }
-      if (item.transferQty === 0) {
+      if (item.qty === 0) {
         errors.push(`Row ${index + 1}: Transfer quantity cannot be zero`);
       }
-      if (item.transferQty > item.availableStock) {
-        errors.push(`Row ${index + 1}: Transfer quantity cannot exceed available stock`);
-      }
-      if (item.unitCost < 0) {
-        errors.push(`Row ${index + 1}: Unit cost cannot be negative`);
+      if (item.price < 0) {
+        errors.push(`Row ${index + 1}: Price cannot be negative`);
       }
     });
 
@@ -734,28 +616,23 @@ const TransferEntry = () => {
 
   // Update available stock when from location changes
   useEffect(() => {
-    if (formik.values.fromLocationId) {
-      setTransferItems(prev => prev.map(item => ({
-        ...item,
-        availableStock: getAvailableStock(item.productId, formik.values.fromLocationId)
-      })));
+    if (formik.values.FromLocation) {
+      // Update stock information when location changes
+      // This would typically fetch updated stock data
     }
-  }, [formik.values.fromLocationId, products]);
+  }, [formik.values.FromLocation, products]);
 
   const handleNewTransfer = () => {
     formik.resetForm();
     setTransferItems([{
       id: `item_${Date.now()}`,
       srno: 1,
-      productId: '',
-      productCode: '',
-      productName: '',
-      uom: '',
-      availableStock: 0,
-      transferQty: 0,
-      unitCost: 0,
-      totalValue: 0,
-      remarks: '',
+      name: '',
+      desc: '',
+      qty: 0,
+      price: 0,
+      unit: '',
+      avail_unit_code: '',
     }]);
     setIsEditMode(true);
     navigate('/transfer-entry/new', { replace: true });
@@ -780,7 +657,7 @@ const TransferEntry = () => {
       <Box sx={{ p: 0 }}>
         <PageHeader
           title={`Stock Transfer ${isNewRecord ? 'Entry' : 'Details'}`}
-          subtitle={isNewRecord ? 'Create new stock transfer' : `Document No: ${formik.values.documentNo}`}
+          subtitle={isNewRecord ? 'Create new stock transfer' : `Document No: ${formik.values.TSFNo}`}
           breadcrumbs={[
             { title: 'Transactions', path: '/transactions' },
             { title: 'Store', path: '/transactions/store' },
@@ -815,6 +692,9 @@ const TransferEntry = () => {
               showInActions: true,
             },
           ]}
+          editCheckApiKey="TSF_CRUD"
+          editCheckApiType="EDIT_VALIDATE"
+          editCheckDocNo={id || ''}
         />
 
         <form onSubmit={formik.handleSubmit}>
@@ -827,49 +707,49 @@ const TransferEntry = () => {
               <Divider sx={{ mb: 3 }} />
               
               <Grid container spacing={3}>
-                <Grid item xs={12} md={6} lg={3}>
+                <Grid item xs={12} md={6} lg={1.5}>
                   <TextField
                     fullWidth
                     label="Document No"
-                    name="documentNo"
-                    value={formik.values.documentNo}
+                    name="TSFNo"
+                    value={formik.values.TSFNo}
                     onChange={formik.handleChange}
-                    error={formik.touched.documentNo && Boolean(formik.errors.documentNo)}
-                    helperText={formik.touched.documentNo && formik.errors.documentNo}
-                    disabled={!isNewRecord || viewMode}
+                    error={formik.touched.TSFNo && Boolean(formik.errors.TSFNo)}
+                    helperText={formik.touched.TSFNo && formik.errors.TSFNo}
+                    disabled={!isNewRecord}
                     size="small"
                   />
                 </Grid>
                 
-                <Grid item xs={12} md={6} lg={3}>
+                <Grid item xs={12} md={6} lg={2}>
                   <DatePicker
                     label="Document Date"
-                    value={formik.values.documentDate}
-                    onChange={(date) => formik.setFieldValue('documentDate', date)}
-                    disabled={viewMode}
+                    value={formik.values.TSFDate}
+                    onChange={(date) => formik.setFieldValue('TSFDate', date)}
+                    disabled={!isEditMode}
                     renderInput={(params) => (
                       <TextField
                         {...params}
                         fullWidth
                         size="small"
-                        error={formik.touched.documentDate && Boolean(formik.errors.documentDate)}
-                        helperText={formik.touched.documentDate && formik.errors.documentDate}
+                        error={formik.touched.TSFDate && Boolean(formik.errors.TSFDate)}
+                        helperText={formik.touched.TSFDate && formik.errors.TSFDate}
                       />
                     )}
                   />
                 </Grid>
                 
-                <Grid item xs={12} md={6} lg={3}>
+                <Grid item xs={12} md={6} lg={2.5}>
                   <TextField
                     fullWidth
                     select
                     label="Transfer Type"
-                    name="transferType"
-                    value={formik.values.transferType}
+                    name="TsfType"
+                    value={formik.values.TsfType}
                     onChange={formik.handleChange}
-                    error={formik.touched.transferType && Boolean(formik.errors.transferType)}
-                    helperText={formik.touched.transferType && formik.errors.transferType}
-                    disabled={viewMode}
+                    error={formik.touched.TsfType && Boolean(formik.errors.TsfType)}
+                    helperText={formik.touched.TsfType && formik.errors.TsfType}
+                    disabled={!isEditMode}
                     size="small"
                   >
                     <MenuItem value="Location Transfer">Location Transfer</MenuItem>
@@ -879,45 +759,28 @@ const TransferEntry = () => {
                   </TextField>
                 </Grid>
                 
-                <Grid item xs={12} md={6} lg={3}>
-                  <TextField
-                    fullWidth
-                    select
-                    label="Status"
-                    name="status"
-                    value={formik.values.status}
-                    onChange={formik.handleChange}
-                    disabled={viewMode}
-                    size="small"
-                  >
-                    <MenuItem value="Draft">Draft</MenuItem>
-                    <MenuItem value="Pending">Pending</MenuItem>
-                    <MenuItem value="In Transit">In Transit</MenuItem>
-                    <MenuItem value="Completed">Completed</MenuItem>
-                    <MenuItem value="Cancelled">Cancelled</MenuItem>
-                  </TextField>
-                </Grid>
+              
                 
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={3}>
                   <Autocomplete
-                    options={locations}
-                    getOptionLabel={(option) => `${option.code} - ${option.name}`}
-                    value={locations.find(loc => loc.id === formik.values.fromLocationId) || null}
+                    options={locations || []}
+                    getOptionLabel={(option) => `${option.LM_LOCATION_CODE} - ${option.LM_LOCATION_NAME}`}
+                    value={locations.find(loc => loc.LM_LOCATION_CODE === formik.values.FromLocation) || null}
                     onChange={(event, newValue) => {
-                      formik.setFieldValue('fromLocationId', newValue?.id || '');
+                      formik.setFieldValue('FromLocation', newValue?.LM_LOCATION_CODE || '');
                       // Clear to location if same as from location
-                      if (newValue?.id === formik.values.toLocationId) {
-                        formik.setFieldValue('toLocationId', '');
+                      if (newValue?.LM_LOCATION_CODE === formik.values.ToLocation) {
+                        formik.setFieldValue('ToLocation', '');
                       }
                     }}
-                    disabled={viewMode}
+                    disabled={!isEditMode}
                     renderInput={(params) => (
                       <TextField
                         {...params}
                         label="From Location"
                         size="small"
-                        error={formik.touched.fromLocationId && Boolean(formik.errors.fromLocationId)}
-                        helperText={formik.touched.fromLocationId && formik.errors.fromLocationId}
+                        error={formik.touched.FromLocation && Boolean(formik.errors.FromLocation)}
+                        helperText={formik.touched.FromLocation && formik.errors.FromLocation}
                         InputProps={{
                           ...params.InputProps,
                           startAdornment: <TransferIcon sx={{ mr: 1, color: 'text.secondary' }} />
@@ -927,21 +790,21 @@ const TransferEntry = () => {
                   />
                 </Grid>
                 
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={3}>
                   <Autocomplete
-                    options={locations.filter(loc => loc.id !== formik.values.fromLocationId)}
-                    getOptionLabel={(option) => `${option.code} - ${option.name}`}
-                    value={locations.find(loc => loc.id === formik.values.toLocationId) || null}
-                    onChange={(event, newValue) => formik.setFieldValue('toLocationId', newValue?.id || '')}
-                    disabled={viewMode || !formik.values.fromLocationId}
+                    options={locations.filter(loc => loc.LM_LOCATION_CODE !== formik.values.FromLocation) || []}
+                    getOptionLabel={(option) => `${option.LM_LOCATION_CODE} - ${option.LM_LOCATION_NAME}`}
+                    value={locations.find(loc => loc.LM_LOCATION_CODE === formik.values.ToLocation) || null}
+                    onChange={(event, newValue) => formik.setFieldValue('ToLocation', newValue?.LM_LOCATION_CODE || '')}
+                    disabled={!isEditMode || !formik.values.FromLocation}
                     renderInput={(params) => (
                       <TextField
                         {...params}
                         label="To Location"
                         size="small"
-                        error={formik.touched.toLocationId && Boolean(formik.errors.toLocationId)}
-                        helperText={formik.touched.toLocationId && formik.errors.toLocationId}
-                        placeholder={!formik.values.fromLocationId ? "Select from location first" : "Select destination"}
+                        error={formik.touched.ToLocation && Boolean(formik.errors.ToLocation)}
+                        helperText={formik.touched.ToLocation && formik.errors.ToLocation}
+                        placeholder={!formik.values.FromLocation ? "Select from location first" : "Select destination"}
                       />
                     )}
                   />
@@ -951,12 +814,12 @@ const TransferEntry = () => {
                   <TextField
                     fullWidth
                     label="Remarks"
-                    name="remarks"
-                    value={formik.values.remarks}
+                    name="Remarks"
+                    value={formik.values.Remarks}
                     onChange={formik.handleChange}
                     multiline
                     rows={3}
-                    disabled={viewMode}
+                    disabled={!isEditMode}
                     size="small"
                   />
                 </Grid>
