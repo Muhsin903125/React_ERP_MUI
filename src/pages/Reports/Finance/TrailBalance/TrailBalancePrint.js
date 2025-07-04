@@ -63,10 +63,10 @@ export default function TrailBalancePrint({ columns, rows, title, dateRange, acc
             elevation={0} 
             sx={{ 
               textAlign: 'center', 
-              py: 2,
-              bgcolor: alpha(theme.palette.primary.main, 0.08),
-              borderRadius: 2,
-              border: `2px solid ${theme.palette.primary.main}`
+            //   py: 2,
+            //   bgcolor: alpha(theme.palette.primary.main, 0.08),
+            //   borderRadius: 2,
+            //   border: `2px solid ${theme.palette.primary.main}`
             }}
           >
             <Typography variant="h4" fontWeight={700} color="primary.main">
@@ -136,6 +136,16 @@ export default function TrailBalancePrint({ columns, rows, title, dateRange, acc
   const renderCellValue = (row, col) => {
     const value = row[col.accessorKey];
     
+    // Handle account details with tree structure - return both value and styling info
+    if (col.accessorKey === 'ac_desc') {
+      return value || '';
+    }
+    
+    // Handle account code without tree structure
+    if (col.accessorKey === 'ac_code') {
+      return value || '';
+    }
+    
     // Handle special computed columns
     if (col.accessorKey === 'opening_balance_debit') {
       const openingBalance = row.opening_balance || 0;
@@ -179,7 +189,33 @@ export default function TrailBalancePrint({ columns, rows, title, dateRange, acc
   };
 
   return (
-    <Box sx={{ p: 2, minWidth: 600 }}>
+    <Box sx={{ 
+      p: 2, 
+      minWidth: 600,
+      '& .tree-indent-0': { paddingLeft: '8px !important' },
+      '& .tree-indent-1': { paddingLeft: '24px !important' },
+      '& .tree-indent-2': { paddingLeft: '40px !important' },
+      '& .tree-indent-3': { paddingLeft: '56px !important' },
+      '& .tree-indent-4': { paddingLeft: '72px !important' },
+      '@media print': {
+        '& .tree-indent-0': { paddingLeft: '8px !important' },
+        '& .tree-indent-1': { paddingLeft: '24px !important' },
+        '& .tree-indent-2': { paddingLeft: '40px !important' },
+        '& .tree-indent-3': { paddingLeft: '56px !important' },
+        '& .tree-indent-4': { paddingLeft: '72px !important' }
+      }
+    }}>
+      <style>
+        {`
+          @media print {
+            .tree-indent-0 { padding-left: 8px !important; }
+            .tree-indent-1 { padding-left: 24px !important; }
+            .tree-indent-2 { padding-left: 40px !important; }
+            .tree-indent-3 { padding-left: 56px !important; }
+            .tree-indent-4 { padding-left: 72px !important; }
+          }
+        `}
+      </style>
       <PrintHeader
         companyName={companyName}
         companyAddress={companyAddress}
@@ -215,7 +251,21 @@ export default function TrailBalancePrint({ columns, rows, title, dateRange, acc
                     key={col.accessorKey} 
                     align={col.muiTableBodyCellProps?.align || 'left'} 
                     width={col.size || 'auto'}
-                    sx={{ fontSize: '0.75rem' }}
+                    className={col.accessorKey === 'ac_desc' ? `tree-indent-${row.level || 0}` : ''}
+                    sx={{ 
+                      fontSize: '0.75rem',
+                      // Apply tree structure indentation only for account details column
+                      ...(col.accessorKey === 'ac_desc' && {
+                        paddingLeft: `${8 + (row.level || 0) * 16}px !important`,
+                        fontWeight: row.is_header ? 'bold !important' : 'normal',
+                        textTransform: row.is_header ? 'uppercase !important' : 'none',
+                        '@media print': {
+                          paddingLeft: `${8 + (row.level || 0) * 16}px !important`,
+                          fontWeight: row.is_header ? 'bold !important' : 'normal',
+                          textTransform: row.is_header ? 'uppercase !important' : 'none'
+                        }
+                      })
+                    }}
                   >
                     {renderCellValue(row, col)}
                   </TableCell>
@@ -277,24 +327,17 @@ export default function TrailBalancePrint({ columns, rows, title, dateRange, acc
         <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', mb: 2 }}>
           Summary
         </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={6}>
-            <Typography variant="body2">
-              <strong>Total Debit:</strong> {totals.totalDebit.toFixed(2)}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Total Credit:</strong> {totals.totalCredit.toFixed(2)}
-            </Typography>
-          </Grid>
-          <Grid item xs={6}>
-            <Typography variant="body2">
-              <strong>Difference:</strong> {Math.abs(totals.totalDebit - totals.totalCredit).toFixed(2)}
-            </Typography>
-            <Typography variant="body2" color={totals.totalDebit === totals.totalCredit ? 'success.main' : 'error.main'}>
-              <strong>Status:</strong> {totals.totalDebit === totals.totalCredit ? 'Balanced' : 'Not Balanced'}
-            </Typography>
-          </Grid>
-        </Grid>
+        <Box sx={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+          <Typography variant="body2">
+            <strong>Total Debit:</strong> {totals.totalDebit.toFixed(2)}
+          </Typography>
+          <Typography variant="body2">
+            <strong>Total Credit:</strong> {totals.totalCredit.toFixed(2)}
+          </Typography>
+          <Typography variant="body2">
+            <strong>Difference:</strong> {Math.abs(totals.totalDebit - totals.totalCredit).toFixed(2)}
+          </Typography>
+        </Box>
       </Box>
 
       {/* Footer */}
