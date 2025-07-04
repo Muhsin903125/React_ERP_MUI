@@ -230,93 +230,178 @@ export default function TrailBalancePrint({ columns, rows, title, dateRange, acc
       <TableContainer component={Paper} sx={{ boxShadow: 'none', border: '1px solid', borderColor: 'divider', mt: 2 }}>
         <Table size="small">
           <TableHead>
+            {/* Group Header Row */}
+            <TableRow sx={{ bgcolor: 'grey.200' }}>
+              {columns.map((col, index) => {
+                if (col.columns) {
+                  // This is a grouped column
+                  return (
+                    <TableCell 
+                      key={`group-${index}`}
+                      align="center"
+                      colSpan={col.columns.length}
+                      sx={{ fontWeight: 'bold', fontSize: '0.875rem', borderBottom: '1px solid', borderColor: 'divider' }}
+                    >
+                      {col.header}
+                    </TableCell>
+                  );
+                }
+                // This is a regular column that spans group rows
+                return (
+                  <TableCell 
+                    key={col.accessorKey || `col-${index}`}
+                    align={col.muiTableBodyCellProps?.align || 'left'} 
+                    rowSpan={2}
+                    sx={{ fontWeight: 'bold', fontSize: '0.875rem', verticalAlign: 'middle' }}
+                  >
+                    {col.header}
+                  </TableCell>
+                );
+              })}
+            </TableRow>
+            
+            {/* Sub Header Row */}
             <TableRow sx={{ bgcolor: 'grey.100' }}>
-              {columns.map((col) => (
-                <TableCell 
-                  key={col.accessorKey} 
-                  align={col.muiTableBodyCellProps?.align || 'left'} 
-                  width={col.size || 'auto'}
-                  sx={{ fontWeight: 'bold', fontSize: '0.875rem' }}
-                >
-                  {col.header}
-                </TableCell>
-              ))}
+              {columns.map((col, index) => {
+                if (col.columns) {
+                  // Render sub-columns
+                  return col.columns.map((subCol, subIndex) => (
+                    <TableCell 
+                      key={`${index}-${subIndex}`}
+                      align={subCol.muiTableBodyCellProps?.align || 'left'} 
+                      width={subCol.size || 'auto'}
+                      sx={{ fontWeight: 'bold', fontSize: '0.875rem' }}
+                    >
+                      {subCol.header}
+                    </TableCell>
+                  ));
+                }
+                // Skip regular columns as they are already rendered with rowSpan
+                return null;
+              })}
             </TableRow>
           </TableHead>
           <TableBody>
             {rows.map((row, idx) => (
               <TableRow key={idx} sx={{ '&:nth-of-type(odd)': { bgcolor: 'grey.50' } }}>
-                {columns.map((col) => (
-                  <TableCell 
-                    key={col.accessorKey} 
-                    align={col.muiTableBodyCellProps?.align || 'left'} 
-                    width={col.size || 'auto'}
-                    className={col.accessorKey === 'ac_desc' ? `tree-indent-${row.level || 0}` : ''}
-                    sx={{ 
-                      fontSize: '0.75rem',
-                      // Apply tree structure indentation only for account details column
-                      ...(col.accessorKey === 'ac_desc' && {
-                        paddingLeft: `${8 + (row.level || 0) * 16}px !important`,
-                        fontWeight: row.is_header ? 'bold !important' : 'normal',
-                        textTransform: row.is_header ? 'uppercase !important' : 'none',
-                        '@media print': {
+                {columns.map((col, colIndex) => {
+                  if (col.columns) {
+                    // Render cells for grouped columns
+                    return col.columns.map((subCol, subIndex) => (
+                      <TableCell 
+                        key={`${colIndex}-${subIndex}`}
+                        align={subCol.muiTableBodyCellProps?.align || 'left'} 
+                        width={subCol.size || 'auto'}
+                        className={subCol.accessorKey === 'ac_desc' ? `tree-indent-${row.level || 0}` : ''}
+                        sx={{ 
+                          fontSize: '0.75rem',
+                          // Apply tree structure indentation only for account details column
+                          ...(subCol.accessorKey === 'ac_desc' && {
+                            paddingLeft: `${8 + (row.level || 0) * 16}px !important`,
+                            fontWeight: row.is_header ? 'bold !important' : 'normal',
+                            textTransform: row.is_header ? 'uppercase !important' : 'none',
+                            '@media print': {
+                              paddingLeft: `${8 + (row.level || 0) * 16}px !important`,
+                              fontWeight: row.is_header ? 'bold !important' : 'normal',
+                              textTransform: row.is_header ? 'uppercase !important' : 'none'
+                            }
+                          })
+                        }}
+                      >
+                        {renderCellValue(row, subCol)}
+                      </TableCell>
+                    ));
+                  }
+                  // Render cell for regular column
+                  return (
+                    <TableCell 
+                      key={col.accessorKey || `col-${colIndex}`}
+                      align={col.muiTableBodyCellProps?.align || 'left'} 
+                      width={col.size || 'auto'}
+                      className={col.accessorKey === 'ac_desc' ? `tree-indent-${row.level || 0}` : ''}
+                      sx={{ 
+                        fontSize: '0.75rem',
+                        // Apply tree structure indentation only for account details column
+                        ...(col.accessorKey === 'ac_desc' && {
                           paddingLeft: `${8 + (row.level || 0) * 16}px !important`,
                           fontWeight: row.is_header ? 'bold !important' : 'normal',
-                          textTransform: row.is_header ? 'uppercase !important' : 'none'
-                        }
-                      })
-                    }}
-                  >
-                    {renderCellValue(row, col)}
-                  </TableCell>
-                ))}
+                          textTransform: row.is_header ? 'uppercase !important' : 'none',
+                          '@media print': {
+                            paddingLeft: `${8 + (row.level || 0) * 16}px !important`,
+                            fontWeight: row.is_header ? 'bold !important' : 'normal',
+                            textTransform: row.is_header ? 'uppercase !important' : 'none'
+                          }
+                        })
+                      }}
+                    >
+                      {renderCellValue(row, col)}
+                    </TableCell>
+                  );
+                })}
               </TableRow>
             ))}
             
             {/* Dynamic Totals Row */}
             <TableRow sx={{ bgcolor: 'primary.lighter', fontWeight: 'bold' }}>
-              {columns.map((col, index) => (
-                <TableCell 
-                  key={col.accessorKey}
-                  align={col.muiTableBodyCellProps?.align || 'left'} 
-                  sx={{ fontWeight: 'bold', fontSize: '0.875rem' }}
-                >
-                  {index === 0 ? <strong>TOTALS</strong> : 
-                   index === 1 ? '' : // Account code column
-                   col.accessorKey === 'opening_balance_debit' ? <strong>{totals.totalOpeningDebit.toFixed(2)}</strong> :
-                   col.accessorKey === 'opening_balance_credit' ? <strong>{totals.totalOpeningCredit.toFixed(2)}</strong> :
-                   col.accessorKey === 'debit' ? <strong>{totals.totalDebit.toFixed(2)}</strong> :
-                   col.accessorKey === 'credit' ? <strong>{totals.totalCredit.toFixed(2)}</strong> :
-                   col.accessorKey === 'closing_balance_debit' ? <strong>{totals.totalClosingDebit.toFixed(2)}</strong> :
-                   col.accessorKey === 'closing_balance_credit' ? <strong>{totals.totalClosingCredit.toFixed(2)}</strong> :
-                   col.accessorKey === 'opening_balance' ? (
-                     <strong>
-                       {totals.totalOpeningDebit > totals.totalOpeningCredit 
-                         ? `${(totals.totalOpeningDebit - totals.totalOpeningCredit).toFixed(2)} DR`
-                         : `${(totals.totalOpeningCredit - totals.totalOpeningDebit).toFixed(2)} CR`
-                       }
-                     </strong>
-                   ) :
-                   col.accessorKey === 'closing_balance' ? (
-                     <strong>
-                       {totals.totalClosingDebit > totals.totalClosingCredit 
-                         ? `${(totals.totalClosingDebit - totals.totalClosingCredit).toFixed(2)} DR`
-                         : `${(totals.totalClosingCredit - totals.totalClosingDebit).toFixed(2)} CR`
-                       }
-                     </strong>
-                   ) :
-                   col.accessorKey === 'transaction_net' ? (
-                     <strong>
-                       {(totals.totalDebit - totals.totalCredit) === 0 ? '0.00' :
-                        (totals.totalDebit - totals.totalCredit) < 0 ? 
-                        `${Math.abs(totals.totalDebit - totals.totalCredit).toFixed(2)} CR` : 
-                        `${(totals.totalDebit - totals.totalCredit).toFixed(2)} DR`
-                       }
-                     </strong>
-                   ) : ''
-                  }
-                </TableCell>
-              ))}
+              {columns.map((col, index) => {
+                if (col.columns) {
+                  // Handle grouped columns
+                  return col.columns.map((subCol, subIndex) => (
+                    <TableCell 
+                      key={`total-${index}-${subIndex}`}
+                      align={subCol.muiTableBodyCellProps?.align || 'left'} 
+                      sx={{ fontWeight: 'bold', fontSize: '0.875rem' }}
+                    >
+                      {index === 0 && subIndex === 0 ? <strong>TOTALS</strong> : 
+                       subCol.accessorKey === 'opening_balance_debit' ? <strong>{totals.totalOpeningDebit.toFixed(2)}</strong> :
+                       subCol.accessorKey === 'opening_balance_credit' ? <strong>{totals.totalOpeningCredit.toFixed(2)}</strong> :
+                       subCol.accessorKey === 'debit' ? <strong>{totals.totalDebit.toFixed(2)}</strong> :
+                       subCol.accessorKey === 'credit' ? <strong>{totals.totalCredit.toFixed(2)}</strong> :
+                       subCol.accessorKey === 'closing_balance_debit' ? <strong>{totals.totalClosingDebit.toFixed(2)}</strong> :
+                       subCol.accessorKey === 'closing_balance_credit' ? <strong>{totals.totalClosingCredit.toFixed(2)}</strong> :
+                       ''
+                      }
+                    </TableCell>
+                  ));
+                }
+                // Handle regular columns
+                return (
+                  <TableCell 
+                    key={`total-${col.accessorKey || index}`}
+                    align={col.muiTableBodyCellProps?.align || 'left'} 
+                    sx={{ fontWeight: 'bold', fontSize: '0.875rem' }}
+                  >
+                    {index === 0 ? <strong>TOTALS</strong> : 
+                     index === 1 ? '' : // Account code column
+                     col.accessorKey === 'opening_balance' ? (
+                       <strong>
+                         {totals.totalOpeningDebit > totals.totalOpeningCredit 
+                           ? `${(totals.totalOpeningDebit - totals.totalOpeningCredit).toFixed(2)} DR`
+                           : `${(totals.totalOpeningCredit - totals.totalOpeningDebit).toFixed(2)} CR`
+                         }
+                       </strong>
+                     ) :
+                     col.accessorKey === 'closing_balance' ? (
+                       <strong>
+                         {totals.totalClosingDebit > totals.totalClosingCredit 
+                           ? `${(totals.totalClosingDebit - totals.totalClosingCredit).toFixed(2)} DR`
+                           : `${(totals.totalClosingCredit - totals.totalClosingDebit).toFixed(2)} CR`
+                         }
+                       </strong>
+                     ) :
+                     col.accessorKey === 'transaction_net' ? (
+                       <strong>
+                         {(totals.totalDebit - totals.totalCredit) === 0 ? '0.00' :
+                          (totals.totalDebit - totals.totalCredit) < 0 ? 
+                          `${Math.abs(totals.totalDebit - totals.totalCredit).toFixed(2)} CR` : 
+                          `${(totals.totalDebit - totals.totalCredit).toFixed(2)} DR`
+                         }
+                       </strong>
+                     ) : ''
+                    }
+                  </TableCell>
+                );
+              })}
             </TableRow>
           </TableBody>
         </Table>

@@ -172,7 +172,7 @@ const getColumns = (reportFormat, fromDate, toDate) => {
         },
         {
             accessorKey: 'ac_code',
-            header: 'Account Code', 
+            header: ' Code', 
             size: 120,
             Cell: AccountCodeCell,
         }
@@ -183,74 +183,100 @@ const getColumns = (reportFormat, fromDate, toDate) => {
             return [
                 ...baseColumns,
                 {
-                    accessorKey: 'opening_balance_debit',
-                    header: `Opening Balance ${moment(fromDate).subtract(1, 'day').format('DD MMM YYYY')} (Debit)`,
-                    size: 140,
-                    Cell: ({ cell, row }) => {
-                        const openingBalance = row.original?.opening_balance || 0;
-                        const debitValue = openingBalance > 0 ? openingBalance : 0;
-                        return DebitOnlyCell({ cell: { getValue: () => debitValue }, row });
-                    },
-                    muiTableBodyCellProps: { align: 'right' }, 
-                    headerProps: { align: 'right' }
+                    header: `Opening Balance ${moment(fromDate).subtract(1, 'day').format('DD-MM-YYYY')}`,
+                    columns: [
+                        {
+                            accessorKey: 'opening_balance_debit',
+                            header: 'Debit',
+                            size: 120,
+                            Cell: ({ cell, row }) => {
+                                const openingBalance = row.original?.opening_balance || 0;
+                                const debitValue = openingBalance > 0 ? openingBalance : 0;
+                                return DebitOnlyCell({ cell: { getValue: () => debitValue }, row });
+                            },
+                            muiTableBodyCellProps: { align: 'right' }, 
+                            headerProps: { align: 'right' }
+                        },
+                        {
+                            accessorKey: 'opening_balance_credit',
+                            header: 'Credit',
+                            size: 120,
+                            Cell: ({ cell, row }) => {
+                                const openingBalance = row.original?.opening_balance || 0;
+                                const creditValue = openingBalance < 0 ? Math.abs(openingBalance) : 0;
+                                return CreditOnlyCell({ cell: { getValue: () => creditValue }, row });
+                            },
+                            muiTableBodyCellProps: { align: 'right' }, 
+                            headerProps: { align: 'right' }
+                        }
+                    ]
                 },
                 {
-                    accessorKey: 'opening_balance_credit',
-                    header: `Opening Balance ${moment(fromDate).subtract(1, 'day').format('DD MMM YYYY')} (Credit)`,
-                    size: 140,
-                    Cell: ({ cell, row }) => {
-                        const openingBalance = row.original?.opening_balance || 0;
-                        const creditValue = openingBalance < 0 ? Math.abs(openingBalance) : 0;
-                        return CreditOnlyCell({ cell: { getValue: () => creditValue }, row });
-                    },
-                    muiTableBodyCellProps: { align: 'right' }, 
-                    headerProps: { align: 'right' }
+                    header: `Transaction  Between Dates `,
+                    columns: [
+                        {
+                            accessorKey: 'debit',
+                            header: 'Debit',
+                            size: 120,
+                            Cell: DebitOnlyCell,
+                            muiTableBodyCellProps: { align: 'right' }, 
+                            headerProps: { align: 'right' }
+                        },
+                        {
+                            accessorKey: 'credit',
+                            header: 'Credit',
+                            size: 120,
+                            Cell: CreditOnlyCell,
+                            muiTableBodyCellProps: { align: 'right' }, 
+                            headerProps: { align: 'right' }
+                        }
+                    ]
                 },
                 {
-                    accessorKey: 'debit',
-                    header: 'Transaction Between Dates (Debit)',
-                    size: 130,
-                    Cell: DebitOnlyCell,
-                    muiTableBodyCellProps: { align: 'right' }, 
-                    headerProps: { align: 'right' }
-                },
-                {
-                    accessorKey: 'credit',
-                    header: 'Transaction Between Dates (Credit)',
-                    size: 130,
-                    Cell: CreditOnlyCell,
-                    muiTableBodyCellProps: { align: 'right' }, 
-                    headerProps: { align: 'right' }
-                },
-                {
-                    accessorKey: 'closing_balance_debit',
-                    header: `Closing Balance ${moment(toDate).format('DD MMM YYYY')} (Debit)`,
-                    size: 140,
-                    Cell: ({ cell, row }) => {
-                        const closingBalance = row.original?.closing_balance || 0;
-                        const debitValue = closingBalance > 0 ? closingBalance : 0;
-                        return DebitOnlyCell({ cell: { getValue: () => debitValue }, row });
-                    },
-                    muiTableBodyCellProps: { align: 'right' }, 
-                    headerProps: { align: 'right' }
-                },
-                {
-                    accessorKey: 'closing_balance_credit',
-                    header: `Closing Balance ${moment(toDate).format('DD MMM YYYY')} (Credit)`,
-                    size: 140,
-                    Cell: ({ cell, row }) => {
-                        const closingBalance = row.original?.closing_balance || 0;
-                        const creditValue = closingBalance < 0 ? Math.abs(closingBalance) : 0;
-                        return CreditOnlyCell({ cell: { getValue: () => creditValue }, row });
-                    },
-                    muiTableBodyCellProps: { align: 'right' }, 
-                    headerProps: { align: 'right' }
+                    header: `Closing Balance ${moment(toDate).format('DD MMM YYYY')}`,
+                    columns: [
+                        {
+                            accessorKey: 'closing_balance_debit',
+                            header: 'Debit',
+                            size: 120,
+                            Cell: ({ cell, row }) => {
+                                const closingBalance = row.original?.closing_balance || 0;
+                                const debitValue = closingBalance > 0 ? closingBalance : 0;
+                                return DebitOnlyCell({ cell: { getValue: () => debitValue }, row });
+                            },
+                            muiTableBodyCellProps: { align: 'right' }, 
+                            headerProps: { align: 'right' }
+                        },
+                        {
+                            accessorKey: 'closing_balance_credit',
+                            header: 'Credit',
+                            size: 120,
+                            Cell: ({ cell, row }) => {
+                                const closingBalance = row.original?.closing_balance || 0;
+                                const creditValue = closingBalance < 0 ? Math.abs(closingBalance) : 0;
+                                return CreditOnlyCell({ cell: { getValue: () => creditValue }, row });
+                            },
+                            muiTableBodyCellProps: { align: 'right' }, 
+                            headerProps: { align: 'right' }
+                        }
+                    ]
                 }
             ];
 
         case '5_column':
             return [
-                ...baseColumns,
+                {
+                    accessorKey: 'ac_desc',
+                    header: 'Account Details',
+                    size: 300,
+                    Cell: AccountDescCell,
+                },
+                {
+                    accessorKey: 'ac_code',
+                    header: ' Code', 
+                    size: 120,
+                    Cell: AccountCodeCell,
+                },
                 {
                     accessorKey: 'opening_balance',
                     header: `Opening Balance ${moment(fromDate).subtract(1, 'day').format('DD MMM YYYY')}`,
@@ -259,40 +285,46 @@ const getColumns = (reportFormat, fromDate, toDate) => {
                     muiTableBodyCellProps: { align: 'right' }, 
                     headerProps: { align: 'right' }
                 },
-                {
-                    accessorKey: 'debit',
-                    header: 'Transaction Between Dates (Debit)',
-                    size: 130,
-                    Cell: DebitOnlyCell,
-                    muiTableBodyCellProps: { align: 'right' }, 
-                    headerProps: { align: 'right' }
-                },
-                {
-                    accessorKey: 'credit',
-                    header: 'Transaction Between Dates (Credit)',
-                    size: 130,
-                    Cell: CreditOnlyCell,
-                    muiTableBodyCellProps: { align: 'right' }, 
-                    headerProps: { align: 'right' }
-                },
-                {
-                    accessorKey: 'transaction_net',
-                    header: 'Transaction Between Dates (Net)',
-                    size: 130,
-                    Cell: ({ cell, row }) => {
-                        const debit = row.original?.debit || 0;
-                        const credit = row.original?.credit || 0;
-                        const netValue = debit - credit;
-                        return AmountCell({ cell: { getValue: () => netValue }, row, showSign: true });
-                    },
-                    muiTableBodyCellProps: { align: 'right' }, 
-                    headerProps: { align: 'right' }
-                },
-                {
-                    accessorKey: 'closing_balance',
-                    header: `Closing Balance ${moment(toDate).format('DD MMM YYYY')}`,
-                    size: 150,
-                    Cell: ({ cell, row }) => AmountCell({ cell, row, showSign: true, chipStyle: true }),
+                // {
+                //     header: 'Transaction Between Dates',
+                //     columns: [
+                       
+                //     ]
+                // },
+                 {
+                            accessorKey: 'debit',
+                            header: 'Debit',
+                            size: 100,
+                            Cell: DebitOnlyCell,
+                            muiTableBodyCellProps: { align: 'right' }, 
+                            headerProps: { align: 'right' }
+                        },
+                        {
+                            accessorKey: 'credit',
+                            header: 'Credit',
+                            size: 100,
+                            Cell: CreditOnlyCell,
+                            muiTableBodyCellProps: { align: 'right' }, 
+                            headerProps: { align: 'right' }
+                        },
+                        {
+                            accessorKey: 'transaction_net',
+                            header: 'Net',
+                            size: 100,
+                            Cell: ({ cell, row }) => {
+                                const debit = row.original?.debit || 0;
+                                const credit = row.original?.credit || 0;
+                                const netValue = debit - credit;
+                                return AmountCell({ cell: { getValue: () => netValue }, row, showSign: true });
+                            },
+                            muiTableBodyCellProps: { align: 'right' }, 
+                            headerProps: { align: 'right' }
+                        },
+                        {
+                            accessorKey: 'closing_balance',
+                            header: `Closing Balance ${moment(toDate).format('DD MMM YYYY')}`,
+                            size: 150,
+                            Cell: ({ cell, row }) => AmountCell({ cell, row, showSign: true, chipStyle: true }),
                     muiTableBodyCellProps: { align: 'right' }, 
                     headerProps: { align: 'right' }
                 }
@@ -940,12 +972,14 @@ const TrailBalance = () => {
                         <Typography variant="h6" fontWeight={600} color="primary.main">
                             Filter Options
                         </Typography>
-                        <Chip
-                            label={`${Array.isArray(data) ? data.length : 0} accounts`}
-                            size="small"
-                            color="primary"
-                            variant="outlined"
-                        />
+                      {Array.isArray(data) && data?.length > 0 && (
+                          <Chip
+                              label={`${Array.isArray(data) ? data.length : 0} accounts`}
+                              size="small"
+                              color="primary"
+                              variant="outlined"
+                          />
+                      )}
                     </Stack>
                 </Box>
 
@@ -1163,20 +1197,44 @@ const TrailBalance = () => {
                                 '& .MuiTableHead-root': {
                                     '& .MuiTableRow-root': {
                                         bgcolor: alpha(theme.palette.primary.main, 0.08),
+                                        height: '56px', // Set consistent height for header rows
                                         '& .MuiTableCell-root': {
                                             fontWeight: 600,
                                             color: theme.palette.primary.main,
                                             borderBottom: `2px solid ${theme.palette.primary.main}`,
+                                            py: 1.5, // Match body row padding
+                                            height: '56px', // Set consistent height for header cells
+                                            lineHeight: '1.2', // Improve text alignment
+                                            verticalAlign: 'middle', // Center align vertically
+                                        },
+                                        // Specific styles for grouped header rows
+                                        '&:first-of-type': {
+                                            '& .MuiTableCell-root': {
+                                                borderBottom: `1px solid ${alpha(theme.palette.primary.main, 0.3)}`,
+                                                bgcolor: alpha(theme.palette.primary.main, 0.12),
+                                            },
+                                        },
+                                        '&:last-of-type': {
+                                            '& .MuiTableCell-root': {
+                                                borderBottom: `2px solid ${theme.palette.primary.main}`,
+                                                bgcolor: alpha(theme.palette.primary.main, 0.08),
+                                            },
                                         },
                                     },
                                 },
                                 '& .MuiTableBody-root': {
                                     '& .MuiTableRow-root': {
+                                        height: '56px', // Set consistent height for all body rows
                                         '&:hover': {
                                             bgcolor: alpha(theme.palette.primary.main, 0.04),
                                         },
                                         '&:nth-of-type(even)': {
                                             bgcolor: alpha(theme.palette.grey[500], 0.02),
+                                        },
+                                        '& .MuiTableCell-root': {
+                                            py: 1.5, // Default padding for all body cells
+                                            height: '56px',
+                                            verticalAlign: 'middle',
                                         },
                                     },
                                 },
@@ -1184,6 +1242,7 @@ const TrailBalance = () => {
                         }}
                         muiTableBodyRowProps={({ row }) => ({
                             sx: {
+                                minHeight: '56px', // Set consistent minimum height for all body rows
                                 ...(row.original?.is_header && {
                                     bgcolor: alpha(theme.palette.primary.main, 0.06),
                                     '&:hover': {
@@ -1192,6 +1251,8 @@ const TrailBalance = () => {
                                     '& .MuiTableCell-root': {
                                         borderBottom: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
                                         py: 1.5,
+                                        height: '56px',
+                                        verticalAlign: 'middle',
                                     },
                                 }),
                                 ...(row.original?.level === 0 && {
@@ -1201,13 +1262,28 @@ const TrailBalance = () => {
                                     },
                                     '& .MuiTableCell-root': {
                                         borderBottom: `2px solid ${alpha(theme.palette.primary.main, 0.3)}`,
-                                        py: 2,
+                                        py: 1.5, // Changed from py: 2 to match header rows
+                                        height: '56px',
+                                        verticalAlign: 'middle',
                                     },
                                 }),
                                 ...(row.original?.level === 1 && {
                                     bgcolor: alpha(theme.palette.secondary.main, 0.04),
                                     '&:hover': {
                                         bgcolor: alpha(theme.palette.secondary.main, 0.08),
+                                    },
+                                    '& .MuiTableCell-root': {
+                                        py: 1.5,
+                                        height: '56px',
+                                        verticalAlign: 'middle',
+                                    },
+                                }),
+                                // Default styles for regular rows (level 2 and above)
+                                ...(!row.original?.is_header && row.original?.level > 1 && {
+                                    '& .MuiTableCell-root': {
+                                        py: 1.5,
+                                        height: '56px',
+                                        verticalAlign: 'middle',
                                     },
                                 }),
                             },
