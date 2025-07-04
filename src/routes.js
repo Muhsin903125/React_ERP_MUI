@@ -66,6 +66,7 @@ import PaymentEntry from './pages/Transactions/Finance/Payment/PaymentEntry';
 import Allocation from './pages/Transactions/Finance/Allocation';
 import AllocationEntry from './pages/Transactions/Finance/Allocation/AllocationEntry';
 import StatementOfAccount from './pages/Reports/Finance/StatementOfAccount';
+import TrailBalance from './pages/Reports/Finance/TrailBalance';
 import ActivityPage from './pages/ActivityPage';
 
 // Stock Adjustment
@@ -145,7 +146,7 @@ const adminMenus = [
   { path: 'statement-of-account-entry', element: <ComingSoon title="Statement of Account Entry" /> },
   { path: 'statement-of-account-entry/:id', element: <ComingSoon title="Statement of Account Entry" /> },
 
-  { path: 'trail-balance', element: <ComingSoon title="Trail Balance" /> },
+  { path: 'trail-balance', element: <TrailBalance /> },
   { path: 'trail-balance-entry', element: <ComingSoon title="Trail Balance Entry" /> },
   { path: 'trail-balance-entry/:id', element: <ComingSoon title="Trail Balance Entry" /> },
 
