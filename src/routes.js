@@ -82,6 +82,12 @@ import Ageing from './pages/Reports/Finance/Ageing';
 import SalesSummary from './pages/Reports/Sales/Summary';
 import SalesAnalysis from './pages/Reports/Sales/Analysis';
 import PurchaseSummary from './pages/Reports/Purchase/Summary';
+import PurchaseAnalysis from './pages/Reports/Purchase/Analysis';
+import StockBalance from './pages/Reports/Inventory/StockBalance';
+import StockLedger from './pages/Reports/Inventory/StockLedger';
+import StockAgeing from './pages/Reports/Inventory/StockAgeing';
+import StockLocBalance from './pages/Reports/Inventory/StockLocBalance';
+import StockMovement from './pages/Reports/Inventory/StockMovement';
 
 // ----------------------------------------------------------------------
 
@@ -160,13 +166,13 @@ const adminMenus = [
   { path: 'sales-analysis', element: <SalesAnalysis /> },
 
   { path: 'purchase-summary', element: <PurchaseSummary /> },
-  { path: 'purchase-analysis', element: <ComingSoon title="Purchase Analysis" /> },
+  { path: 'purchase-analysis', element: <PurchaseAnalysis /> },
 
-  { path: 'stock-balance', element: <ComingSoon title="Stock Balance" /> },
-  { path: 'stock-location-balance', element: <ComingSoon title="Stock Location Balance" /> },
-  { path: 'stock-ledger', element: <ComingSoon title="Stock Ledger" /> },
-  { path: 'stock-ageing', element: <ComingSoon title="Stock Ageing" /> },
-  { path: 'stock-movement', element: <ComingSoon title="Stock Movement" /> },
+  { path: 'stock-balance', element: <StockBalance /> },
+  { path: 'stock-location-balance', element: <StockLocBalance /> },
+  { path: 'stock-ledger', element: <StockLedger /> },
+  { path: 'stock-ageing', element: <StockAgeing /> },
+  { path: 'stock-movement', element: <StockMovement /> },
  
 ];
 

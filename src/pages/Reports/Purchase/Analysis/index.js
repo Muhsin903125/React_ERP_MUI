@@ -27,41 +27,35 @@ import {
     Switch,
     FormControlLabel,
     Badge,
-    Avatar,
 } from '@mui/material';
 import moment from 'moment';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import InventoryIcon from '@mui/icons-material/Inventory';
-import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import BusinessIcon from '@mui/icons-material/Business';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import InventoryIcon from '@mui/icons-material/Inventory';
 import CategoryIcon from '@mui/icons-material/Category';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
-import LocalShippingIcon from '@mui/icons-material/LocalShipping';
-import ReceiptIcon from '@mui/icons-material/Receipt';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import WarehouseIcon from '@mui/icons-material/Warehouse';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import PieChartIcon from '@mui/icons-material/PieChart';
 import TimelineIcon from '@mui/icons-material/Timeline';
-import AddIcon from '@mui/icons-material/Add';
-import RemoveIcon from '@mui/icons-material/Remove';
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import PageHeader from '../../../../components/PageHeader';
 import DataTable from '../../../../components/DataTable';
 import DateSelector from '../../../../components/DateSelector';
-import StockMovementPrint from './StockMovementPrint';
+import PurchaseAnalysisPrint from './PurchaseAnalysisPrint';
 
 dayjs.extend(isBetween);
 
 // Demo data generator
-const generateStockMovementData = (count = 100) => {
-    const products = [
-        'Laptop Dell XPS 13', 'iPhone 14 Pro', 'Samsung Galaxy S23', 'HP LaserJet Printer',
-        'Wireless Mouse', 'Bluetooth Headphones', 'USB-C Cable', 'Monitor 27inch 4K',
-        'Keyboard Mechanical', 'Router WiFi 6', 'External HDD 2TB', 'Webcam HD 1080p',
-        'Office Chair Executive', 'Desk Lamp LED', 'Power Bank 20000mAh', 'Tablet iPad Air'
+const generatePurchaseAnalysisData = (count = 50) => {
+    const suppliers = [
+        'ABC Electronics Ltd', 'Global Tech Solutions', 'Prime Components Co', 'TechnoMart International',
+        'Digital Systems Inc', 'Smart Electronics Corp', 'Advanced Tech Ltd', 'ElectroMax Solutions',
+        'TechHub Suppliers', 'Innovation Components', 'NextGen Electronics', 'ProTech Systems'
     ];
     
     const categories = [
@@ -69,86 +63,85 @@ const generateStockMovementData = (count = 100) => {
         'Mobile Devices', 'Audio/Video', 'Accessories', 'Tools & Equipment', 'Furniture'
     ];
     
-    const locations = [
-        'Main Warehouse', 'Store A', 'Store B', 'Store C', 'Online Warehouse', 'Return Center'
-    ];
-    
-    const movementTypes = [
-        'Purchase Receipt', 'Sales Issue', 'Transfer In', 'Transfer Out', 'Adjustment In', 
-        'Adjustment Out', 'Return In', 'Return Out', 'Production Receipt', 'Production Issue'
+    const products = [
+        'Laptop Dell XPS 13', 'iPhone 14 Pro', 'Samsung Galaxy S23', 'HP LaserJet Printer',
+        'Wireless Mouse', 'Bluetooth Headphones', 'USB-C Cable', 'Monitor 27inch 4K',
+        'Keyboard Mechanical', 'Router WiFi 6', 'External HDD 2TB', 'Webcam HD 1080p',
+        'Office Chair Executive', 'Desk Lamp LED', 'Power Bank 20000mAh', 'Tablet iPad Air'
     ];
     
     const data = [];
     
     for (let i = 0; i < count; i += 1) {
-        const product = products[Math.floor(Math.random() * products.length)];
+        const supplier = suppliers[Math.floor(Math.random() * suppliers.length)];
         const category = categories[Math.floor(Math.random() * categories.length)];
-        const location = locations[Math.floor(Math.random() * locations.length)];
-        const movementType = movementTypes[Math.floor(Math.random() * movementTypes.length)];
+        const product = products[Math.floor(Math.random() * products.length)];
         
-        const isInward = ['Purchase Receipt', 'Transfer In', 'Adjustment In', 'Return In', 'Production Receipt'].includes(movementType);
         const quantity = Math.floor(Math.random() * 100) + 1;
         const unitCost = Math.floor(Math.random() * 1000) + 50;
-        const totalValue = quantity * unitCost;
+        const totalCost = quantity * unitCost;
         
-        const movementDate = dayjs().subtract(Math.floor(Math.random() * 90), 'day');
+        const purchaseDate = dayjs().subtract(Math.floor(Math.random() * 90), 'day');
+        const deliveryDate = purchaseDate.add(Math.floor(Math.random() * 14) + 1, 'day');
+        
+        const leadTime = deliveryDate.diff(purchaseDate, 'day');
+        const onTimeDelivery = leadTime <= 7;
         
         data.push({
-            id: `SM${String(i + 1).padStart(5, '0')}`,
-            movementDate: movementDate.format('YYYY-MM-DD'),
-            product,
+            id: `PA${String(i + 1).padStart(4, '0')}`,
+            supplier,
             category,
-            location,
-            movementType,
-            direction: isInward ? 'In' : 'Out',
-            quantity: isInward ? quantity : -quantity,
+            product,
+            quantity,
             unitCost,
-            totalValue: isInward ? totalValue : -totalValue,
-            referenceNo: `REF${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}`,
-            batch: `BATCH${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`,
-            serialNo: Math.random() > 0.5 ? `SN${String(Math.floor(Math.random() * 100000)).padStart(5, '0')}` : null,
-            vendor: Math.random() > 0.4 ? `Vendor ${Math.floor(Math.random() * 10) + 1}` : null,
-            notes: Math.random() > 0.7 ? 'Urgent delivery required' : Math.random() > 0.5 ? 'Quality checked' : null,
-            createdBy: `User${Math.floor(Math.random() * 5) + 1}`,
-            status: Math.random() > 0.1 ? 'Completed' : Math.random() > 0.5 ? 'Pending' : 'Cancelled'
+            totalCost,
+            purchaseDate: purchaseDate.format('YYYY-MM-DD'),
+            deliveryDate: deliveryDate.format('YYYY-MM-DD'),
+            leadTime,
+            onTimeDelivery,
+            discount: Math.floor(Math.random() * 15),
+            finalCost: totalCost * (1 - Math.floor(Math.random() * 15) / 100),
+            status: Math.random() > 0.1 ? 'Completed' : Math.random() > 0.5 ? 'Pending' : 'Cancelled',
+            priority: Math.random() > 0.7 ? 'High' : Math.random() > 0.4 ? 'Medium' : 'Low',
+            paymentTerms: Math.random() > 0.5 ? 'Net 30' : Math.random() > 0.3 ? 'Net 15' : 'COD'
         });
     }
     
-    return data.sort((a, b) => new Date(b.movementDate) - new Date(a.movementDate));
+    return data.sort((a, b) => new Date(b.purchaseDate) - new Date(a.purchaseDate));
 };
 
 const quickFilters = [
-    { label: 'Today', value: 0, icon: '📅' },
-    { label: 'Last 7 Days', value: 7, icon: '📆' },
-    { label: 'Last 30 Days', value: 30, icon: '📊' },
-    { label: 'Inward Only', value: 'inward', icon: '📈' },
-    { label: 'Outward Only', value: 'outward', icon: '📉' },
-    { label: 'Adjustments', value: 'adjustments', icon: '⚖️' }
+    { label: 'Last 7 Days', value: 7, icon: '📅' },
+    { label: 'Last 30 Days', value: 30, icon: '📆' },
+    { label: 'This Quarter', value: 90, icon: '📊' },
+    { label: 'High Priority', value: 'high-priority', icon: '🔥' },
+    { label: 'On-Time Delivery', value: 'on-time', icon: '✅' },
+    { label: 'Late Delivery', value: 'late', icon: '⚠️' }
 ];
 
-const StockMovement = () => {
+const PurchaseAnalysis = () => {
     const theme = useTheme();
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [startDate, setStartDate] = useState(dayjs().subtract(30, 'day'));
     const [endDate, setEndDate] = useState(dayjs());
-    const [productFilter, setProductFilter] = useState('');
-    const [locationFilter, setLocationFilter] = useState('');
-    const [movementTypeFilter, setMovementTypeFilter] = useState('');
+    const [supplierFilter, setSupplierFilter] = useState('');
+    const [categoryFilter, setCategoryFilter] = useState('');
+    const [statusFilter, setStatusFilter] = useState('');
     const [showFilters, setShowFilters] = useState(false);
     const [showAdvanced, setShowAdvanced] = useState(false);
     const [selectedQuickFilter, setSelectedQuickFilter] = useState(null);
     const [showPrint, setShowPrint] = useState(false);
 
     // Advanced filters
-    const [categoryFilter, setCategoryFilter] = useState('');
-    const [directionFilter, setDirectionFilter] = useState('');
-    const [vendorFilter, setVendorFilter] = useState('');
-    const [statusFilter, setStatusFilter] = useState('');
+    const [minAmount, setMinAmount] = useState('');
+    const [maxAmount, setMaxAmount] = useState('');
+    const [priorityFilter, setPriorityFilter] = useState('');
+    const [paymentTermsFilter, setPaymentTermsFilter] = useState('');
 
     useEffect(() => {
-        const mockData = generateStockMovementData(150);
+        const mockData = generatePurchaseAnalysisData(75);
         setData(mockData);
         setFilteredData(mockData);
     }, []);
@@ -160,16 +153,14 @@ const StockMovement = () => {
         if (typeof filter.value === 'number') {
             const filterDate = dayjs().subtract(filter.value, 'day');
             filtered = filtered.filter(item => 
-                dayjs(item.movementDate).isAfter(filterDate)
+                dayjs(item.purchaseDate).isAfter(filterDate)
             );
-        } else if (filter.value === 'inward') {
-            filtered = filtered.filter(item => item.direction === 'In');
-        } else if (filter.value === 'outward') {
-            filtered = filtered.filter(item => item.direction === 'Out');
-        } else if (filter.value === 'adjustments') {
-            filtered = filtered.filter(item => 
-                item.movementType.includes('Adjustment')
-            );
+        } else if (filter.value === 'high-priority') {
+            filtered = filtered.filter(item => item.priority === 'High');
+        } else if (filter.value === 'on-time') {
+            filtered = filtered.filter(item => item.onTimeDelivery);
+        } else if (filter.value === 'late') {
+            filtered = filtered.filter(item => !item.onTimeDelivery);
         }
         
         setFilteredData(filtered);
@@ -180,18 +171,18 @@ const StockMovement = () => {
         
         setTimeout(() => {
             const filtered = data.filter(item => {
-                const itemDate = dayjs(item.movementDate);
+                const itemDate = dayjs(item.purchaseDate);
                 const dateInRange = itemDate.isBetween(startDate, endDate, null, '[]');
-                const productMatch = !productFilter || item.product.toLowerCase().includes(productFilter.toLowerCase());
-                const locationMatch = !locationFilter || item.location === locationFilter;
-                const movementTypeMatch = !movementTypeFilter || item.movementType === movementTypeFilter;
-                const categoryMatch = !categoryFilter || item.category === categoryFilter;
-                const directionMatch = !directionFilter || item.direction === directionFilter;
-                const vendorMatch = !vendorFilter || (item.vendor && item.vendor.toLowerCase().includes(vendorFilter.toLowerCase()));
+                const supplierMatch = !supplierFilter || item.supplier.toLowerCase().includes(supplierFilter.toLowerCase());
+                const categoryMatch = !categoryFilter || item.category.toLowerCase().includes(categoryFilter.toLowerCase());
                 const statusMatch = !statusFilter || item.status === statusFilter;
+                const minAmountMatch = !minAmount || item.finalCost >= parseFloat(minAmount);
+                const maxAmountMatch = !maxAmount || item.finalCost <= parseFloat(maxAmount);
+                const priorityMatch = !priorityFilter || item.priority === priorityFilter;
+                const paymentTermsMatch = !paymentTermsFilter || item.paymentTerms === paymentTermsFilter;
                 
-                return dateInRange && productMatch && locationMatch && movementTypeMatch && 
-                       categoryMatch && directionMatch && vendorMatch && statusMatch;
+                return dateInRange && supplierMatch && categoryMatch && statusMatch && 
+                       minAmountMatch && maxAmountMatch && priorityMatch && paymentTermsMatch;
             });
             
             setFilteredData(filtered);
@@ -200,43 +191,44 @@ const StockMovement = () => {
     };
 
     const clearFilters = () => {
-        setProductFilter('');
-        setLocationFilter('');
-        setMovementTypeFilter('');
+        setSupplierFilter('');
         setCategoryFilter('');
-        setDirectionFilter('');
-        setVendorFilter('');
         setStatusFilter('');
+        setMinAmount('');
+        setMaxAmount('');
+        setPriorityFilter('');
+        setPaymentTermsFilter('');
         setSelectedQuickFilter(null);
         setFilteredData(data);
     };
 
     // Calculate summary statistics
-    const totalMovements = filteredData.length;
-    const inwardMovements = filteredData.filter(item => item.direction === 'In').length;
-    const outwardMovements = filteredData.filter(item => item.direction === 'Out').length;
-    const totalInwardValue = filteredData
-        .filter(item => item.direction === 'In')
-        .reduce((sum, item) => sum + Math.abs(item.totalValue), 0);
-    const totalOutwardValue = filteredData
-        .filter(item => item.direction === 'Out')
-        .reduce((sum, item) => sum + Math.abs(item.totalValue), 0);
-    const netValue = totalInwardValue - totalOutwardValue;
+    const totalPurchases = filteredData.length;
+    const totalAmount = filteredData.reduce((sum, item) => sum + item.finalCost, 0);
+    const avgOrderValue = totalAmount / (totalPurchases || 1);
+    const onTimeDeliveryRate = filteredData.length > 0 
+        ? (filteredData.filter(item => item.onTimeDelivery).length / filteredData.length) * 100 
+        : 0;
+    const topSupplier = filteredData.reduce((acc, item) => {
+        acc[item.supplier] = (acc[item.supplier] || 0) + item.finalCost;
+        return acc;
+    }, {});
+    const bestSupplier = Object.keys(topSupplier).reduce((a, b) => 
+        topSupplier[a] > topSupplier[b] ? a : b, 'N/A'
+    );
 
     // Get unique values for filters
-    const uniqueProducts = [...new Set(data.map(item => item.product))].sort();
-    const uniqueLocations = [...new Set(data.map(item => item.location))].sort();
-    const uniqueMovementTypes = [...new Set(data.map(item => item.movementType))].sort();
+    const uniqueSuppliers = [...new Set(data.map(item => item.supplier))].sort();
     const uniqueCategories = [...new Set(data.map(item => item.category))].sort();
-    const uniqueDirections = ['In', 'Out'];
-    const uniqueVendors = [...new Set(data.map(item => item.vendor).filter(Boolean))].sort();
     const uniqueStatuses = [...new Set(data.map(item => item.status))].sort();
+    const uniquePriorities = [...new Set(data.map(item => item.priority))].sort();
+    const uniquePaymentTerms = [...new Set(data.map(item => item.paymentTerms))].sort();
 
     const columns = [
         {
             field: 'id',
-            headerName: 'Movement ID',
-            width: 130,
+            headerName: 'Purchase ID',
+            width: 120,
             renderCell: (params) => (
                 <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.primary.main }}>
                     {params.value}
@@ -244,32 +236,20 @@ const StockMovement = () => {
             )
         },
         {
-            field: 'movementDate',
-            headerName: 'Date',
-            width: 120,
-            renderCell: (params) => (
-                <Typography variant="body2">
-                    {dayjs(params.value).format('MMM DD, YYYY')}
-                </Typography>
-            )
-        },
-        {
-            field: 'product',
-            headerName: 'Product',
-            width: 180,
+            field: 'supplier',
+            headerName: 'Supplier',
+            width: 200,
             renderCell: (params) => (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <InventoryIcon sx={{ fontSize: 16, color: theme.palette.text.secondary }} />
-                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                        {params.value}
-                    </Typography>
+                    <BusinessIcon sx={{ fontSize: 16, color: theme.palette.text.secondary }} />
+                    <Typography variant="body2">{params.value}</Typography>
                 </Box>
             )
         },
         {
-            field: 'location',
-            headerName: 'Location',
-            width: 140,
+            field: 'category',
+            headerName: 'Category',
+            width: 150,
             renderCell: (params) => (
                 <Chip 
                     label={params.value} 
@@ -283,9 +263,9 @@ const StockMovement = () => {
             )
         },
         {
-            field: 'movementType',
-            headerName: 'Movement Type',
-            width: 150,
+            field: 'product',
+            headerName: 'Product',
+            width: 180,
             renderCell: (params) => (
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>
                     {params.value}
@@ -293,79 +273,55 @@ const StockMovement = () => {
             )
         },
         {
-            field: 'direction',
-            headerName: 'Direction',
-            width: 100,
+            field: 'quantity',
+            headerName: 'Qty',
+            width: 80,
             align: 'center',
             renderCell: (params) => (
-                <Chip 
-                    label={params.value}
-                    size="small"
-                    color={params.value === 'In' ? 'success' : 'error'}
-                    icon={params.value === 'In' ? <AddIcon /> : <RemoveIcon />}
-                    sx={{ fontWeight: 500 }}
-                />
-            )
-        },
-        {
-            field: 'quantity',
-            headerName: 'Quantity',
-            width: 100,
-            align: 'right',
-            renderCell: (params) => (
-                <Typography 
-                    variant="body2" 
-                    sx={{ 
-                        fontWeight: 600,
-                        color: params.value > 0 ? theme.palette.success.main : theme.palette.error.main
-                    }}
-                >
-                    {params.value > 0 ? '+' : ''}{params.value.toLocaleString()}
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    {params.value.toLocaleString()}
                 </Typography>
             )
         },
         {
-            field: 'unitCost',
-            headerName: 'Unit Cost',
-            width: 110,
+            field: 'finalCost',
+            headerName: 'Final Cost',
+            width: 120,
             align: 'right',
             renderCell: (params) => (
-                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.success.main }}>
                     ${params.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </Typography>
             )
         },
         {
-            field: 'totalValue',
-            headerName: 'Total Value',
+            field: 'purchaseDate',
+            headerName: 'Purchase Date',
             width: 120,
-            align: 'right',
             renderCell: (params) => (
-                <Typography 
-                    variant="body2" 
-                    sx={{ 
-                        fontWeight: 600,
-                        color: params.value > 0 ? theme.palette.success.main : theme.palette.error.main
-                    }}
-                >
-                    ${Math.abs(params.value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                <Typography variant="body2">
+                    {dayjs(params.value).format('MMM DD, YYYY')}
                 </Typography>
             )
         },
         {
-            field: 'referenceNo',
-            headerName: 'Reference',
-            width: 120,
+            field: 'leadTime',
+            headerName: 'Lead Time',
+            width: 100,
+            align: 'center',
             renderCell: (params) => (
-                <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-                    {params.value}
-                </Typography>
+                <Chip 
+                    label={`${params.value} days`}
+                    size="small"
+                    color={params.value <= 7 ? 'success' : params.value <= 14 ? 'warning' : 'error'}
+                    sx={{ fontWeight: 500 }}
+                />
             )
         },
         {
             field: 'status',
             headerName: 'Status',
-            width: 100,
+            width: 120,
             renderCell: (params) => (
                 <Chip 
                     label={params.value}
@@ -377,19 +333,35 @@ const StockMovement = () => {
                     sx={{ fontWeight: 500 }}
                 />
             )
+        },
+        {
+            field: 'priority',
+            headerName: 'Priority',
+            width: 100,
+            renderCell: (params) => (
+                <Chip 
+                    label={params.value}
+                    size="small"
+                    color={
+                        params.value === 'High' ? 'error' :
+                        params.value === 'Medium' ? 'warning' : 'default'
+                    }
+                    sx={{ fontWeight: 500 }}
+                />
+            )
         }
     ];
 
     if (showPrint) {
         return (
-            <StockMovementPrint
+            <PurchaseAnalysisPrint
                 data={filteredData}
                 filters={{
                     startDate,
                     endDate,
-                    product: productFilter,
-                    location: locationFilter,
-                    movementType: movementTypeFilter
+                    supplier: supplierFilter,
+                    category: categoryFilter,
+                    status: statusFilter
                 }}
                 onClose={() => setShowPrint(false)}
             />
@@ -399,9 +371,9 @@ const StockMovement = () => {
     return (
         <Container maxWidth="xl">
             <PageHeader 
-                title="Stock Movement" 
-                subtitle="Track all inventory movements across locations and time periods"
-                icon={<SwapHorizIcon />}
+                title="Purchase Analysis" 
+                subtitle="Comprehensive analysis of purchase transactions and supplier performance"
+                icon={<AssessmentIcon />}
                 action={
                     <Stack direction="row" spacing={2}>
                         <Button
@@ -410,7 +382,7 @@ const StockMovement = () => {
                             onClick={() => {
                                 setLoading(true);
                                 setTimeout(() => {
-                                    const newData = generateStockMovementData(150);
+                                    const newData = generatePurchaseAnalysisData(75);
                                     setData(newData);
                                     setFilteredData(newData);
                                     setLoading(false);
@@ -463,13 +435,13 @@ const StockMovement = () => {
                             <Stack direction="row" alignItems="center" justifyContent="space-between">
                                 <Box>
                                     <Typography color="textSecondary" gutterBottom variant="body2">
-                                        Total Movements
+                                        Total Purchases
                                     </Typography>
                                     <Typography variant="h4" sx={{ fontWeight: 700, color: theme.palette.primary.main }}>
-                                        {loading ? <Skeleton width={60} /> : totalMovements.toLocaleString()}
+                                        {loading ? <Skeleton width={60} /> : totalPurchases.toLocaleString()}
                                     </Typography>
                                 </Box>
-                                <SwapHorizIcon sx={{ fontSize: 40, color: theme.palette.primary.main, opacity: 0.7 }} />
+                                <ShoppingCartIcon sx={{ fontSize: 40, color: theme.palette.primary.main, opacity: 0.7 }} />
                             </Stack>
                         </CardContent>
                     </Card>
@@ -481,37 +453,13 @@ const StockMovement = () => {
                             <Stack direction="row" alignItems="center" justifyContent="space-between">
                                 <Box>
                                     <Typography color="textSecondary" gutterBottom variant="body2">
-                                        Inward Movements
+                                        Total Amount
                                     </Typography>
                                     <Typography variant="h4" sx={{ fontWeight: 700, color: theme.palette.success.main }}>
-                                        {loading ? <Skeleton width={60} /> : inwardMovements.toLocaleString()}
-                                    </Typography>
-                                    <Typography variant="body2" color="textSecondary">
-                                        ${totalInwardValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                        {loading ? <Skeleton width={100} /> : `$${totalAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
                                     </Typography>
                                 </Box>
                                 <TrendingUpIcon sx={{ fontSize: 40, color: theme.palette.success.main, opacity: 0.7 }} />
-                            </Stack>
-                        </CardContent>
-                    </Card>
-                </Grid>
-
-                <Grid item xs={12} sm={6} md={3}>
-                    <Card sx={{ height: '100%', background: `linear-gradient(135deg, ${alpha(theme.palette.error.main, 0.1)} 0%, ${alpha(theme.palette.error.main, 0.05)} 100%)` }}>
-                        <CardContent>
-                            <Stack direction="row" alignItems="center" justifyContent="space-between">
-                                <Box>
-                                    <Typography color="textSecondary" gutterBottom variant="body2">
-                                        Outward Movements
-                                    </Typography>
-                                    <Typography variant="h4" sx={{ fontWeight: 700, color: theme.palette.error.main }}>
-                                        {loading ? <Skeleton width={60} /> : outwardMovements.toLocaleString()}
-                                    </Typography>
-                                    <Typography variant="body2" color="textSecondary">
-                                        ${totalOutwardValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                                    </Typography>
-                                </Box>
-                                <TrendingDownIcon sx={{ fontSize: 40, color: theme.palette.error.main, opacity: 0.7 }} />
                             </Stack>
                         </CardContent>
                     </Card>
@@ -523,19 +471,31 @@ const StockMovement = () => {
                             <Stack direction="row" alignItems="center" justifyContent="space-between">
                                 <Box>
                                     <Typography color="textSecondary" gutterBottom variant="body2">
-                                        Net Value Change
+                                        Avg Order Value
                                     </Typography>
-                                    <Typography 
-                                        variant="h4" 
-                                        sx={{ 
-                                            fontWeight: 700, 
-                                            color: netValue >= 0 ? theme.palette.success.main : theme.palette.error.main 
-                                        }}
-                                    >
-                                        {loading ? <Skeleton width={80} /> : `${netValue >= 0 ? '+' : ''}$${netValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+                                    <Typography variant="h4" sx={{ fontWeight: 700, color: theme.palette.info.main }}>
+                                        {loading ? <Skeleton width={80} /> : `$${avgOrderValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
                                     </Typography>
                                 </Box>
-                                <TimelineIcon sx={{ fontSize: 40, color: theme.palette.info.main, opacity: 0.7 }} />
+                                <BarChartIcon sx={{ fontSize: 40, color: theme.palette.info.main, opacity: 0.7 }} />
+                            </Stack>
+                        </CardContent>
+                    </Card>
+                </Grid>
+
+                <Grid item xs={12} sm={6} md={3}>
+                    <Card sx={{ height: '100%', background: `linear-gradient(135deg, ${alpha(theme.palette.warning.main, 0.1)} 0%, ${alpha(theme.palette.warning.main, 0.05)} 100%)` }}>
+                        <CardContent>
+                            <Stack direction="row" alignItems="center" justifyContent="space-between">
+                                <Box>
+                                    <Typography color="textSecondary" gutterBottom variant="body2">
+                                        On-Time Delivery
+                                    </Typography>
+                                    <Typography variant="h4" sx={{ fontWeight: 700, color: theme.palette.warning.main }}>
+                                        {loading ? <Skeleton width={60} /> : `${onTimeDeliveryRate.toFixed(1)}%`}
+                                    </Typography>
+                                </Box>
+                                <TimelineIcon sx={{ fontSize: 40, color: theme.palette.warning.main, opacity: 0.7 }} />
                             </Stack>
                         </CardContent>
                     </Card>
@@ -592,13 +552,13 @@ const StockMovement = () => {
                             </Grid>
                             <Grid item xs={12} md={3}>
                                 <Autocomplete
-                                    options={uniqueProducts}
-                                    value={productFilter}
-                                    onChange={(event, newValue) => setProductFilter(newValue || '')}
+                                    options={uniqueSuppliers}
+                                    value={supplierFilter}
+                                    onChange={(event, newValue) => setSupplierFilter(newValue || '')}
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
-                                            label="Product"
+                                            label="Supplier"
                                             variant="outlined"
                                             size="small"
                                             fullWidth
@@ -608,13 +568,13 @@ const StockMovement = () => {
                             </Grid>
                             <Grid item xs={12} md={3}>
                                 <Autocomplete
-                                    options={uniqueLocations}
-                                    value={locationFilter}
-                                    onChange={(event, newValue) => setLocationFilter(newValue || '')}
+                                    options={uniqueCategories}
+                                    value={categoryFilter}
+                                    onChange={(event, newValue) => setCategoryFilter(newValue || '')}
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
-                                            label="Location"
+                                            label="Category"
                                             variant="outlined"
                                             size="small"
                                             fullWidth
@@ -627,71 +587,29 @@ const StockMovement = () => {
                         {/* Advanced Filters */}
                         <Collapse in={showAdvanced}>
                             <Grid container spacing={2} sx={{ mb: 2 }}>
-                                <Grid item xs={12} md={2.4}>
-                                    <Autocomplete
-                                        options={uniqueMovementTypes}
-                                        value={movementTypeFilter}
-                                        onChange={(event, newValue) => setMovementTypeFilter(newValue || '')}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Movement Type"
-                                                variant="outlined"
-                                                size="small"
-                                                fullWidth
-                                            />
-                                        )}
+                                <Grid item xs={12} md={2}>
+                                    <TextField
+                                        label="Min Amount"
+                                        type="number"
+                                        value={minAmount}
+                                        onChange={(e) => setMinAmount(e.target.value)}
+                                        variant="outlined"
+                                        size="small"
+                                        fullWidth
                                     />
                                 </Grid>
-                                <Grid item xs={12} md={2.4}>
-                                    <Autocomplete
-                                        options={uniqueCategories}
-                                        value={categoryFilter}
-                                        onChange={(event, newValue) => setCategoryFilter(newValue || '')}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Category"
-                                                variant="outlined"
-                                                size="small"
-                                                fullWidth
-                                            />
-                                        )}
+                                <Grid item xs={12} md={2}>
+                                    <TextField
+                                        label="Max Amount"
+                                        type="number"
+                                        value={maxAmount}
+                                        onChange={(e) => setMaxAmount(e.target.value)}
+                                        variant="outlined"
+                                        size="small"
+                                        fullWidth
                                     />
                                 </Grid>
-                                <Grid item xs={12} md={2.4}>
-                                    <Autocomplete
-                                        options={uniqueDirections}
-                                        value={directionFilter}
-                                        onChange={(event, newValue) => setDirectionFilter(newValue || '')}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Direction"
-                                                variant="outlined"
-                                                size="small"
-                                                fullWidth
-                                            />
-                                        )}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} md={2.4}>
-                                    <Autocomplete
-                                        options={uniqueVendors}
-                                        value={vendorFilter}
-                                        onChange={(event, newValue) => setVendorFilter(newValue || '')}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Vendor"
-                                                variant="outlined"
-                                                size="small"
-                                                fullWidth
-                                            />
-                                        )}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} md={2.4}>
+                                <Grid item xs={12} md={2}>
                                     <Autocomplete
                                         options={uniqueStatuses}
                                         value={statusFilter}
@@ -700,6 +618,38 @@ const StockMovement = () => {
                                             <TextField
                                                 {...params}
                                                 label="Status"
+                                                variant="outlined"
+                                                size="small"
+                                                fullWidth
+                                            />
+                                        )}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={2}>
+                                    <Autocomplete
+                                        options={uniquePriorities}
+                                        value={priorityFilter}
+                                        onChange={(event, newValue) => setPriorityFilter(newValue || '')}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Priority"
+                                                variant="outlined"
+                                                size="small"
+                                                fullWidth
+                                            />
+                                        )}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={2}>
+                                    <Autocomplete
+                                        options={uniquePaymentTerms}
+                                        value={paymentTermsFilter}
+                                        onChange={(event, newValue) => setPaymentTermsFilter(newValue || '')}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Payment Terms"
                                                 variant="outlined"
                                                 size="small"
                                                 fullWidth
@@ -753,41 +703,21 @@ const StockMovement = () => {
                 />
             </Paper>
 
-            {/* Movement Analysis */}
+            {/* Additional Insights */}
             {filteredData.length > 0 && (
                 <Grid container spacing={3} sx={{ mt: 2 }}>
                     <Grid item xs={12} md={6}>
                         <Card>
                             <CardContent>
                                 <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <WarehouseIcon /> Movement Breakdown
+                                    <BusinessIcon /> Top Supplier
                                 </Typography>
-                                <Stack spacing={2}>
-                                    <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                        <Typography variant="body2">Purchase Receipts:</Typography>
-                                        <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.success.main }}>
-                                            {filteredData.filter(item => item.movementType === 'Purchase Receipt').length}
-                                        </Typography>
-                                    </Stack>
-                                    <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                        <Typography variant="body2">Sales Issues:</Typography>
-                                        <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.error.main }}>
-                                            {filteredData.filter(item => item.movementType === 'Sales Issue').length}
-                                        </Typography>
-                                    </Stack>
-                                    <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                        <Typography variant="body2">Transfers:</Typography>
-                                        <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.info.main }}>
-                                            {filteredData.filter(item => item.movementType.includes('Transfer')).length}
-                                        </Typography>
-                                    </Stack>
-                                    <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                        <Typography variant="body2">Adjustments:</Typography>
-                                        <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.warning.main }}>
-                                            {filteredData.filter(item => item.movementType.includes('Adjustment')).length}
-                                        </Typography>
-                                    </Stack>
-                                </Stack>
+                                <Typography variant="h4" sx={{ color: theme.palette.primary.main, fontWeight: 600 }}>
+                                    {bestSupplier}
+                                </Typography>
+                                <Typography variant="body2" color="textSecondary">
+                                    Total Purchase Value: ${topSupplier[bestSupplier]?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
+                                </Typography>
                             </CardContent>
                         </Card>
                     </Grid>
@@ -795,38 +725,25 @@ const StockMovement = () => {
                         <Card>
                             <CardContent>
                                 <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <CompareArrowsIcon /> Value Analysis
+                                    <CompareArrowsIcon /> Performance Metrics
                                 </Typography>
-                                <Stack spacing={2}>
-                                    <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                        <Typography variant="body2">Total Inward Value:</Typography>
+                                <Stack spacing={1}>
+                                    <Stack direction="row" justifyContent="space-between">
+                                        <Typography variant="body2">Average Lead Time:</Typography>
+                                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                            {(filteredData.reduce((sum, item) => sum + item.leadTime, 0) / filteredData.length).toFixed(1)} days
+                                        </Typography>
+                                    </Stack>
+                                    <Stack direction="row" justifyContent="space-between">
+                                        <Typography variant="body2">Completed Orders:</Typography>
                                         <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.success.main }}>
-                                            ${totalInwardValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            {((filteredData.filter(item => item.status === 'Completed').length / filteredData.length) * 100).toFixed(1)}%
                                         </Typography>
                                     </Stack>
-                                    <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                        <Typography variant="body2">Total Outward Value:</Typography>
+                                    <Stack direction="row" justifyContent="space-between">
+                                        <Typography variant="body2">High Priority Orders:</Typography>
                                         <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.error.main }}>
-                                            ${totalOutwardValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                        </Typography>
-                                    </Stack>
-                                    <Divider />
-                                    <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                        <Typography variant="body2" sx={{ fontWeight: 600 }}>Net Change:</Typography>
-                                        <Typography 
-                                            variant="body2" 
-                                            sx={{ 
-                                                fontWeight: 600, 
-                                                color: netValue >= 0 ? theme.palette.success.main : theme.palette.error.main 
-                                            }}
-                                        >
-                                            ${Math.abs(netValue).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                        </Typography>
-                                    </Stack>
-                                    <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                        <Typography variant="body2">Avg Transaction Value:</Typography>
-                                        <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.primary.main }}>
-                                            ${((totalInwardValue + totalOutwardValue) / totalMovements).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            {filteredData.filter(item => item.priority === 'High').length}
                                         </Typography>
                                     </Stack>
                                 </Stack>
@@ -839,4 +756,4 @@ const StockMovement = () => {
     );
 };
 
-export default StockMovement;
+export default PurchaseAnalysis;
