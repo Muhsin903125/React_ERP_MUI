@@ -81,6 +81,7 @@ import BalanceSheet from './pages/Reports/Finance/BalanceSheet';
 import Ageing from './pages/Reports/Finance/Ageing';
 import SalesSummary from './pages/Reports/Sales/Summary';
 import SalesAnalysis from './pages/Reports/Sales/Analysis';
+import PurchaseSummary from './pages/Reports/Purchase/Summary';
 
 // ----------------------------------------------------------------------
 
@@ -158,7 +159,7 @@ const adminMenus = [
   { path: 'sales-summary', element: <SalesSummary /> },
   { path: 'sales-analysis', element: <SalesAnalysis /> },
 
-  { path: 'purchase-summary', element: <ComingSoon title="Purchase Summary" /> },
+  { path: 'purchase-summary', element: <PurchaseSummary /> },
   { path: 'purchase-analysis', element: <ComingSoon title="Purchase Analysis" /> },
 
   { path: 'stock-balance', element: <ComingSoon title="Stock Balance" /> },
