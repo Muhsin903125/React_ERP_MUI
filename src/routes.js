@@ -76,6 +76,8 @@ import StockAdjustmentEntry from './pages/Transactions/Store/StockAdjustment/Sto
 // Transfer
 import Transfer from './pages/Transactions/Store/Transfer';
 import TransferEntry from './pages/Transactions/Store/Transfer/TransferEntry';
+import PAndL from './pages/Reports/Finance/PAndL';
+import BalanceSheet from './pages/Reports/Finance/BalanceSheet';
 
 // ----------------------------------------------------------------------
 
@@ -142,21 +144,11 @@ const adminMenus = [
   { path: 'stock-transfer-entry', element: <TransferEntry /> },
   { path: 'stock-transfer-entry/:id', element: <TransferEntry /> },
 
-  { path: 'statement-of-account', element: <StatementOfAccount /> },
-  { path: 'statement-of-account-entry', element: <ComingSoon title="Statement of Account Entry" /> },
-  { path: 'statement-of-account-entry/:id', element: <ComingSoon title="Statement of Account Entry" /> },
+  { path: 'statement-of-account', element: <StatementOfAccount /> }, 
 
-  { path: 'trail-balance', element: <TrailBalance /> },
-  { path: 'trail-balance-entry', element: <ComingSoon title="Trail Balance Entry" /> },
-  { path: 'trail-balance-entry/:id', element: <ComingSoon title="Trail Balance Entry" /> },
-
-  { path: 'pl', element: <ComingSoon title="Profit and Loss" /> },
-  { path: 'pl-entry', element: <ComingSoon title="Profit and Loss Entry" /> },
-  { path: 'pl-entry/:id', element: <ComingSoon title="Profit and Loss Entry" /> },
-
-  { path: 'balance-sheet', element: <ComingSoon title="Balance Sheet" /> },
-  { path: 'balance-sheet-entry', element: <ComingSoon title="Balance Sheet Entry" /> },
-  { path: 'balance-sheet-entry/:id', element: <ComingSoon title="Balance Sheet Entry" /> },
+  { path: 'trail-balance', element: <TrailBalance /> }, 
+  { path: 'pl', element: <PAndL /> }, 
+  { path: 'balance-sheet', element: <BalanceSheet /> }, 
 
   { path: 'ageing', element: <ComingSoon title="Ageing" /> },
   { path: 'ageing-entry', element: <ComingSoon title="Ageing Entry" /> },
