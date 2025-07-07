@@ -79,6 +79,7 @@ import TransferEntry from './pages/Transactions/Store/Transfer/TransferEntry';
 import PAndL from './pages/Reports/Finance/PAndL';
 import BalanceSheet from './pages/Reports/Finance/BalanceSheet';
 import Ageing from './pages/Reports/Finance/Ageing';
+import SalesSummary from './pages/Reports/Sales/Summary';
 
 // ----------------------------------------------------------------------
 
@@ -155,7 +156,7 @@ const adminMenus = [
   { path: 'ageing-entry', element: <ComingSoon title="Ageing Entry" /> },
   { path: 'ageing-entry/:id', element: <ComingSoon title="Ageing Entry" /> },
 
-  { path: 'sales-summary', element: <ComingSoon title="Sales Summary" /> },
+  { path: 'sales-summary', element: <SalesSummary /> },
   { path: 'sales-analysis', element: <ComingSoon title="Sales Analysis" /> },
 
   { path: 'purchase-summary', element: <ComingSoon title="Purchase Summary" /> },

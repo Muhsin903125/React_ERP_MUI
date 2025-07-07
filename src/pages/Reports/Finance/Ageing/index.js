@@ -144,7 +144,7 @@ const AmountCell = ({ cell, row, showSign = false, chipStyle = false, ageingBuck
 };
 
 // Column configurations for different report formats
-const getColumns = (reportFormat, reportType, asOfDate) => {
+const getColumns = (reportFormat, reportType, asOfDate, selectedPeriod = 'standard') => {
     const baseColumns = [
         {
             accessorKey: 'customer_name',
@@ -160,50 +160,31 @@ const getColumns = (reportFormat, reportType, asOfDate) => {
         }
     ];
 
+    // Get the selected period configuration
+    const periodConfig = periodOptions.find(p => p.value === selectedPeriod) || periodOptions[0];
+
     switch (reportFormat) {
-        case 'detailed':
+        case 'detailed': {
+            // Generate dynamic columns based on selected period
+            const dynamicColumns = periodConfig.buckets.map((bucket, index) => ({
+                accessorKey: bucket.key,
+                header: bucket.label,
+                size: 130,
+                Cell: ({ cell, row }) => AmountCell({ 
+                    cell, 
+                    row, 
+                    ageingBucket: bucket.key === 'current' ? 'Current' : 
+                                 index === periodConfig.buckets.length - 1 ? '120+' : 
+                                 bucket.label.includes('60') || bucket.label.includes('90') ? '61-90' : 
+                                 '31-60'
+                }),
+                muiTableBodyCellProps: { align: 'right' }, 
+                headerProps: { align: 'right' }
+            }));
+
             return [
                 ...baseColumns,
-                {
-                    accessorKey: 'current',
-                    header: 'Current (0-30 days)',
-                    size: 130,
-                    Cell: ({ cell, row }) => AmountCell({ cell, row, ageingBucket: 'Current' }),
-                    muiTableBodyCellProps: { align: 'right' }, 
-                    headerProps: { align: 'right' }
-                },
-                {
-                    accessorKey: 'days_31_60',
-                    header: '31-60 days',
-                    size: 120,
-                    Cell: ({ cell, row }) => AmountCell({ cell, row, ageingBucket: '31-60' }),
-                    muiTableBodyCellProps: { align: 'right' }, 
-                    headerProps: { align: 'right' }
-                },
-                {
-                    accessorKey: 'days_61_90',
-                    header: '61-90 days',
-                    size: 120,
-                    Cell: ({ cell, row }) => AmountCell({ cell, row, ageingBucket: '61-90' }),
-                    muiTableBodyCellProps: { align: 'right' }, 
-                    headerProps: { align: 'right' }
-                },
-                {
-                    accessorKey: 'days_91_120',
-                    header: '91-120 days',
-                    size: 120,
-                    Cell: ({ cell, row }) => AmountCell({ cell, row, ageingBucket: '91-120' }),
-                    muiTableBodyCellProps: { align: 'right' }, 
-                    headerProps: { align: 'right' }
-                },
-                {
-                    accessorKey: 'days_120_plus',
-                    header: 'Over 120 days',
-                    size: 130,
-                    Cell: ({ cell, row }) => AmountCell({ cell, row, ageingBucket: '120+' }),
-                    muiTableBodyCellProps: { align: 'right' }, 
-                    headerProps: { align: 'right' }
-                },
+                ...dynamicColumns,
                 {
                     accessorKey: 'total_outstanding',
                     header: 'Total Outstanding',
@@ -213,6 +194,7 @@ const getColumns = (reportFormat, reportType, asOfDate) => {
                     headerProps: { align: 'right' }
                 }
             ];
+        }
 
         case 'summary':
             return [
@@ -326,7 +308,237 @@ const reportTypes = [
     { value: 'supplier', label: 'Supplier Aging (Payables)' }
 ];
 
+// Period selection options for aging buckets
+const periodOptions = [
+    { 
+        value: 'standard', 
+        label: 'Standard (30-60-90-120+ days)',
+        buckets: [
+            { key: 'current', label: 'Current (0-30 days)', days: 30 },
+            { key: 'days_31_60', label: '31-60 days', days: 60 },
+            { key: 'days_61_90', label: '61-90 days', days: 90 },
+            { key: 'days_91_120', label: '91-120 days', days: 120 },
+            { key: 'days_120_plus', label: 'Over 120 days', days: 999 }
+        ]
+    },
+    { 
+        value: 'weekly', 
+        label: 'Weekly (7-14-21-28+ days)',
+        buckets: [
+            { key: 'current', label: 'Current (0-7 days)', days: 7 },
+            { key: 'days_8_14', label: '8-14 days', days: 14 },
+            { key: 'days_15_21', label: '15-21 days', days: 21 },
+            { key: 'days_22_28', label: '22-28 days', days: 28 },
+            { key: 'days_28_plus', label: 'Over 28 days', days: 999 }
+        ]
+    },
+    { 
+        value: 'quarterly', 
+        label: 'Quarterly (90-180-270-360+ days)',
+        buckets: [
+            { key: 'current', label: 'Current (0-90 days)', days: 90 },
+            { key: 'days_91_180', label: '91-180 days', days: 180 },
+            { key: 'days_181_270', label: '181-270 days', days: 270 },
+            { key: 'days_271_360', label: '271-360 days', days: 360 },
+            { key: 'days_360_plus', label: 'Over 360 days', days: 999 }
+        ]
+    },
+    { 
+        value: 'custom', 
+        label: 'Custom (15-30-45-60+ days)',
+        buckets: [
+            { key: 'current', label: 'Current (0-15 days)', days: 15 },
+            { key: 'days_16_30', label: '16-30 days', days: 30 },
+            { key: 'days_31_45', label: '31-45 days', days: 45 },
+            { key: 'days_46_60', label: '46-60 days', days: 60 },
+            { key: 'days_60_plus', label: 'Over 60 days', days: 999 }
+        ]
+    }
+];
+
 // Demo data for Ageing testing
+const generateDemoData = (reportType, selectedPeriod) => {
+    const periodConfig = periodOptions.find(p => p.value === selectedPeriod) || periodOptions[0];
+    
+    if (reportType === 'customer') {
+        // Generate customer demo data with dynamic period structure
+        const baseCustomers = [
+            {
+                customer_code: 'CUST001',
+                customer_name: 'ABC Trading LLC',
+                customer_type: 'customer',
+                is_header: false,
+                level: 0,
+                overdue_amount: 16000.00,
+                days_overdue: 95,
+                last_payment_date: '2024-10-15'
+            },
+            {
+                customer_code: 'CUST002',
+                customer_name: 'XYZ Corporation',
+                customer_type: 'customer',
+                is_header: false,
+                level: 0,
+                overdue_amount: 15000.00,
+                days_overdue: 145,
+                last_payment_date: '2024-09-20'
+            },
+            {
+                customer_code: 'CUST003',
+                customer_name: 'Global Enterprises',
+                customer_type: 'customer',
+                is_header: false,
+                level: 0,
+                overdue_amount: 11000.00,
+                days_overdue: 85,
+                last_payment_date: '2024-11-01'
+            },
+            {
+                customer_code: 'CUST004',
+                customer_name: 'Tech Solutions Inc',
+                customer_type: 'customer',
+                is_header: false,
+                level: 0,
+                overdue_amount: 5000.00,
+                days_overdue: 45,
+                last_payment_date: '2024-11-20'
+            },
+            {
+                customer_code: 'CUST005',
+                customer_name: 'Prime Retail Group',
+                customer_type: 'customer',
+                is_header: false,
+                level: 0,
+                overdue_amount: 20000.00,
+                days_overdue: 165,
+                last_payment_date: '2024-08-10'
+            }
+        ];
+
+        // Add dynamic aging buckets based on selected period
+        const customersWithAging = baseCustomers.map((customer, index) => {
+            const aging = {};
+            let total = 0;
+            
+            // Generate amounts for each bucket
+            periodConfig.buckets.forEach((bucket, bucketIndex) => {
+                let amount = 0;
+                if (bucketIndex === 0) { // Current bucket
+                    amount = Math.random() * 25000;
+                } else if (bucketIndex === periodConfig.buckets.length - 1) { // Last bucket
+                    amount = Math.random() * 15000;
+                } else {
+                    amount = Math.random() * 10000;
+                }
+                aging[bucket.key] = Math.round(amount * 100) / 100;
+                total += aging[bucket.key];
+            });
+            
+            aging.total_outstanding = Math.round(total * 100) / 100;
+            
+            return {
+                ...customer,
+                ...aging
+            };
+        });
+
+        // Calculate totals
+        const totals = periodConfig.buckets.reduce((acc, bucket) => {
+            acc[bucket.key] = customersWithAging.reduce((sum, customer) => sum + customer[bucket.key], 0);
+            return acc;
+        }, {});
+        
+        totals.total_outstanding = customersWithAging.reduce((sum, customer) => sum + customer.total_outstanding, 0);
+        totals.overdue_amount = customersWithAging.reduce((sum, customer) => sum + customer.overdue_amount, 0);
+
+        // Add summary row
+        const summaryRow = {
+            customer_code: 'TOTAL',
+            customer_name: 'TOTAL RECEIVABLES',
+            customer_type: 'summary',
+            is_header: true,
+            level: 0,
+            days_overdue: 165,
+            last_payment_date: null,
+            ...totals
+        };
+
+        return [...customersWithAging, summaryRow];
+    }
+    
+    // Supplier data with similar structure
+    const baseSuppliers = [
+        {
+            customer_code: 'SUPP001',
+            customer_name: 'Office Supplies Co',
+            customer_type: 'supplier',
+            is_header: false,
+            level: 0,
+            overdue_amount: 11000.00,
+            days_overdue: 125,
+            last_payment_date: '2024-10-05'
+        },
+        {
+            customer_code: 'SUPP002',
+            customer_name: 'Manufacturing Parts Ltd',
+            customer_type: 'supplier',
+            is_header: false,
+            level: 0,
+            overdue_amount: 8000.00,
+            days_overdue: 55,
+            last_payment_date: '2024-11-15'
+        }
+    ];
+
+    const suppliersWithAging = baseSuppliers.map((supplier, index) => {
+        const aging = {};
+        let total = 0;
+        
+        periodConfig.buckets.forEach((bucket, bucketIndex) => {
+            let amount = 0;
+            if (bucketIndex === 0) { // Current bucket
+                amount = Math.random() * 20000;
+            } else if (bucketIndex === periodConfig.buckets.length - 1) { // Last bucket
+                amount = Math.random() * 5000;
+            } else {
+                amount = Math.random() * 8000;
+            }
+            aging[bucket.key] = Math.round(amount * 100) / 100;
+            total += aging[bucket.key];
+        });
+        
+        aging.total_outstanding = Math.round(total * 100) / 100;
+        
+        return {
+            ...supplier,
+            ...aging
+        };
+    });
+
+    // Calculate supplier totals
+    const supplierTotals = periodConfig.buckets.reduce((acc, bucket) => {
+        acc[bucket.key] = suppliersWithAging.reduce((sum, supplier) => sum + supplier[bucket.key], 0);
+        return acc;
+    }, {});
+    
+    supplierTotals.total_outstanding = suppliersWithAging.reduce((sum, supplier) => sum + supplier.total_outstanding, 0);
+    supplierTotals.overdue_amount = suppliersWithAging.reduce((sum, supplier) => sum + supplier.overdue_amount, 0);
+
+    const supplierSummaryRow = {
+        customer_code: 'TOTAL',
+        customer_name: 'TOTAL PAYABLES',
+        customer_type: 'summary',
+        is_header: true,
+        level: 0,
+        days_overdue: 125,
+        last_payment_date: null,
+        ...supplierTotals
+    };
+
+    return [...suppliersWithAging, supplierSummaryRow];
+};
+
+// Legacy demo data for backward compatibility
 const demoData = [
     // Customer Ageing - Receivables
     {
@@ -487,19 +699,21 @@ const Ageing = () => {
     const [asOfDate, setAsOfDate] = useState(dayjs().format('YYYY-MM-DD'));
     const [reportFormat, setReportFormat] = useState(reportFormats[0].value); // Default to detailed
     const [reportType, setReportType] = useState(reportTypes[0].value); // Default to customer
+    const [selectedPeriod, setSelectedPeriod] = useState(periodOptions[0].value); // Default to standard
     const [data, setData] = useState(demoData);
     const [errors, setErrors] = useState({
         reportFormat: '',
-        reportType: ''
+        reportType: '',
+        selectedPeriod: ''
     });
     const [touched, setTouched] = useState(false);
     const [loader, setLoader] = useState(false);
     const [hasInitialLoad, setHasInitialLoad] = useState(false);
 
-    const isFormValid = asOfDate && reportFormat && reportType;
+    const isFormValid = asOfDate && reportFormat && reportType && selectedPeriod;
 
-    // Get dynamic columns based on report format
-    const columns = getColumns(reportFormat, reportType, asOfDate);
+    // Get dynamic columns based on report format and selected period
+    const columns = getColumns(reportFormat, reportType, asOfDate, selectedPeriod);
 
     const getReportData = async () => {
         setLoader(true);
@@ -507,10 +721,10 @@ const Ageing = () => {
             // Simulate API call delay
             await new Promise(resolve => setTimeout(resolve, 1000));
             
-            // Set appropriate demo data based on report type
-            const reportData = reportType === 'customer' ? demoData : supplierDemoData;
+            // Generate demo data based on report type and selected period
+            const reportData = generateDemoData(reportType, selectedPeriod);
             
-            showToast(`${reportTypes.find(f => f.value === reportType)?.label} generated successfully`, "success");
+            showToast(`${reportTypes.find(f => f.value === reportType)?.label} generated successfully with ${periodOptions.find(p => p.value === selectedPeriod)?.label}`, "success");
             setData(reportData);
         } catch (error) {
             showToast("Error loading Ageing data", "error");
@@ -529,13 +743,13 @@ const Ageing = () => {
         }
     }, [hasInitialLoad]);
 
-    // Update data when report type changes
+    // Update data when report type or period changes
     useEffect(() => {
         if (hasInitialLoad) {
-            const reportData = reportType === 'customer' ? demoData : supplierDemoData;
+            const reportData = generateDemoData(reportType, selectedPeriod);
             setData(reportData);
         }
-    }, [reportType, hasInitialLoad]);
+    }, [reportType, selectedPeriod, hasInitialLoad]);
 
     // Calculate Ageing summary statistics
     const summary = Array.isArray(data) && data.length > 0 ? (() => {
@@ -584,7 +798,8 @@ const Ageing = () => {
         setTouched(true);
         const newErrors = {
             reportFormat: !reportFormat ? 'Report Format is required' : '',
-            reportType: !reportType ? 'Report Type is required' : ''
+            reportType: !reportType ? 'Report Type is required' : '',
+            selectedPeriod: !selectedPeriod ? 'Period Selection is required' : ''
         };
         setErrors(newErrors);
 
@@ -597,12 +812,14 @@ const Ageing = () => {
         setAsOfDate(dayjs().format('YYYY-MM-DD'));
         setReportFormat(reportFormats[0].value); // Reset to detailed
         setReportType(reportTypes[0].value); // Reset to customer
+        setSelectedPeriod(periodOptions[0].value); // Reset to standard
         setErrors({
             reportFormat: '',
-            reportType: ''
+            reportType: '',
+            selectedPeriod: ''
         });
         setTouched(false);
-        setData(demoData); // Reset to demo data
+        setData(generateDemoData(reportTypes[0].value, periodOptions[0].value)); // Reset to demo data with default period
         setHasInitialLoad(true); // Mark as loaded
         showToast("Filters reset successfully", "success");
     };
@@ -694,12 +911,13 @@ const Ageing = () => {
                                         {loader ? (
                                             <Skeleton width={50} height={16} />
                                         ) : (
-                                            `${summary?.overdueAmount?.toFixed(2) || '0.00'}`
+                                            `${summary?.overdueAmount?.toFixed(2) || '0.00'}` 
                                         )}
-                                    </Typography>
-                                    <Typography variant="caption" sx={{ opacity: 0.8, fontSize: '0.65rem' }}>
+                                        <Typography variant="caption" sx={{ml: 0.5, opacity: 0.8, fontSize: '0.65rem' }}>
                                         ({summary?.overduePercentage?.toFixed(1) || '0.0'}%)
                                     </Typography>
+                                    </Typography>
+                                    
                                 </Box>
                             </Stack>
                         </CardContent>
@@ -785,10 +1003,11 @@ const Ageing = () => {
                                         ) : (
                                             `${summary?.overdueCustomersCount || 0}/${summary?.customersCount || 0}`
                                         )}
+                                        <Typography variant="caption" sx={{ ml: 0.5, opacity: 0.8, fontSize: '0.65rem' }}>
+                                            Avg: {summary?.avgDaysOverdue || 0} days
+                                        </Typography>
                                     </Typography>
-                                    <Typography variant="caption" sx={{ opacity: 0.8, fontSize: '0.65rem' }}>
-                                        Avg: {summary?.avgDaysOverdue || 0} days
-                                    </Typography>
+                                   
                                 </Box>
                             </Stack>
                         </CardContent>
@@ -832,7 +1051,7 @@ const Ageing = () => {
                 <Box sx={{ p: 3 }}>
                     {/* Filter Controls Row - Full Width */}
                     <Grid container spacing={3} mb={3}>
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid item xs={12} sm={6} md={2.5}>
                             <FormControl fullWidth>
                                 <Autocomplete
                                     size="small"
@@ -866,7 +1085,7 @@ const Ageing = () => {
                                 />
                             </FormControl>
                         </Grid>
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid item xs={12} sm={6} md={2.5}>
                             <FormControl fullWidth>
                                 <Autocomplete
                                     size="small"
@@ -900,7 +1119,48 @@ const Ageing = () => {
                                 />
                             </FormControl>
                         </Grid>
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid item xs={12} sm={6} md={2.5}>
+                            <FormControl fullWidth>
+                                <Autocomplete
+                                    size="small"
+                                    options={periodOptions}
+                                    getOptionLabel={(option) => option.label || ''}
+                                    value={periodOptions.find(p => p.value === selectedPeriod) || null}
+                                    onChange={(_, newValue) => {
+                                        setSelectedPeriod(newValue?.value || '');
+                                        setErrors(prev => ({ ...prev, selectedPeriod: '' }));
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Aging Periods"
+                                            variant="outlined"
+                                            size="small"
+                                            error={Boolean(errors.selectedPeriod)}
+                                            helperText={errors.selectedPeriod}
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    borderRadius: 2,
+                                                },
+                                            }}
+                                        />
+                                    )}
+                                    renderOption={(props, option) => (
+                                        <Box component="li" {...props} sx={{ borderRadius: 1 }}>
+                                            <Box>
+                                                <Typography variant="body2" fontWeight={500}>
+                                                    {option.label}
+                                                </Typography>
+                                                <Typography variant="caption" color="text.secondary">
+                                                    {option.buckets.map(b => b.label.split(' ')[0]).join(' • ')}
+                                                </Typography>
+                                            </Box>
+                                        </Box>
+                                    )}
+                                />
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={2.5}>
                             <DateSelector
                                 label="As Of Date"
                                 size="small"
@@ -910,12 +1170,8 @@ const Ageing = () => {
                                 helperText={touched && !asOfDate ? 'As Of Date is required' : ''}
                             />
                         </Grid>
-                    </Grid>
-
-                    {/* Action Buttons Row - Right Aligned */}
-                    <Grid container>
-                        <Grid item xs={12}>
-                            <Stack direction="row" spacing={2} justifyContent="flex-end">
+                        <Grid item xs={12} md={2}>
+                            <Stack direction="row" spacing={1} sx={{ height: '100%', alignItems: 'flex-end' }}>
                                 <Button
                                     variant="outlined"
                                     size="small"
@@ -923,7 +1179,8 @@ const Ageing = () => {
                                     disabled={loader}
                                     sx={{ 
                                         borderRadius: 2,
-                                        minWidth: 80,
+                                        minWidth: 60,
+                                        height: 40
                                     }}
                                 >
                                     Reset
@@ -936,6 +1193,7 @@ const Ageing = () => {
                                     sx={{ 
                                         borderRadius: 2,
                                         minWidth: 80,
+                                        height: 40
                                     }}
                                 >
                                     {loader ? 'Loading...' : 'Generate'}
@@ -1022,6 +1280,7 @@ const Ageing = () => {
                             asOfDate: moment(asOfDate).format('DD-MM-YYYY'),
                             reportFormat: reportFormats.find(f => f.value === reportFormat)?.label || 'Standard Format',
                             reportType: reportTypes.find(f => f.value === reportType)?.label || 'Customer Aging',
+                            selectedPeriod: periodOptions.find(p => p.value === selectedPeriod)?.label || 'Standard Periods',
                             columns, // Pass the dynamic columns
                             summary,
                         }}
@@ -1031,21 +1290,21 @@ const Ageing = () => {
                                 '& .MuiTableHead-root': {
                                     '& .MuiTableRow-root': {
                                         bgcolor: alpha(theme.palette.primary.main, 0.08),
-                                        height: '56px', // Set consistent height for header rows
                                         '& .MuiTableCell-root': {
                                             fontWeight: 600,
                                             color: theme.palette.primary.main,
                                             borderBottom: `2px solid ${theme.palette.primary.main}`,
-                                            py: 1.5, // Match body row padding
-                                            height: '56px', // Set consistent height for header cells
-                                            lineHeight: '1.2', // Improve text alignment
-                                            verticalAlign: 'middle', // Center align vertically
+                                            py: 2,
+                                            px: 2,
+                                            fontSize: '0.875rem',
+                                            lineHeight: 1.4,
+                                            verticalAlign: 'middle',
+                                            minHeight: '56px',
                                         },
                                     },
                                 },
                                 '& .MuiTableBody-root': {
                                     '& .MuiTableRow-root': {
-                                        height: '56px', // Set consistent height for all body rows
                                         '&:hover': {
                                             bgcolor: alpha(theme.palette.primary.main, 0.04),
                                         },
@@ -1053,9 +1312,11 @@ const Ageing = () => {
                                             bgcolor: alpha(theme.palette.grey[500], 0.02),
                                         },
                                         '& .MuiTableCell-root': {
-                                            py: 1.5, // Default padding for all body cells
-                                            height: '56px',
+                                            py: 2,
+                                            px: 2,
                                             verticalAlign: 'middle',
+                                            minHeight: '56px',
+                                            fontSize: '0.875rem',
                                         },
                                     },
                                 },
@@ -1063,7 +1324,6 @@ const Ageing = () => {
                         }}
                         muiTableBodyRowProps={({ row }) => ({
                             sx: {
-                                minHeight: '56px', // Set consistent minimum height for all body rows
                                 ...(row.original?.is_header && {
                                     bgcolor: row.original?.customer_type === 'summary' 
                                         ? alpha(theme.palette.info.main, 0.12)
@@ -1075,11 +1335,17 @@ const Ageing = () => {
                                     },
                                     '& .MuiTableCell-root': {
                                         borderBottom: row.original?.customer_type === 'summary' 
-                                            ? `2px solid ${theme.palette.info.main}`
-                                            : `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
-                                        py: 1.5,
-                                        height: '56px',
+                                            ? `3px solid ${theme.palette.info.main}`
+                                            : `2px solid ${alpha(theme.palette.primary.main, 0.3)}`,
+                                        py: 2.5,
+                                        px: 2,
                                         verticalAlign: 'middle',
+                                        minHeight: '64px',
+                                        fontSize: '0.875rem',
+                                        fontWeight: 600,
+                                        backgroundColor: row.original?.customer_type === 'summary' 
+                                            ? alpha(theme.palette.info.main, 0.08)
+                                            : alpha(theme.palette.primary.main, 0.04),
                                     },
                                 }),
                                 // Color coding based on overdue status
@@ -1088,17 +1354,40 @@ const Ageing = () => {
                                     '&:hover': {
                                         bgcolor: alpha(theme.palette.error.main, 0.1),
                                     },
+                                    '& .MuiTableCell-root': {
+                                        py: 2,
+                                        px: 2,
+                                        minHeight: '56px',
+                                    },
                                 }),
                                 ...(!row.original?.is_header && row.original?.days_overdue > 60 && row.original?.days_overdue <= 120 && {
                                     bgcolor: alpha(theme.palette.warning.main, 0.05),
                                     '&:hover': {
                                         bgcolor: alpha(theme.palette.warning.main, 0.1),
                                     },
+                                    '& .MuiTableCell-root': {
+                                        py: 2,
+                                        px: 2,
+                                        minHeight: '56px',
+                                    },
                                 }),
                                 ...(!row.original?.is_header && row.original?.days_overdue > 30 && row.original?.days_overdue <= 60 && {
                                     bgcolor: alpha(theme.palette.info.main, 0.05),
                                     '&:hover': {
                                         bgcolor: alpha(theme.palette.info.main, 0.1),
+                                    },
+                                    '& .MuiTableCell-root': {
+                                        py: 2,
+                                        px: 2,
+                                        minHeight: '56px',
+                                    },
+                                }),
+                                // Default row styling for normal rows
+                                ...(!row.original?.is_header && (!row.original?.days_overdue || row.original?.days_overdue <= 30) && {
+                                    '& .MuiTableCell-root': {
+                                        py: 2,
+                                        px: 2,
+                                        minHeight: '56px',
                                     },
                                 }),
                             },
