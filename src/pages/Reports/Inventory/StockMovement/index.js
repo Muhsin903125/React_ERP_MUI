@@ -153,9 +153,13 @@ const StockMovement = () => {
         setFilteredData(mockData);
     }, []);
 
+    // Ensure data is always an array to prevent errors
+    const safeFilteredData = Array.isArray(filteredData) ? filteredData : [];
+    const safeData = Array.isArray(data) ? data : [];
+
     const handleQuickFilter = (filter) => {
         setSelectedQuickFilter(filter.value);
-        let filtered = [...data];
+        let filtered = [...safeData];
         
         if (typeof filter.value === 'number') {
             const filterDate = dayjs().subtract(filter.value, 'day');
@@ -179,7 +183,7 @@ const StockMovement = () => {
         setLoading(true);
         
         setTimeout(() => {
-            const filtered = data.filter(item => {
+            const filtered = safeData.filter(item => {
                 const itemDate = dayjs(item.movementDate);
                 const dateInRange = itemDate.isBetween(startDate, endDate, null, '[]');
                 const productMatch = !productFilter || item.product.toLowerCase().includes(productFilter.toLowerCase());
@@ -208,71 +212,71 @@ const StockMovement = () => {
         setVendorFilter('');
         setStatusFilter('');
         setSelectedQuickFilter(null);
-        setFilteredData(data);
+        setFilteredData(safeData);
     };
 
     // Calculate summary statistics
-    const totalMovements = filteredData.length;
-    const inwardMovements = filteredData.filter(item => item.direction === 'In').length;
-    const outwardMovements = filteredData.filter(item => item.direction === 'Out').length;
-    const totalInwardValue = filteredData
+    const totalMovements = safeFilteredData.length;
+    const inwardMovements = safeFilteredData.filter(item => item.direction === 'In').length;
+    const outwardMovements = safeFilteredData.filter(item => item.direction === 'Out').length;
+    const totalInwardValue = safeFilteredData
         .filter(item => item.direction === 'In')
         .reduce((sum, item) => sum + Math.abs(item.totalValue), 0);
-    const totalOutwardValue = filteredData
+    const totalOutwardValue = safeFilteredData
         .filter(item => item.direction === 'Out')
         .reduce((sum, item) => sum + Math.abs(item.totalValue), 0);
     const netValue = totalInwardValue - totalOutwardValue;
 
     // Get unique values for filters
-    const uniqueProducts = [...new Set(data.map(item => item.product))].sort();
-    const uniqueLocations = [...new Set(data.map(item => item.location))].sort();
-    const uniqueMovementTypes = [...new Set(data.map(item => item.movementType))].sort();
-    const uniqueCategories = [...new Set(data.map(item => item.category))].sort();
+    const uniqueProducts = [...new Set(safeData.map(item => item.product))].sort();
+    const uniqueLocations = [...new Set(safeData.map(item => item.location))].sort();
+    const uniqueMovementTypes = [...new Set(safeData.map(item => item.movementType))].sort();
+    const uniqueCategories = [...new Set(safeData.map(item => item.category))].sort();
     const uniqueDirections = ['In', 'Out'];
-    const uniqueVendors = [...new Set(data.map(item => item.vendor).filter(Boolean))].sort();
-    const uniqueStatuses = [...new Set(data.map(item => item.status))].sort();
+    const uniqueVendors = [...new Set(safeData.map(item => item.vendor).filter(Boolean))].sort();
+    const uniqueStatuses = [...new Set(safeData.map(item => item.status))].sort();
 
     const columns = [
         {
-            field: 'id',
-            headerName: 'Movement ID',
-            width: 130,
-            renderCell: (params) => (
+            accessorKey: 'id',
+            header: 'Movement ID',
+            size: 130,
+            Cell: ({ cell }) => (
                 <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.primary.main }}>
-                    {params.value}
+                    {cell.getValue()}
                 </Typography>
             )
         },
         {
-            field: 'movementDate',
-            headerName: 'Date',
-            width: 120,
-            renderCell: (params) => (
+            accessorKey: 'movementDate',
+            header: 'Date',
+            size: 120,
+            Cell: ({ cell }) => (
                 <Typography variant="body2">
-                    {dayjs(params.value).format('MMM DD, YYYY')}
+                    {dayjs(cell.getValue()).format('MMM DD, YYYY')}
                 </Typography>
             )
         },
         {
-            field: 'product',
-            headerName: 'Product',
-            width: 180,
-            renderCell: (params) => (
+            accessorKey: 'product',
+            header: 'Product',
+            size: 180,
+            Cell: ({ cell }) => (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <InventoryIcon sx={{ fontSize: 16, color: theme.palette.text.secondary }} />
                     <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                        {params.value}
+                        {cell.getValue()}
                     </Typography>
                 </Box>
             )
         },
         {
-            field: 'location',
-            headerName: 'Location',
-            width: 140,
-            renderCell: (params) => (
+            accessorKey: 'location',
+            header: 'Location',
+            size: 140,
+            Cell: ({ cell }) => (
                 <Chip 
-                    label={params.value} 
+                    label={cell.getValue()} 
                     size="small" 
                     sx={{ 
                         backgroundColor: alpha(theme.palette.info.main, 0.1),
@@ -283,96 +287,96 @@ const StockMovement = () => {
             )
         },
         {
-            field: 'movementType',
-            headerName: 'Movement Type',
-            width: 150,
-            renderCell: (params) => (
+            accessorKey: 'movementType',
+            header: 'Movement Type',
+            size: 150,
+            Cell: ({ cell }) => (
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    {params.value}
+                    {cell.getValue()}
                 </Typography>
             )
         },
         {
-            field: 'direction',
-            headerName: 'Direction',
-            width: 100,
-            align: 'center',
-            renderCell: (params) => (
+            accessorKey: 'direction',
+            header: 'Direction',
+            size: 100,
+            muiTableBodyCellProps: { align: 'center' },
+            Cell: ({ cell }) => (
                 <Chip 
-                    label={params.value}
+                    label={cell.getValue()}
                     size="small"
-                    color={params.value === 'In' ? 'success' : 'error'}
-                    icon={params.value === 'In' ? <AddIcon /> : <RemoveIcon />}
+                    color={cell.getValue() === 'In' ? 'success' : 'error'}
+                    icon={cell.getValue() === 'In' ? <AddIcon /> : <RemoveIcon />}
                     sx={{ fontWeight: 500 }}
                 />
             )
         },
         {
-            field: 'quantity',
-            headerName: 'Quantity',
-            width: 100,
-            align: 'right',
-            renderCell: (params) => (
+            accessorKey: 'quantity',
+            header: 'Quantity',
+            size: 100,
+            muiTableBodyCellProps: { align: 'right' },
+            Cell: ({ cell }) => (
                 <Typography 
                     variant="body2" 
                     sx={{ 
                         fontWeight: 600,
-                        color: params.value > 0 ? theme.palette.success.main : theme.palette.error.main
+                        color: cell.getValue() > 0 ? theme.palette.success.main : theme.palette.error.main
                     }}
                 >
-                    {params.value > 0 ? '+' : ''}{params.value.toLocaleString()}
+                    {cell.getValue() > 0 ? '+' : ''}{cell.getValue().toLocaleString()}
                 </Typography>
             )
         },
         {
-            field: 'unitCost',
-            headerName: 'Unit Cost',
-            width: 110,
-            align: 'right',
-            renderCell: (params) => (
+            accessorKey: 'unitCost',
+            header: 'Unit Cost',
+            size: 110,
+            muiTableBodyCellProps: { align: 'right' },
+            Cell: ({ cell }) => (
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    ${params.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    ${cell.getValue().toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </Typography>
             )
         },
         {
-            field: 'totalValue',
-            headerName: 'Total Value',
-            width: 120,
-            align: 'right',
-            renderCell: (params) => (
+            accessorKey: 'totalValue',
+            header: 'Total Value',
+            size: 120,
+            muiTableBodyCellProps: { align: 'right' },
+            Cell: ({ cell }) => (
                 <Typography 
                     variant="body2" 
                     sx={{ 
                         fontWeight: 600,
-                        color: params.value > 0 ? theme.palette.success.main : theme.palette.error.main
+                        color: cell.getValue() > 0 ? theme.palette.success.main : theme.palette.error.main
                     }}
                 >
-                    ${Math.abs(params.value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    ${Math.abs(cell.getValue()).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </Typography>
             )
         },
         {
-            field: 'referenceNo',
-            headerName: 'Reference',
-            width: 120,
-            renderCell: (params) => (
+            accessorKey: 'referenceNo',
+            header: 'Reference',
+            size: 120,
+            Cell: ({ cell }) => (
                 <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-                    {params.value}
+                    {cell.getValue()}
                 </Typography>
             )
         },
         {
-            field: 'status',
-            headerName: 'Status',
-            width: 100,
-            renderCell: (params) => (
+            accessorKey: 'status',
+            header: 'Status',
+            size: 100,
+            Cell: ({ cell }) => (
                 <Chip 
-                    label={params.value}
+                    label={cell.getValue()}
                     size="small"
                     color={
-                        params.value === 'Completed' ? 'success' :
-                        params.value === 'Pending' ? 'warning' : 'error'
+                        cell.getValue() === 'Completed' ? 'success' :
+                        cell.getValue() === 'Pending' ? 'warning' : 'error'
                     }
                     sx={{ fontWeight: 500 }}
                 />
@@ -383,7 +387,7 @@ const StockMovement = () => {
     if (showPrint) {
         return (
             <StockMovementPrint
-                data={filteredData}
+                data={safeFilteredData}
                 filters={{
                     startDate,
                     endDate,
@@ -733,28 +737,40 @@ const StockMovement = () => {
             {/* Data Table */}
             <Paper sx={{ height: 600, width: '100%' }}>
                 <DataTable
-                    rows={filteredData}
+                    data={safeFilteredData}
                     columns={columns}
-                    loading={loading}
-                    checkboxSelection
-                    disableRowSelectionOnClick
-                    sx={{
-                        '& .MuiDataGrid-cell': {
-                            borderColor: alpha(theme.palette.divider, 0.5),
+                    enablePagination
+                    enableSorting
+                    enableColumnHiding
+                    enableExport={false}
+                    fileTitle="Stock Movement Report"
+                    getRowId={(row) => row.id}
+                    muiTablePaperProps={{
+                        sx: {
+                            borderRadius: '12px',
+                            border: '1px solid',
+                            borderColor: 'divider',
                         },
-                        '& .MuiDataGrid-columnHeaders': {
-                            backgroundColor: alpha(theme.palette.primary.main, 0.05),
-                            borderColor: alpha(theme.palette.divider, 0.5),
-                        },
-                        '& .MuiDataGrid-row:hover': {
-                            backgroundColor: alpha(theme.palette.primary.main, 0.02),
+                    }}
+                    muiTableProps={{
+                        sx: {
+                            '& .MuiDataGrid-cell': {
+                                borderColor: alpha(theme.palette.divider, 0.5),
+                            },
+                            '& .MuiDataGrid-columnHeaders': {
+                                backgroundColor: alpha(theme.palette.primary.main, 0.05),
+                                borderColor: alpha(theme.palette.divider, 0.5),
+                            },
+                            '& .MuiDataGrid-row:hover': {
+                                backgroundColor: alpha(theme.palette.primary.main, 0.02),
+                            }
                         }
                     }}
                 />
             </Paper>
 
             {/* Movement Analysis */}
-            {filteredData.length > 0 && (
+            {safeFilteredData.length > 0 && (
                 <Grid container spacing={3} sx={{ mt: 2 }}>
                     <Grid item xs={12} md={6}>
                         <Card>
@@ -766,25 +782,25 @@ const StockMovement = () => {
                                     <Stack direction="row" justifyContent="space-between" alignItems="center">
                                         <Typography variant="body2">Purchase Receipts:</Typography>
                                         <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.success.main }}>
-                                            {filteredData.filter(item => item.movementType === 'Purchase Receipt').length}
+                                            {safeFilteredData.filter(item => item.movementType === 'Purchase Receipt').length}
                                         </Typography>
                                     </Stack>
                                     <Stack direction="row" justifyContent="space-between" alignItems="center">
                                         <Typography variant="body2">Sales Issues:</Typography>
                                         <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.error.main }}>
-                                            {filteredData.filter(item => item.movementType === 'Sales Issue').length}
+                                            {safeFilteredData.filter(item => item.movementType === 'Sales Issue').length}
                                         </Typography>
                                     </Stack>
                                     <Stack direction="row" justifyContent="space-between" alignItems="center">
                                         <Typography variant="body2">Transfers:</Typography>
                                         <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.info.main }}>
-                                            {filteredData.filter(item => item.movementType.includes('Transfer')).length}
+                                            {safeFilteredData.filter(item => item.movementType.includes('Transfer')).length}
                                         </Typography>
                                     </Stack>
                                     <Stack direction="row" justifyContent="space-between" alignItems="center">
                                         <Typography variant="body2">Adjustments:</Typography>
                                         <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.warning.main }}>
-                                            {filteredData.filter(item => item.movementType.includes('Adjustment')).length}
+                                            {safeFilteredData.filter(item => item.movementType.includes('Adjustment')).length}
                                         </Typography>
                                     </Stack>
                                 </Stack>
