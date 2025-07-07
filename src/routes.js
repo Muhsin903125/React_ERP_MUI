@@ -80,6 +80,7 @@ import PAndL from './pages/Reports/Finance/PAndL';
 import BalanceSheet from './pages/Reports/Finance/BalanceSheet';
 import Ageing from './pages/Reports/Finance/Ageing';
 import SalesSummary from './pages/Reports/Sales/Summary';
+import SalesAnalysis from './pages/Reports/Sales/Analysis';
 
 // ----------------------------------------------------------------------
 
@@ -152,12 +153,10 @@ const adminMenus = [
   { path: 'pl', element: <PAndL /> }, 
   { path: 'balance-sheet', element: <BalanceSheet /> }, 
 
-  { path: 'ageing', element: <Ageing /> },
-  { path: 'ageing-entry', element: <ComingSoon title="Ageing Entry" /> },
-  { path: 'ageing-entry/:id', element: <ComingSoon title="Ageing Entry" /> },
+  { path: 'ageing', element: <Ageing /> }, 
 
   { path: 'sales-summary', element: <SalesSummary /> },
-  { path: 'sales-analysis', element: <ComingSoon title="Sales Analysis" /> },
+  { path: 'sales-analysis', element: <SalesAnalysis /> },
 
   { path: 'purchase-summary', element: <ComingSoon title="Purchase Summary" /> },
   { path: 'purchase-analysis', element: <ComingSoon title="Purchase Analysis" /> },
