@@ -1610,7 +1610,175 @@
                 padding: 1.5rem;
             }
         }
+
+        .website-packages-section-modern {
+            padding: 7rem 0 7rem 0;
+            background: linear-gradient(135deg, rgba(51,102,255,0.08) 0%, rgba(0,167,111,0.08) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .modern-packages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
+            margin-top: 3rem;
+        }
+        .modern-package-card {
+            background: rgba(33, 43, 54, 0.95);
+            padding: 2.8rem 2.2rem 2.2rem 2.2rem;
+            border-radius: 28px;
+            border: none;
+            box-shadow: 0 8px 32px rgba(51, 102, 255, 0.10), 0 1.5px 8px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            transition: transform 0.25s cubic-bezier(.4,2,.6,1), box-shadow 0.25s;
+        }
+        .modern-package-card:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 16px 48px rgba(51, 102, 255, 0.18), 0 2px 12px rgba(0,0,0,0.10);
+        }
+        .modern-popular {
+            border: 2.5px solid var(--primary);
+            box-shadow: 0 16px 48px rgba(51, 102, 255, 0.18), 0 2px 12px rgba(0,0,0,0.10);
+            background: rgba(33, 43, 54, 0.99);
+        }
+        .modern-popular-ribbon {
+            position: absolute;
+            top: 1.2rem;
+            right: -2.2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: #fff;
+            padding: 0.5rem 3.2rem;
+            transform: rotate(45deg);
+            font-size: 0.85rem;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(51, 102, 255, 0.18);
+            z-index: 2;
+        }
+        .modern-package-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.2rem;
+            font-size: 2.2rem;
+            color: #fff;
+            box-shadow: 0 2px 12px rgba(51,102,255,0.10);
+        }
+        .modern-package-header h3 {
+            font-size: 1.35rem;
+            color: var(--text-primary);
+            margin-bottom: 0.3rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            text-align: center;
+        }
+        .modern-package-price {
+            font-size: 2.1rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+        .modern-package-desc {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            margin-bottom: 1.2rem;
+            text-align: center;
+        }
+        .modern-package-features {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 1.2rem;
+            width: 100%;
+        }
+        .modern-package-features li {
+            color: var(--text-secondary);
+            margin-bottom: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            font-size: 1.05rem;
+        }
+        .modern-package-features li i {
+            color: var(--secondary);
+            font-size: 1.1rem;
+            background: rgba(0, 167, 111, 0.13);
+            padding: 0.3rem;
+            border-radius: 50%;
+        }
+        .modern-package-support {
+            color: var(--text-secondary);
+            font-size: 1.01rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1.2rem;
+            text-align: center;
+            width: 100%;
+        }
+        .modern-btn {
+            width: 100%;
+            justify-content: center;
+            padding: 1.1rem 0;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 0.01em;
+            transition: all 0.2s cubic-bezier(.4,2,.6,1);
+            display: inline-flex;
+            align-items: center;
+            border: none;
+            text-decoration: none;
+            margin-top: 0.2rem;
+        }
+        .modern-btn-primary {
+            background: var(--gradient);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(51,102,255,0.10);
+        }
+        .modern-btn-secondary {
+            background: rgba(51, 102, 255, 0.08);
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        .modern-btn:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 24px rgba(51, 102, 255, 0.13);
+        }
+        @media (max-width: 900px) {
+            .modern-packages-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .modern-package-card {
+                padding: 2rem 1.2rem 1.5rem 1.2rem;
+            }
+        }
+        @media (max-width: 600px) {
+            .website-packages-section-modern {
+                padding: 3.5rem 0 3.5rem 0;
+            }
+            .modern-package-card {
+                padding: 1.2rem 0.7rem 1.2rem 0.7rem;
+            }
+            .modern-package-header h3 {
+                font-size: 1.1rem;
+            }
+            .modern-package-price {
+                font-size: 1.4rem;
+            }
+        }
     </style>
+    <!-- SEO for Website Design Packages -->
+    <meta name="website-design-title" content="Website Design Packages Dubai | Custom Business Websites | Exapp">
+    <meta name="website-design-description" content="Affordable, professional website design and development packages for businesses in Dubai and UAE. Custom design, hosting, SEO, mobile responsive, and ongoing support included. Get your business online with Exapp.">
+    <meta name="website-design-keywords" content="website design Dubai, business website, web development, SEO website, responsive website, web design packages, UAE, hosting, custom website, exapp">
 </head>
 
 <body>
@@ -1642,17 +1810,16 @@
             <div class="container hero-content">
                 <div class="hero-text animate">
                     <h1 id="hero-title">Transform Your Business with Smart Solutions</h1>
-                    <p>Experience the next generation of enterprise resource planning. Streamline operations, boost
-                        productivity, and drive growth with our comprehensive suite of business tools.</p>
+                    <p>Experience the next generation of enterprise resource planning <strong>and get your own professional business website</strong>. Streamline operations, boost productivity, and drive growth with our comprehensive suite of business tools and website development services.</p>
                     <div class="cta-buttons" role="group" aria-label="Call to action buttons">
-                        <a href="#contact" class="btn btn-primary" role="button" aria-label="Get Started with Exapp">
+                        <a href="#website-packages" class="btn btn-primary" role="button" aria-label="Get a Website for Your Business">
+                            <i class="fas fa-laptop-code" aria-hidden="true"></i>
+                            Website Packages
+                        </a>
+                        <a href="#contact" class="btn btn-secondary" role="button" aria-label="Contact Exapp">
                             <i class="fas fa-rocket" aria-hidden="true"></i>
                             Get Started
                         </a>
-                        <!-- <a href="/demo" class="btn btn-secondary" role="button" aria-label="Watch Demo Video">
-                            <i class="fas fa-play" aria-hidden="true"></i>
-                            Watch Demo
-                        </a> -->
                     </div>
                 </div>
                 <div class="hero-image animate delay-1">
@@ -1685,35 +1852,40 @@
         <div class="container">
             <div class="section-title animate">
                 <h2>Powerful Features</h2>
-                <p>Everything you need to manage your business efficiently in one place</p>
+                <p>Everything you need to manage your business efficiently in one place — <strong>including custom website design and development for your business</strong></p>
             </div>
             <div class="features-grid">
                 <div class="feature-card animate delay-1">
+                    <i class="fas fa-laptop-code feature-icon"></i>
+                    <h3>Website Design & Development</h3>
+                    <p>Get a modern, SEO-friendly, and mobile responsive website for your business. Choose from our affordable packages with hosting and ongoing support included.</p>
+                </div>
+                <div class="feature-card animate delay-2">
                     <i class="fas fa-chart-line feature-icon"></i>
                     <h3>Advanced Analytics</h3>
                     <p>Get real-time insights with our powerful analytics tools and customizable dashboards.</p>
                 </div>
-                <div class="feature-card animate delay-2">
+                <div class="feature-card animate delay-3">
                     <i class="fas fa-shield-alt feature-icon"></i>
                     <h3>Enterprise Security</h3>
                     <p>Bank-grade security with end-to-end encryption and multi-factor authentication.</p>
                 </div>
-                <div class="feature-card animate delay-3">
+                <div class="feature-card animate delay-4">
                     <i class="fas fa-sync feature-icon"></i>
                     <h3>Real-time Sync</h3>
                     <p>Stay synchronized across all devices with instant updates and cloud backup.</p>
                 </div>
-                <div class="feature-card animate delay-4">
+                <div class="feature-card animate delay-1">
                     <i class="fas fa-mobile-alt feature-icon"></i>
                     <h3>Mobile Ready</h3>
                     <p>Access your business data anywhere, anytime with our responsive mobile app.</p>
                 </div>
-                <div class="feature-card animate delay-1">
+                <!-- <div class="feature-card animate delay-2">
                     <i class="fas fa-robot feature-icon"></i>
                     <h3>AI Automation</h3>
                     <p>Automate routine tasks with our intelligent AI-powered workflow system.</p>
-                </div>
-                <div class="feature-card animate delay-2">
+                </div> -->
+                <div class="feature-card animate delay-3">
                     <i class="fas fa-comments feature-icon"></i>
                     <h3>24/7 Support</h3>
                     <p>Get instant help from our dedicated support team whenever you need it.</p>
@@ -2001,6 +2173,82 @@
         </div>
     </section>
 
+
+    <!-- WhatsApp Button -->
+    <a href="https://wa.me/971582366125" target="_blank" class="whatsapp-button" aria-label="Contact us on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+        <span class="whatsapp-tooltip">Chat with us on WhatsApp</span>
+    </a>
+
+    <!-- Website Design Packages Section -->
+    <section class="website-packages-section-modern" id="website-packages">
+        <div class="container">
+            <div class="section-title animate">
+                <h2>Website Design Packages</h2>
+                <p>Get a professional online presence for your business. Choose the package that fits your needs!</p>
+            </div>
+            <div class="modern-packages-grid">
+                <!-- Starter Package -->
+                <div class="modern-package-card animate delay-1">
+                    <div class="modern-package-icon" style="background: linear-gradient(135deg, #00A76F 0%, #3366FF 100%);"><i class="fas fa-rocket"></i></div>
+                    <div class="modern-package-header">
+                        <h3>Starter Website Package</h3>
+                        <div class="modern-package-price"><img src="./AED_Symbol.svg" alt="AED" style="width: 24px; height: 24px; vertical-align: middle;" /> 800</div>
+                        <p class="modern-package-desc">Perfect for startups and small businesses</p>
+                    </div>
+                    <ul class="modern-package-features">
+                        <li><i class="fas fa-check-circle"></i> Custom Website Design</li>
+                        <li><i class="fas fa-check-circle"></i> 1 Year Hosting Included</li>
+                        <li><i class="fas fa-check-circle"></i> Mobile & Tablet Responsive</li>
+                        <li><i class="fas fa-check-circle"></i> Basic SEO Setup</li>
+                        <li><i class="fas fa-check-circle"></i> Social Media Integration</li>
+                    </ul>
+                    <div class="modern-package-support">🔧 Ongoing Support: <strong>AED 250/year</strong></div>
+                    <a href="#contact" class="modern-btn modern-btn-secondary">Get Started</a>
+                </div>
+                <!-- Professional Package -->
+                <div class="modern-package-card modern-popular animate delay-2">
+                    <div class="modern-popular-ribbon">Most Popular</div>
+                    <div class="modern-package-icon" style="background: linear-gradient(135deg, #3366FF 0%, #00A76F 100%);"><i class="fas fa-gem"></i></div>
+                    <div class="modern-package-header">
+                        <h3>Professional Website Design</h3>
+                        <div class="modern-package-price"><img src="./AED_Symbol.svg" alt="AED" style="width: 24px; height: 24px; vertical-align: middle;" /> 1200</div>
+                        <p class="modern-package-desc">Best value for growing businesses</p>
+                    </div>
+                    <ul class="modern-package-features">
+                        <li><i class="fas fa-check-circle"></i> Custom Website Design</li>
+                        <li><i class="fas fa-check-circle"></i> 1 Year Hosting Included</li>
+                        <li><i class="fas fa-check-circle"></i> SEO-Friendly Setup</li>
+                        <li><i class="fas fa-check-circle"></i> Social Media Integration</li>
+                        <li><i class="fas fa-check-circle"></i> Mobile & Tablet Responsive</li>
+                    </ul>
+                    <div class="modern-package-support">🔧 Ongoing Support: <strong>AED 250/year</strong></div>
+                    <a href="#contact" class="modern-btn modern-btn-primary">Get Started</a>
+                </div>
+                <!-- Premium Package -->
+                <div class="modern-package-card animate delay-3">
+                    <div class="modern-package-icon" style="background: linear-gradient(135deg, #FF5630 0%, #3366FF 100%);"><i class="fas fa-crown"></i></div>
+                    <div class="modern-package-header">
+                        <h3>Premium Website Package</h3>
+                        <div class="modern-package-price"><img src="./AED_Symbol.svg" alt="AED" style="width: 24px; height: 24px; vertical-align: middle;" /> 2500</div>
+                        <p class="modern-package-desc">For businesses that want it all</p>
+                    </div>
+                    <ul class="modern-package-features">
+                        <li><i class="fas fa-check-circle"></i> Custom Website Design</li>
+                        <li><i class="fas fa-check-circle"></i> 1 Year Hosting Included</li>
+                        <li><i class="fas fa-check-circle"></i> Advanced SEO & Analytics</li>
+                        <li><i class="fas fa-check-circle"></i> Social Media Integration</li>
+                        <li><i class="fas fa-check-circle"></i> Mobile & Tablet Responsive</li>
+                        <li><i class="fas fa-check-circle"></i> Priority Support</li>
+                        <li><i class="fas fa-check-circle"></i> Custom Features (Blog, Gallery, etc.)</li>
+                    </ul>
+                    <div class="modern-package-support">🔧 Ongoing Support: <strong>AED 250/year</strong></div>
+                    <a href="#contact" class="modern-btn modern-btn-secondary">Get Started</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- End Website Design Packages Section -->
     <!-- Contact Section -->
     <section class="contact-section" id="contact">
         <div class="container">
@@ -2063,12 +2311,6 @@
             </div>
         </div>
     </section>
-
-    <!-- WhatsApp Button -->
-    <a href="https://wa.me/971582366125" target="_blank" class="whatsapp-button" aria-label="Contact us on WhatsApp">
-        <i class="fab fa-whatsapp"></i>
-        <span class="whatsapp-tooltip">Chat with us on WhatsApp</span>
-    </a>
 
     <!-- Footer -->
     <footer>
